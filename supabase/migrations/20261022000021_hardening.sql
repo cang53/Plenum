@@ -5,7 +5,8 @@ create table public.platform_limits (
   value int not null check (value >= 0)
 );
 alter table public.platform_limits enable row level security;
--- No policies: only the service role and the SQL editor can read or change limits.
+-- No policies and no grants: only the service role and the SQL editor can read or change limits.
+revoke all on public.platform_limits from authenticated, anon;
 insert into public.platform_limits values ('max_workspaces', 25);
 
 create or replace function public.onboard(workspace_name text, project_name text, slug text, with_demo boolean)
