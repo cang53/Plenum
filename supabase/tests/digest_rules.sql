@@ -36,3 +36,25 @@ begin
     raise exception 'digest includes a person who did not opt in';
   end if;
 end $$;
+
+-- S6-9: Mo switches both parts off; the digest rows stay but carry nothing to send.
+update public.profiles set digest_suggestions = false, digest_due = false where id = '00000000-0000-0000-0000-00000000000c';
+do $$
+begin
+  if exists (select 1 from public.daily_digests() where user_id = '00000000-0000-0000-0000-00000000000c'
+    and (cardinality(new_suggestions) > 0 or cardinality(due_tasks) > 0)) then
+    raise exception 'digest part sent after the person switched it off';
+  end if;
+end $$;
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+-- Mo cannot change Pia's preferences.
+update public.profiles set digest_due = false where id = '00000000-0000-0000-0000-00000000000b';
+commit;
+do $$
+begin
+  if not (select digest_due from public.profiles where id = '00000000-0000-0000-0000-00000000000b') then
+    raise exception 'a person changed someone else''s email preferences';
+  end if;
+end $$;

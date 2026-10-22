@@ -13,15 +13,18 @@ export default async function NotificationsPage({ searchParams }: { searchParams
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const rows = await listNotifications(supabase, project.id);
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: me } = await supabase.from("profiles").select("digest_daily").eq("id", user?.id ?? "").maybeSingle();
+  const { data: me } = await supabase.from("profiles").select("digest_daily, digest_suggestions, digest_due").eq("id", user?.id ?? "").maybeSingle();
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
       <h1>{t("notifications.title")}</h1>
       <p className="intro">{t("notifications.intro")}</p>
-      <form action={saveDigest}>
-        <label><input type="checkbox" name="digest" defaultChecked={me?.digest_daily ?? false} /> {t("digest.label")}</label>{" "}
-        <button type="submit">{t("digest.save")}</button>
+      <form action={saveDigest} className="surface">
+        <h2>{t("digest.heading")}</h2>
+        <p><label><input type="checkbox" name="digest" defaultChecked={me?.digest_daily ?? false} /> {t("digest.label")}</label></p>
+        <p><label><input type="checkbox" name="suggestions" defaultChecked={me?.digest_suggestions ?? true} /> {t("digest.partSuggestions")}</label></p>
+        <p><label><input type="checkbox" name="due" defaultChecked={me?.digest_due ?? true} /> {t("digest.partDue")}</label></p>
+        <button type="submit" className="btn btn-primary">{t("digest.save")}</button>
       </form>
       {rows.length === 0 ? <p>{t("notifications.empty")}</p> : (
         <>
