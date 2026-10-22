@@ -59,6 +59,7 @@ export async function changeRole(form: FormData): Promise<void> {
   if (error) throw error;
   if (!data?.length) throw new Error("not allowed");
   revalidatePath("/app/members");
+  revalidatePath("/app/roles");
 }
 
 export async function removeMember(form: FormData): Promise<void> {
