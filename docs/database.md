@@ -5,7 +5,7 @@ Plenum runs on one Supabase project, **Plenum** (ref `uwimagjkbwourvepvtns`), in
 ## Migrations
 - The files in `supabase/migrations/` are the source of truth. Add a new file for every change; never edit one that has been applied.
 - File names are `YYYYMMDDNNNNNN_name.sql`. The hosted project records its own timestamps, so the names there differ but the order and content match.
-- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down, 5 message links, 6 suggestions, 7 audit log (not yet applied).
+- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down, 5 message links, 6 suggestions, 7 audit log, 8 audit of task edits, 9 demo seed (7 to 9 not yet applied).
 
 ## Checking a change
 1. `npm run test:db` runs every migration and the access-rule tests on a throwaway local Postgres (CI does the same).
@@ -37,3 +37,7 @@ creating a decision, risk, change request or message-linked task. Each row has t
 and its source message. Rows cannot be changed or removed. Project managers read their project's rows;
 workspace admins read the workspace's. `auditCsv` (`src/domain/audit.ts`) turns rows into the export
 file; the download button waits for sign-in (task 3). Email sends will log through `write_audit`.
+
+## Audit of task edits and the demo seed (migrations 8 and 9)
+
+Changes to a task's status, dates or owner are written to the audit log by the database, under the person who made them. `public.seed_demo_project(workspace, manager)` (service role only) adds the example project; see `docs/pilot-onboarding.md`.
