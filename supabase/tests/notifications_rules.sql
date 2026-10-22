@@ -43,5 +43,15 @@ begin
   if exists (select 1 from notifications) then raise exception 'outsider saw notifications'; end if;
 end $$;
 
+-- Once Mo has left the project, the old notifications about it are gone from Mo's list.
+reset role;
+delete from public.project_members where user_id = '00000000-0000-0000-0000-00000000000c';
+set role authenticated;
+do $$
+begin
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+  if exists (select 1 from notifications) then raise exception 'a former member still sees project notifications'; end if;
+end $$;
+
 reset role;
 \echo 'notification rules: all checks passed'

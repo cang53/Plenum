@@ -18,9 +18,11 @@ create index on public.notifications (user_id, created_at desc);
 alter table public.notifications enable row level security;
 
 create policy "read your notifications" on public.notifications
-for select using (user_id = auth.uid());
+-- Titles belong to the project, so a person who has left it stops seeing them.
+for select using (user_id = auth.uid() and public.can_see_project(project_id));
 create policy "mark your notifications read" on public.notifications
-for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+for update using (user_id = auth.uid() and public.can_see_project(project_id))
+with check (user_id = auth.uid() and public.can_see_project(project_id));
 
 revoke all on public.notifications from authenticated;
 grant select on public.notifications to authenticated;

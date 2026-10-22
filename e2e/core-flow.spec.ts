@@ -77,7 +77,7 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
 
   // The signed-in pages have no axe violations either.
   const project = new URL(boardUrl!, "http://x").search;
-  for (const path of ["/app", "/app/board", "/app/timeline", "/app/items", "/app/audit", "/app/members"]) {
+  for (const path of ["/app", "/app/board", "/app/timeline", "/app/items", "/app/audit", "/app/members", "/app/notifications"]) {
     await page.goto(`${path}${project}`);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
