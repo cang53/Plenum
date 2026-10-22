@@ -32,3 +32,19 @@ begin
   end;
   raise notice 'settings rules: all checks passed';
 end $$;
+
+-- An old address stays reserved: another workspace cannot take it, and mail to it finds no project.
+reset role;
+do $$
+begin
+  if not exists (select 1 from public.retired_slugs where slug is not null) then
+    raise exception 'old address was not reserved';
+  end if;
+  begin
+    insert into public.projects (workspace_id, name, email_slug)
+    select '10000000-0000-0000-0000-000000000001', 'Squatter', slug from public.retired_slugs limit 1;
+    raise exception 'a retired address was reused';
+  exception when unique_violation then null;
+  end;
+end $$;
+\echo 'settings rules: retired address checks passed'
