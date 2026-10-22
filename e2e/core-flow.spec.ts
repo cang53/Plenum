@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const admin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
@@ -70,4 +71,13 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   await card.getByLabel("Status").selectOption("in_progress");
   await page.reload();
   await expect(page.getByRole("region", { name: "In progress" }).getByText(subject)).toBeVisible();
+
+  // The signed-in pages have no axe violations either.
+  const project = new URL(boardUrl!, "http://x").search;
+  for (const path of ["/app", "/app/board", "/app/timeline", "/app/items", "/app/audit", "/app/members"]) {
+    await page.goto(`${path}${project}`);
+    await expect(page.getByRole("heading", { level: 1 }).or(page.getByRole("link", { name: "Board" }))).toBeVisible();
+    const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+    expect(violations.map((v) => `${path} ${v.id}: ${v.nodes[0]?.target}`)).toEqual([]);
+  }
 });
