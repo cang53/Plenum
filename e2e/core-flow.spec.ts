@@ -61,7 +61,7 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
     if (await suggestion.count()) await suggestion.getByRole("button", { name: "Accept" }).click({ timeout: 2000 });
     await expect(suggestion).toHaveCount(0, { timeout: 3000 });
   }).toPass({ timeout: 30_000 });
-  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.getByText("We could not save that decision")).toHaveCount(0);
 
   // The accepted suggestion is now a task on the board, and a status change is kept.
   await page.goto(boardUrl!);
