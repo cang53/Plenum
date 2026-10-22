@@ -31,3 +31,97 @@ body {
 .status {
   color: var(--muted);
 }
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.page h1 {
+  margin: 0;
+}
+
+.eyebrow,
+.intro,
+.meta,
+.empty,
+.count {
+  color: var(--muted);
+}
+
+.notice {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #fdebdd;
+  color: #8a3a0d;
+  font-size: 14px;
+}
+
+.board-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.board-filters label,
+.status-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+select {
+  min-height: 36px;
+  border: 1px solid #c9d1da;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
+.board-scroll {
+  overflow-x: auto;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 12px;
+  min-width: 920px;
+}
+
+.board-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #e9eef2;
+  min-height: 200px;
+}
+
+.board-column h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.card {
+  padding: 12px;
+  border: 1px solid #dce2e8;
+  border-radius: 10px;
+  background: #fff;
+  cursor: grab;
+}
+
+.card h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.card .meta {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
