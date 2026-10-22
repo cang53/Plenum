@@ -1,6 +1,6 @@
 import { authProvider } from "@/auth/provider";
 import { getT } from "@/lib/locale";
-import { sendLink } from "./actions";
+import { sendLink, signInWithEntra } from "./actions";
 
 export default async function Login({
   searchParams,
@@ -13,7 +13,11 @@ export default async function Login({
     <main id="main" className="home">
       <h1>{t("login.title")}</h1>
       {authProvider() === "entra" ? (
-        <p>{t("login.entraSoon")}</p>
+        <form action={signInWithEntra}>
+          {error && <p role="alert">{t("login.entraError")}</p>}
+          <input type="hidden" name="next" value={next ?? ""} />
+          <button type="submit">{t("login.entra")}</button>
+        </form>
       ) : sent ? (
         <p role="status">{t("login.sent")}</p>
       ) : (
