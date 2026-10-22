@@ -14,7 +14,11 @@ let user = users.find((u) => u.email === email)?.id;
 if (!user) user = ok(await admin.auth.admin.createUser({ email, email_confirm: true })).user.id;
 
 ok(await admin.from("profiles").upsert({ id: user, display_name: "Demo manager", email }));
-const ws = ok(await admin.from("workspaces").insert({ name: "Demo workspace" }).select("id").single());
-ok(await admin.from("workspace_members").insert({ workspace_id: ws.id, user_id: user, kind: "staff", is_admin: true }));
-ok(await admin.rpc("seed_demo_project", { ws: ws.id, manager: user }));
-console.log(`Seeded a demo project for ${email}. Sign in at http://localhost:3000/login`);
+let ws = ok(await admin.from("workspace_members").select("workspace_id").eq("user_id", user).limit(1))[0]?.workspace_id;
+if (!ws) {
+  ws = ok(await admin.from("workspaces").insert({ name: "Demo workspace" }).select("id").single()).id;
+  ok(await admin.from("workspace_members").insert({ workspace_id: ws, user_id: user, kind: "staff", is_admin: true }));
+}
+const projects = ok(await admin.from("projects").select("id").eq("workspace_id", ws).limit(1));
+if (projects.length === 0) ok(await admin.rpc("seed_demo_project", { ws, manager: user }));
+console.log(`${projects.length ? "Already seeded" : "Seeded a demo project"} for ${email}. Sign in at http://localhost:3000/login`);
