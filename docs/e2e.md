@@ -9,7 +9,7 @@ supabase start                     # applies supabase/migrations
 supabase status -o env             # copy API_URL, ANON_KEY, SERVICE_ROLE_KEY
 ```
 
-Then set these in `.env.local` (or the shell) and run `npm run test:e2e`:
+Then set these in the shell, or in `.env.local` and run `node --env-file=.env.local node_modules/.bin/playwright test` (Playwright does not read `.env.local` by itself; `npm run test:e2e` needs them in the shell). If Chromium is installed elsewhere, set `PLAYWRIGHT_CHROMIUM_PATH`:
 
 ```
 SUPABASE_URL=<API_URL>
