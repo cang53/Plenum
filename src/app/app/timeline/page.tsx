@@ -11,14 +11,14 @@ export const dynamic = "force-dynamic";
 export default async function TimelinePage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), (await searchParams).project);
-  if (!project) return <main className="page"><p>{t("projects.empty")}</p></main>;
+  if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const [messages, suggestions, linked] = await Promise.all([
     listTimelineMessages(supabase, project.id),
     listPendingSuggestions(supabase, project.id),
     listLinkedItems(supabase, project.id),
   ]);
   return (
-    <main className="page">
+    <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
       <h1>{t("timeline.title")}</h1>
       <p className="intro">{t("timeline.intro")}</p>

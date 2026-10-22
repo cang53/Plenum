@@ -8,7 +8,7 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const projects = await listProjects(supabase);
   const current = currentProject(projects, (await searchParams).project);
   return (
-    <main className="home">
+    <main id="main" className="home">
       <h1>{t("app.signedIn")}</h1>
       <p>{data.user?.email}</p>
       <nav aria-label={t("projects.title")}>

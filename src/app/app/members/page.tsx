@@ -7,11 +7,11 @@ import { changeRole, invite, removeMember, withdraw } from "./actions";
 export default async function MembersPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), (await searchParams).project);
-  if (!project) return <main className="page"><p>{t("projects.empty")}</p></main>;
+  if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const [members, invitations] = await Promise.all([listMembers(supabase, project.id), listInvitations(supabase, project.id)]);
   const roleOptions = ROLES.map((r) => <option key={r} value={r}>{t(`role.${r}`)}</option>);
   return (
-    <main className="page">
+    <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
       <h1>{t("members.title")}</h1>
       <p className="intro">{t("members.intro")}</p>

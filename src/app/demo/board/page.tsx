@@ -4,7 +4,7 @@ import { Board } from "./Board";
 
 export default function DemoBoardPage() {
   return (
-    <main className="page">
+    <main id="main" className="page">
       <p className="eyebrow">{demoProject.name}</p>
       <h1>{t("board.title")}</h1>
       <p className="intro">{t("board.intro")}</p>

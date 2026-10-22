@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default function DemoTimelinePage() {
   const now = new Date();
   return (
-    <main className="page">
+    <main id="main" className="page">
       <p className="eyebrow">{demoProject.name}</p>
       <h1>{t("timeline.title")}</h1>
       <p className="intro">{t("timeline.intro")}</p>

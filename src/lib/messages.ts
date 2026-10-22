@@ -2,6 +2,10 @@
 export const messages = {
   en: {
     "app.name": "Plenum",
+    "app.skip": "Skip to main content",
+    "app.loading": "Loading…",
+    "app.error": "Something went wrong on our side. Your data is safe.",
+    "app.retry": "Try again",
     "app.tagline":
       "One project timeline for industrial teams. Teams messages and emails become tasks, decisions and reports, and a person approves every AI suggestion.",
     "home.status": "Under construction: stage 2, the core loop.",
