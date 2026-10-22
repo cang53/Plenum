@@ -23,7 +23,7 @@ CI runs `npm run check:switches` on every pull request, so a misconfigured defau
 | `APP_URL` | no | always | Public site URL, used in email links |
 | `DIGEST_SECRET` | **yes** | for the digest | Without it `/api/digest` returns 403 |
 | `AUTH_PROVIDER` | no | optional | `supabase` (default) or `entra` |
-| `EMAIL_PROVIDER` | no | optional | `fake` (default) or `ses` |
+| `EMAIL_PROVIDER` | no | optional | `fake` (default) or `ses`; `ses` also needs `SES_FROM_ADDRESS`, `AWS_REGION` (EU) and AWS keys |
 | `AI_PROVIDER` | no | optional | `rules` (default) or `bedrock` |
 | `SES_FROM_ADDRESS` | no | if `ses` | Verified sender |
 | `BEDROCK_MODEL_ID`, `BEDROCK_REGION` | no | if `bedrock` | EU profile id and EU region |

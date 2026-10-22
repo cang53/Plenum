@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { outboxSender } from "./email";
+import { outboxSender, sesSender } from "./email";
 import { handlePastedMessage } from "./dev-inbound";
 
 describe("fake email sender", () => {
@@ -26,5 +26,35 @@ describe("pasted inbound message", () => {
   it("rejects missing fields and unknown projects", async () => {
     expect((await handlePastedMessage({ from: "a@x.com" }, async () => "m")).status).toBe(400);
     expect((await handlePastedMessage({ slug: "nope", from: "a@x.com" }, async () => null)).status).toBe(404);
+  });
+});
+
+describe("ses sender", () => {
+  const mail = { workspaceId: "w", to: ["a@x.com"], subject: "Hi", bodyText: "Body" };
+  const cmd = (i: unknown) => i;
+  const wait = async () => {};
+
+  it("sends and records it as sent", async () => {
+    const sent: unknown[] = [];
+    const rows: Record<string, unknown>[] = [];
+    await sesSender({ send: async (c) => void sent.push(c) }, "me@x.com", cmd, async (r) => void rows.push(r), { wait }).send(mail);
+    expect(sent).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ status: "sent", error: null, to_addresses: ["a@x.com"] });
+  });
+
+  it("retries, then succeeds", async () => {
+    let calls = 0;
+    const rows: Record<string, unknown>[] = [];
+    const client = { send: async () => { if (++calls < 3) throw new Error("throttled"); } };
+    await sesSender(client, "me@x.com", cmd, async (r) => void rows.push(r), { wait }).send(mail);
+    expect(calls).toBe(3);
+    expect(rows[0]).toMatchObject({ status: "sent" });
+  });
+
+  it("records a failure after the last retry and throws", async () => {
+    const rows: Record<string, unknown>[] = [];
+    const client = { send: async () => { throw new Error("rejected"); } };
+    await expect(sesSender(client, "me@x.com", cmd, async (r) => void rows.push(r), { wait }).send(mail)).rejects.toThrow("rejected");
+    expect(rows[0]).toMatchObject({ status: "failed", error: "rejected" });
   });
 });
