@@ -86,6 +86,8 @@ export const en = {
   "app.search": "Search",
   "search.title": "Search",
   "search.label": "Search tasks, messages and decisions",
+  "search.since": "Since",
+  "search.until": "Until",
   "search.submit": "Search",
   "paging.more": "Show more",
   "search.empty": "Nothing found.",
