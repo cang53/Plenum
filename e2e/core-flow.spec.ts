@@ -77,7 +77,7 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
 
   // The signed-in pages have no axe violations either.
   const project = new URL(boardUrl!, "http://x").search;
-  for (const path of ["/app", "/app/board", "/app/timeline", "/app/items", "/app/audit", "/app/members", "/app/notifications", "/app/search"]) {
+  for (const path of ["/app", "/app/board", "/app/timeline", "/app/items", "/app/audit", "/app/members", "/app/notifications", "/app/search", "/app/settings"]) {
     // The search page is scanned with results on it.
     await page.goto(`${path}${project}${path === "/app/search" ? "&q=drawings" : ""}`);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
