@@ -2,6 +2,7 @@ import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
 import { messages, type MessageKey } from "@/lib/messages";
 import { getLocale, getT } from "@/lib/locale";
+import { exportTables } from "@/domain/export";
 import { deleteProject, removePerson, saveProfile, saveProject } from "./actions";
 
 type Search = { project?: string; saved?: string; removed?: string; error?: string };
@@ -17,13 +18,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const { data: me } = await supabase
     .from("profiles").select("display_name, locale").eq("id", user?.id ?? "").single();
   const { data: role } = await supabase.rpc("project_role_of", { p: project.id });
+  const { data: ws } = await supabase.from("projects").select("workspace_id").eq("id", project.id).single();
+  const { data: isAdmin } = await supabase.rpc("is_workspace_admin", { ws: ws?.workspace_id });
   const canManage = role === "project_manager";
-  const { data: row } = await supabase.from("projects").select("workspace_id").eq("id", project.id).single();
-  const ws = row?.workspace_id ?? "";
-  const { data: isAdmin } = await supabase.rpc("is_workspace_admin", { ws });
   const { data: people } = isAdmin
     ? await supabase.from("workspace_members").select("user_id, profiles(display_name, email)")
-        .eq("workspace_id", ws).neq("user_id", user?.id ?? "")
+        .eq("workspace_id", ws?.workspace_id ?? "").neq("user_id", user?.id ?? "")
         .returns<{ user_id: string; profiles: { display_name: string; email: string } | null }[]>()
     : { data: null };
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
@@ -65,6 +65,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       </form>
       {isAdmin && (
         <section>
+          <h2>{t("export.title")}</h2>
+          <p>{t("export.intro")}</p>
+          <p><a href={`/app/export?workspace=${ws?.workspace_id}`} download>{t("export.json")}</a></p>
+          <ul>
+            {exportTables.map((k) => (
+              <li key={k}><a href={`/app/export?workspace=${ws?.workspace_id}&table=${k}`} download>{k}.csv</a></li>
+            ))}
+          </ul>
           <h2>{t("settings.danger")}</h2>
           <form action={deleteProject}>
             <input type="hidden" name="projectId" value={project.id} />

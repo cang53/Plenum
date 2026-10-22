@@ -19,7 +19,7 @@ const columns: (keyof AuditRow)[] = [
 ];
 
 // Quote every field; a leading = + - @ would run as a formula in a spreadsheet, so it gets a '.
-const cell = (v: string | null) => {
+export const cell = (v: string | null) => {
   const s = v ?? "";
   return `"${(/^[=+\-@\t\r]/.test(s) ? `'${s}` : s).replaceAll('"', '""')}"`;
 };

@@ -1,0 +1,30 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { checkHealth } from "@/server/health";
+
+const env = { url: "https://db.example", key: "k" };
+const answer = (status: number) => (async () => new Response(null, { status })) as typeof fetch;
+
+describe("checkHealth", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("is up when the database answers", async () => {
+    expect(await checkHealth(env, answer(200))).toEqual({ ok: true, database: "up" });
+  });
+
+  it("is down on a server error, logging only the kind", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await checkHealth(env, answer(503))).toEqual({ ok: false, database: "down" });
+    expect(spy).toHaveBeenCalledWith("health check failed: HttpStatus status=503");
+  });
+
+  it("is down when the request fails, without logging the message", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const failing = (async () => { throw new TypeError("secret host"); }) as typeof fetch;
+    expect(await checkHealth(env, failing)).toEqual({ ok: false, database: "down" });
+    expect(spy).toHaveBeenCalledWith("health check failed: TypeError");
+  });
+
+  it("says so when settings are missing", async () => {
+    expect(await checkHealth({}, answer(200))).toEqual({ ok: false, database: "not configured" });
+  });
+});
