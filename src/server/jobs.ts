@@ -7,12 +7,14 @@ export type JobStore = {
   claim: (job: string, minHours: number) => Promise<boolean>;
   finish: (job: string, ok: boolean, detail: string) => Promise<void>;
   failedEmails: () => Promise<{ workspaceId: string; projectId?: string; to: string[]; subject: string; bodyText: string; attempt: number }[]>;
+  purge: () => Promise<number>;
   digestRows: Parameters<typeof sendDigests>[0];
 };
 
 export async function runJobs(store: JobStore, sender: EmailSender, onError: (e: unknown) => void = () => {}): Promise<Record<string, JobResult>> {
   const jobs: Record<string, [number, () => Promise<string>]> = {
     digest: [20, async () => `${await sendDigests(store.digestRows, sender, onError)} sent`],
+    purge: [20, async () => `${await store.purge()} purged`],
     "retry-send": [0, async () => {
       let sent = 0;
       for (const m of await store.failedEmails()) {
@@ -54,6 +56,7 @@ export function supabaseJobStore(url: string, key: string): JobStore {
         workspaceId: r.workspace_id as string, projectId: (r.project_id as string | null) ?? undefined, to: r.to_addresses as string[],
         subject: r.subject as string, bodyText: r.body_text as string, attempt: r.attempt as number,
       })),
+    purge: async () => (await rpc("purge_expired_messages", {})) as number,
     digestRows: supabaseDigestRows(url, key),
   };
 }

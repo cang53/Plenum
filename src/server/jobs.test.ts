@@ -6,6 +6,7 @@ const store = (claimed: string[], over: Partial<JobStore> = {}): JobStore => ({
   claim: async (job) => claimed.includes(job),
   finish: vi.fn(async () => {}),
   failedEmails: async () => [mail],
+  purge: async () => 3,
   digestRows: async () => [],
   ...over,
 });
@@ -14,7 +15,7 @@ describe("runJobs", () => {
   it("skips a job that was already claimed", async () => {
     const send = vi.fn();
     const s = store([]);
-    expect(await runJobs(s, { send })).toEqual({ digest: { ran: false }, "retry-send": { ran: false } });
+    expect(await runJobs(s, { send })).toEqual({ digest: { ran: false }, purge: { ran: false }, "retry-send": { ran: false } });
     expect(send).not.toHaveBeenCalled();
     expect(s.finish).not.toHaveBeenCalled();
   });
@@ -26,6 +27,12 @@ describe("runJobs", () => {
     expect(send).toHaveBeenCalledWith({ ...mail, attempt: 2 });
     expect(out["retry-send"]).toEqual({ ran: true, detail: "1 resent" });
     expect(s.finish).toHaveBeenCalledWith("retry-send", true, "1 resent");
+  });
+
+  it("runs the retention purge and records how many messages it emptied", async () => {
+    const s = store(["purge"]);
+    expect((await runJobs(s, { send: async () => {} })).purge).toEqual({ ran: true, detail: "3 purged" });
+    expect(s.finish).toHaveBeenCalledWith("purge", true, "3 purged");
   });
 
   it("records a failing job without stopping the others", async () => {

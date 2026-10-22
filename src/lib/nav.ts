@@ -14,6 +14,7 @@ export function navItems(role: string | undefined, isAdmin: boolean): NavItem[] 
   ];
   if (role === "project_manager" || isAdmin) items.push({ path: "/app/audit", label: "app.audit" });
   if (isAdmin) items.push({ path: "/app/roles", label: "app.roles" });
+  items.push({ path: "/app/privacy", label: "app.privacy" });
   items.push({ path: "/app/settings", label: "app.settings" });
   return items;
 }
