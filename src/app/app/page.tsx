@@ -34,7 +34,8 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
           <a href={`/app/items?project=${current.id}`}>{t("app.items")}</a>{" "}
           <a href={`/app/audit?project=${current.id}`}>{t("app.audit")}</a>{" "}
           <a href={`/app/members?project=${current.id}`}>{t("app.members")}</a>{" "}
-          <a href={`/app/notifications?project=${current.id}`}>{t("app.notifications")}</a>
+          <a href={`/app/notifications?project=${current.id}`}>{t("app.notifications")}</a>{" "}
+          <a href={`/app/search?project=${current.id}`}>{t("app.search")}</a>
         </p>
       )}
       <form action="/auth/signout" method="post">

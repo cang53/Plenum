@@ -60,3 +60,12 @@ export async function listNotifications(client: SupabaseClient, projectId: strin
   if (error) throw error;
   return (data ?? []).map((n) => ({ id: n.id, kind: n.kind, subject: n.subject, createdAt: n.created_at, read: n.read_at !== null }));
 }
+
+export type SearchHit = { kind: "task" | "message" | "decision"; id: string; title: string; snippet: string };
+
+// Row-level security limits this to what the signed-in person can see in the project.
+export async function searchProject(client: SupabaseClient, projectId: string, q: string): Promise<SearchHit[]> {
+  const { data, error } = await client.rpc("search_project", { p: projectId, q });
+  if (error) throw error;
+  return data ?? [];
+}
