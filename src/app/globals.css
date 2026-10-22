@@ -288,3 +288,17 @@ input[type="search"] {
   padding: 8px 10px;
   font: inherit;
 }
+
+.suggestion {
+  border: 1px dashed #7a8aa0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggestion p {
+  margin: 0;
+}

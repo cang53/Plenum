@@ -2,21 +2,26 @@
 
 import { useState } from "react";
 import { draftFromMessage, isValidDraft, ITEM_KINDS, linkedTo, type ItemDraft, type ItemKind, type LinkedItem } from "@/domain/linking";
+import { toDraft, type StoredSuggestion } from "@/domain/triage";
 import { buildTimeline, formatSize, relativeDay, type TimelineMessage } from "@/domain/timeline";
 import { intlLocale, t } from "@/lib/messages";
 
 // Bodies longer than this start folded, with a button to show the rest.
 const LONG_BODY = 280;
 
-type Props = { messages: TimelineMessage[]; now: string; timeZone: string };
+type Props = { messages: TimelineMessage[]; suggestions: StoredSuggestion[]; now: string; timeZone: string };
 
-export function Timeline({ messages, now, timeZone }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone }: Props) {
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
   const [open, setOpen] = useState<Record<string, boolean>>({});
   // Demo only: items made here are kept in the page, not saved.
   const [items, setItems] = useState<LinkedItem[]>([]);
-  const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft } | null>(null);
+  const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
+  // Demo only: which suggestions a person has dealt with.
+  const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
+  const makeItem = (messageId: string, draft: ItemDraft) =>
+    setItems((prev) => [...prev, { id: `${draft.kind}-${prev.length}`, kind: draft.kind, title: draft.title.trim(), messageId }]);
 
   const locale = intlLocale.en;
   const days = buildTimeline(messages, { query, on: on || undefined }, timeZone);
@@ -99,14 +104,44 @@ export function Timeline({ messages, now, timeZone }: Props) {
                     ))}
                   </ul>
                 )}
+                {suggestions
+                  .filter((s) => s.messageId === m.id && s.status === "pending" && !decided[s.id] && drafting?.suggestionId !== s.id)
+                  .map((s) => (
+                    <div key={s.id} className="suggestion" role="group" aria-label={t("triage.title")}>
+                      <p className="meta">{t("triage.title")}</p>
+                      <p>
+                        <span className="chip">{t(`kind.${s.kind}`)}</span> <strong>{s.title}</strong>
+                      </p>
+                      {s.details && <p className="body">{s.details}</p>}
+                      <p className="meta">{t("link.fromMessage")}: {m.subject || t("timeline.noSubject")}</p>
+                      <div>
+                        <button
+                          type="button"
+                          className="button"
+                          onClick={() => {
+                            makeItem(m.id, toDraft(s));
+                            setDecided({ ...decided, [s.id]: "accepted" });
+                          }}
+                        >
+                          {t("triage.accept")}
+                        </button>{" "}
+                        <button type="button" className="button" onClick={() => setDrafting({ messageId: m.id, draft: toDraft(s), suggestionId: s.id })}>
+                          {t("triage.edit")}
+                        </button>{" "}
+                        <button type="button" className="button" onClick={() => setDecided({ ...decided, [s.id]: "dismissed" })}>
+                          {t("triage.dismiss")}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 {drafting?.messageId === m.id ? (
                   <form
                     className="link-form"
                     onSubmit={(e) => {
                       e.preventDefault();
                       if (!isValidDraft(drafting.draft)) return;
-                      const { kind, title } = drafting.draft;
-                      setItems([...items, { id: `${kind}-${items.length}`, kind, title: title.trim(), messageId: m.id }]);
+                      makeItem(m.id, drafting.draft);
+                      if (drafting.suggestionId) setDecided({ ...decided, [drafting.suggestionId]: "accepted" });
                       setDrafting(null);
                     }}
                   >

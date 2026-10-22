@@ -22,3 +22,10 @@ Run `npx supabase gen types typescript --project-id uwimagjkbwourvepvtns > src/l
 
 ## Staging and production
 There is one hosted project today. Before launch, add a second project for staging and apply each migration there first. Do not use Supabase branching on the free plan (it is billed per branch).
+
+## Suggestions (migration 6)
+
+`public.suggestions` holds at most one AI suggestion per message. Only the server (service role) writes
+them. A project manager can edit the wording and set the status to `accepted` or `dismissed`; the
+database stamps `resolved_by` and `resolved_at`, and a decided suggestion cannot change again.
+Accepting creates the item through the same path as manual linking, so it keeps `source_message_id`.

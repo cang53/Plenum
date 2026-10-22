@@ -1,4 +1,4 @@
-import { demoMessages, demoProject } from "@/data/demo";
+import { demoMessages, demoProject, demoSuggestions } from "@/data/demo";
 import { t } from "@/lib/messages";
 import { Timeline } from "./Timeline";
 
@@ -13,7 +13,8 @@ export default function DemoTimelinePage() {
       <h1>{t("timeline.title")}</h1>
       <p className="intro">{t("timeline.intro")}</p>
       <p className="notice">{t("timeline.demoNotice")}</p>
-      <Timeline messages={demoMessages(now)} now={now.toISOString()} timeZone={demoProject.timeZone} />
+      <p className="notice">{t("triage.demoNotice")}</p>
+      <Timeline messages={demoMessages(now)} suggestions={demoSuggestions} now={now.toISOString()} timeZone={demoProject.timeZone} />
     </main>
   );
 }
