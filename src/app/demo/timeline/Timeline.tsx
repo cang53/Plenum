@@ -4,6 +4,7 @@ import { useState } from "react";
 import { draftFromMessage, isValidDraft, ITEM_KINDS, linkedTo, type ItemDraft, type ItemKind, type LinkedItem } from "@/domain/linking";
 import { toDraft, type StoredSuggestion } from "@/domain/triage";
 import { buildTimeline, formatSize, relativeDay, type TimelineMessage } from "@/domain/timeline";
+import { logError } from "@/lib/log";
 import { intlLocale, t } from "@/lib/messages";
 
 // Bodies longer than this start folded, with a button to show the rest.
@@ -30,7 +31,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
   const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
   // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
-  const [saveFailed, setSaveFailed] = useState(false);
+  const [saveFailed, setSaveFailed] = useState<(() => void) | null>(null);
   const makeItem = (messageId: string, draft: ItemDraft) =>
     setItems((prev) => [...prev, { id: `${draft.kind}-${prev.length}`, kind: draft.kind, title: draft.title.trim(), messageId }]);
   // Saves the decision first (when the page saves), so a failure leaves the suggestion open.
@@ -38,11 +39,12 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
     try {
       if (outcome === "accepted" && draft) await onAccept?.(id, draft);
       if (outcome === "dismissed") await onDismiss?.(id);
-    } catch {
-      setSaveFailed(true);
+    } catch (error) {
+      logError("suggestion save failed", error);
+      setSaveFailed(() => () => void decide(id, outcome, draft, messageId));
       return false;
     }
-    setSaveFailed(false);
+    setSaveFailed(null);
     if (draft && messageId) makeItem(messageId, draft);
     setDecided((prev) => ({ ...prev, [id]: outcome }));
     return true;
@@ -87,7 +89,12 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
         </p>
       </form>
 
-      {saveFailed && <p role="alert">{t("triage.saveError")}</p>}
+      {saveFailed && (
+        <p role="alert">
+          {t("triage.saveError")}{" "}
+          <button type="button" className="button" onClick={saveFailed}>{t("app.retry")}</button>
+        </p>
+      )}
       {messages.length === 0 && <p className="empty">{t("timeline.empty")}</p>}
       {messages.length > 0 && shown === 0 && <p className="empty">{t("timeline.noResults")}</p>}
 
