@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Notification } from "@/domain/notifications";
 
 export type Project = { id: string; name: string; email_slug: string };
 
@@ -46,4 +47,16 @@ export async function listInvitations(client: SupabaseClient, projectId: string)
     .order("created_at");
   if (error) throw error;
   return (data ?? []).map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expires_at }));
+}
+
+// Row-level security limits this to the signed-in person's own notifications in this project.
+export async function listNotifications(client: SupabaseClient, projectId: string): Promise<Notification[]> {
+  const { data, error } = await client
+    .from("notifications")
+    .select("id, kind, subject, created_at, read_at")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return (data ?? []).map((n) => ({ id: n.id, kind: n.kind, subject: n.subject, createdAt: n.created_at, read: n.read_at !== null }));
 }
