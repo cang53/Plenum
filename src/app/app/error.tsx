@@ -8,6 +8,8 @@ export default function ErrorState({ error, reset }: { error: Error; reset: () =
   // The layout sets <html lang> from the person's language; read it after load to avoid a server mismatch.
   const [language, setLanguage] = useState<Locale>("en");
   useEffect(() => {
+    // Read after mount so server and client markup match.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isLocale(document.documentElement.lang)) setLanguage(document.documentElement.lang);
   }, []);
   return (
