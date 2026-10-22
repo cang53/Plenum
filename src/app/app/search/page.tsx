@@ -25,7 +25,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       <ul>
         {hits.map((h) => (
           <li key={`${h.kind}-${h.id}`}>
-            <a href={searchHref(project.id)}>{t(`search.${h.kind}`)}: {h.title}</a>
+            <a href={searchHref(project.id, h.kind)}>{t(`search.${h.kind}`)}: {h.title}</a>
             {h.snippet && <p>{plainSnippet(h.snippet)}</p>}
           </li>
         ))}
