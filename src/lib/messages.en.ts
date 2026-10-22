@@ -87,6 +87,7 @@ export const en = {
   "search.title": "Search",
   "search.label": "Search tasks, messages and decisions",
   "search.submit": "Search",
+  "paging.more": "Show more",
   "search.empty": "Nothing found.",
   "search.task": "Task",
   "search.message": "Message",

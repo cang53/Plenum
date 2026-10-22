@@ -1,17 +1,19 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listNotifications, listProjects } from "@/data/projects";
 import { notificationHref } from "@/domain/notifications";
+import { MoreLink } from "@/app/app/MoreLink";
 import { intlLocale } from "@/lib/messages";
 import { getLocale, getT } from "@/lib/locale";
 import { markAllRead, saveDigest } from "./actions";
 
-export default async function NotificationsPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+export default async function NotificationsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string }> }) {
   const t = await getT();
   const locale = await getLocale();
   const supabase = await supabaseServer();
-  const project = currentProject(await listProjects(supabase), (await searchParams).project);
+  const { project: chosen, after } = await searchParams;
+  const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
-  const rows = await listNotifications(supabase, project.id);
+  const { rows, next } = await listNotifications(supabase, project.id, after);
   const { data: { user } } = await supabase.auth.getUser();
   const { data: me } = await supabase.from("profiles").select("digest_daily, digest_suggestions, digest_due").eq("id", user?.id ?? "").maybeSingle();
   return (
@@ -41,6 +43,7 @@ export default async function NotificationsPage({ searchParams }: { searchParams
               </li>
             ))}
           </ul>
+          <MoreLink path="/app/notifications" params={{ project: project.id }} next={next} label={t("paging.more")} />
         </>
       )}
     </main>

@@ -89,6 +89,7 @@ export const nl: Record<keyof typeof en, string> = {
   "search.title": "Zoeken",
   "search.label": "Zoek in taken, berichten en besluiten",
   "search.submit": "Zoeken",
+  "paging.more": "Toon meer",
   "search.empty": "Niets gevonden.",
   "search.task": "Taak",
   "search.message": "Bericht",
