@@ -6,6 +6,7 @@ export const messages = {
       "One project timeline for industrial teams. Teams messages and emails become tasks, decisions and reports, and a person approves every AI suggestion.",
     "home.status": "Under construction: stage 2, the core loop.",
     "home.demoLink": "Open the demo board",
+    "home.demoTimeline": "Open the demo timeline",
     "board.title": "Board",
     "board.intro": "The same tasks as the Gantt view. Drag a card, or use its status menu, to change its status.",
     "board.filterPhase": "Phase",
@@ -15,6 +16,23 @@ export const messages = {
     "board.due": "Due",
     "board.statusLabel": "Status",
     "board.demoNotice": "Demo data: changes are not saved yet.",
+    "timeline.title": "Project timeline",
+    "timeline.intro": "Every email sent to this project's address, newest first.",
+    "timeline.search": "Search",
+    "timeline.searchPlaceholder": "Words, sender or file name",
+    "timeline.date": "Date",
+    "timeline.clear": "Clear",
+    "timeline.shown": "Messages shown:",
+    "timeline.empty": "No messages yet. Email sent to the project address appears here within a minute.",
+    "timeline.noResults": "No messages match your search.",
+    "timeline.today": "Today",
+    "timeline.yesterday": "Yesterday",
+    "timeline.noSubject": "(no subject)",
+    "timeline.attachments": "Attachments",
+    "timeline.showMore": "Show the whole message",
+    "timeline.showLess": "Show less",
+    "timeline.demoNotice": "Demo data: these emails are examples, and attachments cannot be opened yet.",
+    "source.email": "Email",
     "status.todo": "To do",
     "status.in_progress": "In progress",
     "status.blocked": "Blocked",
@@ -23,6 +41,9 @@ export const messages = {
 } as const;
 
 export type Locale = keyof typeof messages;
+
+// The locale used for dates, times and numbers.
+export const intlLocale: Record<Locale, string> = { en: "en-GB" };
 export type MessageKey = keyof (typeof messages)["en"];
 
 export function t(key: MessageKey, locale: Locale = "en"): string {
