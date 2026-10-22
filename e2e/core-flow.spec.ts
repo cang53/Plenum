@@ -76,7 +76,7 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   const project = new URL(boardUrl!, "http://x").search;
   for (const path of ["/app", "/app/board", "/app/timeline", "/app/items", "/app/audit", "/app/members"]) {
     await page.goto(`${path}${project}`);
-    await expect(page.getByRole("heading", { level: 1 }).or(page.getByRole("link", { name: "Board" }))).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
     expect(violations.map((v) => `${path} ${v.id}: ${v.nodes[0]?.target}`)).toEqual([]);
   }
