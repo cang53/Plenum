@@ -116,6 +116,7 @@ export const en = {
   "items.group.task": "Tasks",
   "items.group.decision": "Decisions",
   "items.group.risk": "Risks",
+  "items.empty": "No items here yet. Create the first one above.",
   "items.new": "New",
   "items.create": "Create",
   "items.save": "Save changes",

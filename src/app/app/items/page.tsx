@@ -62,6 +62,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
             <summary>{t("items.new")} {t(`kind.${kind}`).toLowerCase()}</summary>
             <Fields kind={kind} projectId={project.id} t={t} />
           </details>
+          {!items.some((i) => i.kind === kind) && <p className="intro">{t("items.empty")}</p>}
           <ul>
             {items.filter((i) => i.kind === kind).map((i) => (
               <li key={i.id}>

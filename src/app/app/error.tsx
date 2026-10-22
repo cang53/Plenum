@@ -14,8 +14,10 @@ export default function ErrorState({ error, reset }: { error: Error; reset: () =
   }, []);
   return (
     <main id="main" className="page">
+      <div className="surface" style={{ padding: "var(--s5)" }}>
       <p role="alert">{t("app.error", language)}</p>
-      <button type="button" className="button" onClick={reset}>{t("app.retry", language)}</button>
+      <button type="button" className="btn btn-secondary" onClick={reset}>{t("app.retry", language)}</button>
+      </div>
     </main>
   );
 }
