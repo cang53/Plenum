@@ -10,6 +10,11 @@ do $$ declare n int; begin
      or not exists (select 1 from public.audit_log where action = 'created' and entity_type = 'risks' and source_message_id is not null) then
     raise exception 'approval or item creation not logged with its source message';
   end if;
+  -- Task edits (tasks_rules.sql): Mo's and Cy's status changes, each logged under the person who made it.
+  if (select count(*) from public.audit_log where action = 'status_changed' and entity_type = 'tasks') <> 2
+     or not exists (select 1 from public.audit_log where action = 'status_changed' and actor_id = '00000000-0000-0000-0000-00000000000c') then
+    raise exception 'task status changes not logged with their author';
+  end if;
 end $$;
 
 set role authenticated;
@@ -21,7 +26,7 @@ begin
   foreach who in array array['b', 'a', 'c', 'd', 'e'] loop
     perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000' || who, true);
     select count(*) into n from public.audit_log;
-    want := case when who in ('a', 'b') then 5 else 0 end;
+    want := case when who in ('a', 'b') then 7 else 0 end;
     if n <> want then raise exception 'user % saw % audit rows, expected %', who, n, want; end if;
   end loop;
 end $$;
@@ -64,5 +69,22 @@ do $$ begin
     if sqlerrm = 'truncated the audit log' then raise; end if;
   end;
 end $$;
+
+-- The demo seed fills a workspace; it is not callable by signed-in users.
+do $$ declare p uuid; begin
+  p := public.seed_demo_project('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b');
+  if (select count(*) from public.tasks where project_id = p) <> 4
+     or (select count(*) from public.task_dependencies d join public.tasks t on t.id = d.successor_id where t.project_id = p) <> 3
+     or (select count(*) from public.messages where project_id = p) <> 3 then
+    raise exception 'demo seed incomplete';
+  end if;
+end $$;
+set role authenticated;
+do $$ begin
+  perform public.seed_demo_project('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b');
+  raise exception 'a signed-in user seeded a project';
+exception when insufficient_privilege then null;
+end $$;
+reset role;
 
 \echo 'audit rules: all checks passed'
