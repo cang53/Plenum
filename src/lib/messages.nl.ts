@@ -175,4 +175,10 @@ export const nl: Record<keyof typeof en, string> = {
   "status.in_progress": "Bezig",
   "status.blocked": "Geblokkeerd",
   "status.done": "Klaar",
+  "digest.subject": "Uw dagelijkse samenvatting",
+  "digest.suggestions": "Nieuwe suggesties om te beoordelen:",
+  "digest.due": "Taken die vandaag of morgen af moeten zijn:",
+  "digest.footer": "U ontvangt dit omdat u de dagelijkse samenvatting hebt aangezet. Zet hem uit bij Meldingen.",
+  "digest.label": "Mail mij een dagelijkse samenvatting",
+  "digest.save": "Opslaan",
 };

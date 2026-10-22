@@ -14,3 +14,13 @@ export async function markAllRead(form: FormData): Promise<void> {
   if (error) throw error;
   revalidatePath("/app", "layout");
 }
+
+// Each person turns their own digest on or off; the profile rule limits this to their own row.
+export async function saveDigest(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+  const { error } = await supabase.from("profiles").update({ digest_daily: form.get("digest") === "on" }).eq("id", user.id);
+  if (error) throw error;
+  revalidatePath("/app", "layout");
+}
