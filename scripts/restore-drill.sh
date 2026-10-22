@@ -42,7 +42,7 @@ visible() {
   sql -v who="$1" <<'SQL'
 begin;
 set local role authenticated;
-select set_config('request.jwt.claim.sub', :'who', true);
+select set_config('request.jwt.claim.sub', :'who', true) as c \gset
 select count(*) from public.projects where name = 'Drill project';
 rollback;
 SQL
