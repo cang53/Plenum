@@ -61,11 +61,11 @@ jobs:
         id: images
         uses: actions/cache@v4
         with:
-          path: ~/supabase-images.tar
+          path: ~/supabase-cache
           key: supabase-images-2.121.0-${{ hashFiles('supabase/config.toml') }}
       - name: Load cached Supabase images
         if: steps.images.outputs.cache-hit == 'true'
-        run: docker load -i ~/supabase-images.tar
+        run: docker load -i ~/supabase-cache/images.tar
       - name: Log in to the image registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
       - name: Start local Supabase and export its keys
@@ -82,7 +82,10 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Save Supabase images for the cache
         if: steps.images.outputs.cache-hit != 'true'
-        run: docker save -o ~/supabase-images.tar $(docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '/supabase/' | sort -u)
+        run: |
+          cd ~/supabase-cache
+          docker save -o images.tar $(docker ps --format '{{.Image}}' | sort -u)
+          mv registry.used registry
       - name: Seed the local stack the way docs/local-run.md does (run twice to prove it is safe to re-run)
         run: |
           node scripts/seed-local.mjs seed-check@example.test
