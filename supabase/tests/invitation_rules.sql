@@ -5,6 +5,7 @@
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000a1', 'New.Hire@Example.com'),
   ('00000000-0000-0000-0000-0000000000a2', 'partner@supplier.example');
+insert into auth.users (id, email, email_confirmed_at) values ('00000000-0000-0000-0000-0000000000a3', 'ghost@example.com', null);
 update auth.users set email = 'mo@example.com' where id = '00000000-0000-0000-0000-00000000000c';
 update auth.users set email = 'cy@partner.example' where id = '00000000-0000-0000-0000-00000000000d';
 
@@ -24,14 +25,14 @@ begin
   perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
   insert into invitations (project_id, email, role) values
     (p, 'new.hire@example.com', 'member'), (p, 'partner@supplier.example', 'contributor'),
-    (p, 'cy@partner.example', 'member');
+    (p, 'cy@partner.example', 'member'), (p, 'ghost@example.com', 'member');
   begin
     insert into invitations (project_id, email, role) values (p, 'new.hire@example.com', 'member');
     raise exception 'duplicate invitation';
   exception when unique_violation then null;
   end;
   select count(*) into n from invitations;
-  if n <> 3 then raise exception 'manager saw % invitations', n; end if;
+  if n <> 4 then raise exception 'manager saw % invitations', n; end if;
 
   perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
   select count(*) into n from invitations;
@@ -50,6 +51,10 @@ begin
   perform public.accept_my_invitations();
   if public.project_role_of(p) is distinct from 'contributor' then raise exception 'partner is not a contributor'; end if;
   if public.is_workspace_staff('10000000-0000-0000-0000-000000000001') then raise exception 'partner became staff'; end if;
+
+  -- An address that is not verified cannot claim an invitation.
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a3', true);
+  if public.accept_my_invitations() <> 0 then raise exception 'unverified address claimed an invitation'; end if;
 
   -- An outside contributor invited as a member stays contributor and the invitation stays pending.
   perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000d', true);

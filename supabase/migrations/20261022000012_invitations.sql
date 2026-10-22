@@ -35,7 +35,8 @@ declare
   joined int := 0;
 begin
   if me is null then return 0; end if;
-  select lower(email) into my_email from auth.users where id = me;
+  -- Only a verified address may claim invitations sent to it.
+  select lower(email) into my_email from auth.users where id = me and email_confirmed_at is not null;
   if my_email is null then return 0; end if;
   insert into profiles (id, display_name, email) values (me, split_part(my_email, '@', 1), my_email)
   on conflict do nothing;

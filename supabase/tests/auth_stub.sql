@@ -1,6 +1,6 @@
 -- Minimal stand-in for Supabase's auth schema, so migrations run on plain Postgres in tests.
 create schema if not exists auth;
-create table if not exists auth.users (id uuid primary key, email text);
+create table if not exists auth.users (id uuid primary key, email text, email_confirmed_at timestamptz default now());
 create or replace function auth.uid() returns uuid
 language sql stable as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
