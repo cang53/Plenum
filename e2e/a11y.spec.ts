@@ -15,3 +15,19 @@ test("demo board fits a phone screen without sideways page scroll", async ({ pag
   await page.goto("/demo/board");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test("demo board can be used from the keyboard", async ({ page }) => {
+  await page.goto("/demo/board");
+  await page.keyboard.press("Tab"); // skip link
+  await expect(page.locator(".skip")).toBeFocused();
+  const status = page.locator(".status-select select").first();
+  await status.focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.locator(".board-column").nth(1).locator(".card")).not.toHaveCount(0);
+});
+
+test("demo timeline fits a phone screen without sideways page scroll", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await page.goto("/demo/timeline");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});

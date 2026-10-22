@@ -33,6 +33,8 @@ export const nl: Record<keyof typeof en, string> = {
   "board.due": "Deadline",
   "board.statusLabel": "Status",
   "board.saveError": "We konden die wijziging niet opslaan, dus de kaart staat weer op zijn plek.",
+  "app.home": "Projectenoverzicht",
+  "app.pages": "Projectpagina's",
   "app.board": "Bord",
   "app.timeline": "Tijdlijn",
   "app.items": "Items",
