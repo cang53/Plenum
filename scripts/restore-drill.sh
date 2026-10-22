@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 ID="$(sed -n 's/^project_id *= *"\(.*\)"/\1/p' supabase/config.toml)"
 C="${DRILL_DB_CONTAINER:-supabase_db_$ID}"
 case "$C" in supabase_db_*) ;; *) echo "Refusing: $C is not a local Supabase db container" >&2; exit 1 ;; esac
-sql() { docker exec -i "$C" psql -U postgres -d postgres -qAt -v ON_ERROR_STOP=1 "$@"; }
+sql() { docker exec -i "$C" psql -U supabase_admin -d postgres -qAt -v ON_ERROR_STOP=1 "$@"; }
 
 # Row counts of every public table, plus RLS flags and policy count, as one comparable text.
 snapshot() {
@@ -59,7 +59,7 @@ echo "Backed up $(wc -c < "$dump") bytes"
 sql -c "drop schema public cascade"
 [ "$(sql -c "select count(*) from information_schema.tables where table_schema = 'public'")" = 0 ] || { echo "Wipe failed" >&2; exit 1; }
 
-docker exec -i "$C" pg_restore -U postgres -d postgres --no-owner --exit-on-error < "$dump"
+docker exec -i "$C" pg_restore -U supabase_admin -d postgres --exit-on-error < "$dump"
 
 after="$(snapshot)"
 if [ "$before" != "$after" ]; then
