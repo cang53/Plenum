@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
+import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { getT } from "@/lib/locale";
 
 export default async function AppHome({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
@@ -10,6 +12,14 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const projects = await listProjects(supabase);
   // Invited people already have projects; everyone else starts with the wizard.
   if (projects.length === 0) redirect("/app/welcome");
+  if (projects.length === 1) {
+    const [{ count: members }, { count: invitations }] = await Promise.all([
+      supabase.from("project_members").select("*", { count: "exact", head: true }).eq("project_id", projects[0].id),
+      supabase.from("invitations").select("*", { count: "exact", head: true }).eq("project_id", projects[0].id),
+    ]);
+    const finished = (await cookies()).has(ONBOARDED_COOKIE);
+    if (needsInviteStep({ projects: 1, members: members ?? 0, invitations: invitations ?? 0, finished })) redirect("/app/welcome");
+  }
   const current = currentProject(projects, (await searchParams).project);
   return (
     <main id="main" className="home">
