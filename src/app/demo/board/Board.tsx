@@ -4,14 +4,29 @@ import { useState } from "react";
 import { buildColumns, distinct, moveTask, STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
 import { t } from "@/lib/messages";
 
-export function Board({ initialTasks }: { initialTasks: BoardTask[] }) {
+type Props = {
+  initialTasks: BoardTask[];
+  // Saves a move; when it fails the card goes back. Without it (the demo) moves stay in the page.
+  onMove?: (taskId: string, status: TaskStatus) => Promise<void>;
+};
+
+export function Board({ initialTasks, onMove }: Props) {
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
   const [owner, setOwner] = useState("");
   const [dragging, setDragging] = useState<string | null>(null);
 
   const columns = buildColumns(tasks, { phase: phase || undefined, owner: owner || undefined });
-  const move = (id: string, status: TaskStatus) => setTasks((current) => moveTask(current, id, status));
+  const [error, setError] = useState(false);
+  const move = (id: string, status: TaskStatus) => {
+    const before = tasks;
+    setTasks((current) => moveTask(current, id, status));
+    setError(false);
+    onMove?.(id, status).catch(() => {
+      setTasks(before);
+      setError(true);
+    });
+  };
 
   return (
     <>
@@ -35,6 +50,7 @@ export function Board({ initialTasks }: { initialTasks: BoardTask[] }) {
           </select>
         </label>
       </div>
+      {error && <p role="alert" className="notice">{t("board.saveError")}</p>}
       <div className="board-scroll">
         <div className="board">
           {columns.map((column) => (
