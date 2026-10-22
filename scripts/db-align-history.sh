@@ -15,8 +15,8 @@ echo "$list"
 remote_only=()
 local_only=()
 while IFS='|' read -r local remote _; do
-  local="$(echo "$local" | tr -d '[:space:]')"
-  remote="$(echo "$remote" | tr -d '[:space:]')"
+  local="$(echo "$local" | tr -d '[:space:]`')"
+  remote="$(echo "$remote" | tr -d '[:space:]`')"
   [[ "$local" =~ ^[0-9]+$ || "$remote" =~ ^[0-9]+$ ]] || continue
   if [[ -z "$local" && "$remote" < "$HAND_APPLIED_BEFORE" ]]; then
     remote_only+=("$remote")
