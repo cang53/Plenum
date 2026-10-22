@@ -9,7 +9,7 @@ Plenum runs on one Supabase project, **Plenum** (ref `uwimagjkbwourvepvtns`), in
 
 ## Checking a change
 1. `npm run test:db` runs every migration and the access-rule tests on a throwaway local Postgres (CI does the same).
-2. Apply the migration to the hosted project (Supabase dashboard SQL editor, or the CLI: `supabase link --project-ref uwimagjkbwourvepvtns` then `supabase db push`).
+2. Merge to main. The workflow `.github/workflows/db-migrate.yml` runs `supabase db push` and applies new migration files to the hosted project (repo secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`). Do not apply migrations by hand any more.
 3. Check the hosted project's Security Advisor shows no new warnings.
 
 The access-rule tests can also be run against the hosted project inside a transaction that ends in `rollback`, so no test data is kept. This was done when the first four migrations were applied, and all checks passed. Migrations 5 and 6 were applied without that live run (the Supabase connector timed out); their rules are covered by `npm run test:db`.
@@ -46,3 +46,6 @@ Migration 10 (the fake-email `outbox` table) has been applied to the hosted proj
 
 ## Sign-in (stage 3)
 `/login` sends a Supabase email link; `/app` needs a session. In the Supabase dashboard (Authentication, URL Configuration) add `http://localhost:3000/auth/callback` and the deployed `/auth/callback` URL as redirect URLs. `AUTH_PROVIDER=entra` is reserved for task 3.
+
+## Automatic migrations
+Pushes to main that touch `supabase/migrations/` run `db-migrate.yml`. Migrations 1 to 26 were applied by hand, so the hosted history has other version numbers; `scripts/db-align-history.sh` marks those as reverted and 1 to 26 as applied before the push, and does nothing once aligned. Add new migrations as new files numbered after 26; the push applies only those. A failed migration stops the run and leaves the database as it was before that file.
