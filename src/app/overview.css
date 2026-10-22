@@ -1,0 +1,14 @@
+/* Overview: project cards, attention list, AI review entry. Tokens only. */
+.overview-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: var(--s4); margin: var(--s6) 0; padding: 0; list-style: none; }
+.overview-card { display: flex; align-items: center; gap: var(--s4); padding: var(--s5); }
+.overview-card[aria-current="true"] { border-color: var(--border-strong); }
+.overview-card h2, .overview-panel h2 { margin: 0; font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+.overview-card .meta { margin: var(--s1) 0 var(--s3); font-variant-numeric: tabular-nums; }
+.pulse-ring { width: 5rem; flex: none; transform: rotate(-90deg); fill: none; stroke-width: 10; }
+.pulse-ring circle:first-child { stroke: var(--surface-muted); }
+.pulse-ring circle:last-child { stroke: var(--status-done); stroke-linecap: round; }
+.overview-panel { padding: var(--s5); margin-block-end: var(--s4); }
+.overview-panel ul { margin: var(--s3) 0 0; padding: 0; list-style: none; }
+.overview-panel li { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) 0; border-top: 1px solid var(--border); }
+.overview-panel li a { flex: 1; color: var(--text); }
+.overview-panel .btn { margin-block-start: var(--s3); }

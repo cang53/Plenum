@@ -1,3 +1,4 @@
+import { countEvent } from "@/lib/log";
 // Email sending behind one small interface. Only the local fake exists so far: it writes to the
 // outbox table instead of delivering; sesSender delivers through AWS SES.
 export type OutgoingEmail = {
@@ -61,7 +62,10 @@ export function sesSender(
         status: error ? "failed" : "sent",
         error: error ? String(error instanceof Error ? error.message : error) : null,
       });
-      if (error) throw error;
+      if (error) {
+        countEvent("send_failure", { attempt: email.attempt ?? 1 });
+        throw error;
+      }
     },
   };
 }
