@@ -1,6 +1,12 @@
 // English interface copy: the source for every other language file.
 export const en = {
   "app.name": "Plenum",
+  "app.overview": "Overview",
+  "shell.main": "Main",
+  "shell.projects": "Projects",
+  "shell.searchPlaceholder": "Search this project",
+  "shell.account": "Account",
+  "shell.mobile": "Main pages",
   "app.skip": "Skip to main content",
   "app.loading": "Loading…",
   "app.error": "Something went wrong on our side. Your data is safe.",
