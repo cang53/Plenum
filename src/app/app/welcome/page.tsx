@@ -1,10 +1,11 @@
 import { supabaseServer } from "@/auth/supabase";
 import { listProjects } from "@/data/projects";
-import { t } from "@/lib/messages";
+import { getT } from "@/lib/locale";
 import { redirect } from "next/navigation";
 import { onboard } from "./actions";
 
 export default async function WelcomePage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const t = await getT();
   const supabase = await supabaseServer();
   if ((await listProjects(supabase)).length > 0) redirect("/app");
   const sp = await searchParams;

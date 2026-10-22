@@ -3,10 +3,11 @@ import { listManualItems, type ManualItem } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { MANUAL_KINDS, PRIORITIES, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
-import { t, type MessageKey } from "@/lib/messages";
+import type { MessageKey } from "@/lib/messages";
+import { getT } from "@/lib/locale";
 import { saveItem } from "./actions";
 
-function Fields({ item, kind, projectId }: { item?: ManualItem; kind: ManualItem["kind"]; projectId: string }) {
+function Fields({ item, kind, projectId, t }: { item?: ManualItem; kind: ManualItem["kind"]; projectId: string; t: (key: MessageKey) => string }) {
   return (
     <form action={saveItem}>
       <input type="hidden" name="kind" value={kind} />
@@ -42,6 +43,7 @@ function Fields({ item, kind, projectId }: { item?: ManualItem; kind: ManualItem
 }
 
 export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+  const t = await getT();
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), (await searchParams).project);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
@@ -56,14 +58,14 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           <h2>{t(`items.group.${kind}` as MessageKey)}</h2>
           <details>
             <summary>{t("items.new")} {t(`kind.${kind}`).toLowerCase()}</summary>
-            <Fields kind={kind} projectId={project.id} />
+            <Fields kind={kind} projectId={project.id} t={t} />
           </details>
           <ul>
             {items.filter((i) => i.kind === kind).map((i) => (
               <li key={i.id}>
                 <details>
                   <summary>{i.title}</summary>
-                  <Fields item={i} kind={kind} projectId={project.id} />
+                  <Fields item={i} kind={kind} projectId={project.id} t={t} />
                 </details>
               </li>
             ))}
