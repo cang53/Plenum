@@ -44,10 +44,10 @@ function Fields({ item, kind, projectId }: { item?: ManualItem; kind: ManualItem
 export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), (await searchParams).project);
-  if (!project) return <main className="page"><p>{t("projects.empty")}</p></main>;
+  if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const items = await listManualItems(supabase, project.id);
   return (
-    <main className="page">
+    <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
       <h1>{t("items.title")}</h1>
       <p className="intro">{t("items.intro")}</p>

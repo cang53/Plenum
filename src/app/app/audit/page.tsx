@@ -6,11 +6,11 @@ import { intlLocale, t } from "@/lib/messages";
 export default async function AuditPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), (await searchParams).project);
-  if (!project) return <main className="page"><p>{t("projects.empty")}</p></main>;
+  if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   // Only project managers and workspace admins can read the log; everyone else sees no rows.
   const rows = await listAudit(supabase, project.id);
   return (
-    <main className="page">
+    <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
       <h1>{t("audit.title")}</h1>
       <p className="intro">{t("audit.intro")}</p>

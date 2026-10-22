@@ -9,7 +9,7 @@ export default async function Login({
 }) {
   const { next, sent, error } = await searchParams;
   return (
-    <main className="home">
+    <main id="main" className="home">
       <h1>{t("login.title")}</h1>
       {authProvider() === "entra" ? (
         <p>{t("login.entraSoon")}</p>
