@@ -4,7 +4,8 @@ import { useState } from "react";
 import { draftFromMessage, isValidDraft, ITEM_KINDS, linkedTo, type ItemDraft, type ItemKind, type LinkedItem } from "@/domain/linking";
 import { toDraft, type StoredSuggestion } from "@/domain/triage";
 import { buildTimeline, formatSize, relativeDay, type TimelineMessage } from "@/domain/timeline";
-import { intlLocale, t } from "@/lib/messages";
+import { logError } from "@/lib/log";
+import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
 // Bodies longer than this start folded, with a button to show the rest.
 const LONG_BODY = 280;
@@ -19,9 +20,12 @@ type Props = {
   // Live pages save the decision; the demo leaves these out and keeps changes in the page.
   onAccept?: (suggestionId: string, draft: ItemDraft) => Promise<void>;
   onDismiss?: (suggestionId: string) => Promise<void>;
+  // The signed-in person's language; the demo stays English.
+  language?: Locale;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, language = "en" }: Props) {
+  const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
   const [open, setOpen] = useState<Record<string, boolean>>({});
@@ -30,7 +34,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
   const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
   // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
-  const [saveFailed, setSaveFailed] = useState(false);
+  const [saveFailed, setSaveFailed] = useState<(() => void) | null>(null);
   const makeItem = (messageId: string, draft: ItemDraft) =>
     setItems((prev) => [...prev, { id: `${draft.kind}-${prev.length}`, kind: draft.kind, title: draft.title.trim(), messageId }]);
   // Saves the decision first (when the page saves), so a failure leaves the suggestion open.
@@ -38,17 +42,18 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
     try {
       if (outcome === "accepted" && draft) await onAccept?.(id, draft);
       if (outcome === "dismissed") await onDismiss?.(id);
-    } catch {
-      setSaveFailed(true);
+    } catch (error) {
+      logError("suggestion save failed", error);
+      setSaveFailed(() => () => void decide(id, outcome, draft, messageId));
       return false;
     }
-    setSaveFailed(false);
+    setSaveFailed(null);
     if (draft && messageId) makeItem(messageId, draft);
     setDecided((prev) => ({ ...prev, [id]: outcome }));
     return true;
   };
 
-  const locale = intlLocale.en;
+  const locale = intlLocale[language];
   const days = buildTimeline(messages, { query, on: on || undefined }, timeZone);
   const shown = days.reduce((sum, d) => sum + d.messages.length, 0);
   const time = new Intl.DateTimeFormat(locale, { timeZone, hour: "2-digit", minute: "2-digit" });
@@ -87,7 +92,12 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
         </p>
       </form>
 
-      {saveFailed && <p role="alert">{t("triage.saveError")}</p>}
+      {saveFailed && (
+        <p role="alert">
+          {t("triage.saveError")}{" "}
+          <button type="button" className="button" onClick={saveFailed}>{t("app.retry")}</button>
+        </p>
+      )}
       {messages.length === 0 && <p className="empty">{t("timeline.empty")}</p>}
       {messages.length > 0 && shown === 0 && <p className="empty">{t("timeline.noResults")}</p>}
 

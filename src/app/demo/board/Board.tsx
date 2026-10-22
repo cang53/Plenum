@@ -2,29 +2,34 @@
 
 import { useState } from "react";
 import { buildColumns, distinct, moveTask, STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
-import { t } from "@/lib/messages";
+import { logError } from "@/lib/log";
+import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
 type Props = {
   initialTasks: BoardTask[];
   // Saves a move; when it fails the card goes back. Without it (the demo) moves stay in the page.
   onMove?: (taskId: string, status: TaskStatus) => Promise<void>;
+  // The signed-in person's language; the demo stays English.
+  locale?: Locale;
 };
 
-export function Board({ initialTasks, onMove }: Props) {
+export function Board({ initialTasks, onMove, locale = "en" }: Props) {
+  const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
   const [owner, setOwner] = useState("");
   const [dragging, setDragging] = useState<string | null>(null);
 
   const columns = buildColumns(tasks, { phase: phase || undefined, owner: owner || undefined });
-  const [error, setError] = useState(false);
+  const [failed, setFailed] = useState<{ id: string; status: TaskStatus } | null>(null);
   const move = (id: string, status: TaskStatus) => {
     const before = tasks;
     setTasks((current) => moveTask(current, id, status));
-    setError(false);
-    onMove?.(id, status).catch(() => {
+    setFailed(null);
+    onMove?.(id, status).catch((error) => {
+      logError("board save failed", error);
       setTasks(before);
-      setError(true);
+      setFailed({ id, status });
     });
   };
 
@@ -50,7 +55,12 @@ export function Board({ initialTasks, onMove }: Props) {
           </select>
         </label>
       </div>
-      {error && <p role="alert" className="notice">{t("board.saveError")}</p>}
+      {failed && (
+        <p role="alert" className="notice">
+          {t("board.saveError")}{" "}
+          <button type="button" className="button" onClick={() => move(failed.id, failed.status)}>{t("app.retry")}</button>
+        </p>
+      )}
       <div className="board-scroll">
         <div className="board">
           {columns.map((column) => (

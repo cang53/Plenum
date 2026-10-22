@@ -1,6 +1,7 @@
 import { handlePastedMessage } from "@/server/dev-inbound";
 import { inboundConfig, inboundDeps } from "@/server/inbound-config";
 import { aiAsk, supabaseTriageIo, triageMessage } from "@/server/triage-run";
+import { logError } from "@/lib/log";
 
 // Local only: paste a message as JSON {slug, from, subject, body} to store it as if SES had received it.
 export async function POST(request: Request): Promise<Response> {
@@ -16,7 +17,7 @@ export async function POST(request: Request): Promise<Response> {
   const { status, body } = await handlePastedMessage(input ?? {}, inboundDeps(config).storeEmail);
   if (body.id) {
     // Triage is best effort: a failure must not lose the stored message.
-    await triageMessage(body.id, supabaseTriageIo(config.supabaseUrl, config.serviceRoleKey), aiAsk()).catch((error) => console.error("triage failed", error));
+    await triageMessage(body.id, supabaseTriageIo(config.supabaseUrl, config.serviceRoleKey), aiAsk()).catch((error) => logError("triage failed", error));
   }
   return Response.json(body, { status });
 }
