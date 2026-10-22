@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
 
+# A newer push to the same branch makes the older run pointless (and saves image pulls).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -45,8 +50,21 @@ jobs:
           node-version: 22
           cache: npm
       - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      # Registries rate limit shared runners, so keep the Supabase images in the Actions cache.
+      # Main saves them after a green run; pull requests restore main's copy.
+      - name: Restore cached Supabase images
+        id: images
+        uses: actions/cache@v4
+        with:
+          path: ~/supabase-images.tar
+          key: supabase-images-2.121.0-${{ hashFiles('supabase/config.toml') }}
+      - name: Load cached Supabase images
+        if: steps.images.outputs.cache-hit == 'true'
+        run: docker load -i ~/supabase-images.tar
       - name: Start local Supabase and export its keys
         env:
           # ghcr.io rate limits shared runners; the public ECR mirror does not.
@@ -66,6 +84,9 @@ jobs:
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep ^ANON_KEY= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"
             echo "SUPABASE_SERVICE_ROLE_KEY=$(grep ^SERVICE_ROLE_KEY= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"
           } >> "$GITHUB_ENV"
+      - name: Save Supabase images for the cache
+        if: steps.images.outputs.cache-hit != 'true'
+        run: docker save -o ~/supabase-images.tar $(docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '/supabase/' | sort -u)
       - name: Seed the local stack the way docs/local-run.md does (run twice to prove it is safe to re-run)
         run: |
           node scripts/seed-local.mjs seed-check@example.test
