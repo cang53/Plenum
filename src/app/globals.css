@@ -1,0 +1,33 @@
+:root {
+  --ground: #f4f6f8;
+  --ink: #1b2430;
+  --muted: #5a6675;
+  --accent: #0b5e5e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+}
+
+.home {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 16px;
+  line-height: 1.6;
+}
+
+.home h1 {
+  color: var(--accent);
+  margin: 0 0 8px;
+}
+
+.status {
+  color: var(--muted);
+}
