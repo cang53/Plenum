@@ -48,8 +48,17 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Start local Supabase and export its keys
+        env:
+          # ghcr.io rate limits shared runners; the public ECR mirror does not.
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: public.ecr.aws
         run: |
-          supabase start -x studio,imgproxy,edge-runtime,vector,logflare
+          # Start only what the app needs (database, auth, API); retry in case a pull still fails.
+          for attempt in 1 2 3; do
+            supabase start -x studio,imgproxy,edge-runtime,vector,logflare,realtime,storage-api,postgres-meta,supavisor && break
+            [ "$attempt" = 3 ] && exit 1
+            supabase stop --no-backup || true
+            sleep $((attempt * 20))
+          done
           supabase status -o env > "$RUNNER_TEMP/supabase.env"
           {
             echo "SUPABASE_URL=$(grep ^API_URL= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"

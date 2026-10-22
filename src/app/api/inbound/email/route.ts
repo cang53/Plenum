@@ -3,12 +3,18 @@ import { inboundConfig, inboundDeps } from "@/server/inbound-config";
 import { aiAsk, supabaseTriageIo, triageMessage } from "@/server/triage-run";
 import { fetchCertificateCached, isSnsUrl, verifySnsMessage, type SnsMessage } from "@/server/sns";
 import { logError } from "@/lib/log";
+import { clientKey, createRateLimiter } from "@/lib/rate-limit";
+
+const allow = createRateLimiter(120, 60_000);
 
 // Amazon SES posts each email received at a project address here, through an SNS topic.
 // A 5xx answer makes SNS retry, so only failures worth retrying return one.
 export async function POST(request: Request): Promise<Response> {
   const config = inboundConfig();
   if (!config) return new Response("Inbound email is not configured", { status: 503 });
+
+  // Before parsing or fetching certificates, so a flood stays cheap. SNS retries a 429 later.
+  if (!allow(clientKey(request))) return new Response("Too many requests", { status: 429 });
 
   let message: SnsMessage;
   try {
