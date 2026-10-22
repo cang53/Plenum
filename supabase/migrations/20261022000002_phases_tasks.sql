@@ -41,24 +41,35 @@ create index on public.tasks (project_id);
 create index on public.tasks (owner_id);
 create index on public.task_dependencies (successor_id);
 
--- Subtasks go one level deep and stay in their parent's project; a phase belongs to the same project.
+-- Subtasks go one level deep and stay in their parent's project; a phase belongs to the same
+-- project; the owner is on the project; a task never moves to another project.
+-- Security definer so the checks see rows the caller cannot (a hidden parent must still be refused).
 create function public.check_task_shape() returns trigger
-language plpgsql set search_path = public as $$
+language plpgsql security definer set search_path = public as $$
 declare
   parent tasks%rowtype;
 begin
+  if tg_op = 'UPDATE' and new.project_id is distinct from old.project_id then
+    raise exception 'a task cannot move to another project';
+  end if;
   if new.parent_id is not null then
     select * into parent from tasks where id = new.parent_id;
+    if parent.project_id is distinct from new.project_id then
+      raise exception 'a subtask must be in its parent''s project';
+    end if;
     if parent.parent_id is not null then
       raise exception 'subtasks can only go one level deep';
-    end if;
-    if parent.project_id <> new.project_id then
-      raise exception 'a subtask must be in its parent''s project';
     end if;
   end if;
   if new.phase_id is not null
      and not exists (select 1 from phases where id = new.phase_id and project_id = new.project_id) then
     raise exception 'the phase belongs to another project';
+  end if;
+  -- Checked only when the owner is set, so a task keeps working after its owner leaves the project.
+  if new.owner_id is not null
+     and (tg_op = 'INSERT' or new.owner_id is distinct from old.owner_id)
+     and not exists (select 1 from project_members where project_id = new.project_id and user_id = new.owner_id) then
+    raise exception 'the task owner must be a member of the project';
   end if;
   new.updated_at := now();
   return new;
@@ -97,11 +108,12 @@ before update on public.tasks
 for each row execute function public.limit_task_edits();
 
 -- Dependencies stay inside one project and never form a loop.
+-- Security definer so a task in a project the caller cannot see still counts as "another project".
 create function public.check_dependency() returns trigger
-language plpgsql set search_path = public as $$
+language plpgsql security definer set search_path = public as $$
 begin
   if (select project_id from tasks where id = new.predecessor_id)
-     <> (select project_id from tasks where id = new.successor_id) then
+     is distinct from (select project_id from tasks where id = new.successor_id) then
     raise exception 'dependencies must link tasks in the same project';
   end if;
   if exists (
@@ -121,6 +133,21 @@ $$;
 create trigger task_dependencies_check
 before insert or update on public.task_dependencies
 for each row execute function public.check_dependency();
+
+-- A phase never moves to another project (its tasks would be left pointing across projects).
+create function public.lock_phase_project() returns trigger
+language plpgsql set search_path = public as $$
+begin
+  if new.project_id is distinct from old.project_id then
+    raise exception 'a phase cannot move to another project';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger phases_lock_project
+before update on public.phases
+for each row execute function public.lock_phase_project();
 
 alter table public.phases enable row level security;
 alter table public.tasks enable row level security;
