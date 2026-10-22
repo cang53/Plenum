@@ -1,9 +1,4 @@
-:root {
-  --ground: #f4f6f8;
-  --ink: #1b2430;
-  --muted: #5a6675;
-  --accent: #0b5e5e;
-}
+@import "./tokens.css";
 
 * {
   box-sizing: border-box;
