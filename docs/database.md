@@ -5,7 +5,7 @@ Plenum runs on one Supabase project, **Plenum** (ref `uwimagjkbwourvepvtns`), in
 ## Migrations
 - The files in `supabase/migrations/` are the source of truth. Add a new file for every change; never edit one that has been applied.
 - File names are `YYYYMMDDNNNNNN_name.sql`. The hosted project records its own timestamps, so the names there differ but the order and content match.
-- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down, 5 message links, 6 suggestions, 7 audit log (not yet applied).
+- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down, 5 message links, 6 suggestions, 7 audit log.
 
 ## Checking a change
 1. `npm run test:db` runs every migration and the access-rule tests on a throwaway local Postgres (CI does the same).
