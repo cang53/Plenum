@@ -23,7 +23,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
       ) : (
         <table>
           <thead>
-            <tr><th>{t("audit.when")}</th><th>{t("audit.action")}</th><th>{t("audit.item")}</th><th>{t("audit.who")}</th></tr>
+            <tr><th scope="col">{t("audit.when")}</th><th scope="col">{t("audit.action")}</th><th scope="col">{t("audit.item")}</th><th scope="col">{t("audit.who")}</th></tr>
           </thead>
           <tbody>
             {rows.map((r, i) => (

@@ -31,6 +31,8 @@ export const en = {
   "board.due": "Due",
   "board.statusLabel": "Status",
   "board.saveError": "We could not save that change, so the card is back where it was.",
+  "app.home": "Projects home",
+  "app.pages": "Project pages",
   "app.board": "Board",
   "app.timeline": "Timeline",
   "app.items": "Items",

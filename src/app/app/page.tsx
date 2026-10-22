@@ -32,17 +32,19 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
         )}
       </nav>
       {current && (
-        <p>
-          <a href={`/app/board?project=${current.id}`}>{t("app.board")}</a>{" "}
-          <a href={`/app/timeline?project=${current.id}`}>{t("app.timeline")}</a>{" "}
-          <a href={`/app/items?project=${current.id}`}>{t("app.items")}</a>{" "}
-          <a href={`/app/audit?project=${current.id}`}>{t("app.audit")}</a>{" "}
-          <a href={`/app/members?project=${current.id}`}>{t("app.members")}</a>{" "}
-          <a href="/app/roles">{t("app.roles")}</a>{" "}
-          <a href={`/app/notifications?project=${current.id}`}>{t("app.notifications")}</a>{" "}
-          <a href={`/app/search?project=${current.id}`}>{t("app.search")}</a>{" "}
-          <a href={`/app/settings?project=${current.id}`}>{t("app.settings")}</a>
-        </p>
+        <nav aria-label={t("app.pages")}>
+          <ul className="nav-links">
+            <li><a href={`/app/board?project=${current.id}`}>{t("app.board")}</a></li>
+            <li><a href={`/app/timeline?project=${current.id}`}>{t("app.timeline")}</a></li>
+            <li><a href={`/app/items?project=${current.id}`}>{t("app.items")}</a></li>
+            <li><a href={`/app/audit?project=${current.id}`}>{t("app.audit")}</a></li>
+            <li><a href={`/app/members?project=${current.id}`}>{t("app.members")}</a></li>
+            <li><a href="/app/roles">{t("app.roles")}</a></li>
+            <li><a href={`/app/notifications?project=${current.id}`}>{t("app.notifications")}</a></li>
+            <li><a href={`/app/search?project=${current.id}`}>{t("app.search")}</a></li>
+            <li><a href={`/app/settings?project=${current.id}`}>{t("app.settings")}</a></li>
+          </ul>
+        </nav>
       )}
       <form action="/auth/signout" method="post">
         <button type="submit">{t("app.signOut")}</button>
