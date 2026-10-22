@@ -27,3 +27,10 @@ export async function sendLink(formData: FormData) {
   });
   redirect(error ? "/login?error=1" : "/login?sent=1");
 }
+
+export async function signInWithEntra(formData: FormData) {
+  if (authProvider() !== "entra") redirect("/login?error=1");
+  const next = safeNext(String(formData.get("next") ?? ""));
+  const { signIn } = await import("@/auth/entra");
+  await signIn("microsoft-entra-id", { redirectTo: `/auth/entra?next=${encodeURIComponent(next)}` });
+}
