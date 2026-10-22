@@ -198,3 +198,34 @@ $$;
 create trigger project_members_check
 before insert or update on public.project_members
 for each row execute function public.check_project_member();
+
+-- A project stays in the workspace it was created in, and keeps its creator.
+create function public.lock_project_fields() returns trigger
+language plpgsql set search_path = public as $$
+begin
+  if new.workspace_id is distinct from old.workspace_id or new.created_by is distinct from old.created_by then
+    raise exception 'a project cannot move workspace or change creator'
+      using errcode = 'insufficient_privilege';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger projects_lock_fields
+before update on public.projects
+for each row execute function public.lock_project_fields();
+
+-- Creates a project and returns it. Clients use this instead of insert ... returning, because
+-- the creator only becomes a member (and can see the row) once the insert has finished.
+-- Security invoker: the insert policy above still decides who may create a project.
+create function public.create_project(workspace uuid, project_name text, slug text)
+returns setof public.projects
+language plpgsql set search_path = public as $$
+declare
+  new_id uuid := gen_random_uuid();
+begin
+  insert into projects (id, workspace_id, name, email_slug, created_by)
+  values (new_id, workspace, project_name, slug, auth.uid());
+  return query select * from projects where id = new_id;
+end;
+$$;

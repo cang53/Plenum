@@ -1,6 +1,11 @@
 -- Rules for phases, tasks and dependencies (backlog task 5). Runs after access_rules.sql,
 -- reusing its people and project. Each block raises an error when a rule is broken.
 \set ON_ERROR_STOP on
+
+-- A task in the other workspace's project (from access_rules.sql).
+insert into public.tasks (id, project_id, title)
+values ('40000000-0000-0000-0000-000000000099', '20000000-0000-0000-0000-000000000099', 'Other plant task');
+
 set role authenticated;
 
 -- Pia (project manager) builds a small plan.
@@ -33,6 +38,39 @@ do $$ begin
   raise exception 'deep subtask accepted';
 exception when raise_exception then
   if sqlerrm = 'deep subtask accepted' then raise; end if;
+end $$;
+
+-- Pia cannot reach into another workspace's project, even by id: no subtask under its task,
+-- no dependency on it, no moving a task there. Nor can she give a task to someone off the project.
+do $$ begin
+  begin
+    insert into public.tasks (project_id, parent_id, title)
+    values ('20000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000099', 'Hidden child');
+    raise exception 'subtask under a hidden task accepted';
+  exception when raise_exception then
+    if sqlerrm = 'subtask under a hidden task accepted' then raise; end if;
+  end;
+  begin
+    insert into public.task_dependencies (predecessor_id, successor_id)
+    values ('40000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000099');
+    raise exception 'dependency on a hidden task accepted';
+  exception when raise_exception then
+    if sqlerrm = 'dependency on a hidden task accepted' then raise; end if;
+  end;
+  begin
+    update public.tasks set project_id = '20000000-0000-0000-0000-000000000099'
+    where id = '40000000-0000-0000-0000-000000000003';
+    raise exception 'task moved to another project';
+  exception when raise_exception then
+    if sqlerrm = 'task moved to another project' then raise; end if;
+  end;
+  begin
+    update public.tasks set owner_id = '00000000-0000-0000-0000-00000000000e'
+    where id = '40000000-0000-0000-0000-000000000003';
+    raise exception 'task given to a non-member';
+  exception when raise_exception then
+    if sqlerrm = 'task given to a non-member' then raise; end if;
+  end;
 end $$;
 
 -- Mo (member) owns "Lifting works": may change its status, nothing else, and nobody else's task.
