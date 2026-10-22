@@ -11,6 +11,15 @@ Source: the Figma AI export SS picked (Vite prototype: `liquid.css` tokens, `ui.
 - **Kept intact**: EN/NL strings through `messages.*` (no hard-coded copy), roles and RLS, existing tests, no per-person analytics (pulse is aggregate only), every AI change keeps its human click and source link.
 - Improvements over the Figma: fewer simultaneous blur layers (performance), dark mode derived from the same tokens, system light/dark by default, `color-mix()` tints instead of hand-picked alpha hex, Apple-style sidebar collapse on narrow screens, tab-bar style nav on phones.
 
+## Visual language: concept A, the single stream
+SS chose concept A from the chat design ideas (artifact ToYGvsGhGeyCfRfDa8EdMR) as the look for the whole app. Every remaining task follows it:
+- **Three materials**: clear glass for floating chrome (filters, composer, trays), frosted glass for the main window, dense near-opaque glass for bubbles, cards and rows.
+- **One calm stream**: Messages-like rhythm, day separators, pill-shaped chips and buttons, 18-24px continuous corners, own messages in the dark sage `--mine` tone.
+- **Source badges** (letter plus word, never colour alone): Teams, Email, Messenger, Site app. Agents get a soft olive-gold round mark and never look like a person.
+- **Agent card**: before/after change list, "Based on" links to the exact source messages, primary "Apply", plus Edit and Dismiss; nothing applies without a human click; the done state names who applied it and links back.
+- **Trust rules shown in the UI**: a "Project only" lock on the composer; no per-person ranking or scores anywhere.
+- Boards, lists and review screens reuse the same chips, badges, dense cards and agent card instead of inventing new patterns.
+
 ## Tasks
 One PR per row, about 400 changed lines or fewer. Order matters. UI-n touches CSS and markup only, no data or server logic.
 
@@ -27,6 +36,14 @@ One PR per row, about 400 changed lines or fewer. Order matters. UI-n touches CS
 | UI-9 | Members, roles, audit, settings | Forms and tables restyled on the primitives; destructive actions in dialogs |
 | UI-10 | Login, welcome, error, loading | Centered glass card, skeleton shimmer (static under reduced motion), plain-English states |
 | UI-11 | Polish and audit | Axe pass in e2e for light, dark, reduced-transparency, high-contrast and both languages; performance check (blur layers per screen), remove dead CSS |
+| UI-12 | Unified stream: data and adapters | `source` field on a message (`email` now; `teams`, `messenger`, `site` reserved); `SourceAdapter` interface with the email adapter wired to inbound mail and a mock Teams adapter behind a flag; only project-addressed messages; RLS and tests; no UI |
+| UI-13 | Stream page and source badges | `/app/stream`: day separators, person and own-message bubbles, source badges with letter and word, filter chips (All, per source) with `aria-pressed`, "Project only" composer lock; EN/NL strings |
+| UI-14 | Mail card | Collapsible email card (subject, one-line summary, body, folded quote, attachments, Open full email, Link to task); keyboard and screen-reader tested |
+| UI-15 | Inline agent suggestions | Agent card in the stream fed by existing AI suggestions: before/after rows, source links, Apply / Edit / Dismiss, applied state; reuses the existing accept action, no auto-apply |
+| UI-16 | Composer and send | Composer that posts a project message, channel picker limited to adapters that can send, disabled with a plain explanation where one cannot; tests |
+| UI-17 | Stream as home | Stream becomes the project landing page with Overview, Board and the rest as sibling nav items; mobile layout; axe pass |
+
+Order: UI-1 to UI-3 first, then UI-12 and UI-13 (the stream is the signature screen), then UI-4 onward and UI-14 to UI-17 as capacity allows, UI-11 last.
 
 ## Process
 Builder per task, then the Stage 3 reviewer checks code, tests and spec fit, fixes, and merges. Stage 6 runs in parallel and does not restyle; conflicts are expected only in `globals.css` and page markup, so UI tasks rebase on `main` before opening the PR.
