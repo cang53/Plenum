@@ -54,7 +54,7 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   });
   expect(posted.status()).toBe(201);
 
-  await page.getByRole("link", { name: "Timeline" }).click();
+  await page.locator("#main").getByRole("link", { name: "Timeline" }).click();
   const suggestion = page.getByRole("group", { name: "Suggested by AI" });
   await expect(suggestion).toContainText(subject);
   // next dev may not have hydrated the page yet, so a first click can be lost: click again until it is accepted.
