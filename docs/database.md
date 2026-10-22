@@ -42,5 +42,7 @@ file; the download button waits for sign-in (task 3). Email sends will log throu
 
 Changes to a task's status, dates or owner are written to the audit log by the database, under the person who made them. `public.seed_demo_project(workspace, manager)` (service role only) adds the example project; see `docs/pilot-onboarding.md`.
 
+Migration 10 (the fake-email `outbox` table) has been applied to the hosted project.
+
 ## Sign-in (stage 3)
 `/login` sends a Supabase email link; `/app` needs a session. In the Supabase dashboard (Authentication, URL Configuration) add `http://localhost:3000/auth/callback` and the deployed `/auth/callback` URL as redirect URLs. `AUTH_PROVIDER=entra` is reserved for task 3.

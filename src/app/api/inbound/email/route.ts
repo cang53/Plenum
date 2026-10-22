@@ -1,5 +1,6 @@
 import { handleSesNotification, type SesNotification } from "@/server/inbound-email";
 import { inboundConfig, inboundDeps } from "@/server/inbound-config";
+import { aiAsk, supabaseTriageIo, triageMessage } from "@/server/triage-run";
 import { fetchCertificateCached, isSnsUrl, verifySnsMessage, type SnsMessage } from "@/server/sns";
 
 // Amazon SES posts each email received at a project address here, through an SNS topic.
@@ -27,6 +28,10 @@ export async function POST(request: Request): Promise<Response> {
   if (message.Type !== "Notification") return new Response(null, { status: 204 });
 
   const result = await handleSesNotification(JSON.parse(message.Message) as SesNotification, inboundDeps(config));
+  // Triage is best effort: a failure must not make SNS resend an email that is already stored.
+  for (const id of result.stored) {
+    await triageMessage(id, supabaseTriageIo(config.supabaseUrl, config.serviceRoleKey), aiAsk()).catch((error) => console.error("triage failed", error));
+  }
   if (result.skipped) console.info(`inbound email ${message.MessageId} skipped: ${result.skipped}`);
   return Response.json(result);
 }
