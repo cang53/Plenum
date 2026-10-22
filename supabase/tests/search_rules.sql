@@ -13,6 +13,10 @@ do $$ begin
   if (select count(distinct kind) from public.search_project('20000000-0000-0000-0000-000000000001', 'crane')) <> 3 then
     raise exception 'search missed a kind of item';
   end if;
+  -- The sender's name or address finds their message, even if the word is not in the text.
+  if not exists (select 1 from public.search_project('20000000-0000-0000-0000-000000000001', 'x@example.com')) then
+    raise exception 'search missed a message by sender';
+  end if;
   if exists (select 1 from public.search_project('20000000-0000-0000-0000-000000000001', 'zzzznothing')) then
     raise exception 'search matched nothing-word';
   end if;

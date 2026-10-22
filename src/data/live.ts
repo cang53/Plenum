@@ -97,17 +97,17 @@ export async function dismissSuggestion(client: SupabaseClient, id: string): Pro
   if (!data?.length) throw new Error("suggestion not found or not allowed");
 }
 
-export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; priority: string; dueDate: string | null };
+export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string };
 
 // Tasks, decisions and risks of a project for the edit screen.
 export async function listManualItems(client: SupabaseClient, projectId: string): Promise<ManualItem[]> {
   const found = await Promise.all(
     MANUAL_KINDS.map(async (kind) => {
-      const cols = kind === "task" ? "id, title, details, status, priority, due_date" : kind === "risk" ? "id, title, details, status" : "id, title, details";
+      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code" : kind === "risk" ? "id, title, details, status" : "id, title, details";
       const { data, error } = await client.from(TABLE[kind]).select(cols).eq("project_id", projectId).order("created_at", { ascending: false });
       if (error) throw error;
       return ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({
-        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", priority: r.priority ?? "", dueDate: r.due_date ?? null,
+        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "",
       }));
     }),
   );
