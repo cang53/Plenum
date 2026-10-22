@@ -8,4 +8,5 @@ One project timeline for industrial teams: Teams messages and emails turn into t
 3. `npm run dev`, then open http://localhost:3000
 
 ## Docs
+- Database and migrations: [docs/database.md](docs/database.md)
 - Product docs: see [docs/links.md](docs/links.md)
