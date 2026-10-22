@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/messages";
 import "./globals.css";
 
@@ -7,15 +8,16 @@ export const metadata: Metadata = {
   description: t("app.tagline"),
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body>
-        <a className="skip" href="#main">{t("app.skip")}</a>
+        <a className="skip" href="#main">{t("app.skip", locale)}</a>
         {children}
       </body>
     </html>

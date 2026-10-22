@@ -1,10 +1,13 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listNotifications, listProjects } from "@/data/projects";
 import { notificationHref } from "@/domain/notifications";
-import { intlLocale, t } from "@/lib/messages";
+import { intlLocale } from "@/lib/messages";
+import { getLocale, getT } from "@/lib/locale";
 import { markAllRead } from "./actions";
 
 export default async function NotificationsPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+  const t = await getT();
+  const locale = await getLocale();
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), (await searchParams).project);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
@@ -25,7 +28,7 @@ export default async function NotificationsPage({ searchParams }: { searchParams
               <li key={n.id}>
                 {!n.read && <strong>{t("notifications.new")} </strong>}
                 <a href={notificationHref(n.kind, project.id)}>{t(`notifications.${n.kind}`)}: {n.subject}</a>{" "}
-                <time dateTime={n.createdAt}>{new Date(n.createdAt).toLocaleString(intlLocale.en)}</time>
+                <time dateTime={n.createdAt}>{new Date(n.createdAt).toLocaleString(intlLocale[locale])}</time>
               </li>
             ))}
           </ul>

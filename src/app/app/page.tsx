@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
-import { t } from "@/lib/messages";
+import { getT } from "@/lib/locale";
 
 export default async function AppHome({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+  const t = await getT();
   const supabase = await supabaseServer();
   const { data } = await supabase.auth.getUser();
   const projects = await listProjects(supabase);

@@ -1,11 +1,14 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
-import { messages, t, type MessageKey } from "@/lib/messages";
+import { messages, type MessageKey } from "@/lib/messages";
+import { getLocale, getT } from "@/lib/locale";
 import { saveProfile, saveProject } from "./actions";
 
 type Search = { project?: string; saved?: string; error?: string };
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<Search> }) {
+  const t = await getT();
+  const locale = await getLocale();
   const sp = await searchParams;
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), sp.project);
@@ -29,7 +32,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <p><label>{t("settings.displayName")} <input name="displayName" defaultValue={me?.display_name ?? ""} required /></label></p>
         <p>
           <label>{t("settings.language")}{" "}
-            <select name="locale" defaultValue={me?.locale ?? "en"}>
+            <select name="locale" defaultValue={locale}>
               {Object.keys(messages).map((l) => (
                 <option key={l} value={l}>{t(`settings.language.${l}` as MessageKey)}</option>
               ))}

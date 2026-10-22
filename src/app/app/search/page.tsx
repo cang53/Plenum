@@ -1,9 +1,10 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects, searchProject } from "@/data/projects";
 import { plainSnippet, searchHref } from "@/domain/search";
-import { t } from "@/lib/messages";
+import { getT } from "@/lib/locale";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ project?: string; q?: string }> }) {
+  const t = await getT();
   const supabase = await supabaseServer();
   const { project: chosen, q = "" } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
