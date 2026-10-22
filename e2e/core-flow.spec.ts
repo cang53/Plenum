@@ -68,7 +68,10 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   await page.goto(boardUrl!);
   const card = page.getByRole("article").filter({ hasText: subject });
   await expect(card).toBeVisible();
+  // The move is saved by a server action; wait for it to finish, or the reload can beat the save.
+  const saved = page.waitForResponse((r) => r.request().method() === "POST" && new URL(r.url()).pathname.startsWith("/app/board"));
   await card.getByLabel("Status").selectOption("in_progress");
+  await saved;
   await page.reload();
   await expect(page.getByRole("region", { name: "In progress" }).getByText(subject)).toBeVisible();
 

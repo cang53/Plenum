@@ -3,9 +3,7 @@
 One project timeline for industrial teams: Teams messages and emails turn into tasks, decisions and reports, with people approving every AI suggestion.
 
 ## Run locally
-1. Copy `.env.example` to `.env.local` and fill in the values.
-2. `npm install`
-3. `npm run dev`, then open http://localhost:3000
+See [docs/local-run.md](docs/local-run.md) for the full local setup (Supabase CLI, seed, demo script).
 
 ## Docs
 - Database and migrations: [docs/database.md](docs/database.md)
