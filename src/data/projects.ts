@@ -17,3 +17,33 @@ export async function listProjects(client: SupabaseClient): Promise<Project[]> {
 export function currentProject(projects: Project[], chosenId?: string | null): Project | undefined {
   return projects.find((p) => p.id === chosenId) ?? projects[0];
 }
+
+export type Member = { userId: string; role: string; name: string; email: string };
+export type Invitation = { id: string; email: string; role: string };
+
+export async function listMembers(client: SupabaseClient, projectId: string): Promise<Member[]> {
+  const { data, error } = await client
+    .from("project_members")
+    .select("user_id, role, profiles(display_name, email)")
+    .eq("project_id", projectId);
+  if (error) throw error;
+  type Row = { user_id: string; role: string; profiles: { display_name: string; email: string } | null };
+  return ((data ?? []) as unknown as Row[]).map((r) => ({
+    userId: r.user_id,
+    role: r.role,
+    name: r.profiles?.display_name ?? "",
+    email: r.profiles?.email ?? "",
+  }));
+}
+
+// Only project managers can read invitations; everyone else gets an empty list.
+export async function listInvitations(client: SupabaseClient, projectId: string): Promise<Invitation[]> {
+  const { data, error } = await client
+    .from("invitations")
+    .select("id, email, role")
+    .eq("project_id", projectId)
+    .is("accepted_at", null)
+    .order("created_at");
+  if (error) throw error;
+  return data ?? [];
+}
