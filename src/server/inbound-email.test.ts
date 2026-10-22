@@ -56,7 +56,7 @@ describe("handleSesNotification", () => {
     const { stored, deps: d } = deps(["line4-ghent", "bridge-a12"]);
     const result = await handleSesNotification(notification(), d);
 
-    expect(result).toEqual({ stored: ["id-line4-ghent", "id-bridge-a12"], skipped: null });
+    expect(result).toEqual({ stored: ["id-line4-ghent", "id-bridge-a12"], skipped: null, attachmentText: "" });
     expect(stored[0]).toMatchObject({
       emailSlug: "line4-ghent",
       externalId: "<abc@mail.supplier.example>",
@@ -77,6 +77,7 @@ describe("handleSesNotification", () => {
     expect(await handleSesNotification(notification(), d)).toEqual({
       stored: [],
       skipped: "no open project at that address",
+      attachmentText: "",
     });
   });
 

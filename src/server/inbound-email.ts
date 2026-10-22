@@ -1,4 +1,5 @@
 import { simpleParser, type AddressObject } from "mailparser";
+import { attachmentText } from "./attachment-text";
 import { projectSlugsFor, rawEmailLocation } from "../domain/inbound";
 
 // The parts of an SES "Received" notification this handler reads.
@@ -33,7 +34,8 @@ export type InboundDeps = {
   storeEmail: (email: StoredEmail) => Promise<string | null>;
 };
 
-export type InboundResult = { stored: string[]; skipped: string | null };
+// attachmentText is read from the email for triage only; it is not stored.
+export type InboundResult = { stored: string[]; skipped: string | null; attachmentText?: string };
 
 function addresses(field: AddressObject | AddressObject[] | undefined): string[] {
   const list = Array.isArray(field) ? field : field ? [field] : [];
@@ -76,5 +78,8 @@ export async function handleSesNotification(notification: SesNotification, deps:
     const id = await deps.storeEmail({ ...email, emailSlug });
     if (id) stored.push(id);
   }
-  return { stored, skipped: stored.length ? null : "no open project at that address" };
+  const text = stored.length
+    ? await attachmentText(parsed.attachments.map((a) => ({ filename: a.filename ?? "attachment", contentType: a.contentType, content: a.content }))).catch(() => "")
+    : "";
+  return { stored, skipped: stored.length ? null : "no open project at that address", attachmentText: text };
 }

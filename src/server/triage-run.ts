@@ -14,11 +14,12 @@ export type TriageIo = {
   save: (row: { project_id: string; message_id: string } & Suggestion) => Promise<void>;
 };
 
+// attachmentText is added to what triage reads, not to the stored message.
 // Returns true when a suggestion was saved. A message that already has one is left alone.
-export async function triageMessage(messageId: string, io: TriageIo, ask: Ask): Promise<boolean> {
+export async function triageMessage(messageId: string, io: TriageIo, ask: Ask, attachmentText = ""): Promise<boolean> {
   const found = await io.load(messageId);
   if (!found) return false;
-  const suggestion = await suggestFor(found.message, ask);
+  const suggestion = await suggestFor(attachmentText ? { ...found.message, bodyText: `${found.message.bodyText}\n\n${attachmentText}` } : found.message, ask);
   if (!suggestion) return false;
   await io.save({ project_id: found.projectId, message_id: messageId, ...suggestion });
   return true;
