@@ -89,3 +89,6 @@ for all using (public.can_manage_project(project_id))
 with check (public.can_manage_project(project_id));
 
 grant select, insert, update, delete on public.decisions, public.risks, public.change_requests to authenticated;
+
+-- Like the other trigger functions (migration 4), this is not an API call for anyone.
+revoke execute on function public.check_source_message() from public, anon, authenticated;

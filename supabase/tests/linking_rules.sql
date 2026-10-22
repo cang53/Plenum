@@ -72,5 +72,14 @@ begin
   if n <> 0 then raise exception 'outsider saw % items', n; end if;
 end $$;
 
+-- The trigger function is not callable through the API.
+do $$ begin
+  begin
+    perform public.check_source_message();
+    raise exception 'a signed-in user called check_source_message';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
 reset role;
 \echo 'linking rules: all checks passed'
