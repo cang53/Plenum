@@ -26,6 +26,14 @@ export function isSnsUrl(value: string | undefined): boolean {
   }
 }
 
+// SNS signing certificates live at /SimpleNotificationService-<id>.pem. Allowing only that path keeps
+// a forged message from making us fetch (and cache) arbitrary URLs on the SNS host.
+export function isSnsCertificateUrl(value: string): boolean {
+  if (!isSnsUrl(value)) return false;
+  const url = new URL(value);
+  return url.search === "" && /^\/SimpleNotificationService-[A-Za-z0-9]+\.pem$/.test(url.pathname);
+}
+
 // The exact text SNS signs, as documented for each message type.
 export function stringToSign(message: SnsMessage): string {
   const keys =
@@ -42,7 +50,7 @@ export async function verifySnsMessage(
   message: SnsMessage,
   fetchCertificate: (url: string) => Promise<string>,
 ): Promise<boolean> {
-  if (!isSnsUrl(message.SigningCertURL) || !message.SigningCertURL.endsWith(".pem")) return false;
+  if (!isSnsCertificateUrl(message.SigningCertURL)) return false;
   const algorithm = message.SignatureVersion === "2" ? "RSA-SHA256" : message.SignatureVersion === "1" ? "RSA-SHA1" : null;
   if (!algorithm) return false;
   const certificate = await fetchCertificate(message.SigningCertURL);

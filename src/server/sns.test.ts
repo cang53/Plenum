@@ -1,6 +1,6 @@
 import { createSign, generateKeyPairSync } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { isSnsUrl, stringToSign, verifySnsMessage, type SnsMessage } from "./sns";
+import { isSnsCertificateUrl, isSnsUrl, stringToSign, verifySnsMessage, type SnsMessage } from "./sns";
 
 const { privateKey, publicKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const publicPem = publicKey.export({ type: "spki", format: "pem" }).toString();
@@ -48,6 +48,14 @@ describe("verifySnsMessage", () => {
     const message = signed({ SigningCertURL: "https://attacker.example/cert.pem" });
     expect(await verifySnsMessage(message, async () => ((fetched = true), publicPem))).toBe(false);
     expect(fetched).toBe(false);
+  });
+});
+
+describe("isSnsCertificateUrl", () => {
+  it("allows only the SNS certificate path", () => {
+    expect(isSnsCertificateUrl("https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-6aad65c2f9911b05cd53efda11f913f9.pem")).toBe(true);
+    expect(isSnsCertificateUrl("https://sns.eu-west-1.amazonaws.com/anything/else.pem")).toBe(false);
+    expect(isSnsCertificateUrl("https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-abc.pem?x=1")).toBe(false);
   });
 });
 
