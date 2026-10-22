@@ -1,0 +1,188 @@
+/* Design tokens for the Liquid Glass look. Components read these, never raw values.
+   Light is the default; dark applies with data-theme="dark". The fallback blocks at
+   the end turn glass into opaque surfaces, so no component needs its own fallback. */
+:root {
+  /* Color */
+  --surface: #ffffff;
+  --surface-subtle: #f0f5f3;
+  --surface-muted: #e7eeeb;
+  --surface-hover: #e4eeea;
+  --text: #203e36;
+  --text-secondary: #556b62;
+  --text-muted: #5f746b;
+  --border: #dce7e1;
+  --border-strong: #74897e;
+  --primary: #234f40;
+  --primary-hover: #173b2e;
+  --on-primary: #ffffff;
+  --focus-ring: #2f6b53;
+  --danger: #a13a3a;
+  --danger-surface: #f8e8e6;
+  --success: #3b6c51;
+  --success-surface: #e5f0e4;
+  --warning: #82552f;
+  --warning-surface: #f5ebdf;
+  --info: #4d6a82;
+  --info-surface: #e9f0f4;
+  --accent-soft: #edf3e9;
+  --accent-text: #41654c;
+  --status-todo: #6f857b;
+  --status-progress: #5d7e70;
+  --status-blocked: #a8774f;
+  --status-done: #466f59;
+
+  /* Glass: translucent fills over the ambient background */
+  --glass: #ffffff60;
+  --glass-dense: #ffffffa8;
+  --glass-soft: #ffffff38;
+  --glass-selected: #ffffffc4;
+  --glass-edge: #ffffffd1;
+  --glass-highlight: #ffffffdf;
+  --glass-blur: 24px;
+  --glass-saturation: 150%;
+  --glass-inset: inset 0 1px 0 #ffffffcf, inset 1px 0 0 #ffffff73;
+  --ambient-background:
+    radial-gradient(ellipse at 88% -8%, #ece6cebd 0%, transparent 39%),
+    radial-gradient(ellipse at 4% 55%, #d2e3d875 0%, transparent 45%),
+    radial-gradient(ellipse at 70% 98%, #dae8e5a8 0%, transparent 45%),
+    linear-gradient(125deg, #e2eae4, #edf1e9 46%, #e1ebe7);
+
+  /* Shadow */
+  --elevation: 0 8px 28px #2b584508;
+  --elevation-glass: 0 16px 44px #34594a0b, 0 2px 8px #34594a05;
+  --elevation-dialog: 0 28px 100px #1b453b30;
+  --glass-shadow: var(--glass-inset), var(--elevation-glass);
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius: 0.875rem;
+  --radius-lg: 1.5rem;
+  --radius-full: 999rem;
+
+  /* Type */
+  --font: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --line-tight: 1.3;
+  --line-normal: 1.6;
+  --tracking-tight: -0.03em;
+
+  /* Spacing */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.25rem;
+  --s6: 1.5rem;
+  --s8: 2rem;
+  --s10: 2.5rem;
+  --s12: 3rem;
+  --s16: 4rem;
+  --target: 2.75rem;
+  --focus-width: 2px;
+  --focus-offset: 3px;
+
+  /* Motion */
+  --motion-fast: 140ms;
+  --motion-normal: 240ms;
+  --motion-slow: 1100ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Names used by the pre-glass stylesheet */
+  --ground: var(--surface-subtle);
+  --ink: var(--text);
+  --muted: var(--text-secondary);
+  --accent: var(--primary);
+}
+
+[data-theme="dark"] {
+  --surface: #263831;
+  --surface-subtle: #1f2f28;
+  --surface-muted: #354a40;
+  --surface-hover: #3d5549;
+  --text: #e8f1e7;
+  --text-secondary: #b4c7b8;
+  --text-muted: #a4b9aa;
+  --border: #4d6655;
+  --border-strong: #7f9b88;
+  --primary: #c6dfb8;
+  --primary-hover: #ddefd3;
+  --on-primary: #213c2b;
+  --focus-ring: #afd6b5;
+  --danger: #f3a29a;
+  --danger-surface: #4a2f31;
+  --success: #bddab3;
+  --success-surface: #354d36;
+  --warning: #dfbd96;
+  --warning-surface: #504634;
+  --info: #b3ceda;
+  --info-surface: #344954;
+  --accent-soft: #344b37;
+  --accent-text: #bfd5b3;
+  --status-todo: #94aa9c;
+  --status-progress: #8fb5a2;
+  --status-blocked: #d9a878;
+  --status-done: #a6cfa8;
+  --glass: #213c2d85;
+  --glass-dense: #294535d9;
+  --glass-soft: #d6f2d409;
+  --glass-selected: #ffffff1a;
+  --glass-edge: #c4e6be29;
+  --glass-highlight: #c3e6bc36;
+  --glass-inset: inset 0 1px 0 #c8eac127, inset 1px 0 0 #c8eac110;
+  --ambient-background:
+    radial-gradient(ellipse at 90% 0%, #73704a30, transparent 45%),
+    radial-gradient(ellipse at 0% 70%, #4f7d5735, transparent 45%),
+    linear-gradient(130deg, #15291e, #23382a 50%, #172d22);
+}
+
+/* Fallbacks: opaque surfaces, no blur. */
+@media (prefers-reduced-transparency: reduce) {
+  :root, [data-theme="dark"] {
+    --glass: var(--surface);
+    --glass-dense: var(--surface);
+    --glass-soft: var(--surface-muted);
+    --glass-selected: var(--surface-hover);
+    --glass-blur: 0px;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root, [data-theme="dark"] {
+    --glass: var(--surface);
+    --glass-dense: var(--surface);
+    --glass-soft: var(--surface-muted);
+    --glass-selected: var(--surface-hover);
+    --glass-blur: 0px;
+    --glass-edge: var(--border-strong);
+    --border: var(--border-strong);
+    --text-secondary: var(--text);
+    --text-muted: var(--text);
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  :root, [data-theme="dark"] {
+    --glass: var(--surface);
+    --glass-dense: var(--surface);
+    --glass-soft: var(--surface-muted);
+    --glass-selected: var(--surface-hover);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-normal: 0ms;
+    --motion-slow: 0ms;
+  }
+}
