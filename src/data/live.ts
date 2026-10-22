@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
+import { ITEM_KINDS, ITEM_TABLE, isValidDraft, type ItemDraft, type LinkedItem } from "@/domain/linking";
+import type { StoredSuggestion } from "@/domain/triage";
 import { fromRow, type MessageRow, type TimelineMessage } from "@/domain/timeline";
 
 type TaskRow = {
@@ -51,4 +53,44 @@ export async function listTimelineMessages(client: SupabaseClient, projectId: st
     .order("received_at", { ascending: false });
   if (error) throw error;
   return ((data ?? []) as unknown as MessageRow[]).map(fromRow);
+}
+
+export async function listPendingSuggestions(client: SupabaseClient, projectId: string): Promise<StoredSuggestion[]> {
+  const { data, error } = await client
+    .from("suggestions")
+    .select("id, message_id, kind, title, details, status")
+    .eq("project_id", projectId)
+    .eq("status", "pending");
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ id: r.id, messageId: r.message_id, kind: r.kind, title: r.title, details: r.details, status: r.status }));
+}
+
+// Items already made from this project's messages, for the lines under each message.
+export async function listLinkedItems(client: SupabaseClient, projectId: string): Promise<LinkedItem[]> {
+  const found = await Promise.all(
+    ITEM_KINDS.map(async (kind) => {
+      const { data, error } = await client.from(ITEM_TABLE[kind]).select("id, title, source_message_id").eq("project_id", projectId).not("source_message_id", "is", null);
+      if (error) throw error;
+      return (data ?? []).map((r) => ({ id: r.id, kind, title: r.title, messageId: r.source_message_id }));
+    }),
+  );
+  return found.flat();
+}
+
+// One database call makes the item (linked to the source message) and marks the suggestion accepted.
+export async function acceptSuggestion(client: SupabaseClient, id: string, draft: ItemDraft): Promise<void> {
+  if (!isValidDraft(draft)) throw new Error("title is required");
+  const { error } = await client.rpc("accept_suggestion", {
+    p_id: id,
+    p_kind: draft.kind,
+    p_title: draft.title.trim(),
+    p_details: draft.details.trim(),
+  });
+  if (error) throw error;
+}
+
+export async function dismissSuggestion(client: SupabaseClient, id: string): Promise<void> {
+  const { data, error } = await client.from("suggestions").update({ status: "dismissed" }).eq("id", id).eq("status", "pending").select("id");
+  if (error) throw error;
+  if (!data?.length) throw new Error("suggestion not found or not allowed");
 }
