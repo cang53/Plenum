@@ -24,7 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - if: ${{ env.AWS_ROLE_ARN == '' || env.BEDROCK_MODEL_ID == '' }}
-        run: echo "AI triage accuracy: not measured (Bedrock secrets are not set up yet)." | tee -a "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "AI triage accuracy: not measured (Bedrock secrets are not set up yet)." | tee -a "$GITHUB_STEP_SUMMARY"
       - if: ${{ env.AWS_ROLE_ARN != '' && env.BEDROCK_MODEL_ID != '' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
