@@ -28,6 +28,6 @@ jobs:
       - name: Align history (no-op once aligned)
         run: bash scripts/db-align-history.sh
       - name: Show what will run
-        run: supabase db push --dry-run
+        run: supabase db push --include-all --dry-run
       - name: Apply
-        run: supabase db push --yes
+        run: supabase db push --include-all --yes
