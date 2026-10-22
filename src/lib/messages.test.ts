@@ -22,6 +22,15 @@ describe("t", () => {
     const keys = Object.keys(messages.en).sort();
     for (const lang of Object.values(messages)) expect(Object.keys(lang).sort()).toEqual(keys);
   });
+
+  // A Dutch value equal to the English one is probably an untranslated copy; shared words are listed here.
+  const sameInDutch = ["app.name", "board.statusLabel", "app.items", "settings.project", "risk.open", "audit.item", "link.details"];
+  it("translates every Dutch string", () => {
+    const untranslated = Object.keys(messages.en).filter(
+      (k) => !sameInDutch.includes(k) && (messages.nl as Record<string, string>)[k] === (messages.en as Record<string, string>)[k],
+    );
+    expect(untranslated).toEqual([]);
+  });
 });
 
 describe("components", () => {
