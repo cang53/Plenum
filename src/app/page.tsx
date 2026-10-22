@@ -8,6 +8,9 @@ export default function Home() {
       <p>{t("app.tagline")}</p>
       <p className="status">{t("home.status")}</p>
       <p>
+        <Link href="/login">{t("home.signIn")}</Link>
+      </p>
+      <p>
         <Link href="/demo/board">{t("home.demoLink")}</Link>
       </p>
       <p>
