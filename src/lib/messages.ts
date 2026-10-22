@@ -45,6 +45,8 @@ export const messages = {
     "members.pending": "Waiting to join",
     "members.noPending": "No open invitations.",
     "members.withdraw": "Withdraw",
+    "members.resend": "Resend",
+    "members.expired": "Expired. Resend to give it 14 more days.",
     "members.invite": "Invite someone",
     "members.send": "Send invitation",
     "role.project_manager": "Project manager",

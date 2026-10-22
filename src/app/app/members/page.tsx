@@ -1,8 +1,8 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listInvitations, listMembers, listProjects } from "@/data/projects";
-import { ROLES } from "@/domain/invitations";
+import { isExpired, ROLES } from "@/domain/invitations";
 import { t } from "@/lib/messages";
-import { changeRole, invite, removeMember, withdraw } from "./actions";
+import { changeRole, invite, removeMember, resend, withdraw } from "./actions";
 
 export default async function MembersPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
   const supabase = await supabaseServer();
@@ -38,7 +38,11 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
         <ul>
           {invitations.map((i) => (
             <li key={i.id}>
-              {i.email} ({t(`role.${i.role as (typeof ROLES)[number]}`)})
+              {i.email} ({t(`role.${i.role as (typeof ROLES)[number]}`)}){isExpired(i.expiresAt) && <> {t("members.expired")}</>}
+              <form action={resend}>
+                <input type="hidden" name="id" value={i.id} />
+                <button type="submit">{t("members.resend")}</button>
+              </form>
               <form action={withdraw}>
                 <input type="hidden" name="id" value={i.id} />
                 <button type="submit">{t("members.withdraw")}</button>
