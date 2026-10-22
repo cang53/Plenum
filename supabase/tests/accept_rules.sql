@@ -60,5 +60,21 @@ begin
   end if;
 end $$;
 
+-- A task made from a suggestion keeps the details.
+reset role;
+insert into public.messages (id, project_id, external_id, from_address)
+values ('50000000-0000-0000-0000-000000000005', '20000000-0000-0000-0000-000000000001', '<fifth@mail.example>', 'z@mail.example');
+insert into public.suggestions (id, project_id, message_id, kind, title)
+values ('60000000-0000-0000-0000-000000000005', '20000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000005', 'task', 'Book hoist');
+set role authenticated;
+do $$
+begin
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
+  perform public.accept_suggestion('60000000-0000-0000-0000-000000000005', 'task', 'Book hoist', 'Week 46, two days');
+  if not exists (select 1 from public.tasks where title = 'Book hoist' and details = 'Week 46, two days' and source_message_id = '50000000-0000-0000-0000-000000000005') then
+    raise exception 'task from a suggestion lost its details';
+  end if;
+end $$;
+
 reset role;
 \echo 'accept rules: all checks passed'
