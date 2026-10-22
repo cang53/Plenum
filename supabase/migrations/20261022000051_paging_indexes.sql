@@ -31,3 +31,7 @@ language sql stable security invoker set search_path = public as $$
   order by r.kind, r.id
   offset greatest(skip, 0) limit 51;
 $$;
+
+-- A replaced function loses its grants: signed-in people only, as before.
+revoke execute on function public.search_project(uuid, text, int) from public, anon;
+grant execute on function public.search_project(uuid, text, int) to authenticated;

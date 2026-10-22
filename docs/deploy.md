@@ -6,7 +6,7 @@
 1. In Vercel, import `cang53/Plenum`. Region and build settings are read from `vercel.json`.
 2. Add the variables below under Settings, Environment Variables (Production and Preview). Mark secrets as Sensitive.
 3. Deploy, then confirm `GET <site>/api/health` returns 200 `{ok:true}`. Set it as the deploy check (Settings, Deployment Checks, or any uptime monitor): it returns only up or down.
-4. Point a daily scheduler at `POST <site>/api/digest` with `Authorization: Bearer $DIGEST_SECRET` (Vercel Cron only sends GET, so use GitHub Actions schedule or another scheduler).
+4. Point a hourly scheduler at `POST <site>/api/jobs` with `Authorization: Bearer $JOBS_SECRET` (Vercel Cron only sends GET, so use GitHub Actions schedule or another scheduler).
 
 CI runs `npm run check:switches` on every pull request, so a misconfigured default fails before deploy. Run it locally with the production values before flipping a switch (see `account-ready.md`).
 
@@ -21,7 +21,7 @@ CI runs `npm run check:switches` on every pull request, so a misconfigured defau
 | `SES_INBOUND_TOPIC_ARN` | no | always | SNS topic allowed to post inbound mail |
 | `AWS_REGION` | no | always | Must be an EU region (e.g. `eu-west-1`) |
 | `APP_URL` | no | always | Public site URL, used in email links |
-| `DIGEST_SECRET` | **yes** | for the digest | Without it `/api/digest` returns 403 |
+| `JOBS_SECRET` | **yes** | for background jobs | Without it `/api/jobs` returns 403 |
 | `AUTH_PROVIDER` | no | optional | `supabase` (default) or `entra` |
 | `EMAIL_PROVIDER` | no | optional | `fake` (default) or `ses`; `ses` also needs `SES_FROM_ADDRESS`, `AWS_REGION` (EU) and AWS keys |
 | `AI_PROVIDER` | no | optional | `rules` (default) or `bedrock` |

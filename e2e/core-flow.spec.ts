@@ -44,8 +44,8 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   await expect(page.getByRole("status")).toBeVisible();
   await page.goto(await signInLink());
   await expect(page).toHaveURL(/\/app/);
-  await expect(page.getByText(email)).toBeVisible();
-  const boardUrl = await page.getByRole("link", { name: "Board" }).getAttribute("href");
+  await expect(page.locator("#main").getByText(email)).toBeVisible();
+  const boardUrl = await page.locator("#main").getByRole("link", { name: "Board" }).getAttribute("href");
 
   // A message arrives through the local inbound endpoint and is triaged by the offline rules.
   const subject = `Send the cabinet drawings ${run}`;
@@ -54,7 +54,7 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   });
   expect(posted.status()).toBe(201);
 
-  await page.getByRole("link", { name: "Timeline" }).click();
+  await page.locator("#main").getByRole("link", { name: "Timeline" }).click();
   const suggestion = page.getByRole("group", { name: "Suggested by AI" });
   await expect(suggestion).toContainText(subject);
   // next dev may not have hydrated the page yet, so a first click can be lost: click again until it is accepted.

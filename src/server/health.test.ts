@@ -8,7 +8,13 @@ describe("checkHealth", () => {
   afterEach(() => vi.restoreAllMocks());
 
   it("is up when the database answers", async () => {
-    expect(await checkHealth(env, answer(200))).toEqual({ ok: true, database: "up" });
+    expect(await checkHealth(env, answer(200))).toMatchObject({ ok: true, database: "up" });
+  });
+
+  it("shows the last run of each background job", async () => {
+    const rows = [{ job: "digest", last_run_at: "2026-10-22T06:00:00Z", ok: true }];
+    const doFetch = (async () => Response.json(rows)) as typeof fetch;
+    expect((await checkHealth(env, doFetch)).jobs).toEqual({ digest: { lastRun: "2026-10-22T06:00:00Z", ok: true } });
   });
 
   it("is down on a server error, logging only the kind", async () => {

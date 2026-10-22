@@ -6,6 +6,7 @@ export type OutgoingEmail = {
   to: string[];
   subject: string;
   bodyText: string;
+  attempt?: number;
 };
 
 export type EmailSender = { send: (email: OutgoingEmail) => Promise<void> };
@@ -56,6 +57,7 @@ export function sesSender(
         to_addresses: email.to,
         subject: email.subject,
         body_text: email.bodyText,
+        attempt: email.attempt ?? 1,
         status: error ? "failed" : "sent",
         error: error ? String(error instanceof Error ? error.message : error) : null,
       });

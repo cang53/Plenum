@@ -3,6 +3,12 @@ import type { en } from "./messages.en";
 
 export const nl: Record<keyof typeof en, string> = {
   "app.name": "Plenum",
+  "app.overview": "Overzicht",
+  "shell.main": "Hoofdmenu",
+  "shell.projects": "Projecten",
+  "shell.searchPlaceholder": "Zoek in dit project",
+  "shell.account": "Mijn account",
+  "shell.mobile": "Hoofdpagina's",
   "app.skip": "Ga naar de hoofdinhoud",
   "app.loading": "Laden…",
   "app.error": "Er ging iets mis aan onze kant. Uw gegevens zijn veilig.",
