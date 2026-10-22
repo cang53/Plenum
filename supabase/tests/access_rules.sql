@@ -133,5 +133,29 @@ begin
   if n <> 1 then raise exception 'admin could not rename the project'; end if;
 end $$;
 
+-- Signed-out visitors cannot call the policy helpers or create projects, and nobody can call
+-- trigger functions directly (migration 4).
+set role anon;
+do $$ begin
+  begin
+    perform public.can_see_project('20000000-0000-0000-0000-000000000001');
+    raise exception 'anon called a policy helper';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform public.create_project('10000000-0000-0000-0000-000000000001', 'Anon project', 'anon-project');
+    raise exception 'anon called create_project';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+set role authenticated;
+do $$ begin
+  begin
+    perform public.check_task_shape();
+    raise exception 'a signed-in user called a trigger function';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
 reset role;
 \echo 'access rules: all checks passed'
