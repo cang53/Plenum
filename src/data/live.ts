@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { MANUAL_KINDS, TABLE, toColumns, type ItemInput, type ManualKind } from "@/domain/items";
+import type { AuditRow } from "@/domain/audit";
 import { STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
 import { ITEM_KINDS, ITEM_TABLE, isValidDraft, type ItemDraft, type LinkedItem } from "@/domain/linking";
 import type { StoredSuggestion } from "@/domain/triage";
@@ -93,4 +95,43 @@ export async function dismissSuggestion(client: SupabaseClient, id: string): Pro
   const { data, error } = await client.from("suggestions").update({ status: "dismissed" }).eq("id", id).eq("status", "pending").select("id");
   if (error) throw error;
   if (!data?.length) throw new Error("suggestion not found or not allowed");
+}
+
+export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; priority: string; dueDate: string | null };
+
+// Tasks, decisions and risks of a project for the edit screen.
+export async function listManualItems(client: SupabaseClient, projectId: string): Promise<ManualItem[]> {
+  const found = await Promise.all(
+    MANUAL_KINDS.map(async (kind) => {
+      const cols = kind === "task" ? "id, title, status, priority, due_date" : kind === "risk" ? "id, title, details, status" : "id, title, details";
+      const { data, error } = await client.from(TABLE[kind]).select(cols).eq("project_id", projectId).order("created_at", { ascending: false });
+      if (error) throw error;
+      return ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({
+        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", priority: r.priority ?? "", dueDate: r.due_date ?? null,
+      }));
+    }),
+  );
+  return found.flat();
+}
+
+export async function createManualItem(client: SupabaseClient, projectId: string, item: ItemInput): Promise<void> {
+  const { error } = await client.from(TABLE[item.kind]).insert({ project_id: projectId, ...toColumns(item) });
+  if (error) throw error;
+}
+
+export async function updateManualItem(client: SupabaseClient, id: string, item: ItemInput): Promise<void> {
+  const { data, error } = await client.from(TABLE[item.kind]).update(toColumns(item)).eq("id", id).select("id");
+  if (error) throw error;
+  if (!data?.length) throw new Error("item not found or not allowed");
+}
+
+export async function listAudit(client: SupabaseClient, projectId: string): Promise<AuditRow[]> {
+  const { data, error } = await client
+    .from("audit_log")
+    .select("created_at, project_id, actor_id, action, entity_type, entity_id, source_message_id")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false })
+    .limit(5000);
+  if (error) throw error;
+  return data ?? [];
 }

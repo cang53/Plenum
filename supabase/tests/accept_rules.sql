@@ -40,5 +40,25 @@ begin
   end if;
 end $$;
 
+-- The decision and change request paths link to their message too.
+reset role;
+insert into public.messages (id, project_id, external_id, from_address)
+values ('50000000-0000-0000-0000-000000000003', '20000000-0000-0000-0000-000000000001', '<third@mail.example>', 'z@mail.example'),
+       ('50000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000001', '<fourth@mail.example>', 'z@mail.example');
+insert into public.suggestions (id, project_id, message_id, kind, title)
+values ('60000000-0000-0000-0000-000000000003', '20000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000003', 'decision', 'Pick supplier'),
+       ('60000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000004', 'change_request', 'Add rail');
+set role authenticated;
+do $$
+begin
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
+  perform public.accept_suggestion('60000000-0000-0000-0000-000000000003', 'decision', 'Pick supplier', 'Go with B');
+  perform public.accept_suggestion('60000000-0000-0000-0000-000000000004', 'change_request', 'Add rail', 'Extra 40 m');
+  if not exists (select 1 from public.decisions where title = 'Pick supplier' and details = 'Go with B' and source_message_id = '50000000-0000-0000-0000-000000000003')
+     or not exists (select 1 from public.change_requests where title = 'Add rail' and details = 'Extra 40 m' and source_message_id = '50000000-0000-0000-0000-000000000004') then
+    raise exception 'decision or change request missing or not linked to its message';
+  end if;
+end $$;
+
 reset role;
 \echo 'accept rules: all checks passed'
