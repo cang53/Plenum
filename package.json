@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "ai:eval": "vitest run --config vitest.eval.config.ts",
     "test:db": "bash scripts/test-db.sh"
   },
   "dependencies": {

@@ -1,0 +1,35 @@
+name: AI accuracy
+
+# Reports triage accuracy on the 50-message test set for every pull request that touches AI code.
+# Needs repository secrets AWS_ROLE_ARN and BEDROCK_MODEL_ID; without them the job says so and passes.
+on:
+  pull_request:
+    paths: ["src/ai/**", "src/domain/triage.ts", "src/server/triage.ts"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  accuracy:
+    runs-on: ubuntu-latest
+    env:
+      BEDROCK_MODEL_ID: ${{ secrets.BEDROCK_MODEL_ID }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - if: ${{ env.AWS_ROLE_ARN == '' || env.BEDROCK_MODEL_ID == '' }}
+        run: |
+          echo "AI triage accuracy: not measured (Bedrock secrets are not set up yet)." | tee -a "$GITHUB_STEP_SUMMARY"
+      - if: ${{ env.AWS_ROLE_ARN != '' && env.BEDROCK_MODEL_ID != '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: eu-west-1
+      - if: ${{ env.AWS_ROLE_ARN != '' && env.BEDROCK_MODEL_ID != '' }}
+        run: npm run ai:eval
