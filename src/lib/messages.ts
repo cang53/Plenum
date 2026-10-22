@@ -17,6 +17,8 @@ export const messages = {
     "login.entraSoon": "Sign-in with your company account is coming soon.",
     "app.signedIn": "You are signed in",
     "app.signOut": "Sign out",
+    "projects.title": "Your projects",
+    "projects.empty": "You are not a member of any project yet. Ask a project manager to invite you.",
     "board.title": "Board",
     "board.intro": "The same tasks as the Gantt view. Drag a card, or use its status menu, to change its status.",
     "board.filterPhase": "Phase",
