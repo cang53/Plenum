@@ -7,7 +7,7 @@ create table rate_limits (
 alter table rate_limits enable row level security;
 revoke all on rate_limits from public, anon, authenticated;
 
--- Counts one hit; true while the key is within its limit for the current window.
+-- Counts one hit (server only: if anyone could call it, they could use up other people's counters); true while the key is within its limit for the current window.
 create function public.rate_limit_hit(p_key text, p_limit int, p_window_seconds int)
 returns boolean
 language plpgsql security definer set search_path = public as $$
@@ -28,5 +28,5 @@ begin
   return n <= p_limit;
 end;
 $$;
-revoke all on function public.rate_limit_hit(text, int, int) from public;
-grant execute on function public.rate_limit_hit(text, int, int) to anon, authenticated, service_role;
+revoke all on function public.rate_limit_hit(text, int, int) from public, anon, authenticated;
+grant execute on function public.rate_limit_hit(text, int, int) to service_role;
