@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { setTaskStatus, taskFromRow } from "@/data/live";
+import { acceptSuggestion, dismissSuggestion, setTaskStatus, taskFromRow } from "@/data/live";
 
 const fake = (result: unknown) => {
   const update = vi.fn();
@@ -43,5 +43,35 @@ describe("setTaskStatus", () => {
   it("throws database errors", async () => {
     const { client } = fake({ data: null, error: new Error("denied") });
     await expect(setTaskStatus(client, "t", "done")).rejects.toThrow("denied");
+  });
+});
+
+describe("acceptSuggestion", () => {
+  it("sends the edited wording to the accept function", async () => {
+    const rpc = vi.fn().mockResolvedValue({ error: null });
+    const client = { rpc } as unknown as SupabaseClient;
+    await acceptSuggestion(client, "s1", { kind: "risk", title: " Crane lost ", details: " Ends 30 Nov " });
+    expect(rpc).toHaveBeenCalledWith("accept_suggestion", { p_id: "s1", p_kind: "risk", p_title: "Crane lost", p_details: "Ends 30 Nov" });
+  });
+  it("refuses an empty title", async () => {
+    const rpc = vi.fn();
+    await expect(acceptSuggestion({ rpc } as unknown as SupabaseClient, "s1", { kind: "task", title: " ", details: "" })).rejects.toThrow("title");
+    expect(rpc).not.toHaveBeenCalled();
+  });
+  it("throws database errors", async () => {
+    const client = { rpc: () => Promise.resolve({ error: new Error("denied") }) } as unknown as SupabaseClient;
+    await expect(acceptSuggestion(client, "s1", { kind: "task", title: "x", details: "" })).rejects.toThrow("denied");
+  });
+});
+
+describe("dismissSuggestion", () => {
+  it("marks a pending suggestion dismissed", async () => {
+    const { client, update } = fake({ data: [{ id: "s1" }], error: null });
+    await dismissSuggestion(client, "s1");
+    expect(update).toHaveBeenCalledWith({ status: "dismissed" });
+  });
+  it("fails when nothing was pending or allowed", async () => {
+    const { client } = fake({ data: [], error: null });
+    await expect(dismissSuggestion(client, "s1")).rejects.toThrow("not allowed");
   });
 });

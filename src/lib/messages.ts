@@ -59,6 +59,7 @@ export const messages = {
     "triage.accept": "Accept",
     "triage.edit": "Edit",
     "triage.dismiss": "Dismiss",
+    "triage.saveError": "We could not save that decision, so the suggestion is still open. Try again.",
     "triage.demoNotice": "Demo data: these suggestions are examples, not live AI output.",
     "kind.task": "Task",
     "kind.decision": "Decision",

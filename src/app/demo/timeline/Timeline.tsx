@@ -9,19 +9,44 @@ import { intlLocale, t } from "@/lib/messages";
 // Bodies longer than this start folded, with a button to show the rest.
 const LONG_BODY = 280;
 
-type Props = { messages: TimelineMessage[]; suggestions: StoredSuggestion[]; now: string; timeZone: string };
+type Props = {
+  messages: TimelineMessage[];
+  suggestions: StoredSuggestion[];
+  now: string;
+  timeZone: string;
+  // Items already made from these messages. Live pages pass these.
+  linked?: LinkedItem[];
+  // Live pages save the decision; the demo leaves these out and keeps changes in the page.
+  onAccept?: (suggestionId: string, draft: ItemDraft) => Promise<void>;
+  onDismiss?: (suggestionId: string) => Promise<void>;
+};
 
-export function Timeline({ messages, suggestions, now, timeZone }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss }: Props) {
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
   const [open, setOpen] = useState<Record<string, boolean>>({});
-  // Demo only: items made here are kept in the page, not saved.
-  const [items, setItems] = useState<LinkedItem[]>([]);
+  // Items made by hand are kept in the page, not saved (until the manual create screens, S3-7).
+  const [items, setItems] = useState<LinkedItem[]>(linked);
   const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
-  // Demo only: which suggestions a person has dealt with.
+  // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
+  const [saveFailed, setSaveFailed] = useState(false);
   const makeItem = (messageId: string, draft: ItemDraft) =>
     setItems((prev) => [...prev, { id: `${draft.kind}-${prev.length}`, kind: draft.kind, title: draft.title.trim(), messageId }]);
+  // Saves the decision first (when the page saves), so a failure leaves the suggestion open.
+  const decide = async (id: string, outcome: "accepted" | "dismissed", draft?: ItemDraft, messageId?: string): Promise<boolean> => {
+    try {
+      if (outcome === "accepted" && draft) await onAccept?.(id, draft);
+      if (outcome === "dismissed") await onDismiss?.(id);
+    } catch {
+      setSaveFailed(true);
+      return false;
+    }
+    setSaveFailed(false);
+    if (draft && messageId) makeItem(messageId, draft);
+    setDecided((prev) => ({ ...prev, [id]: outcome }));
+    return true;
+  };
 
   const locale = intlLocale.en;
   const days = buildTimeline(messages, { query, on: on || undefined }, timeZone);
@@ -62,6 +87,7 @@ export function Timeline({ messages, suggestions, now, timeZone }: Props) {
         </p>
       </form>
 
+      {saveFailed && <p role="alert">{t("triage.saveError")}</p>}
       {messages.length === 0 && <p className="empty">{t("timeline.empty")}</p>}
       {messages.length > 0 && shown === 0 && <p className="empty">{t("timeline.noResults")}</p>}
 
@@ -118,17 +144,14 @@ export function Timeline({ messages, suggestions, now, timeZone }: Props) {
                         <button
                           type="button"
                           className="button"
-                          onClick={() => {
-                            makeItem(m.id, toDraft(s));
-                            setDecided({ ...decided, [s.id]: "accepted" });
-                          }}
+                          onClick={() => decide(s.id, "accepted", toDraft(s), m.id)}
                         >
                           {t("triage.accept")}
                         </button>{" "}
                         <button type="button" className="button" onClick={() => setDrafting({ messageId: m.id, draft: toDraft(s), suggestionId: s.id })}>
                           {t("triage.edit")}
                         </button>{" "}
-                        <button type="button" className="button" onClick={() => setDecided({ ...decided, [s.id]: "dismissed" })}>
+                        <button type="button" className="button" onClick={() => decide(s.id, "dismissed")}>
                           {t("triage.dismiss")}
                         </button>
                       </div>
@@ -137,11 +160,12 @@ export function Timeline({ messages, suggestions, now, timeZone }: Props) {
                 {drafting?.messageId === m.id ? (
                   <form
                     className="link-form"
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
                       if (!isValidDraft(drafting.draft)) return;
-                      makeItem(m.id, drafting.draft);
-                      if (drafting.suggestionId) setDecided({ ...decided, [drafting.suggestionId]: "accepted" });
+                      if (drafting.suggestionId) {
+                        if (!(await decide(drafting.suggestionId, "accepted", drafting.draft, m.id))) return;
+                      } else makeItem(m.id, drafting.draft);
                       setDrafting(null);
                     }}
                   >
