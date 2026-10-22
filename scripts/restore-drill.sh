@@ -55,8 +55,8 @@ dump="$(mktemp)"; trap 'rm -f "$dump"' EXIT
 docker exec "$C" pg_dump -U postgres -d postgres --schema=public --format=custom > "$dump"
 echo "Backed up $(wc -c < "$dump") bytes"
 
-# Wipe the schema, as a lost database would be, and give back the schema-level access Supabase sets up.
-sql -c "drop schema public cascade; create schema public; grant usage on schema public to postgres, anon, authenticated, service_role;"
+# Wipe the schema, as a lost database would be; the dump recreates the schema and its grants.
+sql -c "drop schema public cascade"
 [ "$(sql -c "select count(*) from information_schema.tables where table_schema = 'public'")" = 0 ] || { echo "Wipe failed" >&2; exit 1; }
 
 docker exec -i "$C" pg_restore -U postgres -d postgres --no-owner --exit-on-error < "$dump"
