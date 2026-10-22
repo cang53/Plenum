@@ -12,7 +12,8 @@
     "ai:eval": "vitest run --config vitest.eval.config.ts",
     "test:db": "bash scripts/test-db.sh",
     "test:e2e": "playwright test",
-    "seed": "node --env-file=.env.local scripts/seed-local.mjs"
+    "seed": "node --env-file=.env.local scripts/seed-local.mjs",
+    "pilot:dry-run": "node --env-file=.env.local scripts/pilot-dry-run.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1155.0",
