@@ -18,6 +18,14 @@ describe("triageMessage", () => {
     expect(fake.save).toHaveBeenCalledWith({ project_id: "p1", message_id: "m1", kind: "task", title: "Crane inspection", details: "Please book the inspection." });
   });
 
+  it("lets triage read attachment text without storing it on the message", async () => {
+    const fake = io();
+    const ask = vi.fn().mockResolvedValue('{"kind":"none"}');
+    await triageMessage("m1", fake, ask, "[Attachment plan.txt]\nMove the lift to Friday");
+    expect(ask.mock.calls[0][1]).toContain("Move the lift to Friday");
+    expect(message.bodyText).toBe("Please book the inspection.");
+  });
+
   it("saves nothing when there is no message or nothing to track", async () => {
     const missing = io(false);
     expect(await triageMessage("m1", missing, ruleBasedAsk)).toBe(false);

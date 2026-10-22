@@ -23,20 +23,22 @@ export type TriageIo = {
   save: (row: { project_id: string; message_id: string } & Suggestion) => Promise<void>;
 };
 
+// attachmentText is added to what triage reads, not to the stored message.
 // Returns true when a suggestion was saved. A message that already has one is left alone.
 // When Bedrock is over the daily cap, slow, down or answers badly, the offline rules answer instead.
-export async function triageMessage(messageId: string, io: TriageIo, ask: Ask): Promise<boolean> {
+export async function triageMessage(messageId: string, io: TriageIo, ask: Ask, attachmentText = ""): Promise<boolean> {
   const found = await io.load(messageId);
   if (!found) return false;
+  const message = attachmentText ? { ...found.message, bodyText: `${found.message.bodyText}\n\n${attachmentText}` } : found.message;
   let suggestion;
   if (ask === ruleBasedAsk || !(await io.takeCall(found.projectId))) {
-    suggestion = await suggestFor(found.message, ruleBasedAsk);
+    suggestion = await suggestFor(message, ruleBasedAsk);
   } else {
     try {
-      suggestion = await suggestFor(found.message, ask);
+      suggestion = await suggestFor(message, ask);
     } catch (error) {
       logError("Bedrock failed, using rules", error);
-      suggestion = await suggestFor(found.message, ruleBasedAsk);
+      suggestion = await suggestFor(message, ruleBasedAsk);
     }
   }
   if (!suggestion) return false;
