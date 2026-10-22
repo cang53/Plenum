@@ -35,3 +35,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash scripts/test-db.sh
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: supabase/setup-cli@v1
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start local Supabase and export its keys
+        run: |
+          supabase start -x studio,imgproxy,edge-runtime,vector,logflare
+          supabase status -o env > "$RUNNER_TEMP/supabase.env"
+          {
+            echo "SUPABASE_URL=$(grep ^API_URL= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"
+            echo "NEXT_PUBLIC_SUPABASE_URL=$(grep ^API_URL= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep ^ANON_KEY= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$(grep ^SERVICE_ROLE_KEY= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"
+          } >> "$GITHUB_ENV"
+      - run: npm run test:e2e
+        env:
+          INBOUND_EMAIL_DOMAIN: in.plenum.example
+          SES_INBOUND_TOPIC_ARN: arn:aws:sns:eu-west-1:000000000000:plenum-inbound
+          AWS_REGION: eu-west-1
+          AUTH_PROVIDER: supabase
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/

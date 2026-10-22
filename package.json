@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "ai:eval": "vitest run --config vitest.eval.config.ts",
-    "test:db": "bash scripts/test-db.sh"
+    "test:db": "bash scripts/test-db.sh",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1155.0",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.64.1",
     "@types/mailparser": "^3.9.0",
     "@types/node": "^20",
     "@types/react": "^19",

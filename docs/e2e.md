@@ -1,0 +1,24 @@
+# End-to-end tests
+
+`e2e/core-flow.spec.ts` drives the core flow in a browser: sign in with the emailed link, receive a message, accept the AI suggestion, see the task on the board and change its status. It uses the local Supabase stack, the offline email and AI fakes, and no cloud accounts.
+
+Run it locally (needs Docker and the Supabase CLI):
+
+```
+supabase start                     # applies supabase/migrations
+supabase status -o env             # copy API_URL, ANON_KEY, SERVICE_ROLE_KEY
+```
+
+Then set these in `.env.local` (or the shell) and run `npm run test:e2e`:
+
+```
+SUPABASE_URL=<API_URL>
+NEXT_PUBLIC_SUPABASE_URL=<API_URL>
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<ANON_KEY>
+SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
+INBOUND_EMAIL_DOMAIN=in.plenum.example
+SES_INBOUND_TOPIC_ARN=arn:aws:sns:eu-west-1:000000000000:plenum-inbound
+AWS_REGION=eu-west-1
+```
+
+Sign-in emails are read from the local mail catcher at `http://127.0.0.1:54324` (override with `MAIL_API_URL`). Each run creates its own person and project, so runs do not clash. CI runs the same steps in the `e2e` job.
