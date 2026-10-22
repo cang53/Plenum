@@ -28,7 +28,6 @@ CI runs `npm run check:switches` on every pull request, so a misconfigured defau
 | `SES_FROM_ADDRESS` | no | if `ses` | Verified sender |
 | `BEDROCK_MODEL_ID`, `BEDROCK_REGION` | no | if `bedrock` | EU profile id and EU region |
 | `AI_DAILY_CALL_CAP` | no | no | model calls per workspace per day (default 200); over it, rules answer |
-| `AI_DAILY_CALL_CAP` | no | no | model calls per workspace per day (default 200); over it, rules answer |
 | `AUTH_SECRET` | **yes** | if `entra` | Auth.js session secret |
 | `AUTH_MICROSOFT_ENTRA_ID_ID`, `_SECRET`, `_TENANT_ID` | `_SECRET` yes | if `entra` | From the Entra app registration |
 
