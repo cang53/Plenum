@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
 import { t } from "@/lib/messages";
@@ -6,6 +7,8 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const supabase = await supabaseServer();
   const { data } = await supabase.auth.getUser();
   const projects = await listProjects(supabase);
+  // Invited people already have projects; everyone else starts with the wizard.
+  if (projects.length === 0) redirect("/app/welcome");
   const current = currentProject(projects, (await searchParams).project);
   return (
     <main id="main" className="home">
