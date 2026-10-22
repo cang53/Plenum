@@ -8,7 +8,7 @@ const message = {
 };
 
 function io(found = true): TriageIo & { save: ReturnType<typeof vi.fn> } {
-  return { load: async () => (found ? { projectId: "p1", message } : null), save: vi.fn().mockResolvedValue(undefined) };
+  return { takeCall: async () => true, load: async () => (found ? { projectId: "p1", message } : null), save: vi.fn().mockResolvedValue(undefined) };
 }
 
 describe("triageMessage", () => {
@@ -31,6 +31,19 @@ describe("triageMessage", () => {
 describe("aiAsk", () => {
   it("is the offline fake unless Bedrock is chosen", () => {
     expect(aiAsk({})).toBe(ruleBasedAsk);
-    expect(() => aiAsk({ AI_PROVIDER: "bedrock" })).toThrow("BEDROCK_MODEL_ID");
+    expect(aiAsk({ AI_PROVIDER: "bedrock" })).toBe(ruleBasedAsk);
+    expect(aiAsk({ AI_PROVIDER: "bedrock", BEDROCK_MODEL_ID: "eu.x", BEDROCK_REGION: "us-east-1" })).toBe(ruleBasedAsk);
+  });
+});
+
+describe("triageMessage fallback", () => {
+  it("uses the rules when the cap is reached or Bedrock fails", async () => {
+    const capped = { ...io(), takeCall: async () => false };
+    const ask = vi.fn();
+    expect(await triageMessage("m1", capped, ask)).toBe(true);
+    expect(ask).not.toHaveBeenCalled();
+    const failing = io();
+    expect(await triageMessage("m1", failing, async () => { throw new Error("down"); })).toBe(true);
+    expect(failing.save).toHaveBeenCalledWith(expect.objectContaining({ title: "Crane inspection" }));
   });
 });
