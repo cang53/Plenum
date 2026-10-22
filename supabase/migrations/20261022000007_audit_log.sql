@@ -76,3 +76,6 @@ revoke execute on function public.write_audit(uuid, text, text, uuid, uuid) from
 revoke execute on function public.audit_item_created() from public, anon, authenticated;
 revoke execute on function public.audit_suggestion_decided() from public, anon, authenticated;
 revoke execute on function public.audit_log_is_append_only() from public, anon, authenticated;
+
+-- The email-send code runs as the service role and logs through write_audit, so grant it explicitly.
+grant execute on function public.write_audit(uuid, text, text, uuid, uuid) to service_role;
