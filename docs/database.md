@@ -5,7 +5,7 @@ Plenum runs on one Supabase project, **Plenum** (ref `uwimagjkbwourvepvtns`), in
 ## Migrations
 - The files in `supabase/migrations/` are the source of truth. Add a new file for every change; never edit one that has been applied.
 - File names are `YYYYMMDDNNNNNN_name.sql`. The hosted project records its own timestamps, so the names there differ but the order and content match.
-- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down, 5 message links, 6 suggestions.
+- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down, 5 message links, 6 suggestions, 7 audit log (not yet applied).
 
 ## Checking a change
 1. `npm run test:db` runs every migration and the access-rule tests on a throwaway local Postgres (CI does the same).
@@ -29,3 +29,11 @@ There is one hosted project today. Before launch, add a second project for stagi
 them. A project manager can edit the wording and set the status to `accepted` or `dismissed`; the
 database stamps `resolved_by` and `resolved_at`, and a decided suggestion cannot change again.
 Accepting creates the item through the same path as manual linking, so it keeps `source_message_id`.
+
+## Audit log (migration 7)
+
+`public.audit_log` is written only by database triggers: accepting or dismissing a suggestion, and
+creating a decision, risk, change request or message-linked task. Each row has the actor, the item
+and its source message. Rows cannot be changed or removed. Project managers read their project's rows;
+workspace admins read the workspace's. `auditCsv` (`src/domain/audit.ts`) turns rows into the export
+file; the download button waits for sign-in (task 3). Email sends will log through `write_audit`.
