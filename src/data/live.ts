@@ -11,6 +11,7 @@ type TaskRow = {
   title: string;
   status: TaskStatus;
   due_date: string | null;
+  priority: BoardTask["priority"];
   position: number;
   phases: { name: string } | null;
   profiles: { display_name: string } | null;
@@ -24,6 +25,7 @@ export function taskFromRow(row: TaskRow): BoardTask {
     phase: row.phases?.name ?? null,
     ownerName: row.profiles?.display_name ?? null,
     dueDate: row.due_date,
+    priority: row.priority,
     position: row.position,
   };
 }
@@ -32,7 +34,7 @@ export function taskFromRow(row: TaskRow): BoardTask {
 export async function listBoardTasks(client: SupabaseClient, projectId: string): Promise<BoardTask[]> {
   const { data, error } = await client
     .from("tasks")
-    .select("id, title, status, due_date, position, phases(name), profiles:owner_id(display_name)")
+    .select("id, title, status, due_date, priority, position, phases(name), profiles:owner_id(display_name)")
     .eq("project_id", projectId)
     .is("parent_id", null);
   if (error) throw error;

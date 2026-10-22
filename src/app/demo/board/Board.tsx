@@ -13,6 +13,8 @@ type Props = {
   locale?: Locale;
 };
 
+const STATUS_BADGE: Record<TaskStatus, string> = { todo: "", in_progress: "badge-info", blocked: "badge-danger", done: "badge-success" };
+
 export function Board({ initialTasks, onMove, locale = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
@@ -66,7 +68,7 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
           {columns.map((column) => (
             <section
               key={column.status}
-              className="board-column"
+              className={`board-column surface${dragging ? " drop-ready" : ""}`}
               aria-label={t(`status.${column.status}`)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
@@ -82,19 +84,21 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
                 <article
                   key={task.id}
                   className="card"
+                  data-dragging={dragging === task.id}
                   draggable
                   onDragStart={() => setDragging(task.id)}
                   onDragEnd={() => setDragging(null)}
                 >
+                  <span className="card-grip" aria-hidden="true">⠿</span>
                   <h3>{task.title}</h3>
                   <p className="meta">
                     {[task.phase, task.ownerName].filter(Boolean).join(" · ")}
                   </p>
-                  {task.dueDate && (
-                    <p className="meta">
-                      {t("board.due")} {task.dueDate}
-                    </p>
-                  )}
+                  <p className="card-badges">
+                    <span className={`badge ${STATUS_BADGE[task.status]}`}>{t(`status.${task.status}`)}</span>
+                    <span className={`badge ${task.priority === "high" ? "badge-warning" : ""}`}>{t(`priority.${task.priority}`)}</span>
+                    {task.dueDate && <span className="badge">{t("board.due")} {task.dueDate}</span>}
+                  </p>
                   <label className="status-select">
                     {t("board.statusLabel")}
                     <select value={task.status} onChange={(e) => move(task.id, e.target.value as TaskStatus)}>

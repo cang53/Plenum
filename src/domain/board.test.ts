@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { buildColumns, distinct, moveTask, type BoardTask } from "./board";
 
 const tasks: BoardTask[] = [
-  { id: "1", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", position: 0 },
-  { id: "2", title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta", dueDate: "2026-11-28", position: 0 },
-  { id: "3", title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin", dueDate: "2026-11-07", position: 1 },
-  { id: "4", title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas", dueDate: "2026-12-05", position: 0 },
+  { id: "1", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", priority: "normal", position: 0 },
+  { id: "2", title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta", dueDate: "2026-11-28", priority: "normal", position: 0 },
+  { id: "3", title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin", dueDate: "2026-11-07", priority: "normal", position: 1 },
+  { id: "4", title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas", dueDate: "2026-12-05", priority: "normal", position: 0 },
 ];
 
 describe("buildColumns", () => {

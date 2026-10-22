@@ -1,0 +1,43 @@
+/* Board: dense columns on the ambient background; glass is kept for the switch and filters. */
+.work-switch { margin-block: var(--s4); }
+.segmented > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(var(--target) - var(--s2));
+  padding: 0 var(--s4);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+.segmented > a:hover { background: var(--glass-soft); }
+.segmented > a[aria-current="page"] { background: var(--glass-selected); color: var(--text); box-shadow: var(--glass-inset); }
+.segmented > a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.board-filters { display: flex; flex-wrap: wrap; gap: var(--s4); margin-block: var(--s4); font-size: var(--text-sm); }
+.board-filters label, .status-select { display: flex; align-items: center; gap: var(--s2); font-size: var(--text-sm); }
+.board-scroll { overflow-x: auto; padding-block-end: var(--s2); }
+.board { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: var(--s3); min-width: 920px; }
+.board-column { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); min-height: 200px; }
+.board-column h2 { display: flex; justify-content: space-between; margin: 0; font-size: var(--text-sm); letter-spacing: var(--tracking-tight); }
+.board-column.drop-ready { outline: 2px dashed var(--primary); outline-offset: -2px; }
+
+.card {
+  position: relative;
+  display: grid;
+  gap: var(--s1);
+  padding: var(--s3) var(--s3) var(--s3) var(--s6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, var(--radius));
+  background: var(--surface);
+  box-shadow: var(--elevation);
+  cursor: grab;
+  transition: transform var(--motion-fast) var(--ease);
+}
+.card:hover { transform: translateY(-1px); }
+.card[data-dragging="true"] { opacity: 0.5; cursor: grabbing; }
+.card h3 { margin: 0; font-size: var(--text-sm); }
+.card .meta { margin: 0; font-size: var(--text-xs); }
+.card-grip { position: absolute; inset-inline-start: var(--s2); inset-block-start: var(--s3); color: var(--text-muted); letter-spacing: -2px; }
+.card-badges { display: flex; flex-wrap: wrap; gap: var(--s1); }

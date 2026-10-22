@@ -11,6 +11,7 @@ export type BoardTask = {
   phase: string | null;
   ownerName: string | null;
   dueDate: string | null;
+  priority: "low" | "normal" | "high";
   position: number;
 };
 

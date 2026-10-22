@@ -2,6 +2,7 @@
 @import "./primitives.css";
 @import "./shell.css";
 @import "./overview.css";
+@import "./board.css";
 
 * {
   box-sizing: border-box;
@@ -57,15 +58,7 @@ body {
   font-size: 14px;
 }
 
-.board-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin: 16px 0;
-}
-
-.board-filters label,
-.status-select {
+select {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -78,50 +71,6 @@ select {
   border-radius: 8px;
   background: #fff;
   font: inherit;
-}
-
-.board-scroll {
-  overflow-x: auto;
-}
-
-.board {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(220px, 1fr));
-  gap: 12px;
-  min-width: 920px;
-}
-
-.board-column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #e9eef2;
-  min-height: 200px;
-}
-
-.board-column h2 {
-  margin: 0;
-  font-size: 15px;
-}
-
-.card {
-  padding: 12px;
-  border: 1px solid #dce2e8;
-  border-radius: 10px;
-  background: #fff;
-  cursor: grab;
-}
-
-.card h3 {
-  margin: 0 0 4px;
-  font-size: 15px;
-}
-
-.card .meta {
-  margin: 0 0 4px;
-  font-size: 13px;
 }
 
 .timeline-search {
