@@ -10,6 +10,9 @@ export default function Home() {
       <p>
         <Link href="/demo/board">{t("home.demoLink")}</Link>
       </p>
+      <p>
+        <Link href="/demo/timeline">{t("home.demoTimeline")}</Link>
+      </p>
     </main>
   );
 }

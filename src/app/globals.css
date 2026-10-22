@@ -125,3 +125,144 @@ select {
   margin: 0 0 4px;
   font-size: 13px;
 }
+
+.timeline-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.timeline-search label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.timeline-search p {
+  margin: 0;
+}
+
+input[type="search"],
+input[type="date"] {
+  min-height: 36px;
+  border: 1px solid #c9d1da;
+  border-radius: 8px;
+  padding: 0 10px;
+  font: inherit;
+}
+
+input[type="search"] {
+  width: min(280px, 70vw);
+}
+
+.button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #c9d1da;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.link-button {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.timeline-day {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 820px;
+  margin-bottom: 24px;
+}
+
+.timeline-day h2 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #dce2e8;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.message header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.message header .meta {
+  font-size: 14px;
+}
+
+.message time {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.message h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.message .body {
+  margin: 0;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.message .folded {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background: #e8edf1;
+  color: #3a4655;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attachments li {
+  padding: 6px 10px;
+  border: 1px solid #dce2e8;
+  border-radius: 8px;
+  font-size: 14px;
+}
