@@ -19,6 +19,7 @@ language sql stable security definer set search_path = public as $$
   from profiles p
   join project_members pm on pm.user_id = p.id
   join projects pr on pr.id = pm.project_id
-  where p.digest_daily;
+  where p.digest_daily and p.email is not null;
 $$;
 revoke execute on function public.daily_digests() from public, anon, authenticated;
+grant execute on function public.daily_digests() to service_role;
