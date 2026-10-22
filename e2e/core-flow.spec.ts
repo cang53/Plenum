@@ -45,7 +45,7 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   await page.goto(await signInLink());
   await expect(page).toHaveURL(/\/app/);
   await expect(page.locator("#main").getByText(email)).toBeVisible();
-  const boardUrl = await page.getByRole("link", { name: "Board" }).getAttribute("href");
+  const boardUrl = await page.locator("#main").getByRole("link", { name: "Board" }).getAttribute("href");
 
   // A message arrives through the local inbound endpoint and is triaged by the offline rules.
   const subject = `Send the cabinet drawings ${run}`;
