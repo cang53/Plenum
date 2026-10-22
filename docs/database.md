@@ -5,14 +5,14 @@ Plenum runs on one Supabase project, **Plenum** (ref `uwimagjkbwourvepvtns`), in
 ## Migrations
 - The files in `supabase/migrations/` are the source of truth. Add a new file for every change; never edit one that has been applied.
 - File names are `YYYYMMDDNNNNNN_name.sql`. The hosted project records its own timestamps, so the names there differ but the order and content match.
-- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down.
+- Applied to the hosted project so far: 1 workspaces and projects, 2 phases and tasks, 3 messages, 4 helper function lock-down, 5 message links, 6 suggestions.
 
 ## Checking a change
 1. `npm run test:db` runs every migration and the access-rule tests on a throwaway local Postgres (CI does the same).
 2. Apply the migration to the hosted project (Supabase dashboard SQL editor, or the CLI: `supabase link --project-ref uwimagjkbwourvepvtns` then `supabase db push`).
 3. Check the hosted project's Security Advisor shows no new warnings.
 
-The access-rule tests can also be run against the hosted project inside a transaction that ends in `rollback`, so no test data is kept. This was done when the first four migrations were applied, and all checks passed.
+The access-rule tests can also be run against the hosted project inside a transaction that ends in `rollback`, so no test data is kept. This was done when the first four migrations were applied, and all checks passed. Migrations 5 and 6 were applied without that live run (the Supabase connector timed out); their rules are covered by `npm run test:db`.
 
 ## Settings
 See `.env.example`. The service-role key and database password are secrets: keep them in `.env.local` and the hosting provider's secret settings only.
