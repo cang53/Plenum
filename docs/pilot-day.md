@@ -4,7 +4,7 @@
 
 1. Start the local stack and app as in `local-run.md` (`supabase start`, `.env.local`, `npm run dev`).
 2. Run `npm run pilot:dry-run -- you@example.test`. It seeds a demo project, sends three emails to the project address and checks the health page, the timeline and the AI suggestions. Any `FAIL` line stops the pilot until fixed (see `runbook.md`).
-3. Run `npm run test:e2e` (see `e2e.md`) for the browser flow.
+3. Run the e2e test (see `e2e.md`; load `.env.local` into the shell first) for the browser flow.
 4. Sign in at `/login` with the emailed link and walk through: accept one suggestion, dismiss one, change a task status, open the audit log, switch language to Dutch, download the data export.
 
 ## Pilot day checklist
@@ -35,3 +35,4 @@ End of day:
 - Attachments are listed but their contents are not read.
 - Translations cover English and Dutch only.
 - The dry run script covers the server side; the browser flow is in the e2e test and the manual walk-through above.
+- Dry run on a local stack (S6-5): dry run, e2e (8 tests), `test:db` and all migrations pass with no code fixes needed. Not run: the signed-in manual walk-through (language switch, audit log view, data export download) and the Supabase pieces that were left off locally (storage, realtime, edge runtime).
