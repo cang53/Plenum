@@ -2,9 +2,9 @@ import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
 import { messages, type MessageKey } from "@/lib/messages";
 import { getLocale, getT } from "@/lib/locale";
-import { saveProfile, saveProject } from "./actions";
+import { deleteProject, removePerson, saveProfile, saveProject } from "./actions";
 
-type Search = { project?: string; saved?: string; error?: string };
+type Search = { project?: string; saved?: string; removed?: string; error?: string };
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<Search> }) {
   const t = await getT();
@@ -18,6 +18,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     .from("profiles").select("display_name, locale").eq("id", user?.id ?? "").single();
   const { data: role } = await supabase.rpc("project_role_of", { p: project.id });
   const canManage = role === "project_manager";
+  const { data: row } = await supabase.from("projects").select("workspace_id").eq("id", project.id).single();
+  const ws = row?.workspace_id ?? "";
+  const { data: isAdmin } = await supabase.rpc("is_workspace_admin", { ws });
+  const { data: people } = isAdmin
+    ? await supabase.from("workspace_members").select("user_id, profiles(display_name, email)")
+        .eq("workspace_id", ws).neq("user_id", user?.id ?? "")
+        .returns<{ user_id: string; profiles: { display_name: string; email: string } | null }[]>()
+    : { data: null };
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
     <main id="main" className="page">
@@ -25,6 +33,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <h1>{t("settings.title")}</h1>
       <p className="intro">{t("settings.intro")}</p>
       {error && <p role="alert">{error}</p>}
+      {sp.removed && <p role="status">{t("settings.removed")}</p>}
       {sp.saved && <p role="status">{t("settings.saved")}</p>}
       <form action={saveProfile}>
         <h2>{t("settings.you")}</h2>
@@ -54,6 +63,30 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <button type="submit">{t("settings.save")}</button>
         </fieldset>
       </form>
+      {isAdmin && (
+        <section>
+          <h2>{t("settings.danger")}</h2>
+          <form action={deleteProject}>
+            <input type="hidden" name="projectId" value={project.id} />
+            <p><label>{t("settings.deleteProject")} <input name="confirm" autoComplete="off" required /></label>
+              <br /><small>{t("settings.deleteProjectHelp")}</small></p>
+            <button type="submit">{t("settings.deleteProjectButton")}</button>
+          </form>
+          <form action={removePerson}>
+            <input type="hidden" name="projectId" value={project.id} />
+            <p><label>{t("settings.removePerson")}{" "}
+              <select name="person" required>
+                <option value="">{t("settings.choosePerson")}</option>
+                {(people ?? []).map((m) => (
+                  <option key={m.user_id} value={m.user_id}>{m.profiles?.display_name} ({m.profiles?.email})</option>
+                ))}
+              </select>
+            </label></p>
+            <p><label><input type="checkbox" name="confirm" value="yes" required /> {t("settings.removePersonConfirm")}</label></p>
+            <button type="submit">{t("settings.removePersonButton")}</button>
+          </form>
+        </section>
+      )}
     </main>
   );
 }
