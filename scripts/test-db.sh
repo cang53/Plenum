@@ -10,7 +10,9 @@ run_tests() {
   for f in supabase/migrations/*.sql; do
     psql "$url" -q -v ON_ERROR_STOP=1 -f "$f"
   done
-  psql "$url" -q -v ON_ERROR_STOP=1 -f supabase/tests/access_rules.sql
+  for f in supabase/tests/access_rules.sql supabase/tests/tasks_rules.sql; do
+    psql "$url" -q -v ON_ERROR_STOP=1 -f "$f"
+  done
 }
 
 if [[ -n "${DATABASE_URL:-}" ]]; then
