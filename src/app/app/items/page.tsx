@@ -13,7 +13,7 @@ function Fields({ item, kind, projectId }: { item?: ManualItem; kind: ManualItem
       <input type="hidden" name="projectId" value={projectId} />
       {item && <input type="hidden" name="id" value={item.id} />}
       <label>{t("link.title")} <input name="title" required defaultValue={item?.title} /></label>
-      {kind !== "task" && <label>{t("link.details")} <textarea name="details" defaultValue={item?.details} /></label>}
+      <label>{t("link.details")} <textarea name="details" maxLength={5000} defaultValue={item?.details} /></label>
       {kind === "task" && (
         <>
           <label>{t("board.statusLabel")}{" "}

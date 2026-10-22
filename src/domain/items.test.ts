@@ -17,9 +17,9 @@ describe("itemFromForm", () => {
 });
 
 describe("toColumns", () => {
-  it("gives tasks no details and decisions no status", () => {
+  it("gives decisions no status", () => {
     const base = { title: "t", details: "d", status: "todo", priority: "high", dueDate: null };
-    expect(toColumns({ ...base, kind: "task" })).toEqual({ title: "t", status: "todo", priority: "high", due_date: null });
+    expect(toColumns({ ...base, kind: "task" })).toEqual({ title: "t", details: "d", status: "todo", priority: "high", due_date: null });
     expect(toColumns({ ...base, kind: "decision" })).toEqual({ title: "t", details: "d" });
     expect(toColumns({ ...base, kind: "risk", status: "closed" })).toEqual({ title: "t", details: "d", status: "closed" });
   });

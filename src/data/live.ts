@@ -103,7 +103,7 @@ export type ManualItem = { id: string; kind: ManualKind; title: string; details:
 export async function listManualItems(client: SupabaseClient, projectId: string): Promise<ManualItem[]> {
   const found = await Promise.all(
     MANUAL_KINDS.map(async (kind) => {
-      const cols = kind === "task" ? "id, title, status, priority, due_date" : kind === "risk" ? "id, title, details, status" : "id, title, details";
+      const cols = kind === "task" ? "id, title, details, status, priority, due_date" : kind === "risk" ? "id, title, details, status" : "id, title, details";
       const { data, error } = await client.from(TABLE[kind]).select(cols).eq("project_id", projectId).order("created_at", { ascending: false });
       if (error) throw error;
       return ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({

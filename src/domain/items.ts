@@ -38,10 +38,10 @@ export function itemFromForm(form: FormData): ItemInput {
   return item;
 }
 
-// The columns to write for this kind. Tasks have no details column; decisions have no status.
+// The columns to write for this kind. Decisions have no status.
 export function toColumns(item: ItemInput): Record<string, string | null> {
   const base = { title: item.title };
-  if (item.kind === "task") return { ...base, status: item.status, priority: item.priority, due_date: item.dueDate };
+  if (item.kind === "task") return { ...base, details: item.details, status: item.status, priority: item.priority, due_date: item.dueDate };
   if (item.kind === "risk") return { ...base, details: item.details, status: item.status };
   return { ...base, details: item.details };
 }
