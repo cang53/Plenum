@@ -11,7 +11,8 @@
     "test": "vitest run",
     "ai:eval": "vitest run --config vitest.eval.config.ts",
     "test:db": "bash scripts/test-db.sh",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "seed": "node --env-file=.env.local scripts/seed-local.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1155.0",
