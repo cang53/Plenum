@@ -8,6 +8,8 @@ export default defineConfig({
   workers: 1,
   use: {
     baseURL: "http://localhost:3000",
+    // Signed-in tests start past the onboarding invite step.
+    storageState: { cookies: [{ name: "plenum_onboarded", value: "1", domain: "localhost", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }], origins: [] },
     launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined },
   },
   webServer: {

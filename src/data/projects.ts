@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Notification } from "@/domain/notifications";
+import { PAGE_SIZE, afterFilter, decodeCursor, toPage, type Page } from "@/domain/paging";
 
 export type Project = { id: string; name: string; email_slug: string };
 
@@ -50,22 +51,26 @@ export async function listInvitations(client: SupabaseClient, projectId: string)
 }
 
 // Row-level security limits this to the signed-in person's own notifications in this project.
-export async function listNotifications(client: SupabaseClient, projectId: string): Promise<Notification[]> {
-  const { data, error } = await client
-    .from("notifications")
-    .select("id, kind, subject, created_at, read_at")
-    .eq("project_id", projectId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+export async function listNotifications(client: SupabaseClient, projectId: string, after?: string): Promise<Page<Notification>> {
+  const cursor = decodeCursor(after);
+  let q = client.from("notifications").select("id, kind, subject, created_at, read_at").eq("project_id", projectId);
+  if (cursor) q = q.or(afterFilter("created_at", cursor));
+  const { data, error } = await q.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
   if (error) throw error;
-  return (data ?? []).map((n) => ({ id: n.id, kind: n.kind, subject: n.subject, createdAt: n.created_at, read: n.read_at !== null }));
+  return toPage(
+    (data ?? []).map((n) => ({ id: n.id, kind: n.kind, subject: n.subject, createdAt: n.created_at, read: n.read_at !== null })),
+    (n) => ({ at: n.createdAt, id: n.id }),
+  );
 }
 
 export type SearchHit = { kind: "task" | "message" | "decision"; id: string; title: string; snippet: string };
 
 // Row-level security limits this to what the signed-in person can see in the project.
-export async function searchProject(client: SupabaseClient, projectId: string, q: string): Promise<SearchHit[]> {
-  const { data, error } = await client.rpc("search_project", { p: projectId, q });
+// The cursor is the number of hits already shown; search has no timestamp to continue from.
+export async function searchProject(client: SupabaseClient, projectId: string, q: string, after?: string): Promise<Page<SearchHit>> {
+  const offset = Math.max(0, Number.parseInt(after ?? "", 10) || 0);
+  const { data, error } = await client.rpc("search_project", { p: projectId, q, skip: offset });
   if (error) throw error;
-  return data ?? [];
+  const hits: SearchHit[] = data ?? [];
+  return { rows: hits.slice(0, PAGE_SIZE), next: hits.length > PAGE_SIZE ? String(offset + PAGE_SIZE) : null };
 }
