@@ -12,4 +12,4 @@ Logs never contain message or task text, only the kind of failure (for example `
 
 ## Daily email digest
 
-People opt in on the Notifications page. A daily scheduler calls `POST /api/digest` with `Authorization: Bearer $DIGEST_SECRET`. Without `DIGEST_SECRET` the route returns 403. Emails go through the normal sender, so with `EMAIL_PROVIDER=fake` they appear in the outbox only.
+People opt in on the Notifications page. A scheduler calls `POST /api/jobs` hourly with `Authorization: Bearer $JOBS_SECRET`; it runs the digest (at most once a day) and retries failed sends (3 attempts in all). `/api/health` shows each job's last run. Without `JOBS_SECRET` the route returns 403. Emails go through the normal sender, so with `EMAIL_PROVIDER=fake` they appear in the outbox only.
