@@ -25,7 +25,8 @@ export function outboxSender(insertRow: (row: Record<string, unknown>) => Promis
   };
 }
 
-type SesLike = { send: (command: unknown) => Promise<unknown> };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SesLike = { send: (command: any) => Promise<unknown> };
 
 // Sends through AWS SES. Retries a failed send, then records the outcome (sent or failed) in the outbox.
 export function sesSender(
