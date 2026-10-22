@@ -4,7 +4,8 @@
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000a1', 'New.Hire@Example.com'),
-  ('00000000-0000-0000-0000-0000000000a2', 'partner@supplier.example');
+  ('00000000-0000-0000-0000-0000000000a2', 'partner@supplier.example'),
+  ('00000000-0000-0000-0000-0000000000a4', 'late@example.com');
 insert into auth.users (id, email, email_confirmed_at) values ('00000000-0000-0000-0000-0000000000a3', 'ghost@example.com', null);
 update auth.users set email = 'mo@example.com' where id = '00000000-0000-0000-0000-00000000000c';
 update auth.users set email = 'cy@partner.example' where id = '00000000-0000-0000-0000-00000000000d';
@@ -61,6 +62,23 @@ begin
   if public.accept_my_invitations() <> 0 or public.project_role_of(p) <> 'contributor' then
     raise exception 'contributor was promoted by invitation';
   end if;
+
+  -- Expiry: an expired invitation does nothing until a manager resends it; a member cannot resend.
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
+  insert into invitations (project_id, email, role) values (p, 'late@example.com', 'member');
+  update invitations set expires_at = now() - interval '1 day' where email = 'late@example.com';
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a4', true);
+  if public.accept_my_invitations() <> 0 then raise exception 'expired invitation was accepted'; end if;
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+  update invitations set expires_at = now() + interval '14 days' where email = 'late@example.com';
+  get diagnostics n = row_count;
+  if n <> 0 then raise exception 'member resent an invitation'; end if;
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
+  update invitations set expires_at = now() + interval '14 days' where email = 'late@example.com';
+  get diagnostics n = row_count;
+  if n <> 1 then raise exception 'manager could not resend'; end if;
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a4', true);
+  if public.accept_my_invitations() <> 1 then raise exception 'resent invitation did not work'; end if;
 
   -- Role changes: a manager promotes a member; a member cannot change roles or remove anyone.
   perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);

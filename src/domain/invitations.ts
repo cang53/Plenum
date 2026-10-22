@@ -19,3 +19,13 @@ export function inviteEmail(projectName: string, role: string, signInUrl: string
     bodyText: `You have been invited to the project "${projectName}" as ${role}.\n\nSign in with this email address to join: ${signInUrl}\n`,
   };
 }
+
+export const INVITE_DAYS = 14;
+
+export function inviteExpiry(now: Date = new Date()): string {
+  return new Date(now.getTime() + INVITE_DAYS * 86_400_000).toISOString();
+}
+
+export function isExpired(expiresAt: string, now: Date = new Date()): boolean {
+  return new Date(expiresAt).getTime() <= now.getTime();
+}

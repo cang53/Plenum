@@ -19,7 +19,7 @@ export function currentProject(projects: Project[], chosenId?: string | null): P
 }
 
 export type Member = { userId: string; role: string; name: string; email: string };
-export type Invitation = { id: string; email: string; role: string };
+export type Invitation = { id: string; email: string; role: string; expiresAt: string };
 
 export async function listMembers(client: SupabaseClient, projectId: string): Promise<Member[]> {
   const { data, error } = await client
@@ -40,10 +40,10 @@ export async function listMembers(client: SupabaseClient, projectId: string): Pr
 export async function listInvitations(client: SupabaseClient, projectId: string): Promise<Invitation[]> {
   const { data, error } = await client
     .from("invitations")
-    .select("id, email, role")
+    .select("id, email, role, expires_at")
     .eq("project_id", projectId)
     .is("accepted_at", null)
     .order("created_at");
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expires_at }));
 }
