@@ -119,6 +119,8 @@ export const en = {
   "items.create": "Create",
   "items.save": "Save changes",
   "items.priority": "Priority",
+  "items.start": "Start date",
+  "items.costCode": "Cost code",
   "priority.low": "Low",
   "priority.normal": "Normal",
   "priority.high": "High",

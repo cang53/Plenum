@@ -121,6 +121,8 @@ export const nl: Record<keyof typeof en, string> = {
   "items.create": "Aanmaken",
   "items.save": "Wijzigingen opslaan",
   "items.priority": "Prioriteit",
+  "items.start": "Begindatum",
+  "items.costCode": "Kostencode",
   "priority.low": "Laag",
   "priority.normal": "Normaal",
   "priority.high": "Hoog",

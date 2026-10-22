@@ -27,7 +27,9 @@ function Fields({ item, kind, projectId, t }: { item?: ManualItem; kind: ManualI
               {PRIORITIES.map((p) => <option key={p} value={p}>{t(`priority.${p}`)}</option>)}
             </select>
           </label>
+          <label>{t("items.start")} <input type="date" name="startDate" defaultValue={item?.startDate ?? ""} /></label>
           <label>{t("board.due")} <input type="date" name="dueDate" defaultValue={item?.dueDate ?? ""} /></label>
+          <label>{t("items.costCode")} <input name="costCode" maxLength={40} defaultValue={item?.costCode ?? ""} /></label>
         </>
       )}
       {kind === "risk" && (

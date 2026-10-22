@@ -14,7 +14,9 @@ export type ItemInput = {
   details: string;
   status: string;
   priority: string;
+  startDate: string | null;
   dueDate: string | null;
+  costCode: string;
 };
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -28,20 +30,23 @@ export function itemFromForm(form: FormData): ItemInput {
     details: text(form, "details"),
     status: text(form, "status"),
     priority: text(form, "priority") || "normal",
+    startDate: text(form, "startDate") || null,
     dueDate: text(form, "dueDate") || null,
+    costCode: text(form, "costCode"),
   };
   if (!item.title) throw new Error("title is required");
   if (kind === "task" && !STATUSES.includes(item.status as TaskStatus)) item.status = "todo";
   if (kind === "task" && !PRIORITIES.includes(item.priority as (typeof PRIORITIES)[number])) throw new Error("unknown priority");
   if (kind === "risk" && !RISK_STATUSES.includes(item.status as (typeof RISK_STATUSES)[number])) item.status = "open";
-  if (item.dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(item.dueDate)) throw new Error("invalid date");
+  for (const d of [item.startDate, item.dueDate]) if (d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new Error("invalid date");
+  if (item.startDate && item.dueDate && item.startDate > item.dueDate) throw new Error("start is after due date");
   return item;
 }
 
 // The columns to write for this kind. Decisions have no status.
 export function toColumns(item: ItemInput): Record<string, string | null> {
   const base = { title: item.title };
-  if (item.kind === "task") return { ...base, details: item.details, status: item.status, priority: item.priority, due_date: item.dueDate };
+  if (item.kind === "task") return { ...base, details: item.details, status: item.status, priority: item.priority, start_date: item.startDate, due_date: item.dueDate, cost_code: item.costCode || null };
   if (item.kind === "risk") return { ...base, details: item.details, status: item.status };
   return { ...base, details: item.details };
 }
