@@ -1,9 +1,12 @@
 import { supabaseServer } from "@/auth/supabase";
 import { listAudit } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
-import { intlLocale, t } from "@/lib/messages";
+import { intlLocale } from "@/lib/messages";
+import { getLocale, getT } from "@/lib/locale";
 
 export default async function AuditPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+  const t = await getT();
+  const locale = await getLocale();
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), (await searchParams).project);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
@@ -25,7 +28,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
           <tbody>
             {rows.map((r, i) => (
               <tr key={i}>
-                <td>{new Date(r.created_at).toLocaleString(intlLocale.en)}</td>
+                <td>{new Date(r.created_at).toLocaleString(intlLocale[locale])}</td>
                 <td>{r.action}</td>
                 <td>{r.entity_type}</td>
                 <td>{r.actor_id ?? ""}</td>

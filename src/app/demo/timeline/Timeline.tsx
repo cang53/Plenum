@@ -5,7 +5,7 @@ import { draftFromMessage, isValidDraft, ITEM_KINDS, linkedTo, type ItemDraft, t
 import { toDraft, type StoredSuggestion } from "@/domain/triage";
 import { buildTimeline, formatSize, relativeDay, type TimelineMessage } from "@/domain/timeline";
 import { logError } from "@/lib/log";
-import { intlLocale, t } from "@/lib/messages";
+import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
 // Bodies longer than this start folded, with a button to show the rest.
 const LONG_BODY = 280;
@@ -20,9 +20,12 @@ type Props = {
   // Live pages save the decision; the demo leaves these out and keeps changes in the page.
   onAccept?: (suggestionId: string, draft: ItemDraft) => Promise<void>;
   onDismiss?: (suggestionId: string) => Promise<void>;
+  // The signed-in person's language; the demo stays English.
+  language?: Locale;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, language = "en" }: Props) {
+  const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
   const [open, setOpen] = useState<Record<string, boolean>>({});
@@ -50,7 +53,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
     return true;
   };
 
-  const locale = intlLocale.en;
+  const locale = intlLocale[language];
   const days = buildTimeline(messages, { query, on: on || undefined }, timeZone);
   const shown = days.reduce((sum, d) => sum + d.messages.length, 0);
   const time = new Intl.DateTimeFormat(locale, { timeZone, hour: "2-digit", minute: "2-digit" });

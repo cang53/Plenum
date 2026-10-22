@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { buildColumns, distinct, moveTask, STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
 import { logError } from "@/lib/log";
-import { t } from "@/lib/messages";
+import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
 type Props = {
   initialTasks: BoardTask[];
   // Saves a move; when it fails the card goes back. Without it (the demo) moves stay in the page.
   onMove?: (taskId: string, status: TaskStatus) => Promise<void>;
+  // The signed-in person's language; the demo stays English.
+  locale?: Locale;
 };
 
-export function Board({ initialTasks, onMove }: Props) {
+export function Board({ initialTasks, onMove, locale = "en" }: Props) {
+  const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
   const [owner, setOwner] = useState("");

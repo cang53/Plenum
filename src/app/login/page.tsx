@@ -1,5 +1,5 @@
 import { authProvider } from "@/auth/provider";
-import { t } from "@/lib/messages";
+import { getT } from "@/lib/locale";
 import { sendLink } from "./actions";
 
 export default async function Login({
@@ -8,6 +8,7 @@ export default async function Login({
   searchParams: Promise<{ next?: string; sent?: string; error?: string }>;
 }) {
   const { next, sent, error } = await searchParams;
+  const t = await getT();
   return (
     <main id="main" className="home">
       <h1>{t("login.title")}</h1>

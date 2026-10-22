@@ -1,10 +1,12 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { checkName, checkSlug } from "@/domain/settings";
-import { messages } from "@/lib/messages";
+import { LOCALE_COOKIE } from "@/lib/locale";
+import { isLocale } from "@/lib/messages";
 
 function back(projectId: string, result: string): never {
   redirect(`/app/settings?project=${projectId}&${result}`);
@@ -16,7 +18,7 @@ export async function saveProfile(form: FormData): Promise<void> {
   const name = checkName(String(form.get("displayName") ?? ""));
   const locale = String(form.get("locale"));
   if (!name.ok) back(projectId, `error=${name.error}`);
-  if (!(locale in messages)) back(projectId, "error=settings.saveError");
+  if (!isLocale(locale)) back(projectId, "error=settings.saveError");
   const supabase = await supabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   const { error } = await supabase
@@ -24,6 +26,7 @@ export async function saveProfile(form: FormData): Promise<void> {
     .update({ display_name: name.value, locale })
     .eq("id", user?.id ?? "");
   if (error) back(projectId, "error=settings.saveError");
+  (await cookies()).set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
   revalidatePath("/app", "layout");
   back(projectId, "saved=1");
 }
