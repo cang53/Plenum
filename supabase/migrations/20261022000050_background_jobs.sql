@@ -34,3 +34,4 @@ language sql security definer set search_path = public as $$
 $$;
 
 revoke execute on function public.claim_job(text, interval), public.claim_failed_emails(int) from public, anon, authenticated;
+grant execute on function public.claim_job(text, interval), public.claim_failed_emails(int) to service_role;
