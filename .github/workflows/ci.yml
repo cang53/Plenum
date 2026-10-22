@@ -8,7 +8,7 @@ on:
 # A newer push to the same branch makes the older run pointless (and saves image pulls).
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
@@ -65,18 +65,13 @@ jobs:
       - name: Load cached Supabase images
         if: steps.images.outputs.cache-hit == 'true'
         run: docker load -i ~/supabase-images.tar
+      - name: Log in to the image registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
       - name: Start local Supabase and export its keys
         env:
-          # ghcr.io rate limits shared runners; the public ECR mirror does not.
-          SUPABASE_INTERNAL_IMAGE_REGISTRY: public.ecr.aws
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: ghcr.io
         run: |
-          # Start only what the app needs (database, auth, API); retry in case a pull still fails.
-          for attempt in 1 2 3; do
-            supabase start -x studio,imgproxy,edge-runtime,vector,logflare,realtime,storage-api,postgres-meta,supavisor && break
-            [ "$attempt" = 3 ] && exit 1
-            supabase stop --no-backup || true
-            sleep $((attempt * 20))
-          done
+          bash scripts/ci-supabase-start.sh
           supabase status -o env > "$RUNNER_TEMP/supabase.env"
           {
             echo "SUPABASE_URL=$(grep ^API_URL= "$RUNNER_TEMP/supabase.env" | cut -d= -f2- | tr -d '"')"
