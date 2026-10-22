@@ -56,8 +56,12 @@ test("sign in, receive a message, accept the suggestion, see the task on the boa
   await page.getByRole("link", { name: "Timeline" }).click();
   const suggestion = page.getByRole("group", { name: "Suggested by AI" });
   await expect(suggestion).toContainText(subject);
-  await suggestion.getByRole("button", { name: "Accept" }).click();
-  await expect(suggestion).toHaveCount(0);
+  // next dev may not have hydrated the page yet, so a first click can be lost: click again until it is accepted.
+  await expect(async () => {
+    if (await suggestion.count()) await suggestion.getByRole("button", { name: "Accept" }).click({ timeout: 2000 });
+    await expect(suggestion).toHaveCount(0, { timeout: 3000 });
+  }).toPass({ timeout: 30_000 });
+  await expect(page.getByRole("alert")).toHaveCount(0);
 
   // The accepted suggestion is now a task on the board, and a status change is kept.
   await page.goto(boardUrl!);
