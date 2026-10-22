@@ -1,6 +1,6 @@
 import { logError } from "@/lib/log";
 
-export type Health = { ok: boolean; database: "up" | "down" | "not configured" };
+export type Health = { ok: boolean; database: "up" | "down" | "not configured"; jobs?: Record<string, { lastRun: string; ok: boolean | null }> };
 
 // Asks the database REST endpoint for one row of nothing; any answer below 500 proves the database is reachable.
 export async function checkHealth(
@@ -13,10 +13,25 @@ export async function checkHealth(
       headers: { apikey: env.key, authorization: `Bearer ${env.key}` },
       signal: AbortSignal.timeout(3000),
     });
-    if (response.status < 500) return { ok: true, database: "up" };
+    if (response.status < 500) return { ok: true, database: "up", jobs: await lastJobRuns(env.url, env.key, doFetch) };
     logError("health check failed", { name: "HttpStatus", status: response.status });
   } catch (error) {
     logError("health check failed", error);
   }
   return { ok: false, database: "down" };
+}
+
+// Last run of each background job; never fails the health check.
+async function lastJobRuns(url: string, key: string, doFetch: typeof fetch): Promise<Health["jobs"]> {
+  try {
+    const res = await doFetch(`${url}/rest/v1/job_runs?select=job,last_run_at,ok`, {
+      headers: { apikey: key, authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return undefined;
+    const rows = (await res.json()) as { job: string; last_run_at: string; ok: boolean | null }[];
+    return Object.fromEntries(rows.map((r) => [r.job, { lastRun: r.last_run_at, ok: r.ok }]));
+  } catch {
+    return undefined;
+  }
 }
