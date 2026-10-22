@@ -4,6 +4,7 @@ import { currentProject, listProjects } from "@/data/projects";
 import { MANUAL_KINDS, PRIORITIES, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
 import type { MessageKey } from "@/lib/messages";
+import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 import { saveItem } from "./actions";
 
@@ -44,12 +45,13 @@ function Fields({ item, kind, projectId, t }: { item?: ManualItem; kind: ManualI
   );
 }
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const project = currentProject(await listProjects(supabase), (await searchParams).project);
+  const { project: chosen, after } = await searchParams;
+  const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
-  const items = await listManualItems(supabase, project.id);
+  const { rows: items, next } = await listManualItems(supabase, project.id, after);
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -75,6 +77,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           </ul>
         </section>
       ))}
+      <MoreLink path="/app/items" params={{ project: project.id }} next={next} label={t("paging.more")} />
     </main>
   );
 }

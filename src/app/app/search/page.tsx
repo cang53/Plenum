@@ -1,16 +1,17 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects, searchProject } from "@/data/projects";
 import { plainSnippet, searchHref } from "@/domain/search";
+import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ project?: string; q?: string }> }) {
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ project?: string; q?: string; after?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, q = "" } = await searchParams;
+  const { project: chosen, q = "", after } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const query = q.trim();
-  const hits = query ? await searchProject(supabase, project.id, query) : [];
+  const { rows: hits, next } = query ? await searchProject(supabase, project.id, query, after) : { rows: [], next: null };
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -31,6 +32,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           </li>
         ))}
       </ul>
+      <MoreLink path="/app/search" params={{ project: project.id, q: query }} next={next} label={t("paging.more")} />
     </main>
   );
 }
