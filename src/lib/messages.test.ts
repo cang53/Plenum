@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { messages, t } from "./messages";
+import { messages, t } from "@/lib/messages";
 
 describe("t", () => {
   it("returns the English string for a key", () => {
