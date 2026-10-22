@@ -173,4 +173,10 @@ export const en = {
   "status.in_progress": "In progress",
   "status.blocked": "Blocked",
   "status.done": "Done",
+  "digest.subject": "Your daily summary",
+  "digest.suggestions": "New suggestions to review:",
+  "digest.due": "Tasks due today or tomorrow:",
+  "digest.footer": "You get this because you turned on the daily digest. Turn it off in Notifications.",
+  "digest.label": "Email me a daily summary",
+  "digest.save": "Save",
 } as const;

@@ -9,3 +9,7 @@ Logs never contain message or task text, only the kind of failure (for example `
 5. **Emails not leaving?** Look at the `outbox` table for rows that are not sent. The stub sender is used until SES is live.
 6. **Sign-in loops?** Check `NEXT_PUBLIC_SUPABASE_URL` and the auth redirect URLs in Supabase.
 7. **Still stuck?** Note the time, the log line and the `/api/health` answer, then roll back to the last good deploy.
+
+## Daily email digest
+
+People opt in on the Notifications page. A daily scheduler calls `POST /api/digest` with `Authorization: Bearer $DIGEST_SECRET`. Without `DIGEST_SECRET` the route returns 403. Emails go through the normal sender, so with `EMAIL_PROVIDER=fake` they appear in the outbox only.
