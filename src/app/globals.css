@@ -266,3 +266,25 @@ input[type="search"] {
   border-radius: 8px;
   font-size: 14px;
 }
+
+.link-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.link-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.link-form input,
+.link-form select,
+.link-form textarea {
+  border: 1px solid #c9d1da;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}

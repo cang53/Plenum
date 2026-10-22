@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { draftFromMessage, isValidDraft, ITEM_KINDS, linkedTo, type ItemDraft, type ItemKind, type LinkedItem } from "@/domain/linking";
 import { buildTimeline, formatSize, relativeDay, type TimelineMessage } from "@/domain/timeline";
 import { intlLocale, t } from "@/lib/messages";
 
@@ -13,6 +14,9 @@ export function Timeline({ messages, now, timeZone }: Props) {
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  // Demo only: items made here are kept in the page, not saved.
+  const [items, setItems] = useState<LinkedItem[]>([]);
+  const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft } | null>(null);
 
   const locale = intlLocale.en;
   const days = buildTimeline(messages, { query, on: on || undefined }, timeZone);
@@ -85,6 +89,68 @@ export function Timeline({ messages, now, timeZone }: Props) {
                       </li>
                     ))}
                   </ul>
+                )}
+                {linkedTo(items, m.id).length > 0 && (
+                  <ul className="attachments" aria-label={t("link.linked")}>
+                    {linkedTo(items, m.id).map((item) => (
+                      <li key={item.id}>
+                        <span className="chip">{t(`kind.${item.kind}`)}</span> {item.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {drafting?.messageId === m.id ? (
+                  <form
+                    className="link-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!isValidDraft(drafting.draft)) return;
+                      const { kind, title } = drafting.draft;
+                      setItems([...items, { id: `${kind}-${items.length}`, kind, title: title.trim(), messageId: m.id }]);
+                      setDrafting(null);
+                    }}
+                  >
+                    <label>
+                      {t("link.kind")}
+                      <select
+                        value={drafting.draft.kind}
+                        onChange={(e) => setDrafting({ messageId: m.id, draft: { ...draftFromMessage(e.target.value as ItemKind, m) } })}
+                      >
+                        {ITEM_KINDS.map((kind) => (
+                          <option key={kind} value={kind}>
+                            {t(`kind.${kind}`)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      {t("link.title")}
+                      <input value={drafting.draft.title} onChange={(e) => setDrafting({ messageId: m.id, draft: { ...drafting.draft, title: e.target.value } })} />
+                    </label>
+                    {drafting.draft.kind !== "task" && (
+                      <label>
+                        {t("link.details")}
+                        <textarea
+                          rows={3}
+                          value={drafting.draft.details}
+                          onChange={(e) => setDrafting({ messageId: m.id, draft: { ...drafting.draft, details: e.target.value } })}
+                        />
+                      </label>
+                    )}
+                    <p className="meta">{t("link.fromMessage")}: {m.subject || t("timeline.noSubject")}</p>
+                    <div>
+                      <button type="submit" className="button" disabled={!isValidDraft(drafting.draft)}>
+                        {t("link.save")}
+                      </button>{" "}
+                      <button type="button" className="button" onClick={() => setDrafting(null)}>
+                        {t("link.cancel")}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <button type="button" className="link-button" onClick={() => setDrafting({ messageId: m.id, draft: draftFromMessage("task", m) })}>
+                    {t("link.action")}
+                  </button>
                 )}
               </article>
             );
