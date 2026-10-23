@@ -6,7 +6,9 @@ import { STATUSES } from "@/domain/board";
 import type { MessageKey } from "@/lib/messages";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
+import { WorkSwitch } from "@/app/WorkSwitch";
 import { bulkTasks, saveItem } from "./actions";
+import { ItemsTable } from "./ItemsTable";
 
 type Plan = { members: Member[]; phases: { id: string; name: string }[]; tasks: { id: string; title: string }[] };
 
@@ -71,10 +73,10 @@ function Fields({ item, kind, projectId, plan, t }: { item?: ManualItem; kind: M
   );
 }
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after } = await searchParams;
+  const { project: chosen, after, kind: only } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const [{ rows: items, next }, choices, members] = await Promise.all([listManualItems(supabase, project.id, after), listPlanChoices(supabase, project.id), listMembers(supabase, project.id)]);
@@ -84,14 +86,21 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
       <p className="eyebrow">{project.name}</p>
       <h1>{t("items.title")}</h1>
       <p className="intro">{t("items.intro")}</p>
-      {MANUAL_KINDS.map((kind) => (
+      <WorkSwitch current="items" projectId={project.id} t={t} />
+      <nav className="items-filter" aria-label={t("items.filter.label")}>
+        <div className="segmented">
+          {[undefined, ...MANUAL_KINDS].map((k) => (
+            <a key={k ?? "all"} href={`/app/items?project=${project.id}${k ? `&kind=${k}` : ""}`} aria-current={k === only || (!k && !MANUAL_KINDS.some((m) => m === only)) ? "page" : undefined}>{k ? t(`items.group.${k}` as MessageKey) : t("items.filter.all")}</a>
+          ))}
+        </div>
+      </nav>
+      {MANUAL_KINDS.filter((k) => !MANUAL_KINDS.some((m) => m === only) || k === only).map((kind) => (
         <section key={kind}>
           <h2>{t(`items.group.${kind}` as MessageKey)}</h2>
           <details>
             <summary>{t("items.new")} {t(`kind.${kind}`).toLowerCase()}</summary>
             <Fields kind={kind} projectId={project.id} plan={plan} t={t} />
           </details>
-          {!items.some((i) => i.kind === kind) && <p className="intro">{t("items.empty")}</p>}
           {kind === "task" && items.some((i) => i.kind === "task") && (
             <form id="bulk" action={bulkTasks} aria-label={t("bulk.title")} className="glass bulk-bar">
               <p className="intro">{t("bulk.hint")}</p>
@@ -110,20 +119,10 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
               <button type="submit" name="op" value="due" className="btn btn-secondary">{t("bulk.setDue")}</button>
             </form>
           )}
-          <ul>
-            {items.filter((i) => i.kind === kind).map((i) => (
-              <li key={i.id}>
-                {kind === "task" && <input type="checkbox" name="ids" value={i.id} form="bulk" aria-label={`${t("bulk.select")}: ${i.title}`} />}
-                <details>
-                  <summary data-row>{i.title}</summary>
-                  <Fields item={i} kind={kind} projectId={project.id} plan={plan} t={t} />
-                </details>
-              </li>
-            ))}
-          </ul>
+          <ItemsTable kind={kind} t={t} rows={items.filter((i) => i.kind === kind).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />
         </section>
       ))}
-      <MoreLink path="/app/items" params={{ project: project.id }} next={next} label={t("paging.more")} />
+      <MoreLink path="/app/items" params={{ project: project.id, ...(only ? { kind: only } : {}) }} next={next} label={t("paging.more")} />
     </main>
   );
 }

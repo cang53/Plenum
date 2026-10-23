@@ -1,6 +1,7 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects, searchProject } from "@/data/projects";
 import { searchHref, snippetParts } from "@/domain/search";
+import { listBoardTasks } from "@/data/live";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 
@@ -12,6 +13,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const query = q.trim();
   const { rows: hits, next } = query ? await searchProject(supabase, project.id, query, after, { since, until, task }) : { rows: [], next: null };
+  const tasks = await listBoardTasks(supabase, project.id);
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -27,7 +29,13 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         <label>
           {t("search.until")} <input type="date" name="until" defaultValue={until} />
         </label>{" "}
-        {task && <input type="hidden" name="task" value={task} />}
+        <label>
+          {t("filter.task")}{" "}
+          <select name="task" defaultValue={task}>
+            <option value="">{t("filter.anyTask")}</option>
+            {tasks.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}
+          </select>
+        </label>{" "}
         <button type="submit">{t("search.submit")}</button>
       </form>
       {query && hits.length === 0 && <p>{t("search.empty")}</p>}
