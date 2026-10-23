@@ -22,3 +22,11 @@ export function buildStream(messages: TimelineMessage[], now: string, timeZone: 
     return { day, relative: relativeDay(day, now, timeZone), groups };
   });
 }
+
+// The oldest message that arrived after the person last read the stream, and how many arrived. Null on a first visit or when nothing is new.
+export function newSince(messages: TimelineMessage[], lastRead: string | undefined): { id: string; count: number } | null {
+  const since = Date.parse(lastRead ?? "");
+  if (Number.isNaN(since)) return null;
+  const fresh = messages.filter((m) => Date.parse(m.receivedAt) > since).sort((a, b) => Date.parse(a.receivedAt) - Date.parse(b.receivedAt) || a.id.localeCompare(b.id));
+  return fresh.length ? { id: fresh[0].id, count: fresh.length } : null;
+}

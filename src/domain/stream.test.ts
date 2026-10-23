@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildStream } from "./stream";
+import { buildStream, newSince } from "./stream";
 import type { TimelineMessage } from "./timeline";
 
 const msg = (id: string, from: string, at: string): TimelineMessage => ({ id, source: "email", fromName: null, fromAddress: from, subject: id, bodyText: "", receivedAt: at, attachments: [] });
@@ -20,5 +20,18 @@ describe("buildStream", () => {
   it("keeps a day in the project's time zone", () => {
     const late = buildStream([msg("x", "a@x.test", "2026-10-22T23:30:00Z")], now, "Europe/Amsterdam");
     expect(late[0].day).toBe("2026-10-23");
+  });
+});
+
+describe("newSince", () => {
+  const at = (id: string, receivedAt: string) => ({ id, receivedAt }) as TimelineMessage;
+  const list = [at("a", "2026-10-22T09:00:00Z"), at("c", "2026-10-23T09:00:00Z"), at("b", "2026-10-22T18:00:00Z")];
+  it("points at the oldest unread message and counts them", () => {
+    expect(newSince(list, "2026-10-22T12:00:00Z")).toEqual({ id: "b", count: 2 });
+  });
+  it("is null on a first visit, a bad date, or when nothing is new", () => {
+    expect(newSince(list, undefined)).toBeNull();
+    expect(newSince(list, "nope")).toBeNull();
+    expect(newSince(list, "2026-10-24T00:00:00Z")).toBeNull();
   });
 });

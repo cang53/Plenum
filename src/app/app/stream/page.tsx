@@ -1,9 +1,12 @@
+import { cookies } from "next/headers";
 import { supabaseServer } from "@/auth/supabase";
-import { listTimelineMessages } from "@/data/live";
+import { listLinkedItems, listTimelineMessages } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { demoProject } from "@/data/demo";
 import { SOURCE_BADGE } from "@/domain/channel";
-import { buildStream } from "@/domain/stream";
+import { buildStream, newSince } from "@/domain/stream";
+import { MarkRead } from "./MarkRead";
+import { createTaskFromMessage, linkMessageToTask } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
@@ -23,6 +26,9 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const tz = demoProject.timeZone;
   const { rows, next } = await listTimelineMessages(supabase, project.id, after);
   const days = buildStream(rows, new Date().toISOString(), tz);
+  const fresh = newSince(rows, (await cookies()).get(`stream-read-${project.id}`)?.value);
+  const linked = await listLinkedItems(supabase, project.id, rows.map((m) => m.id));
+  const { data: open } = await supabase.from("tasks").select("id, title").eq("project_id", project.id).is("source_message_id", null).neq("status", "done").order("title").limit(50);
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
   return (
@@ -31,6 +37,7 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
         <h1>{t("stream.title")}</h1>
         <span className="sub">{project.name}</span>
       </header>
+      <MarkRead projectId={project.id} />
       {days.length === 0 && <p>{t("timeline.empty")}</p>}
       {days.map((d) => (
         <section key={d.day} aria-labelledby={`day-${d.day}`}>
@@ -39,7 +46,9 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
           </h2>
           {d.groups.map((g) =>
             g.messages.map((m, i) => (
-              <article key={m.id} className="stream-row">
+              <div key={m.id}>
+              {fresh?.id === m.id && <p className="newline" role="separator"><span>{t("stream.new")} · {fresh.count}</span></p>}
+              <article className="stream-row">
                 <time className="t" dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                 <div className="tx">
                   {i === 0 && (
@@ -55,8 +64,32 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
                     <p className="text">{m.bodyText}</p>
                   )}
                   {m.attachments.length > 0 && <span className="sm">{t("timeline.attachments")}: {m.attachments.map((a) => a.filename).join(", ")}</span>}
+                  {linked.filter((l) => l.messageId === m.id).map((l) => (
+                    <a key={l.id} className="sm linked" href={`/app/items?project=${project.id}`}>{t(`stream.linked.${l.kind}`)}: {l.title}</a>
+                  ))}
+                </div>
+                <div className="tools" role="group" aria-label={t("stream.actions")}>
+                  <form action={createTaskFromMessage}>
+                    <input type="hidden" name="projectId" value={project.id} />
+                    <input type="hidden" name="messageId" value={m.id} />
+                    <input type="hidden" name="title" value={m.subject || t("timeline.noSubject")} />
+                    <button type="submit" className="btn btn-plain">{t("stream.createTask")}</button>
+                  </form>
+                  {open && open.length > 0 && (
+                    <details className="link-pop">
+                      <summary className="btn btn-plain">{t("stream.linkTask")}</summary>
+                      <form action={linkMessageToTask}>
+                        <input type="hidden" name="messageId" value={m.id} />
+                        <select name="taskId" aria-label={t("stream.pickTask")} required>
+                          {open.map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
+                        </select>
+                        <button type="submit" className="btn btn-secondary">{t("stream.link")}</button>
+                      </form>
+                    </details>
+                  )}
                 </div>
               </article>
+              </div>
             )),
           )}
         </section>
