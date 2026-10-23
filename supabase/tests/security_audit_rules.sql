@@ -7,7 +7,7 @@ do $$
 declare
   allowed text[] := array['is_workspace_member','is_workspace_staff','is_workspace_admin','project_role_of',
     'can_see_project','can_manage_project','accept_my_invitations','onboard','export_workspace','delete_project',
-    'remove_person','accept_suggestion','search_project'];
+    'remove_person','accept_suggestion','search_project','create_project_from'];
   bad text;
 begin
   select string_agg(p.proname, ', ') into bad from pg_proc p join pg_namespace n on n.oid = p.pronamespace
