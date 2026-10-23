@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildColumns, distinct, initials, moveTask, taskKey, type BoardTask } from "./board";
+import { buildColumns, distinct, groupTasks, weekStart, initials, moveTask, taskKey, type BoardTask } from "./board";
 
 const tasks: BoardTask[] = [
   { id: "1", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", priority: "normal", position: 0, site: "Yard" },
@@ -61,5 +61,23 @@ describe("card marks", () => {
     expect(taskKey("3f9a12c0-1111-2222-3333-444455556666")).toBe("T-3F9A");
     expect(initials("Jan de Wit")).toBe("JD");
     expect(initials("  marta ")).toBe("M");
+  });
+});
+
+describe("groupTasks", () => {
+  it("groups by phase with the empty group last", () => {
+    const groups = groupTasks([...tasks, { ...tasks[0], id: "5", phase: null }], "phase");
+    expect(groups.map((g) => g.key)).toEqual(["Engineering", "Procurement", "Site works", ""]);
+  });
+
+  it("groups by owner", () => {
+    expect(groupTasks(tasks, "owner").map((g) => [g.key, g.tasks.length])).toEqual([["Aylin", 1], ["Jonas", 2], ["Marta", 1]]);
+  });
+
+  it("groups by the Monday of the due week", () => {
+    expect(weekStart("2026-11-14")).toBe("2026-11-09");
+    expect(weekStart("2026-11-09")).toBe("2026-11-09");
+    expect(weekStart(null)).toBe("");
+    expect(groupTasks(tasks, "week").map((g) => g.key)).toEqual(["2026-11-02", "2026-11-09", "2026-11-23", "2026-11-30"]);
   });
 });

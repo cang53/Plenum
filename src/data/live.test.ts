@@ -17,7 +17,12 @@ describe("taskFromRow", () => {
       id: "t", title: "Lift", status: "todo", due_date: "2026-11-01", priority: "normal", position: 2, site: "Yard",
       phases: { name: "Site" }, profiles: { display_name: "Ann" },
     });
-    expect(task).toEqual({ id: "t", title: "Lift", status: "todo", phase: "Site", ownerName: "Ann", dueDate: "2026-11-01", priority: "normal", position: 2, site: "Yard" });
+    expect(task).toEqual({ id: "t", title: "Lift", status: "todo", phase: "Site", ownerName: "Ann", dueDate: "2026-11-01", priority: "normal", position: 2, site: "Yard", waitingOn: null });
+  });
+  it("names the message a blocked task waits on", () => {
+    const row = { id: "t", title: "x", status: "blocked" as const, due_date: null, priority: "normal" as const, position: 0, site: "", phases: null, profiles: null, source: { subject: "Re: delivery" } };
+    expect(taskFromRow(row).waitingOn).toBe("Re: delivery");
+    expect(taskFromRow({ ...row, status: "todo" }).waitingOn).toBeNull();
   });
   it("allows no phase or owner", () => {
     const task = taskFromRow({ id: "t", title: "x", status: "done", due_date: null, priority: "high", position: 0, site: "", phases: null, profiles: null });
