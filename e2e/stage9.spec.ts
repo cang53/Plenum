@@ -31,6 +31,21 @@ test("save a daily site log", async () => {
   await expect(page.getByRole("heading", { name: "North yard · 2026-10-20" })).toBeVisible();
 });
 
+test("site log on a phone keeps an offline entry and sends it when back online", async () => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto(`/app/sitelog?project=${project}`);
+  await expect(page.getByRole("link", { name: "Add entry" })).toBeVisible();
+  await page.getByRole("link", { name: "Add entry" }).click();
+  await page.getByLabel("Site", { exact: true }).fill("Phone yard");
+  await page.getByLabel("Date", { exact: true }).fill("2026-10-21");
+  await page.context().setOffline(true);
+  await page.getByRole("button", { name: "Save log" }).click();
+  await expect(page.getByRole("status")).toHaveText("Waiting to send: 1");
+  await page.context().setOffline(false);
+  await expect(page.getByRole("status")).toHaveText("Sent: 1");
+  await page.setViewportSize({ width: 1280, height: 720 });
+});
+
 test("add a risk and an issue", async () => {
   await page.goto(`/app/items?project=${project}&kind=risk`);
   const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Risks and issues" }) });

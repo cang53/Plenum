@@ -1,5 +1,6 @@
 // Offline queue for task status and notes, plus the last project view. Everything is encrypted at rest. Storage, key and the network call are passed in so tests can mock them.
 import { open, seal } from "./offline-crypto";
+import type { SiteLogInput } from "@/domain/siteLog";
 
 export type Vault = { s: Pick<Storage, "getItem" | "setItem" | "removeItem">; key: CryptoKey };
 export type Change = { taskId: string; baseStatus: string; status?: string; note?: string };
@@ -8,6 +9,7 @@ export type SendResult = "ok" | "conflict";
 
 export const QUEUE_KEY = "plenum:offline:queue";
 export const VIEW_KEY = "plenum:offline:view";
+export const LOG_KEY = "plenum:offline:sitelog";
 
 const read = <T,>(v: Vault, key: string, fallback: T) => open<T>(v.key, v.s.getItem(key), fallback);
 const write = async (v: Vault, key: string, value: unknown) => v.s.setItem(key, await seal(v.key, value));
@@ -15,7 +17,7 @@ const write = async (v: Vault, key: string, value: unknown) => v.s.setItem(key, 
 export const readQueue = (v: Vault) => read<Change[]>(v, QUEUE_KEY, []);
 export const readSnapshot = (v: Vault) => read<Snapshot | null>(v, VIEW_KEY, null);
 export const saveSnapshot = (v: Vault, snap: Snapshot) => write(v, VIEW_KEY, snap);
-export const wipe = (s: Pick<Storage, "removeItem">) => { s.removeItem(VIEW_KEY); s.removeItem(QUEUE_KEY); };
+export const wipe = (s: Pick<Storage, "removeItem">) => { s.removeItem(VIEW_KEY); s.removeItem(QUEUE_KEY); s.removeItem(LOG_KEY); };
 
 // One entry per task: the newest status wins, notes pile up, and the status the person first saw stays the base for conflict checks.
 export async function enqueue(v: Vault, c: Change): Promise<Change[]> {
@@ -55,4 +57,28 @@ export function planChange(current: { status: string; details: string | null }, 
   if (c.status !== undefined && !conflict) patch.status = c.status;
   if (c.note) patch.details = [current.details, c.note].filter(Boolean).join("\n");
   return { patch, conflict };
+}
+
+export type LogEntry = SiteLogInput & { projectId: string };
+export const readLogs = (v: Vault) => read<LogEntry[]>(v, LOG_KEY, []);
+
+// Site log entries written offline. Same site and date replaces, as saving online does.
+export async function enqueueLog(v: Vault, e: LogEntry): Promise<LogEntry[]> {
+  const queue = (await readLogs(v)).filter((q) => q.projectId !== e.projectId || q.site !== e.site || q.date !== e.date);
+  queue.push(e);
+  await write(v, LOG_KEY, queue);
+  return queue;
+}
+
+// Sends entries in order; a thrown error stops and keeps the rest. Returns how many are still waiting.
+export async function flushLogs(v: Vault, send: (e: LogEntry) => Promise<void>): Promise<{ synced: number; left: number }> {
+  const queue = await readLogs(v);
+  let synced = 0;
+  for (const e of [...queue]) {
+    try { await send(e); } catch { break; }
+    queue.shift();
+    synced++;
+    await write(v, LOG_KEY, queue);
+  }
+  return { synced, left: queue.length };
 }

@@ -5,8 +5,9 @@ import { getT } from "@/lib/locale";
 import { messages, type MessageKey } from "@/lib/messages";
 import { pickDay, prefillSiteLog, stepDay } from "@/domain/siteLog";
 import { submitSiteLog } from "./actions";
+import { SiteLogForm } from "./SiteLogForm";
 
-type Search = { project?: string; site?: string; date?: string; saved?: string; error?: string; message?: string };
+type Search = { project?: string; site?: string; date?: string; saved?: string; error?: string; message?: string; add?: string };
 
 export default async function SiteLogPage({ searchParams }: { searchParams: Promise<Search> }) {
   const t = await getT();
@@ -54,21 +55,20 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
         <p className="sl-sites">{t("sitelog.otherDays")}: {day.days.filter((d) => d !== day.date).slice(0, 14).map((d) => <a key={d} href={href({ date: d })}>{d}</a>)}</p>
       )}
       {canWrite ? (
-        <details className="sl-edit" open={!log || !!pre}>
-          <summary>{t("sitelog.edit")}</summary>
-          <form action={submitSiteLog} className="surface form-card">
-            <input type="hidden" name="projectId" value={project.id} />
-            {pre && <><input type="hidden" name="sourceMessageId" value={sp.message} /><p className="hint">{t("sitelog.fromMessage")}</p></>}
-            <p><label><span className="field-label">{t("sitelog.site")}</span><input className="field" name="site" defaultValue={pre?.site ?? day.site} maxLength={100} required /></label></p>
-            <p><label><span className="field-label">{t("sitelog.date")}</span><input className="field" type="date" name="date" defaultValue={pre?.date ?? day.date} required /></label></p>
-            <p><label><span className="field-label">{t("sitelog.weather")}</span><input className="field" name="weather" maxLength={100} defaultValue={log?.weather} /></label></p>
-            <p><label><span className="field-label">{t("sitelog.headcount")}</span><input className="field" type="number" name="headcount" min={0} max={100000} defaultValue={log?.headcount ?? 0} /></label></p>
-            <p><label><span className="field-label">{t("sitelog.work")}</span><textarea className="field" name="work" defaultValue={pre?.work ?? log?.work_done} maxLength={4000} rows={3} /></label></p>
-            <p><label><span className="field-label">{t("sitelog.delays")}</span><textarea className="field" name="delays" maxLength={4000} rows={2} defaultValue={log?.delays} /></label></p>
-            <p className="hint">{t("sitelog.replaceHint")}</p>
-            <button type="submit" className="btn btn-primary">{t("sitelog.save")}</button>
-          </form>
-        </details>
+        <>
+        <a className="btn btn-primary sl-add" href={`${href({})}&add=1#sl-form`}>{t("sitelog.add")}</a>
+        <SiteLogForm action={submitSiteLog} projectId={project.id} open={!log || !!pre || !!sp.add} labels={{ summary: t("sitelog.edit"), offline: t("sitelog.offline"), waiting: t("sitelog.waiting"), sent: t("sitelog.sent"), invalid: t("sitelog.invalid") }}>
+          {pre && <><input type="hidden" name="sourceMessageId" value={sp.message} /><p className="hint">{t("sitelog.fromMessage")}</p></>}
+          <p><label><span className="field-label">{t("sitelog.site")}</span><input className="field" name="site" defaultValue={pre?.site ?? day.site} maxLength={100} required /></label></p>
+          <p><label><span className="field-label">{t("sitelog.date")}</span><input className="field" type="date" name="date" defaultValue={pre?.date ?? day.date} required /></label></p>
+          <p><label><span className="field-label">{t("sitelog.weather")}</span><input className="field" name="weather" maxLength={100} defaultValue={log?.weather} /></label></p>
+          <p><label><span className="field-label">{t("sitelog.headcount")}</span><input className="field" type="number" name="headcount" min={0} max={100000} defaultValue={log?.headcount ?? 0} /></label></p>
+          <p><label><span className="field-label">{t("sitelog.work")}</span><textarea className="field" name="work" defaultValue={pre?.work ?? log?.work_done} maxLength={4000} rows={3} /></label></p>
+          <p><label><span className="field-label">{t("sitelog.delays")}</span><textarea className="field" name="delays" maxLength={4000} rows={2} defaultValue={log?.delays} /></label></p>
+          <p className="hint">{t("sitelog.replaceHint")}</p>
+          <button type="submit" className="btn btn-primary">{t("sitelog.save")}</button>
+        </SiteLogForm>
+        </>
       ) : <p>{t("sitelog.readOnly")}</p>}
     </main>
   );
