@@ -351,11 +351,11 @@ export async function exportTimesheet(client: SupabaseClient, projectId: string,
 
 // Streak inputs: due date, status and last update per task, plus the sites in use. No owner, so nothing per person.
 export async function listStreakTasks(client: SupabaseClient, projectId: string): Promise<{ tasks: StreakTask[]; sites: string[] }> {
-  const { data, error } = await client.from("tasks").select("due_date, status, updated_at, site").eq("project_id", projectId);
+  const { data, error } = await client.from("tasks").select("due_date, status, updated_at, created_at, site").eq("project_id", projectId);
   if (error) throw error;
-  const rows = (data ?? []) as { due_date: string | null; status: string; updated_at: string; site: string | null }[];
+  const rows = (data ?? []) as { due_date: string | null; status: string; updated_at: string; created_at: string; site: string | null }[];
   return {
-    tasks: rows.map((r) => ({ dueDate: r.due_date, status: r.status, updatedAt: r.updated_at })),
+    tasks: rows.map((r) => ({ dueDate: r.due_date, status: r.status, updatedAt: r.updated_at, createdAt: r.created_at })),
     sites: rows.flatMap((r) => (r.site ? [r.site] : [])),
   };
 }

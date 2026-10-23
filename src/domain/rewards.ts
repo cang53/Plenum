@@ -15,7 +15,7 @@ export function projectRewardsOn(offSites: string[], sites: string[]): boolean {
   return !offSites.includes("") && (used.length === 0 || used.some((s) => !offSites.includes(s)));
 }
 
-export type StreakTask = { dueDate: string | null; status: string; updatedAt: string };
+export type StreakTask = { dueDate: string | null; status: string; updatedAt: string; createdAt?: string };
 
 const DAY = 86400000;
 const monday = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - ((d.getUTCDay() + 6) % 7)));
@@ -24,8 +24,11 @@ const monday = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(
 // "Done" and "updated" both use updated_at, the last touch, so a later edit can only shorten the streak. Team level only.
 export function streakWeeks(tasks: StreakTask[], today: string): number {
   const thisWeek = monday(new Date(today)).getTime();
+  // A project cannot have a streak older than its first task.
+  const known = tasks.flatMap((t) => (t.createdAt ? [new Date(t.createdAt).getTime()] : []));
+  const born = known.length ? Math.min(...known) : -Infinity;
   let weeks = 0;
-  for (let start = thisWeek; weeks < 104; start -= 7 * DAY) {
+  for (let start = thisWeek; weeks < 104 && start + 7 * DAY > born; start -= 7 * DAY) {
     const end = start + 7 * DAY;
     const slipping = tasks.some((t) => {
       const touched = new Date(t.updatedAt).getTime();

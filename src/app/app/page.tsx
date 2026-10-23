@@ -33,7 +33,7 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     listStreakTasks(supabase, current.id),
     supabase.from("reward_switches").select("site"),
   ]);
-  const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? streakWeeks(streakTasks, today) : null;
+  const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? (streakTasks.length ? streakWeeks(streakTasks, today) : 0) : null;
   return (
     <main id="main" className="page overview">
       <h1>{t("overview.title")}</h1>

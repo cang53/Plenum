@@ -31,6 +31,9 @@ describe("projectRewardsOn", () => {
 describe("streakWeeks", () => {
   const today = "2026-10-23"; // a Friday
   it("counts the full lookback with no overdue tasks", () => expect(streakWeeks([], today)).toBe(104));
+  it("does not count weeks before the first task existed", () => {
+    expect(streakWeeks([{ dueDate: null, status: "todo", updatedAt: "2026-10-21T00:00:00Z", createdAt: "2026-10-14T00:00:00Z" }], today)).toBe(2);
+  });
   it("stops at the week an untouched task went overdue", () => {
     // due Wed 2026-10-07, last touched long before: overdue in weeks starting Oct 5 onward -> broken this week
     expect(streakWeeks([{ dueDate: "2026-10-07", status: "doing", updatedAt: "2026-09-01T00:00:00Z" }], today)).toBe(0);
