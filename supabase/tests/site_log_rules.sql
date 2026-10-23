@@ -65,3 +65,24 @@ do $$
 begin
   if not exists (select 1 from public.audit_log where action = 'site_log_saved') then raise exception 'save not audited'; end if;
 end $$;
+
+-- Source message (S10-2): kept on the log, audited, and it must belong to the project.
+do $$
+declare m uuid; other uuid;
+begin
+  select id into m from public.messages where project_id = '20000000-0000-0000-0000-000000000001' limit 1;
+  select id into other from public.messages where project_id <> '20000000-0000-0000-0000-000000000001' limit 1;
+  if m is null then raise exception 'seed has no message for project 2...01'; end if;
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+  perform public.save_site_log('20000000-0000-0000-0000-000000000001', 'Yard', '2026-11-05', '', 3, 'From mail', '', m);
+  if not exists (select 1 from public.site_logs where site = 'Yard' and source_message_id = m) then raise exception 'source link not kept'; end if;
+  if not exists (select 1 from public.audit_log where action = 'site_log_saved' and source_message_id = m) then raise exception 'audit lacks source'; end if;
+  if other is not null then
+    begin
+      perform public.save_site_log('20000000-0000-0000-0000-000000000001', 'Yard', '2026-11-06', '', 1, '', '', other);
+      raise exception 'foreign source accepted';
+    exception when raise_exception then
+      if sqlerrm = 'foreign source accepted' then raise; end if;
+    end;
+  end if;
+end $$;
