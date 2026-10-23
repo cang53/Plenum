@@ -1,0 +1,6 @@
+/* Timesheet week: live totals and target colouring on the shared table. */
+.ts-grid { font-variant-numeric: tabular-nums; }
+.ts-grid th:not(:first-child), .ts-grid td { text-align: end; }
+.ts-grid .field { width: 4.5rem; text-align: end; }
+.ts-num[data-state="over"] { color: var(--warning); background: var(--warning-surface); }
+.ts-num[data-state="met"] { color: var(--success); background: var(--success-surface); }
