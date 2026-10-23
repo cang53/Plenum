@@ -8,7 +8,7 @@ import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
 import { WorkSwitch } from "@/app/WorkSwitch";
 import { Timeline } from "@/app/demo/timeline/Timeline";
-import { acceptSuggestionAction, dismissSuggestionAction, replyAction, translateMessageAction } from "./actions";
+import { acceptSuggestionAction, dismissSuggestionAction, replyAction, tagAttachmentAction, translateMessageAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +26,7 @@ export default async function TimelinePage({ searchParams }: { searchParams: Pro
     listPendingSuggestions(supabase, project.id),
     listLinkedItems(supabase, project.id, messages.map((m) => m.id)),
   ]);
+  const { data: role } = await supabase.rpc("project_role_of", { p: project.id });
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -44,6 +45,7 @@ export default async function TimelinePage({ searchParams }: { searchParams: Pro
         onDismiss={dismissSuggestionAction}
         onReply={replyAction}
         onTranslate={translateMessageAction}
+        onTagAttachment={role === "project_manager" ? tagAttachmentAction : undefined}
         language={locale}
         now={new Date().toISOString()}
         timeZone={demoProject.timeZone}

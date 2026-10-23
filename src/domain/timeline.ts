@@ -1,6 +1,13 @@
 // Timeline logic: a project's messages newest first, grouped by day, with search.
 
-export type TimelineAttachment = { id: string; filename: string; contentType: string; sizeBytes: number };
+export const DOC_TYPES = ["drawing", "specification", "permit", "report", "other"] as const;
+export type DocType = (typeof DOC_TYPES)[number];
+
+// docType, docRef (document or drawing number) and revision are set by a manager; superseded: a later message has the same number.
+export type TimelineAttachment = {
+  id: string; filename: string; contentType: string; sizeBytes: number;
+  docType?: DocType | null; docRef?: string | null; revision?: string | null; superseded?: boolean;
+};
 
 export type TimelineMessage = {
   id: string;
@@ -22,7 +29,10 @@ export type MessageRow = {
   subject: string;
   body_text: string;
   received_at: string;
-  message_attachments: { id: string; part_index: number; filename: string; content_type: string; size_bytes: number }[];
+  message_attachments: {
+    id: string; part_index: number; filename: string; content_type: string; size_bytes: number;
+    doc_type?: DocType | null; doc_ref?: string | null; revision?: string | null; superseded?: boolean | null;
+  }[];
 };
 
 export function fromRow(row: MessageRow): TimelineMessage {
@@ -36,7 +46,10 @@ export function fromRow(row: MessageRow): TimelineMessage {
     receivedAt: row.received_at,
     attachments: [...row.message_attachments]
       .sort((a, b) => a.part_index - b.part_index)
-      .map((a) => ({ id: a.id, filename: a.filename, contentType: a.content_type, sizeBytes: a.size_bytes })),
+      .map((a) => ({
+        id: a.id, filename: a.filename, contentType: a.content_type, sizeBytes: a.size_bytes,
+        docType: a.doc_type ?? null, docRef: a.doc_ref ?? null, revision: a.revision ?? null, superseded: a.superseded ?? false,
+      })),
   };
 }
 
@@ -63,7 +76,7 @@ export function matches(message: TimelineMessage, search: TimelineSearch, timeZo
   const words = normalize(search.query ?? "").split(/\s+/).filter(Boolean);
   if (words.length === 0) return true;
   const haystack = normalize(
-    [message.fromName ?? "", message.fromAddress, message.subject, message.bodyText, ...message.attachments.map((a) => a.filename)].join(
+    [message.fromName ?? "", message.fromAddress, message.subject, message.bodyText, ...message.attachments.flatMap((a) => [a.filename, a.docType ?? "", a.docRef ?? "", a.revision ?? ""])].join(
       "\n",
     ),
   );
