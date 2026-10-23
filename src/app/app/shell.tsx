@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { Bell } from "./Bell";
+import { CommandMenu } from "./CommandMenu";
 
 type Group = "project" | "site" | "admin";
 type Item = { path: string; label: string; group: Group };
@@ -12,7 +13,7 @@ type Props = {
   fallbackItems: Item[];
   email: string;
   unread: number;
-  labels: Record<"brand" | "main" | "projects" | "search" | "searchPlaceholder" | "account" | "signOut" | "mobile" | "bell" | "newTask", string> & { group: Record<Group, string> };
+  labels: Record<"brand" | "main" | "projects" | "search" | "searchPlaceholder" | "account" | "signOut" | "mobile" | "bell" | "newTask", string> & { menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -70,6 +71,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
             <input type="search" name="q" className="field" placeholder={labels.searchPlaceholder} aria-label={labels.search} />
             <kbd className="kbd" aria-hidden="true">/</kbd>
           </form>
+          <CommandMenu project={project?.id} labels={labels.menu} />
           <a className="btn btn-primary" href={href("/app/items")}>{labels.newTask} <kbd className="kbd" aria-hidden="true">N</kbd></a>
           <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
             <span>{email}</span>

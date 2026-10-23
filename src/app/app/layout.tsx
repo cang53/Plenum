@@ -39,6 +39,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         mobile: t("shell.mobile"),
         bell: t("shell.inbox"),
         newTask: t("shell.newTask"),
+        menu: {
+          open: t("menu.open"), title: t("menu.title"), placeholder: t("menu.placeholder"), actions: t("menu.actions"), results: t("menu.results"), empty: t("menu.empty"),
+          newTask: t("shell.newTask"), search: t("menu.search"), task: t("search.task"), message: t("search.message"), decision: t("search.decision"),
+        },
         group: { project: t("shell.group.project"), site: t("shell.group.site"), admin: t("shell.group.admin") },
       }}
     >
