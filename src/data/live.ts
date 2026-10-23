@@ -226,6 +226,8 @@ export async function setTaskDates(client: SupabaseClient, taskId: string, start
   const { data, error } = await client.from("tasks").update({ start_date: startDate, due_date: dueDate }).eq("id", taskId).select("id");
   if (error) throw error;
   if (!data?.length) throw new Error("task not found or not allowed");
+}
+
 // One update for all chosen tasks; the database trigger audits each change. Row-level security hides tasks the person may not edit, so a short count is reported as an error.
 export async function bulkUpdateTasks(client: SupabaseClient, ids: string[], patch: Record<string, string | null>): Promise<void> {
   const { data, error } = await client.from("tasks").update(patch).in("id", ids).select("id");
