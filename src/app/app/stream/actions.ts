@@ -28,6 +28,17 @@ export async function linkMessageToTask(form: FormData): Promise<void> {
   revalidatePath("/app/stream");
 }
 
+// Row-level rules let only a project manager pin; the database records who and when.
+export async function togglePin(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  const messageId = String(form.get("messageId"));
+  const { error } = form.get("pinned") === "1"
+    ? await supabase.from("message_pins").delete().eq("message_id", messageId)
+    : await supabase.from("message_pins").insert({ message_id: messageId, project_id: String(form.get("projectId")) });
+  if (error) throw error;
+  revalidatePath("/app/stream");
+}
+
 // Apply and Edit both end here: the person's click, with the title and details as shown, goes to the existing accept call.
 export async function applySuggestion(form: FormData): Promise<void> {
   await acceptSuggestion(await supabaseServer(), String(form.get("id")), {
