@@ -24,9 +24,9 @@ export function ItemsTable({ kind, rows, t }: { kind: ManualItem["kind"]; rows: 
           {rows.map(({ item, edit }) => (
             <tr key={item.id}>
               {kind === "task" && <td><input type="checkbox" name="ids" value={item.id} form="bulk" aria-label={`${t("bulk.select")}: ${item.title}`} /></td>}
-              <td><details><summary data-row>{item.title}</summary>{edit}</details></td>
+              <td><details><summary data-row>{item.title}{kind === "risk" && item.riskKind === "issue" ? ` (${t("kind.issue")})` : ""}</summary>{edit}</details></td>
               <td>{status(item)}</td>
-              <td>{kind === "task" ? item.dueDate ?? "" : ""}</td>
+              <td>{kind === "decision" ? "" : item.dueDate ?? ""}</td>
             </tr>
           ))}
         </tbody>

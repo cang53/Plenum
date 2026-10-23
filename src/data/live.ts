@@ -116,20 +116,20 @@ export async function dismissSuggestion(client: SupabaseClient, id: string): Pro
   if (!data?.length) throw new Error("suggestion not found or not allowed");
 }
 
-export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; site: string; ownerId: string | null; phaseId: string | null; parentId: string | null; predecessorIds: string[]; createdAt: string };
+export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; riskKind: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; site: string; ownerId: string | null; phaseId: string | null; parentId: string | null; predecessorIds: string[]; createdAt: string };
 
 // Tasks, decisions and risks of a project for the edit screen, newest first.
 export async function listManualItems(client: SupabaseClient, projectId: string, after?: string): Promise<Page<ManualItem>> {
   const cursor = decodeCursor(after);
   const found = await Promise.all(
     MANUAL_KINDS.map(async (kind) => {
-      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, site, owner_id, phase_id, parent_id, created_at" : kind === "risk" ? "id, title, details, status, created_at" : "id, title, details, created_at";
+      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, site, owner_id, phase_id, parent_id, created_at" : kind === "risk" ? "id, title, details, status, kind, due_date, owner_id, created_at" : "id, title, details, created_at";
       let q = client.from(TABLE[kind]).select(cols).eq("project_id", projectId);
       if (cursor) q = q.or(afterFilter("created_at", cursor));
       const { data, error } = await q.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
       if (error) throw error;
       return ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({
-        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", site: r.site ?? "", ownerId: r.owner_id ?? null, phaseId: r.phase_id ?? null, parentId: r.parent_id ?? null, predecessorIds: [] as string[], createdAt: r.created_at as string,
+        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", riskKind: kind === "risk" ? r.kind ?? "risk" : "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", site: r.site ?? "", ownerId: r.owner_id ?? null, phaseId: r.phase_id ?? null, parentId: r.parent_id ?? null, predecessorIds: [] as string[], createdAt: r.created_at as string,
       }));
     }),
   );
