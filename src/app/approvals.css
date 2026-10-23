@@ -1,0 +1,12 @@
+/* Timesheet approvals: the shared data table, tabs and status words, plus the Review panel. */
+.ts-count, .ts-num { font-variant-numeric: tabular-nums; }
+.ts-num { text-align: end; }
+.ts-sub { color: var(--text-muted); font-size: var(--text-xs); }
+.ts-tabs { margin-block-end: var(--s3); }
+.ts-tabs a { color: var(--text-muted); text-decoration: none; padding-block: var(--s1); border-block-end: 2px solid transparent; font-weight: var(--weight-medium); }
+.ts-tabs a[aria-current="page"] { color: var(--text); border-color: var(--primary); font-weight: var(--weight-semibold); }
+.data-table tr[aria-current="true"] td { background: var(--accent-soft); }
+.ts-review { border-block-start: 1px solid var(--border); padding-block: var(--s4); display: grid; gap: var(--s3); }
+.ts-review h2 { margin: 0; font-size: var(--text-lg); }
+.ts-detail { list-style: none; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
+.ts-detail li { display: flex; justify-content: space-between; gap: var(--s3); padding-block: var(--s1); border-block-end: 1px solid var(--border); }
