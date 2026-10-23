@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { projectRewardsOn, rewardsOn, streakWeeks, knowledgeCount, switchList } from "./rewards";
+import { isEarlyWarning, knowledgeCount, projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
+
+
 
 describe("rewardsOn", () => {
   it("is on with no switches", () => expect(rewardsOn([], "North")).toBe(true));
@@ -58,4 +60,12 @@ describe("knowledgeCount", () => {
     ])).toBe(1);
   });
   it("is zero for no decisions", () => expect(knowledgeCount([])).toBe(0));
+});
+
+describe("isEarlyWarning", () => {
+  it("needs 14 days between raised and due", () => {
+    expect(isEarlyWarning("2026-10-01T09:00:00Z", "2026-10-15")).toBe(true);
+    expect(isEarlyWarning("2026-10-01T09:00:00Z", "2026-10-14")).toBe(false);
+  });
+  it("is false without a due date", () => expect(isEarlyWarning("2026-10-01T09:00:00Z", null)).toBe(false));
 });

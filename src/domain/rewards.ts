@@ -46,3 +46,8 @@ export function streakWeeks(tasks: StreakTask[], today: string): number {
 export function knowledgeCount(decisions: { details: string; sourceMessageId: string | null }[]): number {
   return decisions.filter((d) => d.details.trim() !== "" && d.sourceMessageId !== null).length;
 }
+
+// A risk raised at least 14 days before its due date earns the early warning badge.
+export function isEarlyWarning(createdAt: string, dueDate: string | null): boolean {
+  return !!dueDate && Date.parse(dueDate) - Date.parse(createdAt.slice(0, 10)) >= 14 * 86_400_000;
+}
