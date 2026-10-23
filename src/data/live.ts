@@ -57,7 +57,7 @@ export async function listTimelineMessages(client: SupabaseClient, projectId: st
   const cursor = decodeCursor(after);
   let q = client
     .from("messages")
-    .select("id, source, from_name, from_address, subject, body_text, received_at, message_attachments(id, part_index, filename, content_type, size_bytes)")
+    .select("id, source, from_name, from_address, subject, body_text, received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded)")
     .eq("project_id", projectId);
   // Characters that mean something in a PostgREST filter are removed from the typed text.
   const sender = f.sender?.replace(/[%_,()"\\]/g, "");

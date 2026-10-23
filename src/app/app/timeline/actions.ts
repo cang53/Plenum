@@ -18,6 +18,11 @@ export async function acceptSuggestionAction(id: string, draft: ItemDraft): Prom
   await acceptSuggestion(await supabaseServer(), id, draft);
 }
 
+export async function tagAttachmentAction(id: string, docType: string, docRef: string, revision: string): Promise<void> {
+  const { error } = await (await supabaseServer()).rpc("tag_attachment", { p_attachment: id, p_type: docType, p_ref: docRef, p_revision: revision });
+  if (error) throw error;
+}
+
 export async function dismissSuggestionAction(id: string): Promise<void> {
   await dismissSuggestion(await supabaseServer(), id);
 }

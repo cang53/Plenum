@@ -1,6 +1,6 @@
 // Messages open the timeline; tasks and decisions open the items page.
 export const searchHref = (projectId: string, kind: string = "task"): string =>
-  `/app/${kind === "message" ? "timeline" : "items"}?project=${projectId}`;
+  `/app/${kind === "message" || kind === "document" ? "timeline" : "items"}?project=${projectId}`;
 
 // The database marks matches with control characters (STX before, ETX after); plain text stays safe to render.
 export type SnippetPart = { text: string; match: boolean };

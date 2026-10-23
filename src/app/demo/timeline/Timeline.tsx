@@ -4,6 +4,7 @@ import { useState } from "react";
 import { draftFromMessage, isValidDraft, ITEM_KINDS, linkedTo, type ItemDraft, type ItemKind, type LinkedItem } from "@/domain/linking";
 import { toDraft, type StoredSuggestion } from "@/domain/triage";
 import { buildTimeline, formatSize, relativeDay, type TimelineMessage } from "@/domain/timeline";
+import { DocumentTag, type TagAttachment } from "./DocumentTag";
 import { logError } from "@/lib/log";
 import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -27,10 +28,12 @@ type Props = {
   // The signed-in person's language; the demo stays English.
   language?: Locale;
   // Live pages send the reply by email; without it the reply button is not shown.
+  // Live pages let a manager tag an attachment as a drawing, permit and so on.
+  onTagAttachment?: TagAttachment;
   onReply?: (messageId: string, text: string, confirmWider: boolean) => Promise<"sent" | "wider">;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, language = "en" }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, onTagAttachment, language = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
@@ -180,7 +183,8 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                   <ul className="attachments" aria-label={t("timeline.attachments")}>
                     {m.attachments.map((a) => (
                       <li key={a.id}>
-                        {a.filename} <span className="meta">{formatSize(a.sizeBytes, locale)}</span>
+                        {a.filename} <span className="meta">{formatSize(a.sizeBytes, locale)}</span>{" "}
+                        <DocumentTag attachment={a} onTag={onTagAttachment} language={language} />
                       </li>
                     ))}
                   </ul>

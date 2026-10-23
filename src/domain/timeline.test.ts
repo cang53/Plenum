@@ -104,6 +104,17 @@ describe("fromRow", () => {
     const mapped = fromRow(row);
     expect(mapped.fromName).toBeNull();
     expect(mapped.attachments.map((a) => a.filename)).toEqual(["one.png", "two.pdf"]);
+    expect(mapped.attachments[0]).toMatchObject({ docType: null, docRef: null, superseded: false });
+  });
+
+  it("carries the document tag and finds it by number", () => {
+    const row = {
+      id: "m2", source: "email" as const, from_name: null, from_address: "a@b.example", subject: "", body_text: "", received_at: "2026-10-22T09:00:00Z",
+      message_attachments: [{ id: "a", part_index: 0, filename: "x.pdf", content_type: "application/pdf", size_bytes: 1, doc_type: "drawing" as const, doc_ref: "A-101", revision: "B", superseded: true }],
+    };
+    const m = fromRow(row);
+    expect(m.attachments[0]).toMatchObject({ docType: "drawing", docRef: "A-101", revision: "B", superseded: true });
+    expect(matches(m, { query: "a-101 drawing" }, "UTC")).toBe(true);
   });
 });
 
