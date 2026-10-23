@@ -87,7 +87,7 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.apply": "Toepassen",
   "stream.edit": "Bewerken",
   "stream.editTitle": "Titel",
-  "stream.editDetails": "Details",
+  "stream.editDetails": "Toelichting",
   "stream.dismiss": "Negeren",
   "app.timesheet": "Urenstaat",
   "hours.title": "Urenstaat",
