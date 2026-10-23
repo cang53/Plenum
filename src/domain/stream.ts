@@ -1,4 +1,5 @@
 // Stream logic: project messages newest day first, oldest message first inside a day, consecutive messages from one sender grouped.
+import type { StoredSuggestion } from "./triage";
 import { dayKey, relativeDay, type TimelineMessage } from "./timeline";
 
 export type StreamGroup = { sender: string; messages: TimelineMessage[] };
@@ -29,4 +30,11 @@ export function newSince(messages: TimelineMessage[], lastRead: string | undefin
   if (Number.isNaN(since)) return null;
   const fresh = messages.filter((m) => Date.parse(m.receivedAt) > since).sort((a, b) => Date.parse(a.receivedAt) - Date.parse(b.receivedAt) || a.id.localeCompare(b.id));
   return fresh.length ? { id: fresh[0].id, count: fresh.length } : null;
+}
+
+// Pending AI suggestions keyed by the message they came from, so each card sits under its source.
+export function suggestionsByMessage(list: StoredSuggestion[]): Map<string, StoredSuggestion[]> {
+  const by = new Map<string, StoredSuggestion[]>();
+  for (const s of list) if (s.status === "pending") by.set(s.messageId, [...(by.get(s.messageId) ?? []), s]);
+  return by;
 }

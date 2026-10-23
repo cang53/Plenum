@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildStream, newSince } from "./stream";
+import { buildStream, newSince, suggestionsByMessage } from "./stream";
 import type { TimelineMessage } from "./timeline";
 
 const msg = (id: string, from: string, at: string): TimelineMessage => ({ id, source: "email", fromName: null, fromAddress: from, subject: id, bodyText: "", receivedAt: at, attachments: [] });
@@ -33,5 +33,14 @@ describe("newSince", () => {
     expect(newSince(list, undefined)).toBeNull();
     expect(newSince(list, "nope")).toBeNull();
     expect(newSince(list, "2026-10-24T00:00:00Z")).toBeNull();
+  });
+});
+
+describe("suggestionsByMessage", () => {
+  const s = (id: string, messageId: string, status: "pending" | "accepted" | "dismissed") => ({ id, messageId, kind: "task" as const, title: id, details: "", status });
+  it("groups pending suggestions under their message and skips resolved ones", () => {
+    const by = suggestionsByMessage([s("1", "m1", "pending"), s("2", "m1", "pending"), s("3", "m2", "accepted")]);
+    expect(by.get("m1")?.map((x) => x.id)).toEqual(["1", "2"]);
+    expect(by.has("m2")).toBe(false);
   });
 });
