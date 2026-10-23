@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBars, criticalPath, shiftDates, slipDays } from "./gantt";
+import { buildBars, criticalPath, dayOf, groupByPhase, scaleTicks, shiftDates, slipDays } from "./gantt";
 
 const task = (id: string, startDate: string | null, dueDate: string | null) => ({ id, title: id, startDate, dueDate, phase: null });
 
@@ -50,5 +50,22 @@ describe("slipDays", () => {
     const base = { a: { startDate: "2026-11-01", dueDate: "2026-11-05" }, c: { startDate: "2026-11-01", dueDate: "2026-11-05" } };
     const slip = slipDays([task("a", "2026-11-02", "2026-11-08"), task("b", "2026-11-01", "2026-11-02"), task("c", null, null)], base);
     expect([...slip]).toEqual([["a", 3]]);
+  });
+});
+
+describe("groupByPhase", () => {
+  const bar = (id: string, phase: string | null, startDay: number, length: number) => ({ id, title: id, phase, startDay, length, start: "", due: "", isMilestone: false });
+  it("spans each phase over its tasks, in order of first start", () => {
+    const groups = groupByPhase([bar("a", "Build", 0, 3), bar("b", null, 1, 1), bar("c", "Build", 5, 2)]);
+    expect(groups.map((g) => [g.phase, g.startDay, g.endDay, g.bars.length])).toEqual([["Build", 0, 6, 2], [null, 1, 1, 1]]);
+  });
+});
+
+describe("scaleTicks", () => {
+  it("labels Mondays, month starts and quarter starts", () => {
+    const first = dayOf("2026-09-28"); // a Monday
+    expect(scaleTicks(first, 22, "week").map((t) => t.iso)).toEqual(["2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19"]);
+    expect(scaleTicks(first, 100, "month").map((t) => t.iso)).toEqual(["2026-10-01", "2026-11-01", "2026-12-01", "2027-01-01"]);
+    expect(scaleTicks(first, 100, "quarter").map((t) => t.iso)).toEqual(["2026-10-01", "2027-01-01"]);
   });
 });
