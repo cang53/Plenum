@@ -5,7 +5,7 @@ import { navItems } from "@/lib/nav";
 import { Shell } from "./shell";
 import { Shortcuts } from "./Shortcuts";
 
-// Every signed-in page sits in the same floating shell: sidebar, top bar, ambient background.
+// Every signed-in page sits in the same shell: sidebar, top bar, tab bar on phones.
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const t = await getT();
   const supabase = await supabaseServer();
@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     ? await supabase.from("projects").select("workspace_id").eq("id", projects[0].id).single()
     : { data: null };
   const { data: admin } = ws ? await supabase.rpc("is_workspace_admin", { ws: ws.workspace_id }) : { data: false };
-  const items = (role?: string) => navItems(role, Boolean(admin)).map((i) => ({ path: i.path, label: t(i.label) }));
+  const items = (role?: string) => navItems(role, Boolean(admin)).map((i) => ({ path: i.path, label: t(i.label), group: i.group }));
   const itemsByProject = Object.fromEntries(projects.map((p) => [p.id, items(roles[p.id])]));
   return (
     <Shell
@@ -37,7 +37,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         account: t("shell.account"),
         signOut: t("app.signOut"),
         mobile: t("shell.mobile"),
-        bell: t("shell.bell"),
+        bell: t("shell.inbox"),
+        newTask: t("shell.newTask"),
+        group: { project: t("shell.group.project"), site: t("shell.group.site"), admin: t("shell.group.admin") },
       }}
     >
       <Shortcuts labels={{ title: t("shortcuts.title"), close: t("shortcuts.close"), search: t("shortcuts.search"), new: t("shortcuts.new"), next: t("shortcuts.next"), prev: t("shortcuts.prev"), help: t("shortcuts.help") }} />
