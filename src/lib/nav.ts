@@ -10,6 +10,7 @@ export function navItems(role: string | undefined, isAdmin: boolean): NavItem[] 
     { path: "/app/timeline", label: "app.timeline" },
     { path: "/app/items", label: "app.items" },
     { path: "/app/sitelog", label: "app.sitelog" },
+    { path: "/app/timesheet", label: "app.timesheet" },
     { path: "/app/timesheets", label: "app.timesheets" },
     { path: "/app/notifications", label: "app.notifications" },
     { path: "/app/members", label: "app.members" },

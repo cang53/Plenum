@@ -290,6 +290,29 @@ export async function getMessageForSiteLog(client: SupabaseClient, projectId: st
   return data;
 }
 
+export type HoursRow = { task_id: string; work_date: string; hours: number };
+
+// Row-level security returns the caller's own hours only.
+export async function listHours(client: SupabaseClient, projectId: string, from: string, to: string): Promise<HoursRow[]> {
+  const { data, error } = await client.from("timesheet_entries").select("task_id, work_date, hours")
+    .eq("project_id", projectId).gte("work_date", from).lte("work_date", to);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ ...r, hours: Number(r.hours) }));
+}
+
+// Tasks the person owns, plus any task they already logged on in the shown week.
+export async function listMyTasks(client: SupabaseClient, projectId: string, userId: string, extraIds: string[]): Promise<{ id: string; title: string }[]> {
+  const mine = `owner_id.eq.${userId}` + (extraIds.length ? `,id.in.(${extraIds.join(",")})` : "");
+  const { data, error } = await client.from("tasks").select("id, title").eq("project_id", projectId).or(mine).order("title").limit(PAGE_SIZE);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function saveHours(client: SupabaseClient, e: { taskId: string; date: string; hours: number }): Promise<void> {
+  const { error } = await client.rpc("save_hours", { p_task: e.taskId, p_date: e.date, p_hours: e.hours });
+  if (error) throw error;
+}
+
 export type TimesheetWeek = { user_id: string; week_start: string; status: "submitted" | "approved" | "sent_back"; note: string | null; profiles: { display_name: string } | null };
 
 // RLS: people see their own weeks, project managers see all of the project's.
