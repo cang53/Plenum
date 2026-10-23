@@ -19,7 +19,7 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
         <h1>{t("board.title")}</h1>
         <WorkSwitch current="board" projectId={project.id} t={t} />
       </div>
-      <Board key={project.id} initialTasks={tasks} onMove={saveTaskStatus} onAdd={(title, status) => createBoardTask(project.id, title, status)} locale={locale} />
+      <Board key={project.id} initialTasks={tasks} onMove={saveTaskStatus} onAdd={createBoardTask.bind(null, project.id)} locale={locale} />
     </main>
   );
 }
