@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 import { supabaseServer } from "@/auth/supabase";
-import { listLinkedItems, listPins, listTimelineMessages } from "@/data/live";
+import { listLinkedItems, listPendingSuggestions, listPins, listTimelineMessages } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { demoProject } from "@/data/demo";
 import { SOURCE_BADGE } from "@/domain/channel";
-import { buildStream, newSince } from "@/domain/stream";
+import { buildStream, newSince, suggestionsByMessage } from "@/domain/stream";
 import { MarkRead } from "./MarkRead";
-import { createTaskFromMessage, linkMessageToTask, togglePin } from "./actions";
+import { applySuggestion, createTaskFromMessage, dismissSuggestionForm, linkMessageToTask, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
@@ -28,6 +28,7 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const days = buildStream(rows, new Date().toISOString(), tz);
   const fresh = newSince(rows, (await cookies()).get(`stream-read-${project.id}`)?.value);
   const linked = await listLinkedItems(supabase, project.id, rows.map((m) => m.id));
+  const proposed = suggestionsByMessage(await listPendingSuggestions(supabase, project.id));
   const { data: open } = await supabase.from("tasks").select("id, title").eq("project_id", project.id).is("source_message_id", null).neq("status", "done").order("title").limit(50);
   const pins = await listPins(supabase, project.id);
   const pinned = new Set(pins.map((p) => p.messageId));
@@ -79,7 +80,7 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
             g.messages.map((m, i) => (
               <div key={m.id}>
               {fresh?.id === m.id && <p className="newline" role="separator"><span>{t("stream.new")} · {fresh.count}</span></p>}
-              <article className="stream-row">
+              <article className="stream-row" id={`msg-${m.id}`}>
                 <time className="t" dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                 <div className="tx">
                   {i === 0 && (
@@ -128,6 +129,36 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
                   )}
                 </div>
               </article>
+              {(proposed.get(m.id) ?? []).map((sg) => (
+                <section key={sg.id} className="agent-card" aria-label={t("stream.agent")}>
+                  <p className="agent-tag">{t("stream.agent")}</p>
+                  <dl className="ba">
+                    <dt>{t("stream.before")}</dt><dd>{m.subject || t("timeline.noSubject")}</dd>
+                    <dt>{t("stream.after")}</dt><dd>{t(`stream.linked.${sg.kind}`)}: {sg.title}{sg.details && <span className="sm">{sg.details}</span>}</dd>
+                  </dl>
+                  <p className="sm">{t("stream.basedOn")}: <a href={`#msg-${m.id}`}>{m.subject || t("timeline.noSubject")}</a></p>
+                  <div className="agent-acts">
+                    <form action={applySuggestion}>
+                      {["id", "kind", "title", "details"].map((k) => <input key={k} type="hidden" name={k} value={k === "id" ? sg.id : String(sg[k as "kind" | "title" | "details"])} />)}
+                      <button type="submit" className="btn btn-primary">{t("stream.apply")}</button>
+                    </form>
+                    <details className="edit-pop">
+                      <summary className="btn btn-secondary">{t("stream.edit")}</summary>
+                      <form action={applySuggestion}>
+                        <input type="hidden" name="id" value={sg.id} />
+                        <input type="hidden" name="kind" value={sg.kind} />
+                        <input name="title" defaultValue={sg.title} aria-label={t("stream.editTitle")} required />
+                        <input name="details" defaultValue={sg.details} aria-label={t("stream.editDetails")} />
+                        <button type="submit" className="btn btn-primary">{t("stream.apply")}</button>
+                      </form>
+                    </details>
+                    <form action={dismissSuggestionForm}>
+                      <input type="hidden" name="id" value={sg.id} />
+                      <button type="submit" className="btn btn-plain">{t("stream.dismiss")}</button>
+                    </form>
+                  </div>
+                </section>
+              ))}
               </div>
             )),
           )}
