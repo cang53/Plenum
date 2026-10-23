@@ -12,7 +12,8 @@ type Props = {
   email: string;
   unread: number;
   labels: Record<"brand" | "main" | "projects" | "search" | "searchPlaceholder" | "account" | "signOut" | "mobile" | "bell", string>;
-  unreadLabel: (n: number) => string;
+  // A template with {n}: functions cannot be passed from the server layout to this client component.
+  unreadLabel: string;
   children: ReactNode;
 };
 
@@ -52,7 +53,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
             {project && <input type="hidden" name="project" value={project.id} />}
             <input type="search" name="q" className="field" placeholder={labels.searchPlaceholder} aria-label={labels.search} />
           </form>
-          <Bell href={href("/app/notifications")} initial={unread} label={labels.bell} countLabel={unreadLabel} />
+          <Bell href={href("/app/notifications")} initial={unread} label={labels.bell} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
           <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
             <span>{email}</span>
             <button type="submit" className="btn btn-plain">{labels.signOut}</button>

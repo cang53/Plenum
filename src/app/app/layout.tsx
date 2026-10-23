@@ -26,7 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       fallbackItems={items()}
       email={data.user.email ?? ""}
       unread={await unreadCount(supabase)}
-      unreadLabel={(n) => t("notifications.unread").replace("{n}", String(n))}
+      unreadLabel={t("notifications.unread")}
       labels={{
         brand: t("app.name"),
         main: t("shell.main"),
