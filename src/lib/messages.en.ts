@@ -165,6 +165,7 @@ export const en = {
   "privacy.invalid": "Enter a whole number of days, 30 or more, or leave it empty.",
   "privacy.adminOnly": "Only workspace admins can change this.",
   "settings.removed": "Person removed.",
+  "settings.lastAdmin": "A workspace needs at least one admin. Make someone else an admin first.",
   "settings.confirmMismatch": "The confirmation did not match. Nothing was deleted.",
   "import.title": "Import a schedule",
   "import.intro": "Upload an MS Project XML or Primavera P6 XML or XER file. You see what changes before anything is saved. Existing tasks only get new dates; their owners and links stay.",

@@ -167,6 +167,7 @@ export const nl: Record<keyof typeof en, string> = {
   "privacy.invalid": "Vul een heel aantal dagen in, 30 of meer, of laat het leeg.",
   "privacy.adminOnly": "Alleen werkruimtebeheerders kunnen dit wijzigen.",
   "settings.removed": "Persoon verwijderd.",
+  "settings.lastAdmin": "Een werkruimte heeft minstens één beheerder nodig. Maak eerst iemand anders beheerder.",
   "settings.confirmMismatch": "De bevestiging klopte niet. Er is niets verwijderd.",
   "import.title": "Planning importeren",
   "import.intro": "Upload een MS Project XML-, Primavera P6 XML- of XER-bestand. Je ziet wat er verandert voordat er iets wordt opgeslagen. Bestaande taken krijgen alleen nieuwe datums; eigenaren en koppelingen blijven.",
