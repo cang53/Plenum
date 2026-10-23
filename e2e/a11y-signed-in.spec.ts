@@ -35,8 +35,12 @@ for (const scheme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: scheme });
     await signIn(page, `cm-${id}@example.test`);
     await page.goto(`/app?project=${project}`);
-    await page.keyboard.press("Control+k");
     const box = page.getByRole("combobox");
+    // The shortcut only works once the page has hydrated, so press again until the menu opens.
+    await expect(async () => {
+      if (!(await box.isVisible())) await page.keyboard.press("Control+k");
+      await expect(box).toBeVisible({ timeout: 500 });
+    }).toPass();
     await expect(box).toBeFocused();
     await box.fill("Pour slab");
     await expect(page.getByRole("option", { name: /Pour slab/ })).toBeVisible();
