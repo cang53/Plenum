@@ -1,0 +1,27 @@
+name: Restore drill
+
+# Weekly proof that a backup of the local Supabase stack restores with the same data and access rules.
+# Runs only against the local stack started here, never the hosted project.
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+  pull_request:
+    paths: ["scripts/restore-drill.sh", ".github/workflows/restore-drill.yml"]
+
+jobs:
+  drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+      - name: Log in to the image registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Start local Supabase
+        env:
+          SUPABASE_INTERNAL_IMAGE_REGISTRY: ghcr.io
+        run: bash scripts/ci-supabase-start.sh
+      - run: bash scripts/restore-drill.sh

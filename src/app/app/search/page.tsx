@@ -1,23 +1,19 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects, searchProject } from "@/data/projects";
-import { plainSnippet, searchHref } from "@/domain/search";
-import { FilterFields } from "@/app/app/FilterFields";
+import { searchHref, snippetParts } from "@/domain/search";
 import { listBoardTasks } from "@/data/live";
-import { filterParams, parseFilters } from "@/domain/filters";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ project?: string; q?: string; after?: string; since?: string; until?: string; task?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const raw = await searchParams;
-  const { project: chosen, q = "", after } = raw;
-  const filters = parseFilters(raw);
+  const { project: chosen, q = "", after, since = "", until = "", task = "" } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const query = q.trim();
-  const { rows: hits, next } = query ? await searchProject(supabase, project.id, query, after, filters) : { rows: [], next: null };
-  const tasks = (await listBoardTasks(supabase, project.id)).map(({ id, title }) => ({ id, title }));
+  const { rows: hits, next } = query ? await searchProject(supabase, project.id, query, after, { since, until, task }) : { rows: [], next: null };
+  const tasks = await listBoardTasks(supabase, project.id);
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -27,7 +23,19 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         <label>
           {t("search.label")} <input type="search" name="q" defaultValue={query} maxLength={200} />
         </label>{" "}
-        <FilterFields t={t} values={filters} tasks={tasks} />
+        <label>
+          {t("search.since")} <input type="date" name="since" defaultValue={since} />
+        </label>{" "}
+        <label>
+          {t("search.until")} <input type="date" name="until" defaultValue={until} />
+        </label>{" "}
+        <label>
+          {t("filter.task")}{" "}
+          <select name="task" defaultValue={task}>
+            <option value="">{t("filter.anyTask")}</option>
+            {tasks.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}
+          </select>
+        </label>{" "}
         <button type="submit">{t("search.submit")}</button>
       </form>
       {query && hits.length === 0 && <p>{t("search.empty")}</p>}
@@ -35,11 +43,15 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         {hits.map((h) => (
           <li key={`${h.kind}-${h.id}`}>
             <a href={searchHref(project.id, h.kind)}>{t(`search.${h.kind}`)}: {h.title}</a>
-            {h.snippet && <p>{plainSnippet(h.snippet)}</p>}
+            {h.snippet && (
+              <p>
+                {snippetParts(h.snippet).map((x, i) => (x.match ? <mark key={i}>{x.text}</mark> : x.text))}
+              </p>
+            )}
           </li>
         ))}
       </ul>
-      <MoreLink path="/app/search" params={{ project: project.id, q: query, ...filterParams(filters) }} next={next} label={t("paging.more")} />
+      <MoreLink path="/app/search" params={{ project: project.id, q: query, since, until, task }} next={next} label={t("paging.more")} />
     </main>
   );
 }
