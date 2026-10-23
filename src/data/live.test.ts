@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { acceptSuggestion, bulkUpdateTasks, dismissSuggestion, setTaskStatus, taskFromRow } from "@/data/live";
+import { acceptSuggestion, suggestionAccuracy, bulkUpdateTasks, dismissSuggestion, setTaskStatus, taskFromRow } from "@/data/live";
 
 const fake = (result: unknown) => {
   const update = vi.fn();
@@ -93,5 +93,20 @@ describe("bulkUpdateTasks", () => {
   });
   it("fails when some tasks were not changed", async () => {
     await expect(bulkUpdateTasks(fakeIn([{ id: "a" }]).client, ["a", "b"], { status: "done" })).rejects.toThrow("not found or not allowed");
+  });
+});
+
+describe("suggestionAccuracy", () => {
+  it("counts accepted and dismissed for the project", async () => {
+    const statuses: string[] = [];
+    const q: Record<string, unknown> = {};
+    q.select = () => q;
+    q.eq = (c: string, v: string) => {
+      if (c === "status") statuses.push(v);
+      return c === "status" ? Promise.resolve({ count: v === "accepted" ? 5 : 2, error: null }) : q;
+    };
+    const client = { from: () => q } as unknown as SupabaseClient;
+    expect(await suggestionAccuracy(client, "p")).toEqual({ accepted: 5, dismissed: 2 });
+    expect(statuses.sort()).toEqual(["accepted", "dismissed"]);
   });
 });

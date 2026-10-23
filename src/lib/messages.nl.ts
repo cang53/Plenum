@@ -402,6 +402,7 @@ export const nl: Record<keyof typeof en, string> = {
   "overview.ai": "AI-suggesties wachten",
   "overview.aiBody": "Er verandert niets totdat iemand het accepteert, en elke suggestie linkt naar het bronbericht.",
   "overview.aiLink": "Suggesties beoordelen",
+  "overview.aiCounts": "Geaccepteerd: {accepted}. Afgewezen: {dismissed}. Geteld voor het hele project, niet per persoon.",
   "bulk.title": "Geselecteerde taken wijzigen",
   "bulk.hint": "Vink taken hieronder aan en pas één wijziging toe op allemaal. Elke wijziging komt in het auditlogboek.",
   "bulk.select": "Selecteren",

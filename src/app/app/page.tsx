@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { listBoardTasks, listPendingSuggestions } from "@/data/live";
+import { listBoardTasks, listPendingSuggestions, suggestionAccuracy } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
@@ -27,6 +27,7 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const pulses = await Promise.all(projects.map(async (p) => ({ project: p, pulse: summarize(await listBoardTasks(supabase, p.id), today) })));
   const attention = pulses.find((x) => x.project.id === current.id)!.pulse.attention;
   const suggestions = (await listPendingSuggestions(supabase, current.id)).length;
+  const accuracy = await suggestionAccuracy(supabase, current.id);
   return (
     <main id="main" className="page overview">
       <h1>{t("overview.title")}</h1>
@@ -68,6 +69,7 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
         <section className="surface overview-panel" aria-labelledby="ai">
           <h2 id="ai">{t("overview.ai")} ({suggestions})</h2>
           <p className="meta">{t("overview.aiBody")}</p>
+          <p className="meta">{t("overview.aiCounts").replace("{accepted}", String(accuracy.accepted)).replace("{dismissed}", String(accuracy.dismissed))}</p>
           <a className="btn btn-primary" href={`/app/timeline?project=${current.id}`}>{t("overview.aiLink")}</a>
         </section>
       )}

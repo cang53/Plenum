@@ -86,6 +86,17 @@ export async function listPendingSuggestions(client: SupabaseClient, projectId: 
   return (data ?? []).map((r) => ({ id: r.id, messageId: r.message_id, kind: r.kind, title: r.title, details: r.details, status: r.status }));
 }
 
+// Accepted and dismissed counts for one project; never split by person.
+export async function suggestionAccuracy(client: SupabaseClient, projectId: string): Promise<{ accepted: number; dismissed: number }> {
+  const count = async (status: string) => {
+    const { count: n, error } = await client.from("suggestions").select("id", { count: "exact", head: true }).eq("project_id", projectId).eq("status", status);
+    if (error) throw error;
+    return n ?? 0;
+  };
+  const [accepted, dismissed] = await Promise.all([count("accepted"), count("dismissed")]);
+  return { accepted, dismissed };
+}
+
 // Items already made from this project's messages, for the lines under each message.
 export async function listLinkedItems(client: SupabaseClient, projectId: string, messageIds: string[]): Promise<LinkedItem[]> {
   if (!messageIds.length) return [];
