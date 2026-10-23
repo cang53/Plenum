@@ -1,4 +1,4 @@
-/* Items list: one dense surface per kind; the header is the only glass and stays visible while scrolling. */
+/* Items list: one flat table per kind (tasks per status group); the header stays visible while scrolling. */
 .items-table, .data-table { margin-block-end: var(--s4); overflow: clip; }
 .items-table table, .data-table table { display: table; width: 100%; }
 .items-table thead th, .data-table thead th {
@@ -24,3 +24,13 @@
 .form-card { display: grid; gap: var(--s3); max-width: 32rem; padding: var(--s5); margin-block-end: var(--s4); }
 .form-card h2, .form-card p { margin: 0; }
 .danger-zone { display: flex; flex-wrap: wrap; gap: var(--s3); }
+.items-tools { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s3); margin-block-end: var(--s4); }
+.items-quick { display: flex; flex-wrap: wrap; gap: var(--s4); font-size: var(--text-sm); }
+.items-quick a { color: var(--text-secondary); border-block-end: 1px solid transparent; text-decoration: none; }
+.items-quick a:hover { color: var(--text); }
+.items-quick a[aria-current="page"] { color: var(--text); border-color: var(--text); font-weight: var(--weight-semibold); }
+.items-cols { font-size: var(--text-sm); }
+.items-cols summary { cursor: pointer; color: var(--text-secondary); }
+.items-cols form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding-block-start: var(--s2); }
+.items-group > summary { cursor: pointer; padding-block: var(--s2); font-weight: var(--weight-semibold); }
+.items-count { margin-inline-start: var(--s1); color: var(--text-secondary); font-weight: var(--weight-regular, 400); font-variant-numeric: tabular-nums; }
