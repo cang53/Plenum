@@ -14,6 +14,7 @@ type TaskRow = {
   due_date: string | null;
   priority: BoardTask["priority"];
   position: number;
+  site: string;
   phases: { name: string } | null;
   profiles: { display_name: string } | null;
 };
@@ -28,6 +29,7 @@ export function taskFromRow(row: TaskRow): BoardTask {
     dueDate: row.due_date,
     priority: row.priority,
     position: row.position,
+    site: row.site || null,
   };
 }
 
@@ -35,7 +37,7 @@ export function taskFromRow(row: TaskRow): BoardTask {
 export async function listBoardTasks(client: SupabaseClient, projectId: string): Promise<BoardTask[]> {
   const { data, error } = await client
     .from("tasks")
-    .select("id, title, status, due_date, priority, position, phases(name), profiles:owner_id(display_name)")
+    .select("id, title, status, due_date, priority, position, site, phases(name), profiles:owner_id(display_name)")
     .eq("project_id", projectId)
     .is("parent_id", null);
   if (error) throw error;
@@ -103,36 +105,74 @@ export async function dismissSuggestion(client: SupabaseClient, id: string): Pro
   if (!data?.length) throw new Error("suggestion not found or not allowed");
 }
 
-export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; createdAt: string };
+export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; site: string; ownerId: string | null; phaseId: string | null; parentId: string | null; predecessorIds: string[]; createdAt: string };
 
 // Tasks, decisions and risks of a project for the edit screen, newest first.
 export async function listManualItems(client: SupabaseClient, projectId: string, after?: string): Promise<Page<ManualItem>> {
   const cursor = decodeCursor(after);
   const found = await Promise.all(
     MANUAL_KINDS.map(async (kind) => {
-      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, created_at" : kind === "risk" ? "id, title, details, status, created_at" : "id, title, details, created_at";
+      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, site, owner_id, phase_id, parent_id, created_at" : kind === "risk" ? "id, title, details, status, created_at" : "id, title, details, created_at";
       let q = client.from(TABLE[kind]).select(cols).eq("project_id", projectId);
       if (cursor) q = q.or(afterFilter("created_at", cursor));
       const { data, error } = await q.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
       if (error) throw error;
       return ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({
-        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", createdAt: r.created_at as string,
+        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", site: r.site ?? "", ownerId: r.owner_id ?? null, phaseId: r.phase_id ?? null, parentId: r.parent_id ?? null, predecessorIds: [] as string[], createdAt: r.created_at as string,
       }));
     }),
   );
   const merged = found.flat().sort((a, b) => (a.createdAt === b.createdAt ? (a.id < b.id ? 1 : -1) : a.createdAt < b.createdAt ? 1 : -1));
-  return toPage(merged, (i) => ({ at: i.createdAt, id: i.id }));
+  const page = toPage(merged, (i) => ({ at: i.createdAt, id: i.id }));
+  const taskIds = page.rows.filter((i) => i.kind === "task").map((i) => i.id);
+  if (taskIds.length) {
+    const { data, error } = await client.from("task_dependencies").select("predecessor_id, successor_id").in("successor_id", taskIds);
+    if (error) throw error;
+    for (const d of data ?? []) page.rows.find((i) => i.id === d.successor_id)?.predecessorIds.push(d.predecessor_id);
+  }
+  return page;
+}
+
+// Phases and subtask parents to choose from on the items screen.
+export async function listPlanChoices(client: SupabaseClient, projectId: string) {
+  const [phases, tasks] = await Promise.all([
+    client.from("phases").select("id, name").eq("project_id", projectId).order("position"),
+    client.from("tasks").select("id, title").eq("project_id", projectId).order("title"),
+  ]);
+  if (phases.error) throw phases.error;
+  if (tasks.error) throw tasks.error;
+  return { phases: (phases.data ?? []) as { id: string; name: string }[], tasks: (tasks.data ?? []) as { id: string; title: string }[] };
+}
+
+// Replaces the task's predecessors. The database refuses a loop and logs each change.
+async function setPredecessors(client: SupabaseClient, taskId: string, ids: string[]): Promise<void> {
+  const { data, error } = await client.from("task_dependencies").select("predecessor_id").eq("successor_id", taskId);
+  if (error) throw error;
+  const have = (data ?? []).map((d) => d.predecessor_id as string);
+  const drop = have.filter((p) => !ids.includes(p));
+  if (drop.length) {
+    const { error: e } = await client.from("task_dependencies").delete().eq("successor_id", taskId).in("predecessor_id", drop);
+    if (e) throw e;
+  }
+  const add = ids.filter((p) => !have.includes(p)).map((predecessor_id) => ({ predecessor_id, successor_id: taskId }));
+  if (add.length) {
+    const { error: e } = await client.from("task_dependencies").insert(add);
+    if (e) throw e;
+  }
 }
 
 export async function createManualItem(client: SupabaseClient, projectId: string, item: ItemInput): Promise<void> {
-  const { error } = await client.from(TABLE[item.kind]).insert({ project_id: projectId, ...toColumns(item) });
+  const { data, error } = await client.from(TABLE[item.kind]).insert({ project_id: projectId, ...toColumns(item) }).select("id");
   if (error) throw error;
+  if (item.kind === "task" && data?.[0]) await setPredecessors(client, data[0].id, item.predecessorIds);
 }
 
 export async function updateManualItem(client: SupabaseClient, id: string, item: ItemInput): Promise<void> {
+  if (item.parentId === id) throw new Error("a task cannot be its own parent");
   const { data, error } = await client.from(TABLE[item.kind]).update(toColumns(item)).eq("id", id).select("id");
   if (error) throw error;
   if (!data?.length) throw new Error("item not found or not allowed");
+  if (item.kind === "task") await setPredecessors(client, id, item.predecessorIds);
 }
 
 export async function listAudit(client: SupabaseClient, projectId: string): Promise<AuditRow[]> {

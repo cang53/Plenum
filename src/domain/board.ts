@@ -13,17 +13,19 @@ export type BoardTask = {
   dueDate: string | null;
   priority: "low" | "normal" | "high";
   position: number;
+  site: string | null;
 };
 
 export type BoardColumn = { status: TaskStatus; tasks: BoardTask[] };
 
-export type BoardFilter = { phase?: string; owner?: string };
+export type BoardFilter = { phase?: string; owner?: string; site?: string };
 
 export function buildColumns(tasks: BoardTask[], filter: BoardFilter = {}): BoardColumn[] {
   const visible = tasks.filter(
     (task) =>
       (!filter.phase || task.phase === filter.phase) &&
-      (!filter.owner || task.ownerName === filter.owner),
+      (!filter.owner || task.ownerName === filter.owner) &&
+      (!filter.site || task.site === filter.site),
   );
   return STATUSES.map((status) => ({
     status,

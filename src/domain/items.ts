@@ -17,6 +17,11 @@ export type ItemInput = {
   startDate: string | null;
   dueDate: string | null;
   costCode: string;
+  site: string;
+  ownerId: string | null;
+  phaseId: string | null;
+  parentId: string | null;
+  predecessorIds: string[];
 };
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -33,12 +38,18 @@ export function itemFromForm(form: FormData): ItemInput {
     startDate: text(form, "startDate") || null,
     dueDate: text(form, "dueDate") || null,
     costCode: text(form, "costCode"),
+    site: text(form, "site"),
+    ownerId: text(form, "ownerId") || null,
+    phaseId: text(form, "phaseId") || null,
+    parentId: text(form, "parentId") || null,
+    predecessorIds: [...new Set(form.getAll("predecessorIds").map(String).filter(Boolean))],
   };
   if (!item.title) throw new Error("title is required");
   if (kind === "task" && !STATUSES.includes(item.status as TaskStatus)) item.status = "todo";
   if (kind === "task" && !PRIORITIES.includes(item.priority as (typeof PRIORITIES)[number])) throw new Error("unknown priority");
   if (kind === "risk" && !RISK_STATUSES.includes(item.status as (typeof RISK_STATUSES)[number])) item.status = "open";
   for (const d of [item.startDate, item.dueDate]) if (d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new Error("invalid date");
+  if (item.site.length > 80) throw new Error("site is too long");
   if (item.startDate && item.dueDate && item.startDate > item.dueDate) throw new Error("start is after due date");
   return item;
 }
@@ -46,7 +57,7 @@ export function itemFromForm(form: FormData): ItemInput {
 // The columns to write for this kind. Decisions have no status.
 export function toColumns(item: ItemInput): Record<string, string | null> {
   const base = { title: item.title };
-  if (item.kind === "task") return { ...base, details: item.details, status: item.status, priority: item.priority, start_date: item.startDate, due_date: item.dueDate, cost_code: item.costCode || null };
+  if (item.kind === "task") return { ...base, details: item.details, status: item.status, priority: item.priority, start_date: item.startDate, due_date: item.dueDate, cost_code: item.costCode || null, site: item.site, owner_id: item.ownerId, phase_id: item.phaseId, parent_id: item.parentId };
   if (item.kind === "risk") return { ...base, details: item.details, status: item.status };
   return { ...base, details: item.details };
 }

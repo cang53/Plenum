@@ -1,11 +1,11 @@
 -- Rules for the audit log (backlog task 15). Runs after suggestions_rules.sql, reusing what the
--- earlier tests did: Pia made four items from the gearbox message and accepted a suggestion.
+-- earlier tests did: Pia made four items from the gearbox message, accepted a suggestion and added two dependencies.
 \set ON_ERROR_STOP on
 
 do $$ declare n int; begin
   select count(*) into n from public.audit_log
   where project_id = '20000000-0000-0000-0000-000000000001' and actor_id = '00000000-0000-0000-0000-00000000000b';
-  if n <> 5 then raise exception 'expected 5 audit rows for Pia, found %', n; end if;
+  if n <> 7 then raise exception 'expected 7 audit rows for Pia, found %', n; end if;
   if not exists (select 1 from public.audit_log where action = 'accepted' and entity_type = 'suggestions' and source_message_id is not null)
      or not exists (select 1 from public.audit_log where action = 'created' and entity_type = 'risks' and source_message_id is not null) then
     raise exception 'approval or item creation not logged with its source message';
@@ -26,7 +26,7 @@ begin
   foreach who in array array['b', 'a', 'c', 'd', 'e'] loop
     perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000' || who, true);
     select count(*) into n from public.audit_log;
-    want := case when who in ('a', 'b') then 7 else 0 end;
+    want := case when who in ('a', 'b') then 9 else 0 end;
     if n <> want then raise exception 'user % saw % audit rows, expected %', who, n, want; end if;
   end loop;
 end $$;
