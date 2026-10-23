@@ -148,3 +148,6 @@
 @media (prefers-reduced-motion: reduce) {
   .btn:hover, .btn:active { transform: none; }
 }
+
+.bulk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); margin-bottom: var(--s3); }
+.bulk-bar .intro { flex-basis: 100%; margin: 0; }

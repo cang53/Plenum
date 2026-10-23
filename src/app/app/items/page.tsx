@@ -7,7 +7,7 @@ import type { MessageKey } from "@/lib/messages";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 import { WorkSwitch } from "@/app/WorkSwitch";
-import { saveItem } from "./actions";
+import { bulkTasks, saveItem } from "./actions";
 import { ItemsTable } from "./ItemsTable";
 
 type Plan = { members: Member[]; phases: { id: string; name: string }[]; tasks: { id: string; title: string }[] };
@@ -101,6 +101,24 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
             <summary>{t("items.new")} {t(`kind.${kind}`).toLowerCase()}</summary>
             <Fields kind={kind} projectId={project.id} plan={plan} t={t} />
           </details>
+          {kind === "task" && items.some((i) => i.kind === "task") && (
+            <form id="bulk" action={bulkTasks} aria-label={t("bulk.title")} className="glass bulk-bar">
+              <p className="intro">{t("bulk.hint")}</p>
+              <label>{t("board.statusLabel")}{" "}
+                <select name="status">{STATUSES.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}</select>
+              </label>
+              <button type="submit" name="op" value="status" className="btn btn-secondary">{t("bulk.setStatus")}</button>
+              <label>{t("items.owner")}{" "}
+                <select name="ownerId">
+                  <option value="">{t("items.none")}</option>
+                  {members.map((m) => <option key={m.userId} value={m.userId}>{m.name || m.email}</option>)}
+                </select>
+              </label>
+              <button type="submit" name="op" value="owner" className="btn btn-secondary">{t("bulk.setOwner")}</button>
+              <label>{t("board.due")} <input type="date" name="dueDate" className="field" /></label>
+              <button type="submit" name="op" value="due" className="btn btn-secondary">{t("bulk.setDue")}</button>
+            </form>
+          )}
           <ItemsTable kind={kind} t={t} rows={items.filter((i) => i.kind === kind).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />
         </section>
       ))}

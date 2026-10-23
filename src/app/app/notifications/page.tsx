@@ -32,12 +32,12 @@ export default async function NotificationsPage({ searchParams }: { searchParams
         <>
           <form action={markAllRead}>
             <input type="hidden" name="projectId" value={project.id} />
-            <button type="submit">{t("notifications.markRead")}</button>
+            <button type="submit" className="btn btn-secondary">{t("notifications.markRead")}</button>
           </form>
-          <ul>
+          <ul className="surface notice-list">
             {rows.map((n) => (
               <li key={n.id}>
-                {!n.read && <strong>{t("notifications.new")} </strong>}
+                {!n.read && <span className="badge badge-info">{t("notifications.new")}</span>}
                 <a href={notificationHref(n.kind, project.id)}>{t(`notifications.${n.kind}`)}: {n.subject}</a>{" "}
                 <time dateTime={n.createdAt}>{new Date(n.createdAt).toLocaleString(intlLocale[locale])}</time>
               </li>

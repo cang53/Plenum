@@ -25,16 +25,19 @@
 .message .body { margin: 0; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; }
 .message .folded { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
+/* The agent card is glass so it reads as separate from the message it came from; the buttons carry the decision. */
 .suggestion {
   display: flex;
   flex-direction: column;
   gap: var(--s2);
   margin-block: var(--s2);
-  padding: var(--s3);
-  border: 1px dashed var(--border-strong, var(--border));
-  border-radius: var(--radius-sm, var(--radius));
-  background: var(--surface-muted);
+  padding: var(--s4);
 }
 .suggestion p { margin: 0; }
 
 .reply-form { display: grid; gap: var(--s2); padding: var(--s3); margin-block: var(--s2); }
+.suggestion-actions { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.notice-list { list-style: none; margin: 0 0 var(--s4); padding: 0; }
+.notice-list li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); padding: var(--s3) var(--s4); }
+.notice-list li + li { border-block-start: 1px solid var(--border); }
+.notice-list time { margin-inline-start: auto; color: var(--text-secondary); font-size: var(--text-xs); }
