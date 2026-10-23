@@ -21,4 +21,19 @@ describe("ItemsTable", () => {
     expect(html).toContain(t("items.empty", "en"));
     expect(html).not.toContain("<table");
   });
+  it("groups tasks by status with counts, skipping empty groups", () => {
+    const rows = [item, { ...item, id: "2", title: "Frame wall" }, { ...item, id: "3", title: "Order glass", status: "blocked" }].map((i) => ({ item: i, edit: null }));
+    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} rows={rows} />);
+    expect(html.match(/<details class="items-group" open/g)).toHaveLength(2);
+    expect(html).toContain('<span class="items-count">2</span>');
+    expect(html).not.toContain(">Done<");
+  });
+  it("shows only the chosen columns, with owner names", () => {
+    const owned = { ...item, ownerId: "u1", site: "North", priority: "high" } as ManualItem;
+    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} columns={["owner", "site"]} owners={{ u1: "Ana" }} rows={[{ item: owned, edit: null }]} />);
+    expect(html).toContain("Ana");
+    expect(html).toContain("North");
+    expect(html).not.toContain("2026-11-01");
+    expect(html).not.toContain("High");
+  });
 });
