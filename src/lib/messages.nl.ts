@@ -166,6 +166,8 @@ export const nl: Record<keyof typeof en, string> = {
   "privacy.help": "Minimaal 30. Laat leeg om alles te bewaren. Elke verwijdering komt in het auditlogboek.",
   "privacy.invalid": "Vul een heel aantal dagen in, 30 of meer, of laat het leeg.",
   "privacy.adminOnly": "Alleen werkruimtebeheerders kunnen dit wijzigen.",
+  "cheer.title": "Mijlpaal op tijd gehaald",
+  "cheer.note": "Klaar op of voor de datum, voor het hele team. Een Teams-bericht volgt later.",
   "streak.title": "Teamreeks",
   "streak.weeks": "weken op rij",
   "streak.note": "Weken op rij zonder taak die te laat is zonder update. Geteld voor het hele project, nooit per persoon.",
