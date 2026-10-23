@@ -1,7 +1,7 @@
 /* Items list: one dense surface per kind; the header is the only glass and stays visible while scrolling. */
-.items-table { margin-block-end: var(--s4); overflow: clip; }
-.items-table table { display: table; width: 100%; }
-.items-table thead th {
+.items-table, .data-table { margin-block-end: var(--s4); overflow: clip; }
+.items-table table, .data-table table { display: table; width: 100%; }
+.items-table thead th, .data-table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -12,9 +12,15 @@
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
-.items-table tbody tr + tr td { border-block-start: 1px solid var(--border); }
-.items-table tbody tr:hover { background: var(--glass-soft); }
+.items-table tbody tr + tr td, .data-table tbody tr + tr td { border-block-start: 1px solid var(--border); }
+.items-table tbody tr:hover, .data-table tbody tr:hover { background: var(--glass-soft); }
 .items-table td { vertical-align: top; }
 .items-table summary { cursor: pointer; font-weight: var(--weight-medium); }
 .items-filter { margin-block: var(--s4); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.data-table td { vertical-align: middle; }
+.inline-form, .row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.inline-form .field { width: auto; }
+.form-card { display: grid; gap: var(--s3); max-width: 32rem; padding: var(--s5); margin-block-end: var(--s4); }
+.form-card h2, .form-card p { margin: 0; }
+.danger-zone { display: flex; flex-wrap: wrap; gap: var(--s3); }

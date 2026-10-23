@@ -3,6 +3,7 @@ import { currentProject, listProjects } from "@/data/projects";
 import { messages, type MessageKey } from "@/lib/messages";
 import { getLocale, getT } from "@/lib/locale";
 import { exportTables } from "@/domain/export";
+import { ConfirmDialog } from "../ConfirmDialog";
 import { deleteProject, removePerson, saveProfile, saveProject } from "./actions";
 
 type Search = { project?: string; saved?: string; removed?: string; error?: string };
@@ -32,67 +33,72 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <p className="eyebrow">{project.name}</p>
       <h1>{t("settings.title")}</h1>
       <p className="intro">{t("settings.intro")}</p>
-      {error && <p role="alert">{error}</p>}
-      {sp.removed && <p role="status">{t("settings.removed")}</p>}
-      {sp.saved && <p role="status">{t("settings.saved")}</p>}
-      <form action={saveProfile}>
+      {error && <p role="alert" className="badge badge-danger">{error}</p>}
+      {sp.removed && <p role="status" className="badge badge-success">{t("settings.removed")}</p>}
+      {sp.saved && <p role="status" className="badge badge-success">{t("settings.saved")}</p>}
+      <form action={saveProfile} className="surface form-card">
         <h2>{t("settings.you")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
-        <p><label>{t("settings.displayName")} <input name="displayName" defaultValue={me?.display_name ?? ""} required /></label></p>
+        <p><label><span className="field-label">{t("settings.displayName")}</span><input className="field" name="displayName" defaultValue={me?.display_name ?? ""} required /></label></p>
         <p>
-          <label>{t("settings.language")}{" "}
-            <select name="locale" defaultValue={locale}>
+          <label><span className="field-label">{t("settings.language")}</span>
+            <select className="field" name="locale" defaultValue={locale}>
               {Object.keys(messages).map((l) => (
                 <option key={l} value={l}>{t(`settings.language.${l}` as MessageKey)}</option>
               ))}
             </select>
           </label>
         </p>
-        <button type="submit">{t("settings.save")}</button>
+        <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
       </form>
-      <form action={saveProject}>
+      <form action={saveProject} className="surface form-card">
         <h2>{t("settings.project")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
         {!canManage && <p>{t("settings.managerOnly")}</p>}
         <fieldset disabled={!canManage}>
-          <p><label>{t("settings.projectName")} <input name="name" defaultValue={project.name} required /></label></p>
+          <p><label><span className="field-label">{t("settings.projectName")}</span><input className="field" name="name" defaultValue={project.name} required /></label></p>
           <p>
-            <label>{t("settings.slug")} <input name="slug" defaultValue={project.email_slug} required /></label>
-            <br /><small>{t("settings.slugHelp")}</small>
+            <label><span className="field-label">{t("settings.slug")}</span><input className="field" name="slug" defaultValue={project.email_slug} required /></label>
+            <small className="meta">{t("settings.slugHelp")}</small>
           </p>
-          <button type="submit">{t("settings.save")}</button>
+          <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
         </fieldset>
       </form>
       {isAdmin && (
         <section>
           <h2>{t("export.title")}</h2>
           <p>{t("export.intro")}</p>
-          <p><a href={`/app/export?workspace=${ws?.workspace_id}`} download>{t("export.json")}</a></p>
+          <p><a className="btn btn-secondary" href={`/app/export?workspace=${ws?.workspace_id}`} download>{t("export.json")}</a></p>
           <ul>
             {exportTables.map((k) => (
               <li key={k}><a href={`/app/export?workspace=${ws?.workspace_id}&table=${k}`} download>{k}.csv</a></li>
             ))}
           </ul>
           <h2>{t("settings.danger")}</h2>
-          <form action={deleteProject}>
-            <input type="hidden" name="projectId" value={project.id} />
-            <p><label>{t("settings.deleteProject")} <input name="confirm" autoComplete="off" required /></label>
-              <br /><small>{t("settings.deleteProjectHelp")}</small></p>
-            <button type="submit">{t("settings.deleteProjectButton")}</button>
-          </form>
-          <form action={removePerson}>
-            <input type="hidden" name="projectId" value={project.id} />
-            <p><label>{t("settings.removePerson")}{" "}
-              <select name="person" required>
-                <option value="">{t("settings.choosePerson")}</option>
-                {(people ?? []).map((m) => (
-                  <option key={m.user_id} value={m.user_id}>{m.profiles?.display_name} ({m.profiles?.email})</option>
-                ))}
-              </select>
-            </label></p>
-            <p><label><input type="checkbox" name="confirm" value="yes" required /> {t("settings.removePersonConfirm")}</label></p>
-            <button type="submit">{t("settings.removePersonButton")}</button>
-          </form>
+          <div className="surface form-card danger-zone">
+            <ConfirmDialog trigger={t("settings.deleteProjectButton")} title={t("settings.deleteProjectButton")} body={t("settings.deleteProjectHelp")} cancel={t("link.cancel")}>
+              <form action={deleteProject}>
+                <input type="hidden" name="projectId" value={project.id} />
+                <p><label><span className="field-label">{t("settings.deleteProject")}</span><input className="field" name="confirm" autoComplete="off" required /></label></p>
+                <button type="submit" className="btn btn-danger">{t("settings.deleteProjectButton")}</button>
+              </form>
+            </ConfirmDialog>
+            <ConfirmDialog trigger={t("settings.removePersonButton")} title={t("settings.removePersonButton")} cancel={t("link.cancel")}>
+              <form action={removePerson}>
+                <input type="hidden" name="projectId" value={project.id} />
+                <p><label><span className="field-label">{t("settings.removePerson")}</span>
+                  <select className="field" name="person" required>
+                    <option value="">{t("settings.choosePerson")}</option>
+                    {(people ?? []).map((m) => (
+                      <option key={m.user_id} value={m.user_id}>{m.profiles?.display_name} ({m.profiles?.email})</option>
+                    ))}
+                  </select>
+                </label></p>
+                <p><label><input type="checkbox" name="confirm" value="yes" required /> {t("settings.removePersonConfirm")}</label></p>
+                <button type="submit" className="btn btn-danger">{t("settings.removePersonButton")}</button>
+              </form>
+            </ConfirmDialog>
+          </div>
         </section>
       )}
     </main>
