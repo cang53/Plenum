@@ -59,7 +59,12 @@ echo "Backed up $(wc -c < "$dump") bytes"
 sql -c "drop schema public cascade"
 [ "$(sql -c "select count(*) from information_schema.tables where table_schema = 'public'")" = 0 ] || { echo "Wipe failed" >&2; exit 1; }
 
-docker exec -i "$C" pg_restore -U supabase_admin -d postgres --exit-on-error < "$dump"
+# pg_trgm lives in public and is not in the dump, so recreate it between the schema and its indexes.
+restore() { docker exec -i "$C" pg_restore -U supabase_admin -d postgres --exit-on-error "$@" < "$dump"; }
+restore --section=pre-data
+sql -c "create extension if not exists pg_trgm with schema public"
+restore --section=data
+restore --section=post-data
 
 after="$(snapshot)"
 if [ "$before" != "$after" ]; then
