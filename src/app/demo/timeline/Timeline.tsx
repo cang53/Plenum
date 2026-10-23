@@ -31,9 +31,11 @@ type Props = {
   // Live pages let a manager tag an attachment as a drawing, permit and so on.
   onTagAttachment?: TagAttachment;
   onReply?: (messageId: string, text: string, confirmWider: boolean) => Promise<"sent" | "wider">;
+  // Live pages let a member or manager open a site log form prefilled from a message.
+  siteLogHref?: (messageId: string) => string;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, onTagAttachment, language = "en" }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, onTagAttachment, siteLogHref, language = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
@@ -253,6 +255,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                     <button type="button" className="link-button" onClick={() => setReply({ messageId: m.id, text: "", wider: false })}>{t("reply.action")}</button>
                   </>
                 ))}
+                {siteLogHref && <a className="link-button" href={siteLogHref(m.id)}>{t("sitelog.fromMessageAction")}</a>}
                 {drafting?.messageId === m.id ? (
                   <form
                     className="link-form"

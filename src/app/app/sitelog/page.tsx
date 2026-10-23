@@ -1,11 +1,12 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listSiteLogs } from "@/data/live";
+import { getMessageForSiteLog, listSiteLogs } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { getT } from "@/lib/locale";
 import { messages, type MessageKey } from "@/lib/messages";
+import { prefillSiteLog } from "@/domain/siteLog";
 import { submitSiteLog } from "./actions";
 
-type Search = { project?: string; saved?: string; error?: string };
+type Search = { project?: string; saved?: string; error?: string; message?: string };
 
 export default async function SiteLogPage({ searchParams }: { searchParams: Promise<Search> }) {
   const t = await getT();
@@ -14,6 +15,8 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
   const project = currentProject(await listProjects(supabase), sp.project);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const [logs, { data: role }] = await Promise.all([listSiteLogs(supabase, project.id), supabase.rpc("project_role_of", { p: project.id })]);
+  const source = sp.message ? await getMessageForSiteLog(supabase, project.id, sp.message) : null;
+  const pre = source ? prefillSiteLog(source) : null;
   const canWrite = role === "member" || role === "project_manager";
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
@@ -26,11 +29,12 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
       {canWrite ? (
         <form action={submitSiteLog} className="surface form-card">
           <input type="hidden" name="projectId" value={project.id} />
-          <p><label><span className="field-label">{t("sitelog.site")}</span><input className="field" name="site" maxLength={100} required /></label></p>
-          <p><label><span className="field-label">{t("sitelog.date")}</span><input className="field" type="date" name="date" required /></label></p>
+          {pre && <><input type="hidden" name="sourceMessageId" value={sp.message} /><p className="hint">{t("sitelog.fromMessage")}</p></>}
+          <p><label><span className="field-label">{t("sitelog.site")}</span><input className="field" name="site" defaultValue={pre?.site} maxLength={100} required /></label></p>
+          <p><label><span className="field-label">{t("sitelog.date")}</span><input className="field" type="date" name="date" defaultValue={pre?.date} required /></label></p>
           <p><label><span className="field-label">{t("sitelog.weather")}</span><input className="field" name="weather" maxLength={100} /></label></p>
           <p><label><span className="field-label">{t("sitelog.headcount")}</span><input className="field" type="number" name="headcount" min={0} max={100000} defaultValue={0} /></label></p>
-          <p><label><span className="field-label">{t("sitelog.work")}</span><textarea className="field" name="work" maxLength={4000} rows={3} /></label></p>
+          <p><label><span className="field-label">{t("sitelog.work")}</span><textarea className="field" name="work" defaultValue={pre?.work} maxLength={4000} rows={3} /></label></p>
           <p><label><span className="field-label">{t("sitelog.delays")}</span><textarea className="field" name="delays" maxLength={4000} rows={2} /></label></p>
           <p className="hint">{t("sitelog.replaceHint")}</p>
           <button type="submit" className="btn btn-primary">{t("sitelog.save")}</button>
@@ -44,6 +48,7 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
               <p>{t("sitelog.weather")}: {l.weather || "-"} · {t("sitelog.headcount")}: {l.headcount}</p>
               {l.work_done && <p>{l.work_done}</p>}
               {l.delays && <p>{t("sitelog.delays")}: {l.delays}</p>}
+              {l.source_message_id && <p className="meta"><a href={`/app/timeline?project=${project.id}#message-${l.source_message_id}`}>{t("sitelog.source")}</a></p>}
             </li>
           ))}
         </ul>
