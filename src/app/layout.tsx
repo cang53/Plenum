@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans } from "next/font/google";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/messages";
 import { OfflineBoot } from "./OfflineBoot";
 import "./globals.css";
+
+const plex = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex", display: "swap" });
 
 export const metadata: Metadata = {
   title: t("app.name"),
@@ -11,8 +14,8 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: t("app.name"), statusBarStyle: "default" },
 };
 
-// Matches the --primary token.
-export const viewport: Viewport = { themeColor: "#234f40" };
+// Matches the --primary token (light).
+export const viewport: Viewport = { themeColor: "#2b4fd0" };
 
 export default async function RootLayout({
   children,
@@ -21,7 +24,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   return (
-    <html lang={locale}>
+    <html lang={locale} className={plex.variable}>
       <body>
         <a className="skip" href="#main">{t("app.skip", locale)}</a>
         {children}
