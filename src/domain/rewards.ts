@@ -56,3 +56,13 @@ export function isEarlyWarning(createdAt: string, dueDate: string | null): boole
 export function goalPercent(done: number, total: number): number {
   return total > 0 ? Math.round((Math.min(done, total) / total) * 100) : 0;
 }
+
+export type Milestone = { title: string; dueDate: string | null; status: string; updatedAt: string; site: string };
+
+// Milestones finished on or before their date in the last 14 days and not switched off. Titles only, no owner.
+export function celebratedMilestones(ms: Milestone[], offSites: string[], today: string): string[] {
+  const since = Date.parse(today) - 14 * 86_400_000;
+  return ms
+    .filter((m) => m.status === "done" && m.dueDate && m.updatedAt.slice(0, 10) <= m.dueDate && Date.parse(m.updatedAt) >= since && rewardsOn(offSites, m.site))
+    .map((m) => m.title);
+}

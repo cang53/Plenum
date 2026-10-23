@@ -1,4 +1,4 @@
-import type { StreakTask } from "@/domain/rewards";
+import type { Milestone, StreakTask } from "@/domain/rewards";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { dayEnd, dayStart, type Filters } from "@/domain/filters";
 import { MANUAL_KINDS, TABLE, toColumns, type ItemInput, type ManualKind } from "@/domain/items";
@@ -358,4 +358,11 @@ export async function listStreakTasks(client: SupabaseClient, projectId: string)
     tasks: rows.map((r) => ({ dueDate: r.due_date, status: r.status, updatedAt: r.updated_at, createdAt: r.created_at })),
     sites: rows.flatMap((r) => (r.site ? [r.site] : [])),
   };
+}
+
+// Milestone tasks for the celebration banner: title, date, status and site only.
+export async function listMilestones(client: SupabaseClient, projectId: string): Promise<Milestone[]> {
+  const { data, error } = await client.from("tasks").select("title, due_date, status, updated_at, site").eq("project_id", projectId).eq("is_milestone", true);
+  if (error) throw error;
+  return ((data ?? []) as { title: string; due_date: string | null; status: string; updated_at: string; site: string | null }[]).map((r) => ({ title: r.title, dueDate: r.due_date, status: r.status, updatedAt: r.updated_at, site: r.site ?? "" }));
 }

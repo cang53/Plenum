@@ -164,6 +164,8 @@ export const en = {
   "privacy.help": "At least 30. Leave empty to keep everything. Each deletion is written to the audit log.",
   "privacy.invalid": "Enter a whole number of days, 30 or more, or leave it empty.",
   "privacy.adminOnly": "Only workspace admins can change this.",
+  "cheer.title": "Milestone reached on time",
+  "cheer.note": "Done on or before the date, for the whole team. A Teams post comes later.",
   "streak.title": "Team streak",
   "streak.weeks": "weeks in a row",
   "streak.note": "Weeks in a row with no task overdue without an update. Counted for the whole project, never per person.",

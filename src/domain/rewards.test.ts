@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { goalPercent, isEarlyWarning, knowledgeCount, projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
-
+import { celebratedMilestones, goalPercent, isEarlyWarning, knowledgeCount, projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
 
 
 describe("rewardsOn", () => {
@@ -75,5 +74,22 @@ describe("goalPercent", () => {
   it("is zero with no weeks and never above 100", () => {
     expect(goalPercent(0, 0)).toBe(0);
     expect(goalPercent(5, 4)).toBe(100);
+  });
+});
+
+describe("celebratedMilestones", () => {
+  const m = { title: "Roof on", dueDate: "2026-10-20", status: "done", updatedAt: "2026-10-19T09:00:00Z", site: "" };
+  const today = "2026-10-23";
+  it("celebrates one done on time", () => expect(celebratedMilestones([m], [], today)).toEqual(["Roof on"]));
+  it("counts the due day, not a day after", () => {
+    expect(celebratedMilestones([{ ...m, updatedAt: "2026-10-20T23:00:00Z" }], [], today)).toHaveLength(1);
+    expect(celebratedMilestones([{ ...m, updatedAt: "2026-10-21T01:00:00Z" }], [], today)).toHaveLength(0);
+  });
+  it("skips open, undated and old ones", () => {
+    expect(celebratedMilestones([{ ...m, status: "todo" }, { ...m, dueDate: null }, { ...m, dueDate: "2026-09-01", updatedAt: "2026-09-01T09:00:00Z" }], [], today)).toEqual([]);
+  });
+  it("hides a switched-off site", () => {
+    expect(celebratedMilestones([{ ...m, site: "North" }], ["North"], today)).toEqual([]);
+    expect(celebratedMilestones([m], [""], today)).toEqual([]);
   });
 });
