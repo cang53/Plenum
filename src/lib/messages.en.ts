@@ -400,6 +400,7 @@ export const en = {
   "overview.ai": "AI suggestions waiting",
   "overview.aiBody": "Nothing changes until a person accepts it, and each one links to its source message.",
   "overview.aiLink": "Review suggestions",
+  "overview.aiCounts": "Accepted: {accepted}. Dismissed: {dismissed}. Counted for the whole project, not per person.",
   "bulk.title": "Change selected tasks",
   "bulk.hint": "Tick tasks below, then apply one change to all of them. Each change is recorded in the audit log.",
   "bulk.select": "Select",
