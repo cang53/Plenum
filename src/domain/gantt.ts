@@ -79,3 +79,33 @@ export function slipDays(tasks: PlanTask[], baseline: BaselineDates): Map<string
   }
   return slip;
 }
+
+export type Zoom = "week" | "month" | "quarter";
+export const DAY_PX: Record<Zoom, number> = { week: 28, month: 10, quarter: 4 };
+
+export type PhaseGroup = { phase: string | null; startDay: number; endDay: number; bars: GanttBar[] };
+
+// Bars grouped by phase in order of the earliest start; a group spans its tasks. Tasks without a phase form one group with phase null.
+export function groupByPhase(bars: GanttBar[]): PhaseGroup[] {
+  const groups = new Map<string | null, PhaseGroup>();
+  for (const b of bars) {
+    const g = groups.get(b.phase);
+    if (g) {
+      g.bars.push(b);
+      g.endDay = Math.max(g.endDay, b.startDay + b.length - 1);
+    } else groups.set(b.phase, { phase: b.phase, startDay: b.startDay, endDay: b.startDay + b.length - 1, bars: [b] });
+  }
+  return [...groups.values()];
+}
+
+// Day offsets (from firstDay) where the time scale gets a label: Mondays for week, month starts for month, quarter starts for quarter.
+export function scaleTicks(firstDay: number, totalDays: number, zoom: Zoom): { offset: number; iso: string }[] {
+  const ticks: { offset: number; iso: string }[] = [];
+  for (let offset = 0; offset < totalDays; offset++) {
+    const iso = isoOf(firstDay + offset);
+    const d = new Date(`${iso}T00:00:00Z`);
+    const hit = zoom === "week" ? d.getUTCDay() === 1 : d.getUTCDate() === 1 && (zoom === "month" || d.getUTCMonth() % 3 === 0);
+    if (hit) ticks.push({ offset, iso });
+  }
+  return ticks;
+}
