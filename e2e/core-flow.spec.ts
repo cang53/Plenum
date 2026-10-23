@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { skipOnboarding } from "./helpers";
 
 const admin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
 const mail = process.env.MAIL_API_URL ?? "http://127.0.0.1:54324";
@@ -37,6 +38,7 @@ test.beforeAll(async () => {
 
 test("sign in, receive a message, accept the suggestion, see the task on the board", async ({ page, request }) => {
   // /app needs a session, so this lands on the sign-in page; the emailed link signs in.
+  await skipOnboarding(page);
   await page.goto("/app");
   await expect(page).toHaveURL(/\/login/);
   await page.getByLabel("Work email").fill(email);

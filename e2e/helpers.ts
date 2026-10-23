@@ -19,7 +19,13 @@ async function signInLink(email: string): Promise<string> {
   throw new Error("sign-in email did not arrive");
 }
 
+// These people already have their project; skip the first-run invite step that /app would send them to.
+export async function skipOnboarding(page: Page) {
+  await page.context().addCookies([{ name: "plenum_onboarded", value: "1", domain: "localhost", path: "/" }]);
+}
+
 export async function signIn(page: Page, email: string) {
+  await skipOnboarding(page);
   await page.goto("/login");
   await page.getByLabel("Work email").fill(email);
   await page.getByRole("button", { name: "Send me a link" }).click();
