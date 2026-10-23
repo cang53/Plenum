@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error plain .mjs shared with the CI script
 import { checkBundle, checkGlass } from "../../scripts/budget-check.mjs";
 
 const budget = { jsBytesDefault: 100, jsBytesByRoute: { "/big": 200 }, cssBytes: 50, maxBlurPx: 24, maxBackdropRules: 2 };

@@ -1,4 +1,7 @@
-// Offline queue for task status and notes, plus the last project view. Storage and the network call are passed in so tests can mock both.
+// Offline queue for task status and notes, plus the last project view. Everything is encrypted at rest. Storage, key and the network call are passed in so tests can mock them.
+import { open, seal } from "./offline-crypto";
+
+export type Vault = { s: Pick<Storage, "getItem" | "setItem" | "removeItem">; key: CryptoKey };
 export type Change = { taskId: string; baseStatus: string; status?: string; note?: string };
 export type Snapshot = { savedAt: string; project: string; tasks: { id: string; title: string; status: string }[] };
 export type SendResult = "ok" | "conflict";
@@ -6,30 +9,30 @@ export type SendResult = "ok" | "conflict";
 export const QUEUE_KEY = "plenum:offline:queue";
 export const VIEW_KEY = "plenum:offline:view";
 
-function read<T>(s: Pick<Storage, "getItem">, key: string, fallback: T): T {
-  try { return JSON.parse(s.getItem(key) ?? "") as T; } catch { return fallback; }
-}
+const read = <T,>(v: Vault, key: string, fallback: T) => open<T>(v.key, v.s.getItem(key), fallback);
+const write = async (v: Vault, key: string, value: unknown) => v.s.setItem(key, await seal(v.key, value));
 
-export const readQueue = (s: Pick<Storage, "getItem">) => read<Change[]>(s, QUEUE_KEY, []);
-export const readSnapshot = (s: Pick<Storage, "getItem">) => read<Snapshot | null>(s, VIEW_KEY, null);
-export const saveSnapshot = (s: Pick<Storage, "setItem">, v: Snapshot) => s.setItem(VIEW_KEY, JSON.stringify(v));
+export const readQueue = (v: Vault) => read<Change[]>(v, QUEUE_KEY, []);
+export const readSnapshot = (v: Vault) => read<Snapshot | null>(v, VIEW_KEY, null);
+export const saveSnapshot = (v: Vault, snap: Snapshot) => write(v, VIEW_KEY, snap);
+export const wipe = (s: Pick<Storage, "removeItem">) => { s.removeItem(VIEW_KEY); s.removeItem(QUEUE_KEY); };
 
 // One entry per task: the newest status wins, notes pile up, and the status the person first saw stays the base for conflict checks.
-export function enqueue(s: Pick<Storage, "getItem" | "setItem">, c: Change): Change[] {
-  const queue = readQueue(s);
+export async function enqueue(v: Vault, c: Change): Promise<Change[]> {
+  const queue = await readQueue(v);
   const at = queue.findIndex((q) => q.taskId === c.taskId);
   if (at < 0) queue.push(c);
   else {
     const old = queue[at];
     queue[at] = { taskId: c.taskId, baseStatus: old.baseStatus, status: c.status ?? old.status, note: [old.note, c.note].filter(Boolean).join("\n") || undefined };
   }
-  s.setItem(QUEUE_KEY, JSON.stringify(queue));
+  await write(v, QUEUE_KEY, queue);
   return queue;
 }
 
 // Sends entries in order. A thrown error means the network is down: stop and keep the rest for next time.
-export async function flush(s: Pick<Storage, "getItem" | "setItem">, send: (c: Change) => Promise<SendResult>): Promise<{ synced: number; conflicts: Change[] }> {
-  const queue = readQueue(s);
+export async function flush(v: Vault, send: (c: Change) => Promise<SendResult>): Promise<{ synced: number; conflicts: Change[] }> {
+  const queue = await readQueue(v);
   const conflicts: Change[] = [];
   let synced = 0;
   for (const c of [...queue]) {
@@ -40,7 +43,7 @@ export async function flush(s: Pick<Storage, "getItem" | "setItem">, send: (c: C
       break;
     }
     queue.shift();
-    s.setItem(QUEUE_KEY, JSON.stringify(queue));
+    await write(v, QUEUE_KEY, queue);
   }
   return { synced, conflicts };
 }

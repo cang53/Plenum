@@ -87,6 +87,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
       <p className="eyebrow">{project.name}</p>
       <h1>{t("items.title")}</h1>
       <p className="intro">{t("items.intro")}</p>
+      <p><a href={`/app/import?project=${project.id}`}>{t("import.title")}</a></p>
       <WorkSwitch current="items" projectId={project.id} t={t} />
       <OfflineTasks
         project={project.name}

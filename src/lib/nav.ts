@@ -13,6 +13,7 @@ export function navItems(role: string | undefined, isAdmin: boolean): NavItem[] 
     { path: "/app/members", label: "app.members" },
   ];
   if (role === "project_manager" || isAdmin) items.push({ path: "/app/audit", label: "app.audit" });
+  if (role === "project_manager" || isAdmin) items.push({ path: "/app/reports", label: "app.reports" });
   if (isAdmin) items.push({ path: "/app/roles", label: "app.roles" });
   items.push({ path: "/app/privacy", label: "app.privacy" });
   items.push({ path: "/app/settings", label: "app.settings" });
