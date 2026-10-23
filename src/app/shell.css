@@ -16,6 +16,8 @@
 .shell-search { flex: 1; max-width: 26rem; }
 .shell-search .field { width: 100%; border-radius: var(--radius-full); }
 .shell-account { display: flex; align-items: center; gap: var(--s3); margin: 0; font-size: var(--text-sm); color: var(--text-secondary); }
+.shell-bell { position: relative; }
+.shell-badge { position: absolute; top: 0; right: 0; min-width: 1.1rem; padding: 0 var(--s1); border-radius: var(--radius-full); background: var(--primary); color: var(--on-primary); font-size: var(--text-sm); line-height: 1.1rem; text-align: center; }
 .shell-bar { display: none; }
 .shell .page, .shell .home { margin: 0 auto; }
 

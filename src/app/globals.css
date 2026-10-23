@@ -5,6 +5,7 @@
 @import "./board.css";
 @import "./timeline.css";
 @import "./gantt.css";
+@import "./items.css";
 
 * {
   box-sizing: border-box;

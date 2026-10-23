@@ -6,3 +6,8 @@ export function notificationHref(kind: NotificationKind, projectId: string): str
   const page = { task_assigned: "items", suggestion_new: "items", invitation_accepted: "members" }[kind];
   return `/app/${page}?project=${projectId}`;
 }
+
+// The email preferences (S6-9) also decide what the bell counts: a part switched off stays out of it.
+export function hiddenKinds(prefs: { digest_suggestions: boolean } | null): NotificationKind[] {
+  return prefs && !prefs.digest_suggestions ? ["suggestion_new"] : [];
+}

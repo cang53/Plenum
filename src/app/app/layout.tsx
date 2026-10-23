@@ -1,8 +1,9 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listProjects } from "@/data/projects";
+import { listProjects, unreadCount } from "@/data/projects";
 import { getT } from "@/lib/locale";
 import { navItems } from "@/lib/nav";
 import { Shell } from "./shell";
+import { Shortcuts } from "./Shortcuts";
 
 // Every signed-in page sits in the same floating shell: sidebar, top bar, ambient background.
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +26,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       itemsByProject={itemsByProject}
       fallbackItems={items()}
       email={data.user.email ?? ""}
+      unread={await unreadCount(supabase)}
+      unreadLabel={t("notifications.unread")}
       labels={{
         brand: t("app.name"),
         main: t("shell.main"),
@@ -34,8 +37,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         account: t("shell.account"),
         signOut: t("app.signOut"),
         mobile: t("shell.mobile"),
+        bell: t("shell.bell"),
       }}
     >
+      <Shortcuts labels={{ title: t("shortcuts.title"), close: t("shortcuts.close"), search: t("shortcuts.search"), new: t("shortcuts.new"), next: t("shortcuts.next"), prev: t("shortcuts.prev"), help: t("shortcuts.help") }} />
       {children}
     </Shell>
   );

@@ -1,0 +1,20 @@
+/* Items list: one dense surface per kind; the header is the only glass and stays visible while scrolling. */
+.items-table { margin-block-end: var(--s4); overflow: clip; }
+.items-table table { display: table; width: 100%; }
+.items-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--glass);
+  border-block-end: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.items-table tbody tr + tr td { border-block-start: 1px solid var(--border); }
+.items-table tbody tr:hover { background: var(--glass-soft); }
+.items-table td { vertical-align: top; }
+.items-table summary { cursor: pointer; font-weight: var(--weight-medium); }
+.items-filter { margin-block: var(--s4); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
