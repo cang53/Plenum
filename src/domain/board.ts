@@ -14,6 +14,8 @@ export type BoardTask = {
   priority: "low" | "normal" | "high";
   position: number;
   site: string | null;
+  // Subject of the message a blocked task was made from, if any.
+  waitingOn?: string | null;
 };
 
 export type BoardColumn = { status: TaskStatus; tasks: BoardTask[] };
@@ -55,4 +57,26 @@ export function taskKey(id: string): string {
 // Initials for the owner mark; never a photo or a figure per person.
 export function initials(name: string): string {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
+}
+
+export type GroupBy = "status" | "phase" | "owner" | "week";
+
+export type BoardGroup = { key: string; tasks: BoardTask[] };
+
+// Monday of the task's due week as YYYY-MM-DD; "" when there is no due date.
+export function weekStart(date: string | null): string {
+  if (!date) return "";
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+// Groups the already filtered columns' tasks by phase, owner or due week; "" is the group without a value, listed last.
+export function groupTasks(tasks: BoardTask[], by: Exclude<GroupBy, "status">): BoardGroup[] {
+  const keyOf = (task: BoardTask) => (by === "phase" ? task.phase : by === "owner" ? task.ownerName : weekStart(task.dueDate)) ?? "";
+  const keys = [...new Set(tasks.map(keyOf))].sort((a, b) => Number(a === "") - Number(b === "") || a.localeCompare(b));
+  return keys.map((key) => ({
+    key,
+    tasks: tasks.filter((task) => keyOf(task) === key).sort((a, b) => a.position - b.position || a.title.localeCompare(b.title)),
+  }));
 }
