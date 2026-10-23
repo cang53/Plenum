@@ -23,6 +23,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run check:switches
+      - run: npm run check:strings
       - run: npm test
       - run: npm run build
       - run: npm run check:budget
