@@ -47,3 +47,13 @@ Spec re-read against main after stage 11. Closed since S10-5: milestones (S10-7)
 | Team rewards and per-site switch | Not built; waits for live accounts and the pilot | later (spec stage 6) |
 | Teams channel messages | Needs the Teams app and admin approval | later |
 | Live Entra ID, SES and Bedrock | Built behind switches; waiting on accounts | later (accounts) |
+
+## Sweep S12-7
+Spec re-read against main after stage 12. Closed since S11-8: team rewards with an admin switch per site (S12-1), streak, early warning, knowledge badge, milestone celebration and team challenge (S12-2 to S12-6). All are team level, hidden when switched off, with no per-person count. An end-to-end test (`e2e/rewards.spec.ts`, run in CI) covers the switch and one reward.
+
+| Spec item | State | Row |
+|---|---|---|
+| Teams channel messages and the Teams post for celebrations | Needs the Teams app and admin approval | later |
+| Live Entra ID, SES and Bedrock | Built behind switches; waiting on accounts | later (accounts) |
+
+No other spec item is open.
