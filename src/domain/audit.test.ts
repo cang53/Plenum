@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { auditCsv, type AuditRow } from "./audit";
+import { auditCsv, parseAuditFilters, type AuditRow } from "./audit";
 
 const row: AuditRow = {
   created_at: "2026-10-22T09:00:00Z",
@@ -26,5 +26,11 @@ describe("auditCsv", () => {
 
   it("gives only the header for no rows", () => {
     expect(auditCsv([]).trimEnd().split("\r\n")).toHaveLength(1);
+  });
+});
+
+describe("parseAuditFilters", () => {
+  it("keeps good values and drops bad dates", () => {
+    expect(parseAuditFilters({ from: "2026-10-01", to: "nope", action: " accepted " })).toEqual({ from: "2026-10-01", to: undefined, action: "accepted" });
   });
 });

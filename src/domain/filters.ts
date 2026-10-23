@@ -19,7 +19,7 @@ export function parseFilters(raw: Record<string, string | undefined>): Filters {
 }
 
 // Only the filters that are set, ready for a link's query string.
-export const filterParams = (f: Filters): Record<string, string> =>
+export const filterParams = (f: object): Record<string, string> =>
   Object.fromEntries(Object.entries(f).filter(([, v]) => v)) as Record<string, string>;
 
 // A date filter covers the whole day, so the end is the start of the next day.

@@ -1,7 +1,9 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
-import { messages, type MessageKey } from "@/lib/messages";
+import { intlLocale, messages, type MessageKey } from "@/lib/messages";
 import { getLocale, getT } from "@/lib/locale";
+import { checkSwitches } from "@/server/switches";
+import { integrationRows } from "@/domain/integrations";
 import { exportTables } from "@/domain/export";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject, saveRewardSwitches } from "./actions";
@@ -30,6 +32,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const { data: switches } = isAdmin
     ? await supabase.from("reward_switches").select("site").eq("workspace_id", ws?.workspace_id ?? "")
     : { data: null };
+  const latest = async (table: "messages" | "suggestions", col: string) =>
+    (await supabase.from(table).select(col).eq("project_id", project.id).order(col, { ascending: false }).limit(1).maybeSingle<Record<string, string>>()).data?.[col] ?? null;
+  const integrations = isAdmin ? integrationRows(checkSwitches(), { email: await latest("messages", "received_at"), triage: await latest("suggestions", "created_at") }) : [];
   const offSites = (switches ?? []).map((r) => r.site);
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
@@ -87,6 +92,23 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <li key={k}><a href={`/app/export?workspace=${ws?.workspace_id}&table=${k}`} download>{k}.csv</a></li>
             ))}
           </ul>
+          <h2>{t("integrations.title")}</h2>
+          <p>{t("integrations.intro")}</p>
+          <div className="surface data-table">
+            <table>
+              <caption className="sr-only">{t("integrations.title")}</caption>
+              <thead><tr><th scope="col">{t("integrations.name")}</th><th scope="col">{t("integrations.reads")}</th><th scope="col">{t("integrations.state")}</th><th scope="col">{t("integrations.last")}</th></tr></thead>
+              <tbody>
+                {integrations.map((r) => (
+                  <tr key={r.name}>
+                    <td>{r.name}</td><td>{t(r.reads)}</td><td>{t(r.live ? "integrations.on" : "integrations.off")}</td>
+                    <td>{r.lastRead ? new Date(r.lastRead).toLocaleString(intlLocale[locale]) : t("integrations.never")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p><a href={`/app/audit?project=${project.id}`}>{t("audit.title")}</a></p>
           <form action={saveRewardSwitches} className="surface form-card">
             <h2>{t("rewards.title")}</h2>
             <input type="hidden" name="projectId" value={project.id} />
