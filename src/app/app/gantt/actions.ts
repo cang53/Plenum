@@ -7,6 +7,6 @@ export async function saveTaskDates(taskId: string, startDate: string, dueDate: 
   await setTaskDates(await supabaseServer(), taskId, startDate, dueDate);
 }
 
-export async function saveProjectBaseline(projectId: string): Promise<void> {
-  await saveBaseline(await supabaseServer(), projectId);
+export async function saveProjectBaseline(projectId: string, name: string): Promise<void> {
+  await saveBaseline(await supabaseServer(), projectId, name);
 }
