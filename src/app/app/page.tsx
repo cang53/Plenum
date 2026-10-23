@@ -5,7 +5,7 @@ import { listBoardTasks, listStreakTasks, listPendingSuggestions, suggestionAccu
 import { currentProject, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
-import { projectRewardsOn, streakWeeks } from "@/domain/rewards";
+import { knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
 import { getT } from "@/lib/locale";
 
 // Project overview: one card per project, what needs attention, and the way into AI review. Aggregate only.
@@ -33,6 +33,11 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     listStreakTasks(supabase, current.id),
     supabase.from("reward_switches").select("site"),
   ]);
+  const rewardsShown = projectRewardsOn((switches ?? []).map((r) => r.site), sites);
+  const { data: decisions } = rewardsShown
+    ? await supabase.from("decisions").select("details, source_message_id").eq("project_id", current.id)
+    : { data: null };
+  const knowledge = decisions ? knowledgeCount(decisions.map((d) => ({ details: d.details, sourceMessageId: d.source_message_id }))) : 0;
   const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? (streakTasks.length ? streakWeeks(streakTasks, today) : 0) : null;
   return (
     <main id="main" className="page overview">
@@ -58,6 +63,13 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
           <h2 id="streak"><span aria-hidden="true">🔥</span> {t("streak.title")}</h2>
           <p><strong>{streak}</strong> {t("streak.weeks")}</p>
           <p className="meta">{t("streak.note")}</p>
+        </section>
+      )}
+      {rewardsShown && knowledge > 0 && (
+        <section className="surface overview-panel" aria-labelledby="knowledge">
+          <h2 id="knowledge"><span aria-hidden="true">📚</span> {t("knowledge.title")}</h2>
+          <p><strong>{knowledge}</strong> {t("knowledge.count")}</p>
+          <p className="meta">{t("knowledge.note")}</p>
         </section>
       )}
       <section className="surface overview-panel" aria-labelledby="attention">
