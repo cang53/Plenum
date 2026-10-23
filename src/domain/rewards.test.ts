@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rewardsOn, switchList } from "./rewards";
+import { projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
 
 describe("rewardsOn", () => {
   it("is on with no switches", () => expect(rewardsOn([], "North")).toBe(true));
@@ -14,4 +14,34 @@ describe("switchList", () => {
   it("trims, drops blanks and duplicates", () => expect(switchList(false, " North\n\nNorth\nSouth ")).toEqual(["North", "South"]));
   it("adds the everywhere switch", () => expect(switchList(true, "")).toEqual([""]));
   it("drops names over 80 characters", () => expect(switchList(false, "x".repeat(81))).toEqual([]));
+});
+
+describe("projectRewardsOn", () => {
+  it("is on with no switches or no sites", () => {
+    expect(projectRewardsOn([], ["North"])).toBe(true);
+    expect(projectRewardsOn(["North"], [])).toBe(true);
+  });
+  it("is off when every site is off, or everywhere", () => {
+    expect(projectRewardsOn(["North"], ["North", " North "])).toBe(false);
+    expect(projectRewardsOn(["North"], ["North", "South"])).toBe(true);
+    expect(projectRewardsOn([""], ["South"])).toBe(false);
+  });
+});
+
+describe("streakWeeks", () => {
+  const today = "2026-10-23"; // a Friday
+  it("counts the full lookback with no overdue tasks", () => expect(streakWeeks([], today)).toBe(104));
+  it("stops at the week an untouched task went overdue", () => {
+    // due Wed 2026-10-07, last touched long before: overdue in weeks starting Oct 5 onward -> broken this week
+    expect(streakWeeks([{ dueDate: "2026-10-07", status: "doing", updatedAt: "2026-09-01T00:00:00Z" }], today)).toBe(0);
+  });
+  it("counts weeks before the task went overdue", () => {
+    const t = [{ dueDate: "2026-10-07", status: "doing", updatedAt: "2026-10-20T09:00:00Z" }];
+    // overdue from the week of Oct 5; updated in the week of Oct 19 only, so Oct 5 and Oct 12 are broken
+    expect(streakWeeks(t, today)).toBe(1);
+  });
+  it("ignores a task done before the week ended", () => {
+    const t = [{ dueDate: "2026-10-07", status: "done", updatedAt: "2026-10-08T09:00:00Z" }];
+    expect(streakWeeks(t, today)).toBe(104);
+  });
 });

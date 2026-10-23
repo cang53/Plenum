@@ -1,3 +1,4 @@
+import type { StreakTask } from "@/domain/rewards";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { dayEnd, dayStart, type Filters } from "@/domain/filters";
 import { MANUAL_KINDS, TABLE, toColumns, type ItemInput, type ManualKind } from "@/domain/items";
@@ -346,4 +347,15 @@ export async function exportTimesheet(client: SupabaseClient, projectId: string,
   const { data, error } = await client.rpc("timesheet_export", { p: projectId, d_from: from, d_to: to });
   if (error) throw error;
   return (data ?? []).map((r: { hours: string | number }) => ({ ...r, hours: Number(r.hours) }));
+}
+
+// Streak inputs: due date, status and last update per task, plus the sites in use. No owner, so nothing per person.
+export async function listStreakTasks(client: SupabaseClient, projectId: string): Promise<{ tasks: StreakTask[]; sites: string[] }> {
+  const { data, error } = await client.from("tasks").select("due_date, status, updated_at, site").eq("project_id", projectId);
+  if (error) throw error;
+  const rows = (data ?? []) as { due_date: string | null; status: string; updated_at: string; site: string | null }[];
+  return {
+    tasks: rows.map((r) => ({ dueDate: r.due_date, status: r.status, updatedAt: r.updated_at })),
+    sites: rows.flatMap((r) => (r.site ? [r.site] : [])),
+  };
 }

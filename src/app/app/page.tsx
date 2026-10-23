@@ -1,10 +1,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { listBoardTasks, listPendingSuggestions, suggestionAccuracy } from "@/data/live";
+import { listBoardTasks, listStreakTasks, listPendingSuggestions, suggestionAccuracy } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
+import { projectRewardsOn, streakWeeks } from "@/domain/rewards";
 import { getT } from "@/lib/locale";
 
 // Project overview: one card per project, what needs attention, and the way into AI review. Aggregate only.
@@ -28,6 +29,11 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const attention = pulses.find((x) => x.project.id === current.id)!.pulse.attention;
   const suggestions = (await listPendingSuggestions(supabase, current.id)).length;
   const accuracy = await suggestionAccuracy(supabase, current.id);
+  const [{ tasks: streakTasks, sites }, { data: switches }] = await Promise.all([
+    listStreakTasks(supabase, current.id),
+    supabase.from("reward_switches").select("site"),
+  ]);
+  const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? streakWeeks(streakTasks, today) : null;
   return (
     <main id="main" className="page overview">
       <h1>{t("overview.title")}</h1>
@@ -47,6 +53,13 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
           </li>
         ))}
       </ul>
+      {streak !== null && (
+        <section className="surface overview-panel" aria-labelledby="streak">
+          <h2 id="streak"><span aria-hidden="true">🔥</span> {t("streak.title")}</h2>
+          <p><strong>{streak}</strong> {t("streak.weeks")}</p>
+          <p className="meta">{t("streak.note")}</p>
+        </section>
+      )}
       <section className="surface overview-panel" aria-labelledby="attention">
         <h2 id="attention">{t("overview.attention")}</h2>
         {attention.length === 0 ? (
