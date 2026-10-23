@@ -3,7 +3,7 @@ import { getWeekCounts, getWeekDetail, listTimesheetWeeks, listWeekHours } from 
 import { currentProject, listProjects } from "@/data/projects";
 import { getT } from "@/lib/locale";
 import { messages, type MessageKey } from "@/lib/messages";
-import { isoWeek, weekStart } from "@/domain/timesheet";
+import { WEEK_TARGET, isoWeek, targetState, weekStart } from "@/domain/timesheet";
 import { approveWeeks, decideWeek, submitWeek } from "./actions";
 
 type Search = { project?: string; review?: string; done?: string; error?: string };
@@ -26,6 +26,7 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
     role ? getWeekCounts(supabase, project.id, weekStart(new Date().toISOString().slice(0, 10))) : null,
   ]);
   const hoursOf = (w: { user_id: string; week_start: string }) => hours.find((h) => h.user_id === w.user_id && h.week_start === w.week_start)?.hours ?? 0;
+  const over = (w: { user_id: string; week_start: string; status: string }) => w.status === "submitted" && targetState(hoursOf(w), WEEK_TARGET, true) === "over";
   const base = `/app/timesheets?project=${project.id}`;
   const pending = weeks.filter((w) => w.status === "submitted").length;
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
@@ -77,7 +78,7 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
                       <td><b>{name}</b></td>
                       <td className="ts-num">{isoWeek(w.week_start)} · {w.week_start}</td>
                       {manager && <td className="ts-num">{hoursOf(w).toFixed(1)}</td>}
-                      <td><span className={`st ${STATUS_CLASS[w.status]}`}>{t(`timesheets.status.${w.status}` as MessageKey)}</span>{w.note && <span className="ts-sub"> {w.note}</span>}</td>
+                      <td><span className={`st ${over(w) ? "st-warn" : STATUS_CLASS[w.status]}`}>{t(over(w) ? "timesheets.status.over" : (`timesheets.status.${w.status}` as MessageKey))}</span>{w.note && <span className="ts-sub"> {w.note}</span>}</td>
                       {manager && <td className="ts-num"><a href={`${base}&review=${encodeURIComponent(key)}`}>{t("timesheets.review")}<span className="sr-only">: {name}, {w.week_start}</span></a></td>}
                     </tr>
                   );

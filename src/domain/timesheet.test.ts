@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkDecision, checkGrid, checkPicks, isoWeek, shiftWeek, timesheetCsv, weekDays, weekStart } from "./timesheet";
+import { copyWeek, sumHours, targetState, checkDecision, checkGrid, checkPicks, isoWeek, shiftWeek, timesheetCsv, weekDays, weekStart } from "./timesheet";
 
 const T = "40000000-0000-0000-0000-000000000001";
 const form = (o: Record<string, string>) => new Map(Object.entries(o));
@@ -60,5 +60,18 @@ describe("timesheetCsv", () => {
     expect(timesheetCsv([{ person: "=Eve", task: 'Say "hi"', work_date: "2026-10-19", hours: 7.5 }])).toBe(
       '"person","task","date","hours"\r\n"\'=Eve","Say ""hi""","2026-10-19","7.5"\r\n',
     );
+  });
+});
+
+describe("week totals", () => {
+  it("sums without float drift", () => expect(sumHours([0.1, 0.2, undefined, 7.5])).toBe(7.8));
+  it("colours by target", () => {
+    expect(targetState(8.25, 8)).toBe("over");
+    expect(targetState(8, 8)).toBe("under");
+    expect(targetState(40, 40, true)).toBe("met");
+    expect(targetState(41, 40, true)).toBe("over");
+  });
+  it("copies last week forward by seven days", () => {
+    expect(copyWeek([{ task_id: T, work_date: "2026-11-02", hours: 4 }])).toEqual([{ taskId: T, date: "2026-11-09", hours: 4 }]);
   });
 });
