@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkDecision, checkGrid, shiftWeek, timesheetCsv, weekDays, weekStart } from "./timesheet";
+import { checkDecision, checkGrid, checkPicks, isoWeek, shiftWeek, timesheetCsv, weekDays, weekStart } from "./timesheet";
 
 const T = "40000000-0000-0000-0000-000000000001";
 const form = (o: Record<string, string>) => new Map(Object.entries(o));
@@ -36,6 +36,22 @@ describe("checkDecision", () => {
   it("rejects other days and other decisions", () => {
     expect(checkDecision(form({ week: "2026-10-20", user: "u1", decision: "approved" }))).toBeNull();
     expect(checkDecision(form({ week: "2026-10-19", user: "u1", decision: "submitted" }))).toBeNull();
+  });
+});
+
+describe("approvals", () => {
+  it("needs a note to send a week back", () => {
+    expect(checkDecision(form({ week: "2026-10-19", user: "u1", decision: "sent_back", note: "  " }))).toBeNull();
+    expect(checkDecision(form({ week: "2026-10-19", user: "u1", decision: "approved" }))).toMatchObject({ decision: "approved", note: "" });
+  });
+  it("reads ticked rows and drops bad ones", () => {
+    const f = { getAll: () => ["u1|2026-10-19", "u2|2026-10-20", "junk", "|2026-10-19"] };
+    expect(checkPicks(f)).toEqual([{ user: "u1", week: "2026-10-19" }]);
+  });
+  it("numbers weeks the ISO way", () => {
+    expect(isoWeek("2026-10-19")).toBe(43);
+    expect(isoWeek("2026-12-28")).toBe(53);
+    expect(isoWeek("2027-01-04")).toBe(1);
   });
 });
 

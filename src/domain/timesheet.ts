@@ -34,13 +34,30 @@ export function checkGrid(form: { entries(): Iterable<[string, FormDataEntryValu
   return { ok: true, value: out };
 }
 
+// Sending a week back needs a note, so the person knows what to change.
 export type WeekDecision = "approved" | "sent_back";
 
 export function checkDecision(form: { get(k: string): unknown }): { week: string; user: string; decision: WeekDecision; note: string } | null {
   const week = String(form.get("week") ?? "");
   const decision = form.get("decision");
   if (weekStart(week) !== week || (decision !== "approved" && decision !== "sent_back")) return null;
-  return { week, user: String(form.get("user") ?? ""), decision, note: String(form.get("note") ?? "").trim().slice(0, 500) };
+  const note = String(form.get("note") ?? "").trim().slice(0, 500);
+  if (decision === "sent_back" && !note) return null;
+  return { week, user: String(form.get("user") ?? ""), decision, note };
+}
+
+// Rows ticked in the approvals list are named `pick` with the value `<user>|<week start>`; anything that is not a Monday is dropped.
+export function checkPicks(form: { getAll(k: string): unknown[] }): { user: string; week: string }[] {
+  return form.getAll("pick").flatMap((v) => {
+    const [user, week] = String(v).split("|");
+    return user && week && weekStart(week) === week ? [{ user, week }] : [];
+  });
+}
+
+// ISO week number of the week starting on the given Monday.
+export function isoWeek(start: string): number {
+  const thursday = new Date(Date.parse(`${start}T00:00:00Z`) + 3 * day);
+  return Math.ceil(((thursday.getTime() - Date.UTC(thursday.getUTCFullYear(), 0, 1)) / day + 1) / 7);
 }
 
 export type ExportRow = { person: string; task: string; work_date: string; hours: number };

@@ -360,6 +360,26 @@ export async function listTimesheetWeeks(client: SupabaseClient, projectId: stri
   return (data ?? []) as unknown as TimesheetWeek[];
 }
 
+// Managers only (the database refuses others): hours per person and week since a date, and one week task by task.
+export async function listWeekHours(client: SupabaseClient, projectId: string, from: string): Promise<{ user_id: string; week_start: string; hours: number }[]> {
+  const { data, error } = await client.rpc("week_hours", { p: projectId, d_from: from });
+  if (error) throw error;
+  return (data ?? []).map((r: { user_id: string; week_start: string; hours: number | string }) => ({ ...r, hours: Number(r.hours) }));
+}
+
+export async function getWeekDetail(client: SupabaseClient, projectId: string, userId: string, week: string): Promise<{ task: string; work_date: string; hours: number }[]> {
+  const { data, error } = await client.rpc("week_detail", { p: projectId, u: userId, w: week });
+  if (error) throw error;
+  return (data ?? []).map((r: { task: string; work_date: string; hours: number | string }) => ({ ...r, hours: Number(r.hours) }));
+}
+
+// Counts only, no names: how many members have submitted the week.
+export async function getWeekCounts(client: SupabaseClient, projectId: string, week: string): Promise<{ submitted: number; members: number } | null> {
+  const { data, error } = await client.rpc("week_counts", { p: projectId, w: week });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+
 // The database checks who may submit, decide or resubmit, locks approved weeks and audits each decision.
 export async function setTimesheetWeek(client: SupabaseClient, projectId: string, userId: string, week: string, patch: { status: string; note?: string }): Promise<void> {
   const { error } = await client.from("timesheet_weeks").update(patch).eq("project_id", projectId).eq("user_id", userId).eq("week_start", week);

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { setTimesheetWeek, submitTimesheetWeek } from "@/data/live";
-import { checkDecision, weekStart } from "@/domain/timesheet";
+import { checkDecision, checkPicks, weekStart } from "@/domain/timesheet";
 
 async function run(projectId: string, work: () => Promise<void>): Promise<never> {
   let result = "done=1";
@@ -31,5 +31,16 @@ export async function decideWeek(form: FormData): Promise<void> {
   await run(projectId, async () => {
     if (!d) throw new Error("invalid");
     await setTimesheetWeek(await supabaseServer(), projectId, d.user, d.week, { status: d.decision, note: d.note });
+  });
+}
+
+// Approves every ticked week; the database still checks each one, so a single refusal stops with an error.
+export async function approveWeeks(form: FormData): Promise<void> {
+  const projectId = String(form.get("projectId"));
+  const picks = checkPicks(form);
+  await run(projectId, async () => {
+    if (!picks.length) throw new Error("nothing selected");
+    const client = await supabaseServer();
+    for (const p of picks) await setTimesheetWeek(client, projectId, p.user, p.week, { status: "approved" });
   });
 }

@@ -8,6 +8,7 @@
 @import "./gantt.css";
 @import "./items.css";
 @import "./sitelog.css";
+@import "./approvals.css";
 @import "./states.css";
 
 * {
