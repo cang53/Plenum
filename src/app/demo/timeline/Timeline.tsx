@@ -32,7 +32,8 @@ type Props = {
   onTagAttachment?: TagAttachment;
   onReply?: (messageId: string, text: string, confirmWider: boolean) => Promise<"sent" | "wider">;
   // Live pages let a member or manager open a site log form prefilled from a message.
-  siteLogHref?: (messageId: string) => string;
+  // A link template with {id}; a function cannot be passed from a server page to this component.
+  siteLogHref?: string;
 };
 
 export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, onTagAttachment, siteLogHref, language = "en" }: Props) {
@@ -255,7 +256,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                     <button type="button" className="link-button" onClick={() => setReply({ messageId: m.id, text: "", wider: false })}>{t("reply.action")}</button>
                   </>
                 ))}
-                {siteLogHref && <a className="link-button" href={siteLogHref(m.id)}>{t("sitelog.fromMessageAction")}</a>}
+                {siteLogHref && <a className="link-button" href={siteLogHref.replace("{id}", m.id)}>{t("sitelog.fromMessageAction")}</a>}
                 {drafting?.messageId === m.id ? (
                   <form
                     className="link-form"
