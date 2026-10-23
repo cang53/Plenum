@@ -30,8 +30,9 @@ test("add a risk and an issue", async ({ page }) => {
   await page.goto(`/app/items?project=${project}&kind=risk`);
   const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Risks and issues" }) });
   for (const [kind, title] of [["risk", `Crane delay ${run}`], ["issue", `Leaking roof ${run}`]]) {
-    await section.getByText(/^New /).click();
     const form = section.locator("form").first();
+    // The first create can leave the panel open, and a second click would close it.
+    if (!(await form.isVisible())) await section.getByText(/^New /).click();
     await form.getByLabel("Title", { exact: true }).fill(title);
     await form.locator("select[name=riskKind]").selectOption(kind);
     await form.getByRole("button", { name: "Create" }).click();
