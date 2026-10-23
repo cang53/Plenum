@@ -71,7 +71,7 @@ export async function removePerson(form: FormData): Promise<void> {
   const supabase = await supabaseServer();
   const { data: project } = await supabase.from("projects").select("workspace_id").eq("id", projectId).single();
   const { error } = await supabase.rpc("remove_person", { ws: project?.workspace_id ?? "", person });
-  if (error) back(projectId, "error=settings.saveError");
+  if (error) back(projectId, error.message.startsWith("last_admin") ? "error=settings.lastAdmin" : "error=settings.saveError");
   revalidatePath("/app", "layout");
   back(projectId, "removed=1");
 }

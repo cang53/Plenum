@@ -172,6 +172,7 @@ export const nl: Record<keyof typeof en, string> = {
   "rewards.everywhere": "Overal uit",
   "rewards.sites": "Locaties met beloningen uit",
   "rewards.help": "Eén locatie per regel, geschreven zoals bij de taken.",
+  "settings.lastAdmin": "Een werkruimte heeft minstens één beheerder nodig. Maak eerst iemand anders beheerder.",
   "settings.confirmMismatch": "De bevestiging klopte niet. Er is niets verwijderd.",
   "import.title": "Planning importeren",
   "import.intro": "Upload een MS Project XML-, Primavera P6 XML- of XER-bestand. Je ziet wat er verandert voordat er iets wordt opgeslagen. Bestaande taken krijgen alleen nieuwe datums; eigenaren en koppelingen blijven.",
