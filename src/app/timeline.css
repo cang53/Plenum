@@ -36,3 +36,5 @@
   background: var(--surface-muted);
 }
 .suggestion p { margin: 0; }
+
+.reply-form { display: grid; gap: var(--s2); padding: var(--s3); margin-block: var(--s2); }
