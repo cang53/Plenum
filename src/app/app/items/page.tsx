@@ -9,6 +9,7 @@ import type { MessageKey } from "@/lib/messages";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 import { WorkSwitch } from "@/app/WorkSwitch";
+import { TaskSheet } from "../tasks/[id]/TaskSheet";
 import { bulkTasks, saveItem } from "./actions";
 import { OfflineTasks } from "./OfflineTasks";
 import { ItemsTable } from "./ItemsTable";
@@ -91,10 +92,10 @@ function Fields({ item, kind, projectId, plan, t }: { item?: ManualItem; kind: M
   );
 }
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[] }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after, kind: only, quick: quickParam, col } = await searchParams;
+  const { project: chosen, after, kind: only, quick: quickParam, col, task } = await searchParams;
   const quick = parseQuick(quickParam);
   const columns = parseColumns(col);
   const today = new Date().toISOString().slice(0, 10);
@@ -177,9 +178,10 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
             </form>
           )}
           {kind === "risk" && early > 0 && <p className="badge">{t("rewards.earlyCount").replace("{n}", String(early))}</p>}
-          {quick !== "all" && !items.some((i) => i.kind === kind && shown(i)) ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind={kind} t={t} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />}
+          {quick !== "all" && !items.some((i) => i.kind === kind && shown(i)) ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind={kind} t={t} sheetHref={(id) => `${href(quick)}&task=${id}`} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />}
         </section>
       ))}
+      {task && <TaskSheet id={task} closeHref={href(quick)} />}
       <MoreLink path="/app/items" params={{ project: project.id, ...(only ? { kind: only } : {}), ...(quick !== "all" ? { quick } : {}) }} next={next} label={t("paging.more")} />
     </main>
   );

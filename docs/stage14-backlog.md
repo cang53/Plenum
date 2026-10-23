@@ -34,6 +34,7 @@ Page `#f4f5f7` / `#0e1116`, surface `#ffffff` / `#151921`, text `#12161c` / `#ec
 | S14-14 | no | Timeline: critical path | Critical path outline toggle and dependency arrows for the selected task, from the existing schedule logic |
 | S14-15 | no | Items table | Groups by status with counts and collapse, row select, column chooser, quick filter row (All, Mine, At risk, Blocked, Due this week). Target: Items |
 | S14-16 | DB | Task detail | Side sheet and page section: description, checklist (new table), properties column, depends on and blocks, activity history with linked messages and who clicked Apply |
+| S14-16b |  | Task side sheet | Same content as the task page in a side sheet opened from a Board card or an Items row; Escape or Close returns to the list. Split from S14-16. Target: Task detail |
 | S14-17 | DB | Inbox | Two-pane inbox of suggestions: tabs (Needs your click, Mentions, History), keys J K A D H, snooze, History records who did what. Replaces the notifications list. Target: Inbox |
 | S14-18 | no | Site log | Day view with sections: weather, people on site by company (counts), deliveries, notes with photos, day stepper, Submit day that locks. Uses existing data; gaps listed in the PR. Target: Site log |
 | S14-19 | no | Site log on phone | Phone layout with one large Add entry button, offline and waiting-to-send states, bottom tab bar |
