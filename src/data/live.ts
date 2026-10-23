@@ -407,3 +407,12 @@ export async function latestHealthUpdate(client: SupabaseClient, projectId: stri
   const who = data.profiles as unknown as { display_name: string } | null;
   return { health: data.health as HealthUpdate["health"], note: data.note as string, author: who?.display_name ?? "", createdAt: data.created_at as string };
 }
+
+export type TaskActivity = { at: string; who: string | null; action: string; messageId: string | null; subject: string | null };
+
+// A task's history for anyone on its project; the database function hides the audit log's other rows.
+export async function taskActivity(client: SupabaseClient, taskId: string): Promise<TaskActivity[]> {
+  const { data, error } = await client.rpc("task_activity", { p_task: taskId });
+  if (error) throw error;
+  return ((data ?? []) as { at: string; who: string | null; action: string; message_id: string | null; subject: string | null }[]).map((r) => ({ at: r.at, who: r.who, action: r.action, messageId: r.message_id, subject: r.subject }));
+}
