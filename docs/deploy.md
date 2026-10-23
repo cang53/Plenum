@@ -6,7 +6,9 @@
 1. In Vercel, import `cang53/Plenum`. Region and build settings are read from `vercel.json`.
 2. Add the variables below under Settings, Environment Variables (Production and Preview). Mark secrets as Sensitive.
 3. Deploy, then confirm `GET <site>/api/health` returns 200 `{ok:true}`. Set it as the deploy check (Settings, Deployment Checks, or any uptime monitor): it returns only up or down.
-4. Point a hourly scheduler at `POST <site>/api/jobs` with `Authorization: Bearer $JOBS_SECRET` (Vercel Cron only sends GET, so use GitHub Actions schedule or another scheduler).
+4. Background jobs: `.github/workflows/jobs.yml` calls `POST <site>/api/jobs` hourly. Add repository secrets `APP_URL` and `JOBS_SECRET` (same value as in Vercel); until both are set it skips.
+
+Before and after deploying, run `npm run deploy:check` with the production variables set (add the site URL as an argument to also check `/api/health`). It lists every missing or malformed always-needed variable.
 
 CI runs `npm run check:switches` on every pull request, so a misconfigured default fails before deploy. Run it locally with the production values before flipping a switch (see `account-ready.md`).
 

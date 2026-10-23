@@ -1,0 +1,19 @@
+name: Background jobs
+
+# Vercel Cron only sends GET, so this calls POST /api/jobs hourly. It does nothing until both secrets are set.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      APP_URL: ${{ secrets.APP_URL }}
+      JOBS_SECRET: ${{ secrets.JOBS_SECRET }}
+    steps:
+      - name: Call /api/jobs
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$JOBS_SECRET" ]; then echo "APP_URL or JOBS_SECRET not set; skipping"; exit 0; fi
+          curl -fsS -X POST -H "Authorization: Bearer $JOBS_SECRET" "$APP_URL/api/jobs"
