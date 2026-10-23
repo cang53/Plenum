@@ -155,6 +155,8 @@ export const nl: Record<keyof typeof en, string> = {
   "items.group.decision": "Besluiten",
   "items.group.risk": "Risico's",
   "items.empty": "Hier staan nog geen items. Maak hierboven het eerste aan.",
+  "items.filter.label": "Soort item",
+  "items.filter.all": "Alles",
   "items.new": "Nieuw",
   "items.create": "Aanmaken",
   "items.save": "Wijzigingen opslaan",

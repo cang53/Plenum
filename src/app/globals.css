@@ -4,6 +4,7 @@
 @import "./overview.css";
 @import "./board.css";
 @import "./timeline.css";
+@import "./items.css";
 
 * {
   box-sizing: border-box;

@@ -153,6 +153,8 @@ export const en = {
   "items.group.decision": "Decisions",
   "items.group.risk": "Risks",
   "items.empty": "No items here yet. Create the first one above.",
+  "items.filter.label": "Item type",
+  "items.filter.all": "All",
   "items.new": "New",
   "items.create": "Create",
   "items.save": "Save changes",
