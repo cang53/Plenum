@@ -14,6 +14,7 @@ export default async function ImportPage({ searchParams }: { searchParams: Promi
       <p className="eyebrow">{project.name}</p>
       <h1>{t("import.title")}</h1>
       <p className="intro">{t("import.intro")}</p>
+      {role === "project_manager" && <p><a href={`/app/import/resources?project=${project.id}`}>{t("resources.link")}</a></p>}
       {role !== "project_manager" ? <p>{t("settings.managerOnly")}</p> : (
         <ImportForm
           projectId={project.id}

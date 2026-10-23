@@ -19,11 +19,13 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
       <p className="eyebrow">{project.name}</p>
       <h1>{t("audit.title")}</h1>
       <p className="intro">{t("audit.intro")}</p>
-      <p><a href={`/app/audit/csv?project=${project.id}`} download>{t("audit.download")}</a></p>
+      <p><a className="btn btn-secondary" href={`/app/audit/csv?project=${project.id}`} download>{t("audit.download")}</a></p>
       {rows.length === 0 ? (
         <p>{t("audit.empty")}</p>
       ) : (
+        <div className="surface data-table">
         <table>
+          <caption className="sr-only">{t("audit.title")}</caption>
           <thead>
             <tr><th scope="col">{t("audit.when")}</th><th scope="col">{t("audit.action")}</th><th scope="col">{t("audit.item")}</th><th scope="col">{t("audit.who")}</th></tr>
           </thead>
@@ -38,6 +40,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
             ))}
           </tbody>
         </table>
+        </div>
       )}
       <MoreLink path="/app/audit" params={{ project: project.id }} next={next} label={t("paging.more")} />
     </main>

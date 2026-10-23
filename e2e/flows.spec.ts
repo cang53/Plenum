@@ -32,7 +32,7 @@ test("invite someone and change a member's role", async ({ page }) => {
   await admin.from("workspace_members").insert({ workspace_id: workspace, user_id: data.user!.id, kind: "staff" }).throwOnError();
   await admin.from("project_members").insert({ project_id: project, user_id: data.user!.id, role: "member" }).throwOnError();
   await page.goto(`/app/members?project=${project}`);
-  const row = page.getByRole("listitem").filter({ hasText: "E2E member" });
+  const row = page.getByRole("row").filter({ hasText: "E2E member" });
   await row.getByLabel("Role").selectOption("contributor");
   await clickUntil(row.getByRole("button", { name: "Save role" }), async () => {
     const { data: m } = await admin.from("project_members").select("role").eq("user_id", data.user!.id).single();
@@ -57,8 +57,13 @@ test("export the workspace and delete the project", async ({ page }) => {
   const file = await download;
   expect(file.suggestedFilename()).toBe("plenum-export.json");
 
-  await page.getByLabel("Type the project name to confirm:").fill(name);
+  // The delete form waits behind a confirmation dialog (next dev may not have hydrated yet, so open it until it shows).
   await clickUntil(page.getByRole("button", { name: "Delete this project" }), async () => {
+    await expect(page.getByRole("dialog")).toBeVisible({ timeout: 3000 });
+  });
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Type the project name to confirm:").fill(name);
+  await clickUntil(dialog.getByRole("button", { name: "Delete this project" }), async () => {
     const { data } = await admin.from("projects").select("id").eq("id", project);
     expect(data).toHaveLength(0);
   });
