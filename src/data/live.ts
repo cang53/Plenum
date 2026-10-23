@@ -366,3 +366,14 @@ export async function listMilestones(client: SupabaseClient, projectId: string):
   if (error) throw error;
   return ((data ?? []) as { title: string; due_date: string | null; status: string; updated_at: string; site: string | null }[]).map((r) => ({ title: r.title, dueDate: r.due_date, status: r.status, updatedAt: r.updated_at, site: r.site ?? "" }));
 }
+
+export type HealthUpdate = { health: "on_track" | "at_risk" | "off_track"; note: string; author: string; createdAt: string };
+
+// The newest written update; null until a person has posted one.
+export async function latestHealthUpdate(client: SupabaseClient, projectId: string): Promise<HealthUpdate | null> {
+  const { data, error } = await client.from("project_updates").select("health, note, created_at, profiles:author_id(display_name)").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const who = data.profiles as unknown as { display_name: string } | null;
+  return { health: data.health as HealthUpdate["health"], note: data.note as string, author: who?.display_name ?? "", createdAt: data.created_at as string };
+}

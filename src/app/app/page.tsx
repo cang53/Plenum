@@ -1,13 +1,18 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { listBoardTasks, listStreakTasks, listMilestones, listPendingSuggestions, suggestionAccuracy } from "@/data/live";
+import { getBaselineDates, latestHealthUpdate, listBaselines, listBoardTasks, listGanttPlan, listMilestones, listPendingSuggestions, listStreakTasks, suggestionAccuracy } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
-import { summarize } from "@/domain/overview";
+import { slipDays } from "@/domain/gantt";
+import { byPhase, dueThisWeek, summarize } from "@/domain/overview";
 import { celebratedMilestones, challengeMet, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
-import { getT } from "@/lib/locale";
-import { setTeamGoal } from "./actions";
+import { getLocale, getT } from "@/lib/locale";
+import { intlLocale } from "@/lib/messages";
+import { postHealthUpdate, setTeamGoal } from "./actions";
+
+const HEALTH = ["on_track", "at_risk", "off_track"] as const;
+const HEALTH_CLASS = { on_track: "st-ok", at_risk: "st-warn", off_track: "st-bad" } as const;
 
 // Project overview: one card per project, what needs attention, and the way into AI review. Aggregate only.
 export default async function AppHome({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
@@ -26,8 +31,23 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   }
   const current = currentProject(projects, (await searchParams).project)!;
   const today = new Date().toISOString().slice(0, 10);
-  const pulses = await Promise.all(projects.map(async (p) => ({ project: p, pulse: summarize(await listBoardTasks(supabase, p.id), today) })));
-  const attention = pulses.find((x) => x.project.id === current.id)!.pulse.attention;
+  const locale = intlLocale[await getLocale()];
+  const day = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
+  const fmt = (iso: string) => day.format(new Date(iso));
+  const tasks = await listBoardTasks(supabase, current.id);
+  const pulse = summarize(tasks, today);
+  const attention = pulse.attention;
+  const week = dueThisWeek(tasks, today);
+  const [update, plan, baselines, { data: role }] = await Promise.all([
+    latestHealthUpdate(supabase, current.id),
+    listGanttPlan(supabase, current.id),
+    listBaselines(supabase, current.id),
+    supabase.rpc("can_manage_project", { p: current.id }),
+  ]);
+  const baseline = baselines[0] ? await getBaselineDates(supabase, baselines[0].id) : null;
+  const slip = baseline ? Math.max(0, ...slipDays(plan.tasks, baseline).values()) : null;
+  const blocked = pulse.counts.blocked;
+  const milestones = (await listMilestones(supabase, current.id)).sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"));
   const suggestions = (await listPendingSuggestions(supabase, current.id)).length;
   const accuracy = await suggestionAccuracy(supabase, current.id);
   const [{ tasks: streakTasks, sites }, { data: switches }] = await Promise.all([
@@ -52,23 +72,91 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? (streakTasks.length ? streakWeeks(streakTasks, today) : 0) : null;
   return (
     <main id="main" className="page overview">
-      <h1>{t("overview.title")}</h1>
-      <p className="intro">{t("overview.intro")}</p>
-      <ul className="overview-cards">
-        {pulses.map(({ project, pulse }) => (
-          <li key={project.id} className="surface overview-card" aria-current={project.id === current.id ? "true" : undefined}>
-            <svg className="pulse-ring" viewBox="0 0 100 100" role="img" aria-label={`${pulse.percentDone}% ${t("overview.done")}`}>
-              <circle cx="50" cy="50" r="42" pathLength="100" />
-              <circle cx="50" cy="50" r="42" pathLength="100" strokeDasharray={`${pulse.percentDone} 100`} />
-            </svg>
-            <div>
-              <h2>{project.name}</h2>
-              <p className="meta">{pulse.percentDone}% {t("overview.done")} · {pulse.total} {t("overview.tasks")}</p>
-              <a className="btn btn-secondary" href={`/app/board?project=${project.id}`}>{t("overview.open")}</a>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <header className="ov-head">
+        <div>
+          <h1>{current.name}</h1>
+          <p className="sub">{t("overview.title")} · {t("overview.intro")}</p>
+        </div>
+        <span className={`st ${update ? HEALTH_CLASS[update.health] : "st-todo"}`}>{update ? t(`overview.health.${update.health}`) : t("overview.health.none")}</span>
+        {suggestions > 0 && <a className="btn btn-primary" href={`/app/timeline?project=${current.id}`}>{t("overview.review").replace("{n}", String(suggestions))}</a>}
+      </header>
+      {update && (
+        <p className="ov-update">
+          <strong>{t("overview.update.by").replace("{name}", update.author).replace("{date}", fmt(update.createdAt))}</strong> · {update.note}
+        </p>
+      )}
+      {role && (
+        <details className="ov-write">
+          <summary className="btn">{t("overview.update.write")}</summary>
+          <form action={postHealthUpdate}>
+            <input type="hidden" name="projectId" value={current.id} />
+            <label><span className="field-label">{t("overview.update.health")}</span>
+              <select className="field" name="health" defaultValue={update?.health ?? "on_track"}>
+                {HEALTH.map((h) => <option key={h} value={h}>{t(`overview.health.${h}`)}</option>)}
+              </select>
+            </label>
+            <label><span className="field-label">{t("overview.update.note")}</span>
+              <textarea className="field" name="note" required maxLength={1000} rows={3} />
+            </label>
+            <button className="btn btn-primary" type="submit">{t("overview.update.post")}</button>
+          </form>
+        </details>
+      )}
+      <div className="ov-figs">
+        <div>
+          <span className="sub">{t("overview.progress")}</span>
+          <span className="v">{pulse.percentDone}%</span>
+          <progress value={pulse.percentDone} max={100} aria-label={t("overview.progress")} />
+          <span className="sub">{t("overview.progressOf").replace("{done}", String(pulse.counts.done)).replace("{total}", String(pulse.total))}</span>
+        </div>
+        <div>
+          <span className="sub">{t("overview.dueWeek")}</span>
+          <span className="v">{week.due}</span>
+          {week.atRisk > 0 && <span className="st st-warn">{t("overview.atRisk").replace("{n}", String(week.atRisk))}</span>}
+        </div>
+        <div>
+          <span className="sub">{t("overview.blockedFig")}</span>
+          <span className="v">{blocked}</span>
+        </div>
+        <div>
+          <span className="sub">{t("overview.scheduleFig")}</span>
+          <span className="v">{slip ? `+${slip} d` : slip === 0 ? t("overview.onPlan") : "–"}</span>
+          <span className="sub">{baselines[0] ? t("overview.vsBaseline").replace("{date}", fmt(baselines[0].savedAt)) : t("overview.noBaseline")}</span>
+        </div>
+      </div>
+      <div className="ov-two">
+        <section aria-labelledby="phases">
+          <h2 id="phases" className="k">{t("overview.phases")}</h2>
+          <ul className="ov-list">
+            {byPhase(tasks).map((p) => (
+              <li key={p.phase ?? ""}>
+                <span>{p.phase ?? t("overview.noPhase")}</span>
+                <span className="sub">{t("overview.phaseOf").replace("{done}", String(p.done)).replace("{total}", String(p.total))}</span>
+                <div className="stack" role="img" aria-label={t("overview.phaseOf").replace("{done}", String(p.done)).replace("{total}", String(p.total))}>
+                  <i style={{ width: `${(p.done / p.total) * 100}%`, background: "var(--primary)" }} />
+                  <i style={{ width: `${(p.blocked / p.total) * 100}%`, background: "var(--warning)" }} />
+                  <i style={{ width: `${(p.active / p.total) * 100}%`, background: "var(--text-muted)" }} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section aria-labelledby="miles">
+          <h2 id="miles" className="k">{t("overview.milestones")}</h2>
+          {milestones.length === 0 ? <p className="meta">{t("overview.milestonesNone")}</p> : (
+            <ul className="ov-list">
+              {milestones.map((m, i) => (
+                <li key={i}>
+                  <span>{m.title}</span>
+                  <span className={`st ${m.status === "done" ? "st-ok" : "st-todo"}`}>
+                    {m.status === "done" ? t("overview.doneOn").replace("{date}", fmt(m.updatedAt)) : m.dueDate ? fmt(m.dueDate) : "–"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
       {cheers.length > 0 && (
         <section className="surface overview-panel" aria-labelledby="cheer">
           <h2 id="cheer"><span aria-hidden="true">🎉</span> {t("cheer.title")}</h2>
@@ -149,7 +237,6 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
           <h2 id="ai">{t("overview.ai")} ({suggestions})</h2>
           <p className="meta">{t("overview.aiBody")}</p>
           <p className="meta">{t("overview.aiCounts").replace("{accepted}", String(accuracy.accepted)).replace("{dismissed}", String(accuracy.dismissed))}</p>
-          <a className="btn btn-primary" href={`/app/timeline?project=${current.id}`}>{t("overview.aiLink")}</a>
         </section>
       )}
     </main>

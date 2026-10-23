@@ -13,3 +13,14 @@ export async function setTeamGoal(form: FormData): Promise<void> {
   });
   revalidatePath("/app");
 }
+
+// Row-level rules let only a project manager write; the author is the signed-in person.
+export async function postHealthUpdate(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  await supabase.from("project_updates").insert({
+    project_id: String(form.get("projectId")),
+    health: String(form.get("health")),
+    note: String(form.get("note")).trim(),
+  });
+  revalidatePath("/app");
+}
