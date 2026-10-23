@@ -46,6 +46,8 @@ for (const mode of modes) {
     test(`no axe violations on ${path} in ${mode.name}`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: mode.scheme, contrast: "contrast" in mode ? mode.contrast : "no-preference", reducedMotion: "reducedMotion" in mode ? mode.reducedMotion : "no-preference" });
       await page.goto(path);
+      // Colours transition when the theme flips; axe must read the settled values, not a frame in between.
+      await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important; }" });
       await page.evaluate((dark) => document.documentElement.setAttribute("data-theme", dark ? "dark" : "light"), mode.scheme === "dark");
       const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
       expect(violations.map((v) => `${v.id}: ${v.nodes[0]?.target}`)).toEqual([]);
