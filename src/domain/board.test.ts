@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { buildColumns, distinct, moveTask, type BoardTask } from "./board";
 
 const tasks: BoardTask[] = [
-  { id: "1", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", priority: "normal", position: 0 },
-  { id: "2", title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta", dueDate: "2026-11-28", priority: "normal", position: 0 },
-  { id: "3", title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin", dueDate: "2026-11-07", priority: "normal", position: 1 },
-  { id: "4", title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas", dueDate: "2026-12-05", priority: "normal", position: 0 },
+  { id: "1", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", priority: "normal", position: 0, site: "Yard" },
+  { id: "2", title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta", dueDate: "2026-11-28", priority: "normal", position: 0, site: null },
+  { id: "3", title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin", dueDate: "2026-11-07", priority: "normal", position: 1, site: null },
+  { id: "4", title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas", dueDate: "2026-12-05", priority: "normal", position: 0, site: null },
 ];
 
 describe("buildColumns", () => {
@@ -21,6 +21,13 @@ describe("buildColumns", () => {
   it("filters by phase and owner", () => {
     const columns = buildColumns(tasks, { phase: "Site works", owner: "Jonas" });
     expect(columns.flatMap((c) => c.tasks).map((t) => t.id)).toEqual(["4", "1"]);
+  });
+});
+
+describe("site filter", () => {
+  it("shows only the tasks at the chosen site", () => {
+    const columns = buildColumns(tasks, { site: "Yard" });
+    expect(columns.flatMap((c) => c.tasks).map((t) => t.id)).toEqual(["1"]);
   });
 });
 
