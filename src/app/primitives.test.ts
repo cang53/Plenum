@@ -6,9 +6,13 @@ const tokens = readFileSync(new URL("./tokens.css", import.meta.url), "utf8");
 
 describe("primitives.css", () => {
   it("defines every primitive", () => {
-    for (const name of [".glass", ".surface", ".btn-primary", ".btn-secondary", ".btn-plain", ".field", ".badge", ".segmented", ".dialog"]) {
+    for (const name of [".surface", ".btn-primary", ".btn-secondary", ".btn-plain", ".field", ".badge", ".segmented", ".dialog", ".chip", ".st", ".av", ".kbd", ".tabs", ".filt", ".menu"]) {
       expect(css).toContain(`${name} {`);
     }
+  });
+
+  it("is flat: no blur, gradients or glass shadows", () => {
+    expect(css).not.toMatch(/backdrop-filter|gradient\(|--glass/);
   });
 
   it("uses tokens only, no raw colors", () => {

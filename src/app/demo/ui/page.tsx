@@ -43,9 +43,33 @@ function Kit({ locale }: { locale: Locale }) {
         <button aria-pressed="false">{l("ui.segmented.items")}</button>
       </div>
 
-      <div className="glass" style={{ padding: "var(--s5)" }}>
-        <strong>{l("ui.glass.title")}</strong>
-        <p style={{ margin: "var(--s1) 0 0", color: "var(--text-secondary)" }}>{l("ui.glass.body")}</p>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--s4)" }}>
+        <span className="chip">{l("ui.chip.phase")}</span>
+        <span className="st st-go">{l("ui.status.go")}</span>
+        <span className="st st-ok">{l("ui.status.ok")}</span>
+        <span className="st st-warn">{l("ui.status.warn")}</span>
+        <span className="st st-bad">{l("ui.status.bad")}</span>
+        <span className="st st-todo">{l("ui.status.todo")}</span>
+        <span className="av" role="img" aria-label={l("ui.avatar.label")}>JW</span>
+        <span>{l("ui.key.label")} <kbd className="kbd">C</kbd></span>
+      </div>
+
+      <div className="tabs" role="group" aria-label={l("ui.tabs.label")}>
+        <button aria-pressed="true">{l("ui.tabs.messages")}</button>
+        <button aria-pressed="false">{l("ui.tabs.files")}</button>
+        <button aria-pressed="false">{l("ui.tabs.decisions")}</button>
+      </div>
+
+      <div className="filt" role="group" aria-label={l("ui.filter.label")}>
+        <button aria-pressed="true">{l("ui.filter.all")}</button>
+        <button aria-pressed="false">{l("ui.filter.mine")}</button>
+        <button aria-pressed="false">{l("ui.filter.blocked")}</button>
+      </div>
+
+      <div className="menu" role="menu" aria-label={l("ui.menu.label")} style={{ justifySelf: "start" }}>
+        <button role="menuitem" aria-current="true">{l("ui.menu.edit")}</button>
+        <button role="menuitem">{l("ui.menu.link")}</button>
+        <button role="menuitem">{l("ui.menu.delete")}</button>
       </div>
 
       {/* Open dialog shown inline so every state is visible without script. */}
