@@ -43,7 +43,7 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
       {sp.done && <p role="status" className="badge badge-success">{t("timesheets.done")}</p>}
       {counts && counts.members > 0 && <p className="ts-count">{t("timesheets.counts").replace("{done}", String(counts.submitted)).replace("{total}", String(counts.members))}</p>}
       {role && (
-        <form action={submitWeek} className="ts-bar">
+        <form action={submitWeek} className="sl-bar">
           <input type="hidden" name="projectId" value={project.id} />
           <button type="submit" className="btn btn-primary">{t("timesheets.submit")}</button>
         </form>
@@ -51,7 +51,7 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
       {weeks.length === 0 ? <p>{t("timesheets.empty")}</p> : (
         <>
           {manager && (
-            <form id="bulk" action={approveWeeks} className="ts-bar">
+            <form id="bulk" action={approveWeeks} className="sl-bar">
               <input type="hidden" name="projectId" value={project.id} />
               <button type="submit" className="btn btn-primary" disabled={pending === 0}>{t("timesheets.approveSelected")}</button>
             </form>
@@ -104,7 +104,7 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
               <input type="hidden" name="week" value={review.week_start} />
               <label><span className="field-label">{t("timesheets.note")}</span><input className="field" name="note" maxLength={500} /></label>
               <p className="hint">{t("timesheets.noteHint")}</p>
-              <p className="ts-bar">
+              <p className="sl-bar">
                 <button type="submit" name="decision" value="approved" className="btn btn-primary">{t("timesheets.approve")}</button>
                 <button type="submit" name="decision" value="sent_back" className="btn">{t("timesheets.sendBack")}</button>
                 <a href={base}>{t("timesheets.close")}</a>
