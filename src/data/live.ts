@@ -221,6 +221,22 @@ export async function listGanttPlan(client: SupabaseClient, projectId: string) {
   };
 }
 
+// The latest saved baseline: dates per task id, or null when none was saved yet.
+export async function getLatestBaseline(client: SupabaseClient, projectId: string): Promise<{ savedAt: string; tasks: Record<string, { startDate: string; dueDate: string }> } | null> {
+  const { data: b, error } = await client.from("baselines").select("id, created_at").eq("project_id", projectId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (error) throw error;
+  if (!b) return null;
+  const { data, error: e2 } = await client.from("baseline_tasks").select("task_id, start_date, due_date").eq("baseline_id", b.id);
+  if (e2) throw e2;
+  return { savedAt: b.created_at as string, tasks: Object.fromEntries((data ?? []).map((r) => [r.task_id as string, { startDate: r.start_date as string, dueDate: r.due_date as string }])) };
+}
+
+// Manager only; the database copies the current task dates and logs the save.
+export async function saveBaseline(client: SupabaseClient, projectId: string): Promise<void> {
+  const { error } = await client.rpc("save_baseline", { p_project: projectId });
+  if (error) throw error;
+}
+
 // The database checks start <= due and logs the change.
 export async function setTaskDates(client: SupabaseClient, taskId: string, startDate: string, dueDate: string): Promise<void> {
   const { data, error } = await client.from("tasks").update({ start_date: startDate, due_date: dueDate }).eq("id", taskId).select("id");

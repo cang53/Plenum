@@ -1,21 +1,23 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { buildBars, criticalPath, dayOf, shiftDates, type GanttTask } from "@/domain/gantt";
+import { buildBars, criticalPath, dayOf, shiftDates, slipDays, type BaselineDates, type GanttTask } from "@/domain/gantt";
 import { findConflicts, type Dependency } from "@/domain/schedule";
 
 const DAY_PX = 28;
 const ROW_PX = 40;
 
-type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string };
+type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string };
 
-export function Gantt({ tasks: initial, dependencies, onSave, labels }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; labels: Labels }) {
+export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, onBaseline, labels }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; onBaseline?: () => Promise<void>; labels: Labels }) {
   const [tasks, setTasks] = useState(initial);
   const [error, setError] = useState(false);
+  const [saved, setSaved] = useState(false);
   const drag = useRef<{ id: string; x: number; days: number } | null>(null);
   const { bars, firstDay, totalDays } = useMemo(() => buildBars(tasks), [tasks]);
   const critical = useMemo(() => criticalPath(tasks, dependencies), [tasks, dependencies]);
   const late = useMemo(() => new Set(findConflicts(tasks, dependencies).map((c) => c.successor.id)), [tasks, dependencies]);
+  const slip = useMemo(() => (baseline ? slipDays(tasks, baseline) : new Map<string, number>()), [tasks, baseline]);
   if (!bars.length) return <p className="intro">{labels.empty}</p>;
 
   const move = async (id: string, days: number) => {
@@ -32,12 +34,25 @@ export function Gantt({ tasks: initial, dependencies, onSave, labels }: { tasks:
     }
   };
 
+  const saveBase = async () => {
+    setError(false);
+    try {
+      await onBaseline!();
+      setSaved(true);
+    } catch {
+      setError(true);
+    }
+  };
+
   const row = new Map(bars.map((b, i) => [b.id, i]));
   const today = dayOf(new Date().toISOString().slice(0, 10)) - firstDay;
   const width = totalDays * DAY_PX;
   return (
     <section className="gantt" aria-label={labels.chart}>
       <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
+      {onBaseline && <button type="button" className="btn gantt-print" onClick={saveBase}>{labels.saveBaseline}</button>}
+      {saved && <p role="status">{labels.baselineSaved}</p>}
+      {baseline ? <p>{labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p className="intro">{labels.baselineNone}</p>}
       {error && <p role="alert">{labels.saveError}</p>}
       <div className="gantt-scroll surface">
         <div className="gantt-plot" style={{ width, height: bars.length * ROW_PX }}>
@@ -54,6 +69,10 @@ export function Gantt({ tasks: initial, dependencies, onSave, labels }: { tasks:
               return <path key={`${d.predecessorId}-${d.successorId}`} d={`M${x1} ${y1} H${x1 + 6} V${y2} H${x2}`} data-critical={critical.has(d.predecessorId) && critical.has(d.successorId)} />;
             })}
           </svg>
+          {bars.map((b) => baseline?.[b.id] && (
+            // shortcut: a baseline that starts before the first current task is clipped at the left edge, redraw the grid if that matters
+            <div key={`base-${b.id}`} className="gantt-baseline" aria-hidden="true" style={{ insetInlineStart: Math.max(0, dayOf(baseline[b.id].startDate) - firstDay) * DAY_PX, width: (dayOf(baseline[b.id].dueDate) - dayOf(baseline[b.id].startDate) + 1) * DAY_PX, top: row.get(b.id)! * ROW_PX + 32 }} />
+          ))}
           {bars.map((b, i) => (
             <button
               key={b.id}
@@ -62,7 +81,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, labels }: { tasks:
               data-critical={critical.has(b.id)}
               data-late={late.has(b.id)}
               style={{ insetInlineStart: b.startDay * DAY_PX, width: b.length * DAY_PX, top: i * ROW_PX + 6 }}
-              aria-label={labels.bar.replace("{title}", b.title).replace("{start}", b.start).replace("{due}", b.due) + (critical.has(b.id) ? `. ${labels.critical}` : "") + (late.has(b.id) ? `. ${labels.conflict}` : "")}
+              aria-label={labels.bar.replace("{title}", b.title).replace("{start}", b.start).replace("{due}", b.due) + (critical.has(b.id) ? `. ${labels.critical}` : "") + (late.has(b.id) ? `. ${labels.conflict}` : "") + (slip.get(b.id) ? `. ${labels.slip.replace("{days}", String(slip.get(b.id)))}` : "")}
               onKeyDown={(e) => {
                 if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); void move(b.id, e.key === "ArrowLeft" ? -1 : 1); }
               }}

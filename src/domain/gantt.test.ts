@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBars, criticalPath, shiftDates } from "./gantt";
+import { buildBars, criticalPath, shiftDates, slipDays } from "./gantt";
 
 const task = (id: string, startDate: string | null, dueDate: string | null) => ({ id, title: id, startDate, dueDate, phase: null });
 
@@ -34,5 +34,13 @@ describe("criticalPath", () => {
   });
   it("survives a loop", () => {
     expect(() => criticalPath(tasks, [...deps, { predecessorId: "d", successorId: "a" }])).not.toThrow();
+  });
+});
+
+describe("slipDays", () => {
+  it("counts days the due date moved and skips tasks without a baseline or a date", () => {
+    const base = { a: { startDate: "2026-11-01", dueDate: "2026-11-05" }, c: { startDate: "2026-11-01", dueDate: "2026-11-05" } };
+    const slip = slipDays([task("a", "2026-11-02", "2026-11-08"), task("b", "2026-11-01", "2026-11-02"), task("c", null, null)], base);
+    expect([...slip]).toEqual([["a", 3]]);
   });
 });
