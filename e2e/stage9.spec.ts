@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { admin, clickUntil, createManager, signIn } from "./helpers";
 
 const run = `s${Date.now().toString(36)}`;
@@ -7,15 +7,20 @@ let project: string;
 
 test.describe.configure({ mode: "serial" });
 
-test.beforeAll(async () => {
-  ({ project } = await createManager(run, email, `E2E stage 9 ${run}`));
-});
+let page: Page;
 
-test.beforeEach(async ({ page }) => {
+// One sign-in for the whole file: sign-in emails are rate limited per address.
+test.beforeAll(async ({ browser }) => {
+  ({ project } = await createManager(run, email, `E2E stage 9 ${run}`));
+  page = await browser.newPage();
   await signIn(page, email);
 });
 
-test("save a daily site log", async ({ page }) => {
+test.afterAll(async () => {
+  await page.close();
+});
+
+test("save a daily site log", async () => {
   await page.goto(`/app/sitelog?project=${project}`);
   await page.getByLabel("Site", { exact: true }).fill("North yard");
   await page.getByLabel("Date", { exact: true }).fill("2026-10-20");
@@ -26,7 +31,7 @@ test("save a daily site log", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "North yard · 2026-10-20" })).toBeVisible();
 });
 
-test("add a risk and an issue", async ({ page }) => {
+test("add a risk and an issue", async () => {
   await page.goto(`/app/items?project=${project}&kind=risk`);
   const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Risks and issues" }) });
   for (const [kind, title] of [["risk", `Crane delay ${run}`], ["issue", `Leaking roof ${run}`]]) {
@@ -40,7 +45,7 @@ test("add a risk and an issue", async ({ page }) => {
   }
 });
 
-test("save a baseline and compare the Gantt against it", async ({ page }) => {
+test("save a baseline and compare the Gantt against it", async () => {
   await admin.from("tasks").insert({ project_id: project, title: "Pour slab", start_date: "2026-10-20", due_date: "2026-10-24" }).throwOnError();
   await page.goto(`/app/gantt?project=${project}`);
   await page.getByLabel("Baseline name").fill("Kick-off plan");
@@ -51,7 +56,7 @@ test("save a baseline and compare the Gantt against it", async ({ page }) => {
   await expect(page.getByText("0 tasks finish later than the baseline.")).toBeVisible();
 });
 
-test("tag an attachment as a document with a revision", async ({ page }) => {
+test("tag an attachment as a document with a revision", async () => {
   const { data: message } = await admin.from("messages")
     .insert({ project_id: project, external_id: `<e2e-${run}@plenum.local>`, from_address: "aylin@supplier.example", subject: `Cabinet drawings ${run}`, body_text: "Drawings attached." })
     .select("id").single().throwOnError();
