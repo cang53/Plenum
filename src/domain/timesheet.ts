@@ -1,4 +1,5 @@
 import type { Checked } from "./settings";
+import { cell } from "./audit";
 
 export type HoursInput = { taskId: string; date: string; hours: number };
 
@@ -40,4 +41,13 @@ export function checkDecision(form: { get(k: string): unknown }): { week: string
   const decision = form.get("decision");
   if (weekStart(week) !== week || (decision !== "approved" && decision !== "sent_back")) return null;
   return { week, user: String(form.get("user") ?? ""), decision, note: String(form.get("note") ?? "").trim().slice(0, 500) };
+}
+
+export type ExportRow = { person: string; task: string; work_date: string; hours: number };
+
+// Same quoting as the audit export, so a name starting with = cannot run as a formula.
+export function timesheetCsv(rows: ExportRow[]): string {
+  const lines = [["person", "task", "date", "hours"].map((c) => cell(c)).join(",")];
+  for (const r of rows) lines.push([r.person, r.task, r.work_date, String(r.hours)].map(cell).join(","));
+  return lines.join("\r\n") + "\r\n";
 }

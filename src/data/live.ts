@@ -333,3 +333,10 @@ export async function submitTimesheetWeek(client: SupabaseClient, projectId: str
   if (error && error.code !== "23505") throw error;
   if (error) await setTimesheetWeek(client, projectId, userId, week, { status: "submitted" });
 }
+
+// Approved weeks only; the database refuses anyone but a project manager.
+export async function exportTimesheet(client: SupabaseClient, projectId: string, from: string, to: string): Promise<{ person: string; task: string; work_date: string; hours: number }[]> {
+  const { data, error } = await client.rpc("timesheet_export", { p: projectId, d_from: from, d_to: to });
+  if (error) throw error;
+  return (data ?? []).map((r: { hours: string | number }) => ({ ...r, hours: Number(r.hours) }));
+}
