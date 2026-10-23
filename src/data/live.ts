@@ -48,6 +48,19 @@ export async function listBoardTasks(client: SupabaseClient, projectId: string):
   return ((data ?? []) as unknown as TaskRow[]).map(taskFromRow);
 }
 
+// Adds a task in a column; row-level security decides who may.
+export async function addBoardTask(client: SupabaseClient, projectId: string, title: string, status: string): Promise<BoardTask> {
+  if (!STATUSES.includes(status as TaskStatus)) throw new Error("unknown status");
+  if (!title.trim()) throw new Error("title is required");
+  const { data, error } = await client
+    .from("tasks")
+    .insert({ project_id: projectId, title: title.trim(), status })
+    .select("id, title, status, due_date, priority, position, site, phases(name), profiles:owner_id(display_name)")
+    .single();
+  if (error) throw error;
+  return taskFromRow(data as unknown as TaskRow);
+}
+
 // The database trigger writes the audit entry for the change.
 export async function setTaskStatus(client: SupabaseClient, taskId: string, status: string): Promise<void> {
   if (!STATUSES.includes(status as TaskStatus)) throw new Error("unknown status");
