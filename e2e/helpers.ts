@@ -41,7 +41,7 @@ export async function createManager(run: string, email: string, projectName: str
   const user = data.user.id;
   await admin.from("profiles").insert({ id: user, display_name: "E2E manager", email }).throwOnError();
   const { data: ws } = await admin.from("workspaces").insert({ name: `E2E ${run}` }).select("id").single().throwOnError();
-  await admin.from("workspace_members").insert({ workspace_id: ws!.id, user_id: user, kind: "staff", is_admin: true }).throwOnError();
+  await admin.from("workspace_members").insert({ workspace_id: ws!.id, user_id: user, kind: "staff", role: "admin" }).throwOnError();
   // created_by makes the person the project manager (database trigger).
   const { data: project } = await admin.from("projects").insert({ workspace_id: ws!.id, name: projectName, email_slug: `e2e-${run}`, created_by: user }).select("id").single().throwOnError();
   return { user, workspace: ws!.id, project: project!.id };

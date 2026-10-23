@@ -17,7 +17,7 @@ ok(await admin.from("profiles").upsert({ id: user, display_name: "Demo manager",
 let ws = ok(await admin.from("workspace_members").select("workspace_id").eq("user_id", user).limit(1))[0]?.workspace_id;
 if (!ws) {
   ws = ok(await admin.from("workspaces").insert({ name: "Demo workspace" }).select("id").single()).id;
-  ok(await admin.from("workspace_members").insert({ workspace_id: ws, user_id: user, kind: "staff", is_admin: true }));
+  ok(await admin.from("workspace_members").insert({ workspace_id: ws, user_id: user, kind: "staff", role: "admin" }));
 }
 const projects = ok(await admin.from("projects").select("id").eq("workspace_id", ws).limit(1));
 if (projects.length === 0) ok(await admin.rpc("seed_demo_project", { ws, manager: user }));

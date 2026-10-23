@@ -30,9 +30,9 @@ insert into public.profiles (id, display_name, email) values
   ('00000000-0000-0000-0000-0000000d0002', 'Drill B', 'drill-b@example.test') on conflict do nothing;
 insert into public.workspaces (id, name) values
   ('10000000-0000-0000-0000-0000000d0001', 'Drill one'), ('10000000-0000-0000-0000-0000000d0002', 'Drill two') on conflict do nothing;
-insert into public.workspace_members (workspace_id, user_id, kind, is_admin) values
-  ('10000000-0000-0000-0000-0000000d0001', '00000000-0000-0000-0000-0000000d0001', 'staff', true),
-  ('10000000-0000-0000-0000-0000000d0002', '00000000-0000-0000-0000-0000000d0002', 'staff', true) on conflict do nothing;
+insert into public.workspace_members (workspace_id, user_id, kind, role) values
+  ('10000000-0000-0000-0000-0000000d0001', '00000000-0000-0000-0000-0000000d0001', 'staff', 'admin'),
+  ('10000000-0000-0000-0000-0000000d0002', '00000000-0000-0000-0000-0000000d0002', 'staff', 'admin') on conflict do nothing;
 insert into public.projects (id, workspace_id, name, email_slug, created_by) values
   ('20000000-0000-0000-0000-0000000d0001', '10000000-0000-0000-0000-0000000d0001', 'Drill project', 'drill-project', '00000000-0000-0000-0000-0000000d0001') on conflict do nothing;
 SQL
@@ -59,7 +59,12 @@ echo "Backed up $(wc -c < "$dump") bytes"
 sql -c "drop schema public cascade"
 [ "$(sql -c "select count(*) from information_schema.tables where table_schema = 'public'")" = 0 ] || { echo "Wipe failed" >&2; exit 1; }
 
-docker exec -i "$C" pg_restore -U supabase_admin -d postgres --exit-on-error < "$dump"
+# pg_trgm lives in public and is not in the dump, so recreate it between the schema and its indexes.
+restore() { docker exec -i "$C" pg_restore -U supabase_admin -d postgres --exit-on-error "$@" < "$dump"; }
+restore --section=pre-data
+sql -c "create extension if not exists pg_trgm with schema public"
+restore --section=data
+restore --section=post-data
 
 after="$(snapshot)"
 if [ "$before" != "$after" ]; then

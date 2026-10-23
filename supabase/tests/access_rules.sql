@@ -16,12 +16,12 @@ insert into public.profiles (id, display_name, email) values
   ('00000000-0000-0000-0000-00000000000d', 'Cy', 'cy@partner.example'),
   ('00000000-0000-0000-0000-00000000000e', 'Eve', 'eve@example.com');
 insert into public.workspaces (id, name) values ('10000000-0000-0000-0000-000000000001', 'Example Industrial Group');
-insert into public.workspace_members (workspace_id, user_id, kind, is_admin) values
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 'staff', true),
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b', 'staff', false),
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000c', 'staff', false),
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000d', 'contributor', false),
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000e', 'staff', false);
+insert into public.workspace_members (workspace_id, user_id, kind, role) values
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 'staff', 'admin'),
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b', 'staff', 'member'),
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000c', 'staff', 'member'),
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000d', 'contributor', 'member'),
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000e', 'staff', 'member');
 
 -- A second workspace with a project of its own, which nobody above may touch.
 insert into auth.users (id) values ('00000000-0000-0000-0000-0000000000ff');
