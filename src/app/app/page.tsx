@@ -74,8 +74,8 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     <main id="main" className="page overview">
       <header className="ov-head">
         <div>
-          <h1>{current.name}</h1>
-          <p className="sub">{t("overview.title")} · {t("overview.intro")}</p>
+          <h1>{t("overview.title")}</h1>
+          <p className="sub">{current.name} · {t("overview.intro")}</p>
         </div>
         <span className={`st ${update ? HEALTH_CLASS[update.health] : "st-todo"}`}>{update ? t(`overview.health.${update.health}`) : t("overview.health.none")}</span>
         {suggestions > 0 && <a className="btn btn-primary" href={`/app/timeline?project=${current.id}`}>{t("overview.review").replace("{n}", String(suggestions))}</a>}
