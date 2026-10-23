@@ -30,9 +30,9 @@ insert into public.profiles (id, display_name, email) values
   ('00000000-0000-0000-0000-0000000d0002', 'Drill B', 'drill-b@example.test') on conflict do nothing;
 insert into public.workspaces (id, name) values
   ('10000000-0000-0000-0000-0000000d0001', 'Drill one'), ('10000000-0000-0000-0000-0000000d0002', 'Drill two') on conflict do nothing;
-insert into public.workspace_members (workspace_id, user_id, kind, is_admin) values
-  ('10000000-0000-0000-0000-0000000d0001', '00000000-0000-0000-0000-0000000d0001', 'staff', true),
-  ('10000000-0000-0000-0000-0000000d0002', '00000000-0000-0000-0000-0000000d0002', 'staff', true) on conflict do nothing;
+insert into public.workspace_members (workspace_id, user_id, kind, role) values
+  ('10000000-0000-0000-0000-0000000d0001', '00000000-0000-0000-0000-0000000d0001', 'staff', 'admin'),
+  ('10000000-0000-0000-0000-0000000d0002', '00000000-0000-0000-0000-0000000d0002', 'staff', 'admin') on conflict do nothing;
 insert into public.projects (id, workspace_id, name, email_slug, created_by) values
   ('20000000-0000-0000-0000-0000000d0001', '10000000-0000-0000-0000-0000000d0001', 'Drill project', 'drill-project', '00000000-0000-0000-0000-0000000d0001') on conflict do nothing;
 SQL
