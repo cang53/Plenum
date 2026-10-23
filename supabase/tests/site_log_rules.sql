@@ -86,3 +86,17 @@ begin
     end;
   end if;
 end $$;
+
+-- Weekly report carries one site line with totals only (S10-3).
+reset role;
+delete from public.status_reports where project_id = '20000000-0000-0000-0000-000000000001';
+insert into public.site_logs (project_id, site, log_date, headcount, delays) values
+  ('20000000-0000-0000-0000-000000000001', 'Hall 9', current_date, 10, 'Rain'),
+  ('20000000-0000-0000-0000-000000000001', 'Hall 9', current_date - 1, 6, ''),
+  ('20000000-0000-0000-0000-000000000001', 'Hall 9', current_date - 30, 99, '');
+select public.draft_status_reports();
+do $$
+begin
+  if not exists (select 1 from public.status_reports where project_id = '20000000-0000-0000-0000-000000000001'
+    and body_text like '%Site Hall 9: 2 days logged, 16 headcount-days, 1 delay days%') then raise exception 'site line missing or wrong'; end if;
+end $$;
