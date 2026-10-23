@@ -61,3 +61,36 @@ describe("fallbacks", () => {
     expect(css).toContain("@supports not (backdrop-filter");
   });
 });
+
+// Glass is translucent, so text is checked on the fill blended over the worst-case ambient
+// colour (the end of the ambient gradient that is furthest from the text colour).
+const rgba = (v: string): [number, number, number, number] => {
+  const h = v.replace("#", "");
+  const n = (i: number) => parseInt(h.slice(i, i + 2), 16);
+  return [n(0), n(2), n(4), h.length === 8 ? n(6) / 255 : 1];
+};
+const over = (top: string, bottom: string) => {
+  const [r, g, b, a] = rgba(top);
+  const base = rgba(bottom);
+  return "#" + [r, g, b].map((c, i) => Math.round(c * a + base[i] * (1 - a)).toString(16).padStart(2, "0")).join("");
+};
+const rawVars = (selector: string) => {
+  const start = css.indexOf(`${selector} {`);
+  const body = css.slice(start, css.indexOf("\n}", start));
+  return Object.fromEntries([...body.matchAll(/^\s*(--[\w-]+):\s*(#[0-9a-f]{6,8})\s*;/gim)].map((m) => [m[1], m[2]]));
+};
+const lightRaw = rawVars(":root");
+const darkRaw = { ...lightRaw, ...rawVars('[data-theme="dark"]') };
+const ambient = { light: ["#e2eae4", "#edf1e9", "#e1ebe7", "#ffffff"], dark: ["#15291e", "#23382a", "#172d22", "#000000"] };
+
+describe.each([["light", lightRaw], ["dark", darkRaw]] as const)("%s text on glass over the worst-case background", (name, t) => {
+  const grounds = ambient[name];
+  it.each(["--glass", "--glass-dense", "--glass-soft", "--glass-selected"])("%s keeps text at 4.5:1", (fill) => {
+    for (const ground of grounds) {
+      const bg = over(t[fill], ground);
+      for (const fg of ["--text", "--text-secondary", "--text-muted"]) {
+        expect(ratio(t[fg], bg), `${fg} on ${fill} over ${ground}`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+});
