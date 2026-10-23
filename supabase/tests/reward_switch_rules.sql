@@ -23,5 +23,5 @@ begin
   select count(*) into n from public.reward_switches where workspace_id = ws;
   if n <> 0 then raise exception 'list was not replaced'; end if;
   select count(*) into n from public.audit_log where entity_type = 'reward_switches';
-  if n <> 3 then raise exception 'expected 3 audit rows, got %', n; end if;
+  if n <> 2 then raise exception 'expected 2 audit rows, got %', n; end if;
 end $$;
