@@ -221,6 +221,7 @@ export const nl: Record<keyof typeof en, string> = {
   "triage.title": "Voorgesteld door AI",
   "triage.accept": "Accepteren",
   "triage.edit": "Bewerken",
+  "triage.source": "Bronbericht",
   "triage.dismiss": "Negeren",
   "triage.saveError": "We konden dat besluit niet opslaan, dus de suggestie staat nog open.",
   "triage.demoNotice": "Demogegevens: deze suggesties zijn voorbeelden, geen echte AI-uitvoer.",

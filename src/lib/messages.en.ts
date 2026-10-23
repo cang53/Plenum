@@ -219,6 +219,7 @@ export const en = {
   "triage.title": "Suggested by AI",
   "triage.accept": "Accept",
   "triage.edit": "Edit",
+  "triage.source": "Source message",
   "triage.dismiss": "Dismiss",
   "triage.saveError": "We could not save that decision, so the suggestion is still open.",
   "triage.demoNotice": "Demo data: these suggestions are examples, not live AI output.",
