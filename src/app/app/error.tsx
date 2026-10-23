@@ -17,10 +17,11 @@ export default function ErrorState({ error, reset }: { error: Error; reset: () =
     if (isLocale(document.documentElement.lang)) setLanguage(document.documentElement.lang);
   }, []);
   return (
-    <main id="main" className="page">
-      <div className="surface" style={{ padding: "var(--s5)" }}>
+    <main id="main" className="center-stage">
+      <div className="surface state-card">
+      <h1>{t("app.errorTitle", language)}</h1>
       <p role="alert">{t("app.error", language)}</p>
-      <button type="button" className="btn btn-secondary" onClick={reset}>{t("app.retry", language)}</button>
+      <button type="button" className="btn btn-primary" onClick={reset}>{t("app.retry", language)}</button>
       </div>
     </main>
   );

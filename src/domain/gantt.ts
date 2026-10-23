@@ -64,3 +64,15 @@ export function criticalPath(tasks: PlanTask[], dependencies: Dependency[]): Set
   for (let id = end; id; id = best.get(id)!.prev) chain.add(id);
   return chain.size > 1 ? chain : new Set();
 }
+
+export type BaselineDates = Record<string, { startDate: string; dueDate: string }>;
+
+// Days each task's due date has moved since the baseline (positive = later). Tasks not in the baseline are left out.
+export function slipDays(tasks: PlanTask[], baseline: BaselineDates): Map<string, number> {
+  const slip = new Map<string, number>();
+  for (const t of tasks) {
+    const base = baseline[t.id];
+    if (t.dueDate && base) slip.set(t.id, dayOf(t.dueDate) - dayOf(base.dueDate));
+  }
+  return slip;
+}

@@ -13,31 +13,33 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   if (projects.length === 0) {
     return (
-      <main id="main" className="page">
+      <main id="main" className="center-stage">
+        <div className="surface state-card">
         <p className="eyebrow">{t("welcome.step1")}</p>
         <h1>{t("welcome.title")}</h1>
         <p className="intro">{t("welcome.intro")}</p>
         {sp.error && <p role="alert">{t("welcome.error")}</p>}
-        <form action={onboard} className="glass">
+        <form action={onboard}>
           <p>
-            <label>{t("welcome.workspace")} <input className="field" name="workspace" required /></label>
+            <label><span className="field-label">{t("welcome.workspace")}</span><input className="field" name="workspace" required /></label>
           </p>
           <p>
-            <label>{t("welcome.project")} <input className="field" name="project" required /></label>
+            <label><span className="field-label">{t("welcome.project")}</span><input className="field" name="project" required /></label>
           </p>
           <p>
-            <label><input type="checkbox" name="demo" /> {t("welcome.demo")}</label>
+            <label className="check"><input type="checkbox" name="demo" /> {t("welcome.demo")}</label>
           </p>
           <button className="btn btn-primary" type="submit">{t("welcome.submit")}</button>
         </form>
+        </div>
       </main>
     );
   }
   const project = currentProject(projects, sp.project)!;
   const invitations = await listInvitations(supabase, project.id);
   return (
-    <main id="main" className="page">
-      
+    <main id="main" className="center-stage">
+      <div className="state-card">
       <h1>{t("welcome.ready")}</h1>
       <section className="glass">
         <h2>{t("welcome.addressTitle")}</h2>
@@ -61,6 +63,7 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
       <form action={finish}>
         <button className="btn btn-primary" type="submit">{t("welcome.finish")}</button>
       </form>
+      </div>
     </main>
   );
 }
