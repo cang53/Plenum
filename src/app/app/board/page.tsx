@@ -4,7 +4,7 @@ import { currentProject, listProjects } from "@/data/projects";
 import { getLocale, getT } from "@/lib/locale";
 import { Board } from "@/app/demo/board/Board";
 import { WorkSwitch } from "@/app/WorkSwitch";
-import { saveTaskStatus } from "./actions";
+import { createBoardTask, saveTaskStatus } from "./actions";
 
 export default async function BoardPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
   const t = await getT();
@@ -15,11 +15,11 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
   const tasks = await listBoardTasks(supabase, project.id);
   return (
     <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("board.title")}</h1>
-      <p className="intro">{t("board.intro")}</p>
-      <WorkSwitch current="board" projectId={project.id} t={t} />
-      <Board key={project.id} initialTasks={tasks} onMove={saveTaskStatus} locale={locale} />
+      <div className="board-head">
+        <h1>{t("board.title")}</h1>
+        <WorkSwitch current="board" projectId={project.id} t={t} />
+      </div>
+      <Board key={project.id} initialTasks={tasks} onMove={saveTaskStatus} onAdd={createBoardTask.bind(null, project.id)} locale={locale} />
     </main>
   );
 }
