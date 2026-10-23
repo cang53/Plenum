@@ -4,6 +4,7 @@ import { currentProject, listProjects } from "@/data/projects";
 import { demoProject } from "@/data/demo";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
+import { WorkSwitch } from "@/app/WorkSwitch";
 import { Timeline } from "@/app/demo/timeline/Timeline";
 import { acceptSuggestionAction, dismissSuggestionAction } from "./actions";
 
@@ -26,6 +27,7 @@ export default async function TimelinePage({ searchParams }: { searchParams: Pro
       <p className="eyebrow">{project.name}</p>
       <h1>{t("timeline.title")}</h1>
       <p className="intro">{t("timeline.intro")}</p>
+      <WorkSwitch current="timeline" projectId={project.id} t={t} />
       <Timeline key={project.id} messages={messages} suggestions={suggestions}
         linked={linked}
         onAccept={acceptSuggestionAction}
