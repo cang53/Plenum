@@ -56,7 +56,18 @@ jobs:
         with:
           version: 2.121.0
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Restore cached Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      # Usually ~25s, but one run stalled on the apt/CDN mirrors for 11 min (#132). Cut a stall off and retry.
+      - name: Install Chromium
+        run: |
+          for i in 1 2 3; do
+            timeout 180 npx playwright install --with-deps chromium && exit 0
+          done
+          exit 1
       # Registries rate limit shared runners, so keep the Supabase images in the Actions cache.
       # Main saves them after a green run; pull requests restore main's copy.
       - name: Restore cached Supabase images
