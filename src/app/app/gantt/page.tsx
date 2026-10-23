@@ -16,21 +16,21 @@ export default async function GanttPage({ searchParams }: { searchParams: Promis
   const [plan, baselines, { data: role }] = await Promise.all([listGanttPlan(supabase, project.id), listBaselines(supabase, project.id), supabase.rpc("project_role_of", { p: project.id })]);
   const picked = baselines.find((b) => b.id === params.baseline) ?? baselines[0]; // default: the latest
   const baseline = picked ? await getBaselineDates(supabase, picked.id) : null;
-  const labels = { chart: t("gantt.chart"), today: t("gantt.today"), critical: t("gantt.critical"), conflict: t("gantt.conflict"), print: t("gantt.print"), saveError: t("gantt.saveError"), bar: t("gantt.bar"), empty: t("gantt.empty"), saveBaseline: t("gantt.saveBaseline"), baselineName: t("gantt.baselineName"), baselineSaved: t("gantt.baselineSaved"), baselineNone: t("gantt.baselineNone"), baselineLate: t("gantt.baselineLate"), slip: t("gantt.slip"), milestone: t("gantt.milestone"), task: t("gantt.task"), start: t("gantt.start"), end: t("gantt.end"), zoom: t("gantt.zoom"), week: t("gantt.week"), month: t("gantt.month"), quarter: t("gantt.quarter"), collapse: t("gantt.collapse"), expand: t("gantt.expand"), noPhase: t("gantt.noPhase"), slipShort: t("gantt.slipShort") };
+  const labels = { chart: t("gantt.chart"), today: t("gantt.today"), critical: t("gantt.critical"), conflict: t("gantt.conflict"), print: t("gantt.print"), saveError: t("gantt.saveError"), bar: t("gantt.bar"), empty: t("gantt.empty"), saveBaseline: t("gantt.saveBaseline"), baselineName: t("gantt.baselineName"), baselineSaved: t("gantt.baselineSaved"), baselineNone: t("gantt.baselineNone"), baselineLate: t("gantt.baselineLate"), slip: t("gantt.slip"), milestone: t("gantt.milestone"), task: t("gantt.task"), start: t("gantt.start"), end: t("gantt.end"), zoom: t("gantt.zoom"), week: t("gantt.week"), month: t("gantt.month"), quarter: t("gantt.quarter"), collapse: t("gantt.collapse"), expand: t("gantt.expand"), noPhase: t("gantt.noPhase"), slipShort: t("gantt.slipShort"), baselineActive: t("gantt.baselineActive"), baselineLegend: t("gantt.baselineLegend") };
+  const picker = baselines.length > 1 && (
+    <form method="get">
+      <input type="hidden" name="project" value={project.id} />
+      <label>{t("gantt.baselinePick")} <select name="baseline" defaultValue={picked?.id}>{baselines.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
+      <button type="submit" className="btn">{t("gantt.baselineShow")}</button>
+    </form>
+  );
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
       <h1>{t("gantt.title")}</h1>
       <p className="intro">{t("gantt.intro")}</p>
       <WorkSwitch current="gantt" projectId={project.id} t={t} />
-      {baselines.length > 1 && (
-        <form method="get">
-          <input type="hidden" name="project" value={project.id} />
-          <label>{t("gantt.baselinePick")} <select name="baseline" defaultValue={picked?.id}>{baselines.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
-          <button type="submit" className="btn">{t("gantt.baselineShow")}</button>
-        </form>
-      )}
-      <Gantt key={`${project.id}-${picked?.id}`} tasks={plan.tasks} dependencies={plan.dependencies} onSave={saveTaskDates} baseline={baseline} onBaseline={role === "project_manager" ? saveProjectBaseline.bind(null, project.id) : undefined} labels={labels} locale={locale} />
+      <Gantt key={`${project.id}-${picked?.id}`} tasks={plan.tasks} dependencies={plan.dependencies} onSave={saveTaskDates} baseline={baseline} baselineName={picked?.name} picker={picker || undefined} onBaseline={role === "project_manager" ? saveProjectBaseline.bind(null, project.id) : undefined} labels={labels} locale={locale} />
     </main>
   );
 }
