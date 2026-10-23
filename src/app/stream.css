@@ -51,3 +51,15 @@
 .agent-card .sm a { color: var(--primary); }
 .agent-acts { display: flex; flex-wrap: wrap; gap: var(--s2); margin-block-start: var(--s2); align-items: flex-start; }
 .agent-acts .edit-pop form { display: flex; flex-wrap: wrap; gap: var(--s2); margin-block-start: var(--s2); }
+.inbox .tabs { margin-block-end: var(--s3); border-bottom: 1px solid var(--border); }
+.inbox .tabs a { padding-block: var(--s2); color: var(--text-secondary); text-decoration: none; border-bottom: 2px solid transparent; }
+.inbox .tabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--primary); }
+.inbox .panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--s3); margin-block-end: var(--s4); }
+.inbox .list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.inbox .list a { display: block; padding: var(--s2) var(--s3); color: var(--text); text-decoration: none; border-inline-start: 3px solid transparent; }
+.inbox .list li + li { border-block-start: 1px solid var(--border); }
+.inbox .list a[aria-current="true"] { background: var(--info-surface); border-inline-start-color: var(--primary); }
+.inbox .list span, .inbox .body { display: block; color: var(--text-muted); font-size: var(--text-xs); overflow-wrap: anywhere; }
+.inbox .detail { margin: 0; align-self: start; }
+.inbox .body { white-space: pre-line; max-height: 12rem; overflow: auto; }
+@media (max-width: 720px) { .inbox .panes { grid-template-columns: 1fr; } }
