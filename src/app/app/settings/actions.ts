@@ -1,10 +1,11 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { checkName, checkSlug } from "@/domain/settings";
+import { checkName, checkSlug, slugFrom } from "@/domain/settings";
 import { LOCALE_COOKIE } from "@/lib/locale";
 import { isLocale } from "@/lib/messages";
 
@@ -72,4 +73,20 @@ export async function removePerson(form: FormData): Promise<void> {
   if (error) back(projectId, "error=settings.saveError");
   revalidatePath("/app", "layout");
   back(projectId, "removed=1");
+}
+
+// The database function refuses anyone who is not a manager of this project; messages are never copied.
+export async function createFromTemplate(form: FormData): Promise<void> {
+  const projectId = String(form.get("projectId"));
+  const name = checkName(String(form.get("newName") ?? ""));
+  if (!name.ok) back(projectId, `error=${name.error}`);
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc("create_project_from", {
+    source: projectId,
+    project_name: name.value,
+    slug: slugFrom(name.value, randomBytes(2).toString("hex")),
+  });
+  if (error || !data) back(projectId, "error=settings.saveError");
+  revalidatePath("/app", "layout");
+  redirect(`/app/items?project=${data}`);
 }
