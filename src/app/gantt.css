@@ -13,6 +13,7 @@
 }
 .gantt-bar[data-critical="true"], .gantt-legend [data-critical="true"] { border-inline-start: 4px solid var(--primary); }
 .gantt-bar[data-late="true"], .gantt-legend [data-late="true"] { border-inline-start: 4px solid var(--status-blocked); }
+.gantt-baseline { position: absolute; height: 4px; background: var(--text-secondary); border-radius: 2px; }
 .gantt-bar:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .gantt-legend { display: flex; gap: var(--s5); margin: 0; padding: 0; list-style: none; font-size: var(--text-sm); }
 .gantt-legend li { padding-inline-start: var(--s3); }
