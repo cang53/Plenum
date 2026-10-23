@@ -45,3 +45,21 @@ describe("wouldCreateLoop", () => {
     expect(wouldCreateLoop(chain, "a", "a")).toBe(true);
   });
 });
+
+describe("findConflicts with link types and lag", () => {
+  const a = { id: "a", title: "A", startDate: "2026-11-02", dueDate: "2026-11-06" };
+  const b = (s: string, d: string) => ({ id: "b", title: "B", startDate: s, dueDate: d });
+  const dep = (kind: "FS" | "SS" | "FF" | "SF", lagDays: number) => [{ predecessorId: "a", successorId: "b", kind, lagDays }];
+  it("start-to-start with lag", () => {
+    expect(findConflicts([a, b("2026-11-04", "2026-11-09")], dep("SS", 2))).toEqual([]);
+    expect(findConflicts([a, b("2026-11-03", "2026-11-09")], dep("SS", 2))).toHaveLength(1);
+  });
+  it("finish-to-finish and start-to-finish", () => {
+    expect(findConflicts([a, b("2026-11-03", "2026-11-06")], dep("FF", 0))).toEqual([]);
+    expect(findConflicts([a, b("2026-11-03", "2026-11-05")], dep("FF", 0))).toHaveLength(1);
+    expect(findConflicts([a, b("2026-11-03", "2026-11-02")], dep("SF", 0))).toEqual([]);
+  });
+  it("finish-to-start with lag", () => {
+    expect(findConflicts([a, b("2026-11-09", "2026-11-12")], dep("FS", 3))).toHaveLength(1);
+  });
+});

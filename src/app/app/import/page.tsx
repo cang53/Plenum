@@ -17,8 +17,9 @@ export default async function ImportPage({ searchParams }: { searchParams: Promi
       {role !== "project_manager" ? <p>{t("settings.managerOnly")}</p> : (
         <ImportForm
           projectId={project.id}
-          labels={{ file: t("import.file"), preview: t("import.preview"), apply: t("import.apply"), created: t("import.created"), refreshed: t("import.refreshed"), unchanged: t("import.unchanged"), done: t("import.done") }}
-          errors={{ "import.noFile": t("import.noFile"), "import.unknownFormat": t("import.unknownFormat"), "import.empty": t("import.empty"), "import.tooBig": t("import.tooBig"), "import.invalid": t("import.invalid"), "settings.saveError": t("settings.saveError") }}
+          labels={{ file: t("import.file"), preview: t("import.preview"), apply: t("import.apply"), created: t("import.created"), refreshed: t("import.refreshed"), unchanged: t("import.unchanged"), done: t("import.done"), links: t("import.links"), skipped: t("import.skipped") }}
+          skips={{ type: t("import.skip.type"), lag: t("import.skip.lag"), task: t("import.skip.task") }}
+          errors={{ "import.noFile": t("import.noFile"), "import.unknownFormat": t("import.unknownFormat"), "import.empty": t("import.empty"), "import.tooBig": t("import.tooBig"), "import.invalid": t("import.invalid"), "import.cycle": t("import.cycle"), "settings.saveError": t("settings.saveError") }}
         />
       )}
     </main>
