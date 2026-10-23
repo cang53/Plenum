@@ -46,3 +46,13 @@ export function moveTask(tasks: BoardTask[], taskId: string, status: TaskStatus)
 export function distinct(values: (string | null)[]): string[] {
   return [...new Set(values.filter((v): v is string => Boolean(v)))].sort();
 }
+
+// Short card ID from the task id; the database has no project counter yet.
+export function taskKey(id: string): string {
+  return `T-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
+}
+
+// Initials for the owner mark; never a photo or a figure per person.
+export function initials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
+}

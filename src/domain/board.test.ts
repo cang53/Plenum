@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildColumns, distinct, moveTask, type BoardTask } from "./board";
+import { buildColumns, distinct, initials, moveTask, taskKey, type BoardTask } from "./board";
 
 const tasks: BoardTask[] = [
   { id: "1", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", priority: "normal", position: 0, site: "Yard" },
@@ -53,5 +53,13 @@ describe("moveTask", () => {
 describe("distinct", () => {
   it("returns sorted unique values without blanks", () => {
     expect(distinct(["b", null, "a", "b"])).toEqual(["a", "b"]);
+  });
+});
+
+describe("card marks", () => {
+  it("builds a short ID and initials", () => {
+    expect(taskKey("3f9a12c0-1111-2222-3333-444455556666")).toBe("T-3F9A");
+    expect(initials("Jan de Wit")).toBe("JD");
+    expect(initials("  marta ")).toBe("M");
   });
 });

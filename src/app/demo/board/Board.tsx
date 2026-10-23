@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buildColumns, distinct, moveTask, STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
+import { buildColumns, distinct, initials, moveTask, STATUSES, taskKey, type BoardTask, type TaskStatus } from "@/domain/board";
 import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -9,13 +9,15 @@ type Props = {
   initialTasks: BoardTask[];
   // Saves a move; when it fails the card goes back. Without it (the demo) moves stay in the page.
   onMove?: (taskId: string, status: TaskStatus) => Promise<void>;
+  // Adds a task in a column and returns the saved one. Without it (the demo) the card stays in the page.
+  onAdd?: (title: string, status: TaskStatus) => Promise<BoardTask>;
   // The signed-in person's language; the demo stays English.
   locale?: Locale;
 };
 
-const STATUS_BADGE: Record<TaskStatus, string> = { todo: "", in_progress: "badge-info", blocked: "badge-danger", done: "badge-success" };
+const PRIORITY_DOT = { low: "st-todo", normal: "st-todo", high: "st-warn" } as const;
 
-export function Board({ initialTasks, onMove, locale = "en" }: Props) {
+export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
@@ -35,6 +37,25 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
       setFailed({ id, status });
     });
   };
+
+  const [adding, setAdding] = useState<TaskStatus | null>(null);
+  const [addFailed, setAddFailed] = useState(false);
+  const add = async (form: FormData, status: TaskStatus) => {
+    const title = String(form.get("title") ?? "").trim();
+    if (!title) return;
+    setAddFailed(false);
+    try {
+      const task = onAdd
+        ? await onAdd(title, status)
+        : { id: `demo-${tasks.length + 1}`, title, status, phase: null, ownerName: null, dueDate: null, priority: "normal" as const, position: tasks.length, site: null };
+      setTasks((current) => [...current, task]);
+      setAdding(null);
+    } catch (error) {
+      logError("board add failed", error);
+      setAddFailed(true);
+    }
+  };
+  const due = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
 
   return (
     <>
@@ -78,7 +99,7 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
           {columns.map((column) => (
             <section
               key={column.status}
-              className={`board-column surface${dragging ? " drop-ready" : ""}`}
+              className={`board-column${dragging ? " drop-ready" : ""}`}
               aria-label={t(`status.${column.status}`)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
@@ -87,9 +108,20 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
               }}
             >
               <h2>
-                {t(`status.${column.status}`)} <span className="count">{column.tasks.length}</span>
+                <span>{t(`status.${column.status}`)} <span className="count">{column.tasks.length}</span></span>
+                <button type="button" className="btn btn-plain" aria-label={`${t("board.add")}: ${t(`status.${column.status}`)}`} onClick={() => setAdding(column.status)}>+</button>
               </h2>
-              {column.tasks.length === 0 && <p className="empty">{t("board.empty")}</p>}
+              {adding === column.status && (
+                <form className="board-add" action={(form) => add(form, column.status)} onKeyDown={(e) => e.key === "Escape" && setAdding(null)}>
+                  <input className="field" name="title" required autoFocus aria-label={t("board.addTitle")} placeholder={t("board.addTitle")} />
+                  {addFailed && <p role="alert" className="field-error">{t("board.addError")}</p>}
+                  <span className="board-add-actions">
+                    <button className="btn btn-primary" type="submit">{t("board.addSubmit")}</button>
+                    <button className="btn btn-plain" type="button" onClick={() => setAdding(null)}>{t("board.addCancel")}</button>
+                  </span>
+                </form>
+              )}
+              {column.tasks.length === 0 && adding !== column.status && <p className="empty">{t("board.empty")}</p>}
               {column.tasks.map((task) => (
                 <article
                   key={task.id}
@@ -99,16 +131,18 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
                   onDragStart={() => setDragging(task.id)}
                   onDragEnd={() => setDragging(null)}
                 >
-                  <span className="card-grip" aria-hidden="true">⠿</span>
+                  <span className="card-id">
+                    <span>{taskKey(task.id)}</span>
+                    <span className={`st ${PRIORITY_DOT[task.priority]}`}>{t(`priority.${task.priority}`)}</span>
+                  </span>
                   <h3>{task.title}</h3>
-                  <p className="meta">
-                    {[task.phase, task.ownerName].filter(Boolean).join(" · ")}
-                  </p>
-                  <p className="card-badges">
-                    <span className={`badge ${STATUS_BADGE[task.status]}`}>{t(`status.${task.status}`)}</span>
-                    <span className={`badge ${task.priority === "high" ? "badge-warning" : ""}`}>{t(`priority.${task.priority}`)}</span>
-                    {task.dueDate && <span className="badge">{t("board.due")} {task.dueDate}</span>}
-                  </p>
+                  <span className="card-meta">
+                    {task.phase ? <span className="chip">{task.phase}</span> : <span />}
+                    <span className="card-owner">
+                      {task.dueDate && <span className="n">{due(task.dueDate)}</span>}
+                      {task.ownerName && <span className="av" role="img" aria-label={task.ownerName}>{initials(task.ownerName)}</span>}
+                    </span>
+                  </span>
                   <label className="status-select">
                     {t("board.statusLabel")}
                     <select value={task.status} onChange={(e) => move(task.id, e.target.value as TaskStatus)}>
