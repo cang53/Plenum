@@ -1,7 +1,7 @@
 import { supabaseServer } from "@/auth/supabase";
 import { listManualItems, listPlanChoices, type ManualItem } from "@/data/live";
 import { currentProject, listMembers, listProjects, type Member } from "@/data/projects";
-import { MANUAL_KINDS, PRIORITIES, RISK_STATUSES } from "@/domain/items";
+import { MANUAL_KINDS, PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
 import type { MessageKey } from "@/lib/messages";
 import { MoreLink } from "@/app/app/MoreLink";
@@ -63,11 +63,25 @@ function Fields({ item, kind, projectId, plan, t }: { item?: ManualItem; kind: M
         </>
       )}
       {kind === "risk" && (
-        <label>{t("board.statusLabel")}{" "}
-          <select name="status" defaultValue={item?.status ?? "open"}>
-            {RISK_STATUSES.map((s) => <option key={s} value={s}>{t(`risk.${s}`)}</option>)}
-          </select>
-        </label>
+        <>
+          <label>{t("risk.kindLabel")}{" "}
+            <select name="riskKind" defaultValue={item?.riskKind || "risk"}>
+              {RISK_KINDS.map((k) => <option key={k} value={k}>{t(`kind.${k}` as MessageKey)}</option>)}
+            </select>
+          </label>
+          <label>{t("board.statusLabel")}{" "}
+            <select name="status" defaultValue={item?.status ?? "open"}>
+              {RISK_STATUSES.map((s) => <option key={s} value={s}>{t(`risk.${s}`)}</option>)}
+            </select>
+          </label>
+          <label>{t("board.due")} <input type="date" name="dueDate" defaultValue={item?.dueDate ?? ""} /></label>
+          <label>{t("items.owner")}{" "}
+            <select name="ownerId" defaultValue={item?.ownerId ?? ""}>
+              <option value="">{t("items.none")}</option>
+              {plan.members.map((m) => <option key={m.userId} value={m.userId}>{m.name || m.email}</option>)}
+            </select>
+          </label>
+        </>
       )}
       <button type="submit">{t(item ? "items.save" : "items.create")}</button>
     </form>
