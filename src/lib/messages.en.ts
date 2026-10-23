@@ -154,7 +154,7 @@ export const en = {
   "members.actions": "Actions",
   "members.removeTitle": "Remove",
   "members.removeBody": "They lose access to this project. Their tasks stay, unassigned.",
-  "members.withdrawTitle": "Withdraw the invitation for",
+  "members.withdrawTitle": "Withdraw this invitation?",
   "members.withdrawBody": "The invitation link stops working. You can invite them again later.",
   "members.invite": "Invite someone",
   "members.send": "Send invitation",

@@ -63,7 +63,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                       <input type="hidden" name="id" value={i.id} />
                       <button type="submit" className="btn btn-secondary">{t("members.resend")}</button>
                     </form>
-                    <ConfirmDialog trigger={t("members.withdraw")} title={`${t("members.withdrawTitle")} ${i.email}`} body={t("members.withdrawBody")} cancel={t("link.cancel")}>
+                    <ConfirmDialog trigger={t("members.withdraw")} title={t("members.withdrawTitle")} body={t("members.withdrawBody")} cancel={t("link.cancel")}>
                       <form action={withdraw}>
                         <input type="hidden" name="id" value={i.id} />
                         <button type="submit" className="btn btn-danger">{t("members.withdraw")}</button>

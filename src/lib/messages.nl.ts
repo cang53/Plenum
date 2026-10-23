@@ -156,7 +156,7 @@ export const nl: Record<keyof typeof en, string> = {
   "members.actions": "Acties",
   "members.removeTitle": "Verwijder",
   "members.removeBody": "Ze verliezen de toegang tot dit project. Hun taken blijven staan, zonder toewijzing.",
-  "members.withdrawTitle": "Uitnodiging intrekken voor",
+  "members.withdrawTitle": "Deze uitnodiging intrekken?",
   "members.withdrawBody": "De uitnodigingslink werkt niet meer. U kunt later opnieuw uitnodigen.",
   "members.invite": "Iemand uitnodigen",
   "members.send": "Uitnodiging versturen",
