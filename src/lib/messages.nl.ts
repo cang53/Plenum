@@ -181,6 +181,8 @@ export const nl: Record<keyof typeof en, string> = {
   "goal.note": "Geteld voor het hele team, nooit per persoon.",
   "goal.set": "Uitdaging van deze maand instellen",
   "goal.clear": "Uitdaging verwijderen",
+  "history.title": "Eerdere uitdagingen",
+  "history.met": "Uitdaging gehaald",
   "settings.removed": "Persoon verwijderd.",
   "rewards.title": "Teambeloningen",
   "rewards.intro": "Beloningen vieren het team, nooit een persoon. Zet ze uit voor locaties die ze niet willen. Een locatie uitzetten verbergt de beloningen daar overal.",

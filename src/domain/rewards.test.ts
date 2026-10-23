@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { celebratedMilestones, goalPercent, isEarlyWarning, knowledgeCount, projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
+import { celebratedMilestones, challengeMet, goalPercent, isEarlyWarning, knowledgeCount, projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
 
 
 describe("rewardsOn", () => {
@@ -91,5 +91,13 @@ describe("celebratedMilestones", () => {
   it("hides a switched-off site", () => {
     expect(celebratedMilestones([{ ...m, site: "North" }], ["North"], today)).toEqual([]);
     expect(celebratedMilestones([m], [""], today)).toEqual([]);
+  });
+});
+
+describe("challengeMet", () => {
+  it("needs every week on time and at least one week", () => {
+    expect(challengeMet(4, 4)).toBe(true);
+    expect(challengeMet(3, 4)).toBe(false);
+    expect(challengeMet(0, 0)).toBe(false);
   });
 });
