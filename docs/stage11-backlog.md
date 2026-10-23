@@ -16,6 +16,7 @@ Goal: make the app ready to deploy with no action beyond connecting the accounts
 | S11-6 | 125 | AI timesheet draft | A draft week from the person's own task activity, with each line linked to its source message; nothing saved without a click; behind the AI switch with rules fallback |
 | S11-7 | 126 | Admin as its own role | Admin becomes a role rather than a workspace flag; existing admins migrated; permission tests updated |
 | S11-8 | none | Spec gap sweep and e2e | Spec compared with main; `spec-gaps.md` updated; Playwright covers the timesheet flow |
+| S11-9 | 131 | Last admin protection | A workspace cannot lose its last admin by removal or demotion; the database refuses it, the settings page says why; DB test |
 
 Team rewards (spec stage 6) stay "later" until accounts are live and the pilot asks.
 
