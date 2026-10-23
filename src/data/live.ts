@@ -289,3 +289,24 @@ export async function getMessageForSiteLog(client: SupabaseClient, projectId: st
   if (error) throw error;
   return data;
 }
+
+export type TimesheetWeek = { user_id: string; week_start: string; status: "submitted" | "approved" | "sent_back"; note: string | null; profiles: { display_name: string } | null };
+
+// RLS: people see their own weeks, project managers see all of the project's.
+export async function listTimesheetWeeks(client: SupabaseClient, projectId: string): Promise<TimesheetWeek[]> {
+  const { data, error } = await client.from("timesheet_weeks").select("user_id, week_start, status, note, profiles:user_id(display_name)").eq("project_id", projectId).order("week_start", { ascending: false }).limit(100);
+  if (error) throw error;
+  return (data ?? []) as unknown as TimesheetWeek[];
+}
+
+// The database checks who may submit, decide or resubmit, locks approved weeks and audits each decision.
+export async function setTimesheetWeek(client: SupabaseClient, projectId: string, userId: string, week: string, patch: { status: string; note?: string }): Promise<void> {
+  const { error } = await client.from("timesheet_weeks").update(patch).eq("project_id", projectId).eq("user_id", userId).eq("week_start", week);
+  if (error) throw error;
+}
+
+export async function submitTimesheetWeek(client: SupabaseClient, projectId: string, userId: string, week: string): Promise<void> {
+  const { error } = await client.from("timesheet_weeks").insert({ project_id: projectId, user_id: userId, week_start: week });
+  if (error && error.code !== "23505") throw error;
+  if (error) await setTimesheetWeek(client, projectId, userId, week, { status: "submitted" });
+}
