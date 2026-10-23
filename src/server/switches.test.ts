@@ -5,7 +5,7 @@ const problems = (env: Record<string, string>) => checkSwitches(env).flatMap((s)
 
 describe("checkSwitches", () => {
   it("is all off and clean by default", () => {
-    expect(checkSwitches({}).map((s) => s.live)).toEqual([false, false, false]);
+    expect(checkSwitches({}).map((s) => s.live)).toEqual([false, false, false, false]);
     expect(problems({})).toEqual([]);
   });
 
@@ -22,6 +22,11 @@ describe("checkSwitches", () => {
   it("needs a model id and an EU region for Bedrock", () => {
     expect(problems({ AI_PROVIDER: "bedrock", BEDROCK_REGION: "us-west-2" })).toEqual(["BEDROCK_MODEL_ID is not set", "region us-west-2 is outside the EU"]);
     expect(problems({ AI_PROVIDER: "bedrock", BEDROCK_MODEL_ID: "eu.x" })).toEqual([]);
+  });
+
+  it("lists what live Teams still needs", () => {
+    expect(problems({ TEAMS_PROVIDER: "live" })).toHaveLength(4);
+    expect(problems({ TEAMS_PROVIDER: "live", TEAMS_TEAM_ID: "t", AUTH_MICROSOFT_ENTRA_ID_ID: "b", AUTH_MICROSOFT_ENTRA_ID_SECRET: "c", AUTH_MICROSOFT_ENTRA_ID_TENANT_ID: "d" })).toEqual([]);
   });
 
   it("flags a mistyped flag value", () => {
