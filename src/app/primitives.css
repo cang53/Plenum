@@ -225,3 +225,10 @@
 
 .bulk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); margin-bottom: var(--s3); }
 .bulk-bar .intro { flex-basis: 100%; margin: 0; }
+
+/* Command menu: a dialog with one input and a flat list. */
+.cmd { width: 36rem; padding: var(--s3); }
+.cmd-list { margin: var(--s2) 0 0; padding: 0; list-style: none; max-height: 20rem; overflow-y: auto; }
+.cmd-list > li { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); padding: var(--s2) var(--s3); border-radius: var(--radius); color: var(--text-secondary); cursor: pointer; }
+.cmd-list > li[aria-selected="true"] { background: var(--accent-soft); color: var(--text); }
+.cmd-empty { margin: var(--s3); color: var(--text-muted); font-size: var(--text-sm); }
