@@ -78,6 +78,21 @@ export async function listTimelineMessages(client: SupabaseClient, projectId: st
   return toPage(((data ?? []) as unknown as MessageRow[]).map(fromRow), (m) => ({ at: m.receivedAt, id: m.id }));
 }
 
+export type Pin = { messageId: string; pinnedAt: string; pinnedBy: string; message: TimelineMessage };
+
+// Pinned decisions of a project, newest pin first, with who pinned them.
+export async function listPins(client: SupabaseClient, projectId: string): Promise<Pin[]> {
+  const { data, error } = await client
+    .from("message_pins")
+    .select("message_id, pinned_at, profiles(display_name), messages(id, source, from_name, from_address, subject, body_text, received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded))")
+    .eq("project_id", projectId).order("pinned_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((r) => {
+    const row = r as unknown as { message_id: string; pinned_at: string; profiles: { display_name: string } | null; messages: MessageRow };
+    return { messageId: row.message_id, pinnedAt: row.pinned_at, pinnedBy: row.profiles?.display_name ?? "", message: fromRow(row.messages) };
+  });
+}
+
 export async function listPendingSuggestions(client: SupabaseClient, projectId: string): Promise<StoredSuggestion[]> {
   const { data, error } = await client
     .from("suggestions")
