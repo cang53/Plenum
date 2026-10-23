@@ -195,3 +195,10 @@ export async function listAuditPage(client: SupabaseClient, projectId: string, a
   if (error) throw error;
   return toPage(data ?? [], (r) => ({ at: r.created_at, id: String(r.id) }));
 }
+
+// One update for all chosen tasks; the database trigger audits each change. Row-level security hides tasks the person may not edit, so a short count is reported as an error.
+export async function bulkUpdateTasks(client: SupabaseClient, ids: string[], patch: Record<string, string | null>): Promise<void> {
+  const { data, error } = await client.from("tasks").update(patch).in("id", ids).select("id");
+  if (error) throw error;
+  if (data?.length !== ids.length) throw new Error("some tasks were not found or not allowed");
+}
