@@ -18,7 +18,7 @@ test("log hours, submit, approve and export a week", async ({ page }) => {
   await page.goto(`/app/timesheets?project=${project}`);
   await page.getByRole("button", { name: "Submit this week" }).click();
   await expect(page.getByText("Waiting for approval")).toBeVisible();
-  await page.getByRole("button", { name: "Approve" }).click();
+  await page.getByRole("button", { name: "Approve", exact: true }).click();
   await expect(page.getByText("Approved and locked")).toBeVisible();
 
   const { data } = await admin.from("timesheet_weeks").select("week_start").eq("project_id", project).single().throwOnError();
