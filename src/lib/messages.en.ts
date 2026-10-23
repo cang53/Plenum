@@ -11,6 +11,7 @@ export const en = {
   "app.skip": "Skip to main content",
   "app.loading": "Loading…",
   "app.error": "Something went wrong on our side. Your data is safe.",
+  "app.errorTitle": "That did not work",
   "app.retry": "Try again",
   "app.tagline":
     "One project timeline for industrial teams. Teams messages and emails become tasks, decisions and reports, and a person approves every AI suggestion.",
