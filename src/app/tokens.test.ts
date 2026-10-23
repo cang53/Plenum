@@ -59,7 +59,7 @@ describe("flat look", () => {
     expect(css).toContain("prefers-contrast: more");
     expect(css).toContain("prefers-reduced-motion: reduce");
     expect(css).not.toMatch(/gradient\(|rgba?\(/i);
-    expect(css).toMatch(/--glass-blur: 0px/);
+    expect(css).not.toMatch(/--glass|blur/);
   });
   it("uses the target palette", () => {
     expect(light["--primary"]).toBe("#2b4fd0");

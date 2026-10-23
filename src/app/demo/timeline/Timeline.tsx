@@ -211,7 +211,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                 {suggestions
                   .filter((s) => s.messageId === m.id && s.status === "pending" && !decided[s.id] && drafting?.suggestionId !== s.id)
                   .map((s) => (
-                    <div key={s.id} className="suggestion glass" role="group" aria-label={t("triage.title")}>
+                    <div key={s.id} className="suggestion surface" role="group" aria-label={t("triage.title")}>
                       <p className="meta">
                         <input type="checkbox" checked={picked.includes(s.id)} aria-label={`${t("bulk.selectSuggestion")}: ${s.title}`}
                           onChange={(e) => setPicked((p) => (e.target.checked ? [...p, s.id] : p.filter((x) => x !== s.id)))} />{" "}
@@ -240,7 +240,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                     </div>
                   ))}
                 {onReply && m.source === "email" && m.fromAddress && (reply?.messageId === m.id && !reply.sent ? (
-                  <form className="reply-form glass" onSubmit={(e) => { e.preventDefault(); void sendReply(false); }}>
+                  <form className="reply-form surface" onSubmit={(e) => { e.preventDefault(); void sendReply(false); }}>
                     <label>
                       {t("reply.label")}
                       <textarea rows={3} value={reply.text} onChange={(e) => setReply({ messageId: m.id, text: e.target.value, wider: false })} />

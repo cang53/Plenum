@@ -160,7 +160,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
             <Fields kind={kind} projectId={project.id} plan={plan} t={t} />
           </details>
           {kind === "task" && items.some((i) => i.kind === "task") && (
-            <form id="bulk" action={bulkTasks} aria-label={t("bulk.title")} className="glass bulk-bar">
+            <form id="bulk" action={bulkTasks} aria-label={t("bulk.title")} className="surface bulk-bar">
               <p className="intro">{t("bulk.hint")}</p>
               <label>{t("board.statusLabel")}{" "}
                 <select name="status">{STATUSES.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}</select>

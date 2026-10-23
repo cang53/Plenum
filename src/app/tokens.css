@@ -31,23 +31,11 @@
   --status-blocked: #8a4b00;
   --status-done: #17694a;
 
-  /* Flat aliases for the old glass names */
-  --glass: var(--surface);
-  --glass-dense: var(--surface);
-  --glass-soft: var(--surface-muted);
-  --glass-selected: var(--accent-soft);
-  --glass-edge: var(--border);
-  --glass-highlight: var(--surface);
-  --glass-blur: 0px;
-  --glass-saturation: 100%;
-  --glass-inset: inset 0 0 0 transparent;
   --ambient-background: var(--surface-subtle);
 
   /* Shadow: only menus and dialogs lift */
   --elevation: none;
-  --elevation-glass: none;
   --elevation-dialog: 0 24px 60px #00000040;
-  --glass-shadow: none;
 
   /* Radius */
   --radius-sm: 0.25rem;
