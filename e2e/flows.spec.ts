@@ -57,12 +57,11 @@ test("export the workspace and delete the project", async ({ page }) => {
   const file = await download;
   expect(file.suggestedFilename()).toBe("plenum-export.json");
 
-  const dialog = page.getByRole("dialog", { name: "Delete this project" });
-  // The page may not have hydrated yet, so retry the opening click.
-  await expect(async () => {
-    await page.getByRole("button", { name: "Delete this project" }).first().click({ timeout: 2000 });
-    await expect(dialog).toBeVisible({ timeout: 2000 });
-  }).toPass({ timeout: 30_000 });
+  // The delete form waits behind a confirmation dialog (next dev may not have hydrated yet, so open it until it shows).
+  await clickUntil(page.getByRole("button", { name: "Delete this project" }), async () => {
+    await expect(page.getByRole("dialog")).toBeVisible({ timeout: 3000 });
+  });
+  const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Type the project name to confirm:").fill(name);
   await clickUntil(dialog.getByRole("button", { name: "Delete this project" }), async () => {
     const { data } = await admin.from("projects").select("id").eq("id", project);
