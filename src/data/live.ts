@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { dayEnd, dayStart, type Filters } from "@/domain/filters";
 import { MANUAL_KINDS, TABLE, toColumns, type ItemInput, type ManualKind } from "@/domain/items";
 import type { AuditRow } from "@/domain/audit";
 import { STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
@@ -52,12 +53,22 @@ export async function setTaskStatus(client: SupabaseClient, taskId: string, stat
   if (!data?.length) throw new Error("task not found or not allowed");
 }
 
-export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string): Promise<Page<TimelineMessage>> {
+export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string, f: Filters = {}): Promise<Page<TimelineMessage>> {
   const cursor = decodeCursor(after);
   let q = client
     .from("messages")
     .select("id, source, from_name, from_address, subject, body_text, received_at, message_attachments(id, part_index, filename, content_type, size_bytes)")
     .eq("project_id", projectId);
+  // Characters that mean something in a PostgREST filter are removed from the typed text.
+  const sender = f.sender?.replace(/[%_,()"\\]/g, "");
+  if (sender) q = q.or(`from_address.ilike.%${sender}%,from_name.ilike.%${sender}%`);
+  if (f.from) q = q.gte("received_at", dayStart(f.from));
+  if (f.to) q = q.lt("received_at", dayEnd(f.to));
+  if (f.kind) {
+    const { data: links, error: e } = await client.from(ITEM_TABLE[f.kind]).select("source_message_id").eq("project_id", projectId).not("source_message_id", "is", null);
+    if (e) throw e;
+    q = q.in("id", (links ?? []).map((r) => r.source_message_id));
+  }
   if (cursor) q = q.or(afterFilter("received_at", cursor));
   const { data, error } = await q.order("received_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
   if (error) throw error;
