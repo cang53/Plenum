@@ -170,6 +170,8 @@ export const en = {
   "rewards.everywhere": "Off everywhere",
   "rewards.sites": "Sites with rewards off",
   "rewards.help": "One site per line, spelled as on the tasks.",
+  "rewards.early": "Early warning",
+  "rewards.earlyCount": "Early warnings: {n} risks raised at least 2 weeks before they were due",
   "settings.lastAdmin": "A workspace needs at least one admin. Make someone else an admin first.",
   "settings.confirmMismatch": "The confirmation did not match. Nothing was deleted.",
   "import.title": "Import a schedule",

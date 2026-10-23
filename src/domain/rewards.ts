@@ -8,3 +8,8 @@ export function switchList(everywhere: boolean, lines: string): string[] {
   const sites = lines.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 100);
   return [...new Set(everywhere ? ["", ...sites] : sites)].filter((s) => s.length <= 80);
 }
+
+// A risk raised at least 14 days before its due date earns the early warning badge.
+export function isEarlyWarning(createdAt: string, dueDate: string | null): boolean {
+  return !!dueDate && Date.parse(dueDate) - Date.parse(createdAt.slice(0, 10)) >= 14 * 86_400_000;
+}

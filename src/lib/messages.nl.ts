@@ -172,6 +172,8 @@ export const nl: Record<keyof typeof en, string> = {
   "rewards.everywhere": "Overal uit",
   "rewards.sites": "Locaties met beloningen uit",
   "rewards.help": "Eén locatie per regel, geschreven zoals bij de taken.",
+  "rewards.early": "Vroege waarschuwing",
+  "rewards.earlyCount": "Vroege waarschuwingen: {n} risico's minstens 2 weken voor de einddatum gemeld",
   "settings.lastAdmin": "Een werkruimte heeft minstens één beheerder nodig. Maak eerst iemand anders beheerder.",
   "settings.confirmMismatch": "De bevestiging klopte niet. Er is niets verwijderd.",
   "import.title": "Planning importeren",

@@ -3,6 +3,7 @@ import { listManualItems, listPlanChoices, type ManualItem } from "@/data/live";
 import { currentProject, listMembers, listProjects, type Member } from "@/data/projects";
 import { MANUAL_KINDS, PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
+import { isEarlyWarning, rewardsOn } from "@/domain/rewards";
 import type { MessageKey } from "@/lib/messages";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
@@ -97,6 +98,13 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const [{ rows: items, next }, choices, members] = await Promise.all([listManualItems(supabase, project.id, after), listPlanChoices(supabase, project.id), listMembers(supabase, project.id)]);
   const plan = { members, ...choices };
+  // Risks have no site, so only the "off everywhere" switch hides the badge.
+  const [{ data: switches }, { data: risks }] = await Promise.all([
+    supabase.from("reward_switches").select("site"),
+    supabase.from("risks").select("created_at, due_date").eq("project_id", project.id),
+  ]);
+  const rewards = rewardsOn((switches ?? []).map((r) => r.site as string), "");
+  const early = rewards ? (risks ?? []).filter((r) => isEarlyWarning(r.created_at as string, r.due_date as string | null)).length : 0;
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -141,7 +149,8 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
               <button type="submit" name="op" value="due" className="btn btn-secondary">{t("bulk.setDue")}</button>
             </form>
           )}
-          <ItemsTable kind={kind} t={t} rows={items.filter((i) => i.kind === kind).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />
+          {kind === "risk" && early > 0 && <p className="badge">{t("rewards.earlyCount").replace("{n}", String(early))}</p>}
+          <ItemsTable kind={kind} t={t} rewards={rewards} rows={items.filter((i) => i.kind === kind).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />
         </section>
       ))}
       <MoreLink path="/app/items" params={{ project: project.id, ...(only ? { kind: only } : {}) }} next={next} label={t("paging.more")} />
