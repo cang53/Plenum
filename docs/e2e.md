@@ -2,6 +2,8 @@
 
 `e2e/flows.spec.ts` covers invite and role change, the daily digest preference, export and project delete. Both specs use role- and label-based selectors so markup changes do not break them.
 
+`e2e/stage9.spec.ts` covers the stage 9 screens on a fresh project: daily site log, risks and issues, baselines on the Gantt, and document tags on an attachment.
+
 `e2e/core-flow.spec.ts` drives the core flow in a browser: sign in with the emailed link, receive a message, accept the AI suggestion, see the task on the board and change its status. It uses the local Supabase stack, the offline email and AI fakes, and no cloud accounts.
 
 Run it locally (needs Docker and the Supabase CLI):
