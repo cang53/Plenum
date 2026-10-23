@@ -3,7 +3,7 @@ import { currentProject, listProjects } from "@/data/projects";
 import { messages, type MessageKey } from "@/lib/messages";
 import { getLocale, getT } from "@/lib/locale";
 import { exportTables } from "@/domain/export";
-import { deleteProject, removePerson, saveProfile, saveProject } from "./actions";
+import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject } from "./actions";
 
 type Search = { project?: string; saved?: string; removed?: string; error?: string };
 
@@ -63,6 +63,15 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <button type="submit">{t("settings.save")}</button>
         </fieldset>
       </form>
+      {canManage && (
+        <form action={createFromTemplate}>
+          <h2>{t("settings.template")}</h2>
+          <input type="hidden" name="projectId" value={project.id} />
+          <p><label>{t("settings.templateName")} <input className="field" name="newName" required /></label>
+            <br /><small>{t("settings.templateHelp")}</small></p>
+          <button type="submit" className="btn btn-secondary">{t("settings.templateButton")}</button>
+        </form>
+      )}
       {isAdmin && (
         <section>
           <h2>{t("export.title")}</h2>
