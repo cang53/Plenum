@@ -1,5 +1,7 @@
 -- Reward switches (S12-1): admin only writes, members read, changes are audited.
 \set ON_ERROR_STOP on
+-- Earlier files may leave other people promoted; start from a known state.
+update public.workspace_members set role = 'member' where user_id = '00000000-0000-0000-0000-00000000000b';
 set role authenticated;
 do $$
 declare ws uuid := '10000000-0000-0000-0000-000000000001'; n int;
