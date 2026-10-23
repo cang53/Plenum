@@ -32,15 +32,20 @@
 .gantt-bar[data-late="true"] { background: var(--status-blocked); }
 .gantt-bar[data-milestone="true"] { width: 12px !important; height: 12px; margin-inline-start: -6px; margin-top: 1px; background: var(--text); rotate: 45deg; border-radius: 1px; /* not transform: dragging sets that */ }
 .gantt-summary { position: absolute; height: 6px; margin-top: 11px; background: var(--text); }
+.gantt-baselinebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2) var(--s4); padding: var(--s2) var(--s3); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-size: var(--text-sm); }
+.gantt-baselinebar p { margin: 0; color: var(--text-secondary); }
+.gantt-baselinebar strong { color: var(--text); }
+.gantt-baselinebar form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
 .gantt-baseline { position: absolute; height: 4px; background: var(--border-strong); opacity: 0.5; }
 .gantt-slip { position: absolute; line-height: var(--gantt-row); font-style: normal; font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--warning); }
 .gantt-legend { display: flex; flex-wrap: wrap; gap: var(--s5); margin: 0; padding: 0; list-style: none; font-size: var(--text-xs); color: var(--text-secondary); }
 .gantt[data-critical-path="false"] .gantt-legend [data-critical="true"] { display: none; }
 .gantt-legend [data-critical="true"]::before { content: ""; display: inline-block; width: 12px; height: 8px; margin-inline-end: var(--s1); background: var(--primary); box-shadow: 0 0 0 1.5px var(--text); }
 .gantt-legend [data-late="true"]::before { content: ""; display: inline-block; width: 12px; height: 8px; margin-inline-end: var(--s1); background: var(--status-blocked); }
+.gantt-legend [data-baseline="true"]::before { content: ""; display: inline-block; width: 12px; height: 4px; margin-inline-end: var(--s1); background: var(--border-strong); opacity: 0.5; }
 .gantt-legend [data-milestone="true"]::before { content: "\25C6 "; color: var(--text); }
 @media print {
-  .gantt-toolbar, .shell-bar, nav, .work-switch { display: none; }
+  .gantt-toolbar, .gantt-baselinebar, .shell-bar, nav, .work-switch { display: none; }
   .gantt-scroll { overflow: visible; }
   .gantt-bar { cursor: default; }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { buildBars, criticalPath, dayOf, DAY_PX, groupByPhase, isoOf, scaleTicks, shiftDates, slipDays, type BaselineDates, type GanttTask, type Zoom } from "@/domain/gantt";
 import { findConflicts, type Dependency } from "@/domain/schedule";
 import { intlLocale, type Locale } from "@/lib/messages";
@@ -8,9 +8,9 @@ import { intlLocale, type Locale } from "@/lib/messages";
 const ROW_PX = 28; // keep in step with --gantt-row in gantt.css
 const ZOOMS: Zoom[] = ["week", "month", "quarter"];
 
-type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineName: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string; milestone: string; task: string; start: string; end: string; zoom: string; week: string; month: string; quarter: string; collapse: string; expand: string; noPhase: string; slipShort: string; criticalToggle: string };
+type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineName: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string; milestone: string; task: string; start: string; end: string; zoom: string; week: string; month: string; quarter: string; collapse: string; expand: string; noPhase: string; slipShort: string; baselineActive: string; baselineLegend: string; criticalToggle: string };
 
-export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, onBaseline, labels, locale = "en" }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale }) {
+export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en" }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale }) {
   const [tasks, setTasks] = useState(initial);
   const [error, setError] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -77,15 +77,18 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
         </div>
         <button type="button" className="btn gantt-print" aria-pressed={showCritical} onClick={() => setShowCritical((v) => !v)}>{labels.criticalToggle}</button>
         <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
+      </div>
+      <div className="gantt-baselinebar">
+        {baseline ? <p><strong>{labels.baselineActive.replace("{name}", baselineName)}</strong> {labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p>{labels.baselineNone}</p>}
+        {picker}
         {onBaseline && (
           <form onSubmit={(e) => { e.preventDefault(); void saveBase(); }}>
             <label>{labels.baselineName} <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required /></label>
-            <button type="submit" className="btn gantt-print">{labels.saveBaseline}</button>
+            <button type="submit" className="btn">{labels.saveBaseline}</button>
           </form>
         )}
       </div>
       {saved && <p role="status">{labels.baselineSaved}</p>}
-      {baseline ? <p>{labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p className="intro">{labels.baselineNone}</p>}
       {error && <p role="alert">{labels.saveError}</p>}
       <div className="gantt-split surface">
         <table className="gantt-table">
@@ -178,6 +181,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
         <li data-critical="true">{labels.critical}</li>
         <li data-late="true">{labels.conflict}</li>
         <li data-milestone="true">{labels.milestone}</li>
+        {baseline && <li data-baseline="true">{labels.baselineLegend}</li>}
       </ul>
     </section>
   );
