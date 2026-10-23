@@ -1,5 +1,6 @@
 -- Week activity (S11-6). Runs after timesheet_approval_rules.sql; project 2...01 members: Pia manager b, Mo member c.
 \set ON_ERROR_STOP on
+set role authenticated;
 set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
 update public.tasks set owner_id = '00000000-0000-0000-0000-00000000000c'
   where id = '40000000-0000-0000-0000-000000000001';
