@@ -252,10 +252,10 @@ export async function bulkUpdateTasks(client: SupabaseClient, ids: string[], pat
   if (data?.length !== ids.length) throw new Error("some tasks were not found or not allowed");
 }
 
-export type SiteLog = { id: string; site: string; log_date: string; weather: string; headcount: number; work_done: string; delays: string };
+export type SiteLog = { id: string; site: string; log_date: string; weather: string; headcount: number; work_done: string; delays: string; source_message_id: string | null };
 
 export async function listSiteLogs(client: SupabaseClient, projectId: string): Promise<SiteLog[]> {
-  const { data, error } = await client.from("site_logs").select("id, site, log_date, weather, headcount, work_done, delays")
+  const { data, error } = await client.from("site_logs").select("id, site, log_date, weather, headcount, work_done, delays, source_message_id")
     .eq("project_id", projectId).order("log_date", { ascending: false }).order("site").limit(PAGE_SIZE);
   if (error) throw error;
   return data ?? [];
@@ -263,6 +263,12 @@ export async function listSiteLogs(client: SupabaseClient, projectId: string): P
 
 // One log per site and day: saving again replaces it. The database checks the role and logs the save.
 export async function saveSiteLog(client: SupabaseClient, projectId: string, l: SiteLogInput): Promise<void> {
-  const { error } = await client.rpc("save_site_log", { p_project: projectId, p_site: l.site, p_date: l.date, p_weather: l.weather, p_headcount: l.headcount, p_work: l.work, p_delays: l.delays });
+  const { error } = await client.rpc("save_site_log", { p_project: projectId, p_site: l.site, p_date: l.date, p_weather: l.weather, p_headcount: l.headcount, p_work: l.work, p_delays: l.delays, p_source: l.sourceMessageId ?? null });
   if (error) throw error;
+}
+
+export async function getMessageForSiteLog(client: SupabaseClient, projectId: string, id: string): Promise<{ subject: string; body_text: string; received_at: string } | null> {
+  const { data, error } = await client.from("messages").select("subject, body_text, received_at").eq("project_id", projectId).eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data;
 }
