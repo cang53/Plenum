@@ -5,8 +5,9 @@ import { listBoardTasks, listStreakTasks, listMilestones, listPendingSuggestions
 import { currentProject, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
-import { celebratedMilestones, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
+import { celebratedMilestones, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
 import { getT } from "@/lib/locale";
+import { setTeamGoal } from "./actions";
 
 // Project overview: one card per project, what needs attention, and the way into AI review. Aggregate only.
 export default async function AppHome({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
@@ -40,6 +41,13 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     ? await supabase.from("decisions").select("details, source_message_id").eq("project_id", current.id)
     : { data: null };
   const knowledge = decisions ? knowledgeCount(decisions.map((d) => ({ details: d.details, sourceMessageId: d.source_message_id }))) : 0;
+  const [{ data: goalRows }, { data: canManage }] = rewardsShown
+    ? await Promise.all([
+        supabase.rpc("team_goal_progress", { p: current.id, p_day: today }),
+        supabase.rpc("can_manage_project", { p: current.id }),
+      ])
+    : [{ data: null }, { data: false }];
+  const goal = (goalRows as { weeks_done: number; weeks_total: number }[] | null)?.[0];
   const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? (streakTasks.length ? streakWeeks(streakTasks, today) : 0) : null;
   return (
     <main id="main" className="page overview">
@@ -79,6 +87,28 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
           <h2 id="knowledge"><span aria-hidden="true">📚</span> {t("knowledge.title")}</h2>
           <p><strong>{knowledge}</strong> {t("knowledge.count")}</p>
           <p className="meta">{t("knowledge.note")}</p>
+        </section>
+      )}
+      {rewardsShown && (goal || canManage) && (
+        <section className="surface overview-panel" aria-labelledby="goal">
+          <h2 id="goal"><span aria-hidden="true">🎯</span> {t("goal.title")}</h2>
+          {goal ? (
+            <>
+              <p>{t("goal.text")}</p>
+              <progress value={goalPercent(goal.weeks_done, goal.weeks_total)} max={100} aria-label={t("goal.title")} />
+              <p className="meta">{t("goal.progress").replace("{done}", String(goal.weeks_done)).replace("{total}", String(goal.weeks_total))}</p>
+            </>
+          ) : (
+            <p className="meta">{t("goal.none")}</p>
+          )}
+          <p className="meta">{t("goal.note")}</p>
+          {canManage && (
+            <form action={setTeamGoal}>
+              <input type="hidden" name="projectId" value={current.id} />
+              <input type="hidden" name="on" value={goal ? "0" : "1"} />
+              <button className="btn btn-secondary" type="submit">{goal ? t("goal.clear") : t("goal.set")}</button>
+            </form>
+          )}
         </section>
       )}
       <section className="surface overview-panel" aria-labelledby="attention">

@@ -52,6 +52,11 @@ export function isEarlyWarning(createdAt: string, dueDate: string | null): boole
   return !!dueDate && Date.parse(dueDate) - Date.parse(createdAt.slice(0, 10)) >= 14 * 86_400_000;
 }
 
+// Team challenge progress as a whole percent; no goal or no weeks yet means no bar.
+export function goalPercent(done: number, total: number): number {
+  return total > 0 ? Math.round((Math.min(done, total) / total) * 100) : 0;
+}
+
 export type Milestone = { title: string; dueDate: string | null; status: string; updatedAt: string; site: string };
 
 // Milestones finished on or before their date in the last 14 days and not switched off. Titles only, no owner.
