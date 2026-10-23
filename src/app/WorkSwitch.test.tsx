@@ -5,7 +5,7 @@ import { WorkSwitch } from "./WorkSwitch";
 
 describe("WorkSwitch", () => {
   const html = renderToStaticMarkup(<WorkSwitch current="board" projectId="p1" t={(k) => t(k, "en")} />);
-  it("links the three work views for the project and marks the current one", () => {
+  it("links the work views for the project and marks the current one", () => {
     expect(html).toContain('href="/app/timeline?project=p1"');
     expect(html).toContain('href="/app/items?project=p1"');
     expect(html).toMatch(/href="\/app\/board\?project=p1" aria-current="page"/);

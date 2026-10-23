@@ -195,3 +195,24 @@ export async function listAuditPage(client: SupabaseClient, projectId: string, a
   if (error) throw error;
   return toPage(data ?? [], (r) => ({ at: r.created_at, id: String(r.id) }));
 }
+
+// Dated tasks and their dependencies for the Gantt view.
+export async function listGanttPlan(client: SupabaseClient, projectId: string) {
+  const [tasks, deps] = await Promise.all([
+    client.from("tasks").select("id, title, start_date, due_date, phases(name)").eq("project_id", projectId).order("start_date", { nullsFirst: false }),
+    client.from("task_dependencies").select("predecessor_id, successor_id, tasks:successor_id!inner(project_id)").eq("tasks.project_id", projectId),
+  ]);
+  if (tasks.error) throw tasks.error;
+  if (deps.error) throw deps.error;
+  return {
+    tasks: ((tasks.data ?? []) as unknown as { id: string; title: string; start_date: string | null; due_date: string | null; phases: { name: string } | null }[]).map((r) => ({ id: r.id, title: r.title, startDate: r.start_date, dueDate: r.due_date, phase: r.phases?.name ?? null })),
+    dependencies: (deps.data ?? []).map((d) => ({ predecessorId: d.predecessor_id as string, successorId: d.successor_id as string })),
+  };
+}
+
+// The database checks start <= due and logs the change.
+export async function setTaskDates(client: SupabaseClient, taskId: string, startDate: string, dueDate: string): Promise<void> {
+  const { data, error } = await client.from("tasks").update({ start_date: startDate, due_date: dueDate }).eq("id", taskId).select("id");
+  if (error) throw error;
+  if (!data?.length) throw new Error("task not found or not allowed");
+}
