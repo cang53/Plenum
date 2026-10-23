@@ -3,6 +3,7 @@ import { listProjects, unreadCount } from "@/data/projects";
 import { getT } from "@/lib/locale";
 import { navItems } from "@/lib/nav";
 import { Shell } from "./shell";
+import { Shortcuts } from "./Shortcuts";
 
 // Every signed-in page sits in the same floating shell: sidebar, top bar, ambient background.
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         bell: t("shell.bell"),
       }}
     >
+      <Shortcuts labels={{ title: t("shortcuts.title"), close: t("shortcuts.close"), search: t("shortcuts.search"), new: t("shortcuts.new"), next: t("shortcuts.next"), prev: t("shortcuts.prev"), help: t("shortcuts.help") }} />
       {children}
     </Shell>
   );

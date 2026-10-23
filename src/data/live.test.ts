@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { acceptSuggestion, dismissSuggestion, setTaskStatus, taskFromRow } from "@/data/live";
+import { acceptSuggestion, bulkUpdateTasks, dismissSuggestion, setTaskStatus, taskFromRow } from "@/data/live";
 
 const fake = (result: unknown) => {
   const update = vi.fn();
@@ -74,5 +74,24 @@ describe("dismissSuggestion", () => {
   it("fails when nothing was pending or allowed", async () => {
     const { client } = fake({ data: [], error: null });
     await expect(dismissSuggestion(client, "s1")).rejects.toThrow("not allowed");
+  });
+});
+
+describe("bulkUpdateTasks", () => {
+  const fakeIn = (data: unknown[]) => {
+    const update = vi.fn();
+    const q: Record<string, unknown> = {};
+    q.update = (v: unknown) => (update(v), q);
+    q.in = () => q;
+    q.select = () => Promise.resolve({ data, error: null });
+    return { client: { from: () => q } as unknown as SupabaseClient, update };
+  };
+  it("updates all chosen tasks", async () => {
+    const { client, update } = fakeIn([{ id: "a" }, { id: "b" }]);
+    await bulkUpdateTasks(client, ["a", "b"], { status: "done" });
+    expect(update).toHaveBeenCalledWith({ status: "done" });
+  });
+  it("fails when some tasks were not changed", async () => {
+    await expect(bulkUpdateTasks(fakeIn([{ id: "a" }]).client, ["a", "b"], { status: "done" })).rejects.toThrow("not found or not allowed");
   });
 });

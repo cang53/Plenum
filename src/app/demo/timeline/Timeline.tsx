@@ -36,6 +36,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
   const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
   // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
+  const [picked, setPicked] = useState<string[]>([]);
   const [saveFailed, setSaveFailed] = useState<(() => void) | null>(null);
   const makeItem = (messageId: string, draft: ItemDraft) =>
     setItems((prev) => [...prev, { id: `${draft.kind}-${prev.length}`, kind: draft.kind, title: draft.title.trim(), messageId }]);
@@ -94,6 +95,16 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
         </p>
       </form>
 
+      {picked.some((id) => !decided[id]) && (
+        <p>
+          <button type="button" className="btn btn-secondary" onClick={async () => {
+            for (const id of picked) if (!decided[id] && !(await decide(id, "dismissed"))) return;
+            setPicked([]);
+          }}>
+            {t("bulk.dismissSelected")} ({picked.filter((id) => !decided[id]).length})
+          </button>
+        </p>
+      )}
       {saveFailed && (
         <p role="alert">
           {t("triage.saveError")}{" "}
@@ -150,7 +161,11 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                   .filter((s) => s.messageId === m.id && s.status === "pending" && !decided[s.id] && drafting?.suggestionId !== s.id)
                   .map((s) => (
                     <div key={s.id} className="suggestion" role="group" aria-label={t("triage.title")}>
-                      <p className="meta">{t("triage.title")}</p>
+                      <p className="meta">
+                        <input type="checkbox" checked={picked.includes(s.id)} aria-label={`${t("bulk.selectSuggestion")}: ${s.title}`}
+                          onChange={(e) => setPicked((p) => (e.target.checked ? [...p, s.id] : p.filter((x) => x !== s.id)))} />{" "}
+                        {t("triage.title")}
+                      </p>
                       <p>
                         <span className="chip">{t(`kind.${s.kind}`)}</span> <strong>{s.title}</strong>
                       </p>
