@@ -2,7 +2,7 @@ import type { Milestone, StreakTask } from "@/domain/rewards";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { dayEnd, dayStart, type Filters } from "@/domain/filters";
 import { MANUAL_KINDS, TABLE, toColumns, type ItemInput, type ManualKind } from "@/domain/items";
-import type { AuditRow } from "@/domain/audit";
+import type { AuditFilters, AuditRow } from "@/domain/audit";
 import { STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
 import { ITEM_KINDS, ITEM_TABLE, isValidDraft, type ItemDraft, type LinkedItem } from "@/domain/linking";
 import { PAGE_SIZE, afterFilter, decodeCursor, toPage, type Page } from "@/domain/paging";
@@ -230,11 +230,12 @@ export async function updateManualItem(client: SupabaseClient, id: string, item:
   if (item.kind === "task") await setPredecessors(client, id, item.predecessorIds);
 }
 
-export async function listAudit(client: SupabaseClient, projectId: string): Promise<AuditRow[]> {
-  const { data, error } = await client
-    .from("audit_log")
-    .select("created_at, project_id, actor_id, action, entity_type, entity_id, source_message_id")
-    .eq("project_id", projectId)
+export async function listAudit(client: SupabaseClient, projectId: string, f: AuditFilters = {}): Promise<AuditRow[]> {
+  let q = client.from("audit_log").select("created_at, project_id, actor_id, action, entity_type, entity_id, source_message_id").eq("project_id", projectId);
+  if (f.from) q = q.gte("created_at", dayStart(f.from));
+  if (f.to) q = q.lt("created_at", dayEnd(f.to));
+  if (f.action) q = q.eq("action", f.action);
+  const { data, error } = await q
     .order("created_at", { ascending: false })
     .limit(5000);
   if (error) throw error;
@@ -242,9 +243,12 @@ export async function listAudit(client: SupabaseClient, projectId: string): Prom
 }
 
 // One page of the log for the screen; the CSV download keeps using listAudit.
-export async function listAuditPage(client: SupabaseClient, projectId: string, after?: string): Promise<Page<AuditRow & { id: number }>> {
+export async function listAuditPage(client: SupabaseClient, projectId: string, after?: string, f: AuditFilters = {}): Promise<Page<AuditRow & { id: number }>> {
   const cursor = decodeCursor(after);
   let q = client.from("audit_log").select("id, created_at, project_id, actor_id, action, entity_type, entity_id, source_message_id").eq("project_id", projectId);
+  if (f.from) q = q.gte("created_at", dayStart(f.from));
+  if (f.to) q = q.lt("created_at", dayEnd(f.to));
+  if (f.action) q = q.eq("action", f.action);
   if (cursor) q = q.or(afterFilter("created_at", cursor));
   const { data, error } = await q.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
   if (error) throw error;
