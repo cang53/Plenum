@@ -57,3 +57,6 @@ Spec re-read against main after stage 12. Closed since S11-8: team rewards with 
 | Live Entra ID, SES and Bedrock | Built behind switches; waiting on accounts | later (accounts) |
 
 No other spec item is open.
+
+## Sweep S13-6
+Re-read after stage 13. Closed since S12-7: offline Teams poster behind `TEAMS_PROVIDER` (S13-2), reward history (S13-3), string audit (S13-4), accessibility pass (S13-5). Still open, all waiting on accounts: live Teams posting, and the first live run of Entra ID, SES and Bedrock (`account-ready.md`). No other spec item is open.
