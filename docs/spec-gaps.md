@@ -20,3 +20,18 @@ The v1 spec compared with the app on main. "Fixed" items went in with S6-7; "Que
 | Teams channel messages | Needs the Teams app and admin approval | later |
 | Gantt, timesheets, team rewards (admin switch per site) | Stages 4 to 6 of the spec | later |
 | Admin role as its own role and per-site reward switch | Admin is a workspace flag today | with rewards |
+
+## Sweep S10-5
+Spec re-read against main after stages 6 to 10. Closed since S6-7: reply, translation, task plan and site, search and timeline filters, templates, XER/XML import with dependencies and resources, weekly report (with risks and site logs), baselines, attachment tags and text, export and deletion, offline PWA. Every row S6-12 to S6-19 above is built.
+
+| Spec item | State | Row |
+|---|---|---|
+| Milestones on the Gantt; milestone celebration reward | No milestone flag on tasks | S10-7 |
+| "Rejected suggestions are logged so accuracy can be measured per project" | Dismissed status is stored; no per-project count anywhere | S10-8 |
+| Reply drafting agent (draft in the sender's language, person approves) | Not built; replies are typed by hand | S10-9 |
+| Timesheets: grid, AI draft, approval, CSV export | Not built (only `hours.log` permission) | later (spec stage 5) |
+| Team rewards and per-site switch | Not built | later (spec stage 6) |
+| Teams channel messages | Needs the Teams app and admin approval | later |
+| Live Entra ID, SES and Bedrock | Built behind switches; waiting on accounts | later (accounts) |
+| Admin as its own role | Still a workspace flag | later, with rewards |
+| Critical path highlight | Built in S8-3 though the spec lists it out of v1; kept | none |
