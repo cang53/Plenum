@@ -22,11 +22,13 @@ type Props = {
   // Live pages save the decision; the demo leaves these out and keeps changes in the page.
   onAccept?: (suggestionId: string, draft: ItemDraft) => Promise<void>;
   onDismiss?: (suggestionId: string) => Promise<void>;
+  // Live pages translate a message for display; null means keep the original.
+  onTranslate?: (messageId: string, language: string) => Promise<string | null>;
   // The signed-in person's language; the demo stays English.
   language?: Locale;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, language = "en" }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onTranslate, language = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
@@ -37,9 +39,25 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
   // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
   const [picked, setPicked] = useState<string[]>([]);
+  // Translations are fetched on click and kept in the page only. null: none available, so the original stays.
+  const [translations, setTranslations] = useState<Record<string, string | null>>({});
+  const [translated, setTranslated] = useState<Record<string, boolean>>({});
+  const [translating, setTranslating] = useState<string | null>(null);
   const [saveFailed, setSaveFailed] = useState<(() => void) | null>(null);
   const makeItem = (messageId: string, draft: ItemDraft) =>
     setItems((prev) => [...prev, { id: `${draft.kind}-${prev.length}`, kind: draft.kind, title: draft.title.trim(), messageId }]);
+  const toggleTranslation = async (id: string, run: NonNullable<Props["onTranslate"]>) => {
+    if (translations[id] === undefined) {
+      setTranslating(id);
+      const text = await run(id, language).catch((error) => (logError("translation failed", error), null));
+      setTranslating(null);
+      setTranslations((prev) => ({ ...prev, [id]: text }));
+      setTranslated((prev) => ({ ...prev, [id]: text !== null }));
+    } else setTranslated((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+  const shownBody = (m: TimelineMessage) => (translated[m.id] ? translations[m.id] : m.bodyText);
+  const translateLabel = (id: string): MessageKey =>
+    translations[id] === undefined ? "translate.show" : translations[id] === null ? "translate.unavailable" : translated[id] ? "translate.original" : "translate.again";
   // Saves the decision first (when the page saves), so a failure leaves the suggestion open.
   const decide = async (id: string, outcome: "accepted" | "dismissed", draft?: ItemDraft, messageId?: string): Promise<boolean> => {
     try {
@@ -118,7 +136,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
         <section key={d.day} className="timeline-day" aria-label={dayLabel(d.day)} data-today={relativeDay(d.day, now, timeZone) === "today"}>
           <h2>{dayLabel(d.day)}</h2>
           {d.messages.map((m) => {
-            const long = m.bodyText.length > LONG_BODY;
+            const long = m.bodyText.length > LONG_BODY; // folding follows the original length
             const expanded = Boolean(open[m.id]);
             const state = suggestions.some((s) => s.messageId === m.id && s.status === "pending" && !decided[s.id])
               ? "suggested"
@@ -133,7 +151,12 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                   <time dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                 </header>
                 <h3>{m.subject || t("timeline.noSubject")}</h3>
-                <p className={long && !expanded ? "body folded" : "body"}>{m.bodyText}</p>
+                <p className={long && !expanded ? "body folded" : "body"}>{shownBody(m)}</p>
+                {onTranslate && (
+                  <button type="button" className="link-button" disabled={translating === m.id || translations[m.id] === null} onClick={() => toggleTranslation(m.id, onTranslate)}>
+                    {t(translateLabel(m.id))}
+                  </button>
+                )}
                 {long && (
                   <button type="button" className="link-button" aria-expanded={expanded} onClick={() => setOpen({ ...open, [m.id]: !expanded })}>
                     {expanded ? t("timeline.showLess") : t("timeline.showMore")}
