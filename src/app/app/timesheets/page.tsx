@@ -29,6 +29,15 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
           <button type="submit" className="btn btn-primary">{t("timesheets.submit")}</button>
         </form>
       )}
+      {manager && (
+        <form action="/app/timesheets/csv" method="get" className="surface form-card">
+          <input type="hidden" name="project" value={project.id} />
+          <label><span className="field-label">{t("timesheets.from")}</span><input className="field" type="date" name="from" required /></label>
+          <label><span className="field-label">{t("timesheets.to")}</span><input className="field" type="date" name="to" required /></label>
+          <p className="hint">{t("timesheets.exportHint")}</p>
+          <button type="submit" className="btn">{t("timesheets.export")}</button>
+        </form>
+      )}
       {weeks.length === 0 ? <p>{t("timesheets.empty")}</p> : (
         <ul className="surface">
           {weeks.map((w) => (

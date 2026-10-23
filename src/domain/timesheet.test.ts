@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkDecision, checkGrid, shiftWeek, weekDays, weekStart } from "./timesheet";
+import { checkDecision, checkGrid, shiftWeek, timesheetCsv, weekDays, weekStart } from "./timesheet";
 
 const T = "40000000-0000-0000-0000-000000000001";
 const form = (o: Record<string, string>) => new Map(Object.entries(o));
@@ -36,5 +36,13 @@ describe("checkDecision", () => {
   it("rejects other days and other decisions", () => {
     expect(checkDecision(form({ week: "2026-10-20", user: "u1", decision: "approved" }))).toBeNull();
     expect(checkDecision(form({ week: "2026-10-19", user: "u1", decision: "submitted" }))).toBeNull();
+  });
+});
+
+describe("timesheetCsv", () => {
+  it("writes a header, quotes fields and defuses formulas", () => {
+    expect(timesheetCsv([{ person: "=Eve", task: 'Say "hi"', work_date: "2026-10-19", hours: 7.5 }])).toBe(
+      '"person","task","date","hours"\r\n"\'=Eve","Say ""hi""","2026-10-19","7.5"\r\n',
+    );
   });
 });
