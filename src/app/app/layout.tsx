@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listProjects } from "@/data/projects";
+import { listProjects, unreadCount } from "@/data/projects";
 import { getT } from "@/lib/locale";
 import { navItems } from "@/lib/nav";
 import { Shell } from "./shell";
@@ -25,6 +25,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       itemsByProject={itemsByProject}
       fallbackItems={items()}
       email={data.user.email ?? ""}
+      unread={await unreadCount(supabase)}
+      unreadLabel={(n) => t("notifications.unread").replace("{n}", String(n))}
       labels={{
         brand: t("app.name"),
         main: t("shell.main"),
@@ -34,6 +36,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         account: t("shell.account"),
         signOut: t("app.signOut"),
         mobile: t("shell.mobile"),
+        bell: t("shell.bell"),
       }}
     >
       {children}

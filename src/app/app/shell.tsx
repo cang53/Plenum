@@ -2,6 +2,7 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
+import { Bell } from "./Bell";
 
 type Item = { path: string; label: string };
 type Props = {
@@ -9,11 +10,13 @@ type Props = {
   itemsByProject: Record<string, Item[]>;
   fallbackItems: Item[];
   email: string;
-  labels: Record<"brand" | "main" | "projects" | "search" | "searchPlaceholder" | "account" | "signOut" | "mobile", string>;
+  unread: number;
+  labels: Record<"brand" | "main" | "projects" | "search" | "searchPlaceholder" | "account" | "signOut" | "mobile" | "bell", string>;
+  unreadLabel: (n: number) => string;
   children: ReactNode;
 };
 
-export function Shell({ projects, itemsByProject, fallbackItems, email, labels, children }: Props) {
+export function Shell({ projects, itemsByProject, fallbackItems, email, unread, unreadLabel, labels, children }: Props) {
   const pathname = usePathname();
   const chosen = useSearchParams().get("project");
   const project = projects.find((p) => p.id === chosen) ?? projects[0];
@@ -49,6 +52,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, labels, 
             {project && <input type="hidden" name="project" value={project.id} />}
             <input type="search" name="q" className="field" placeholder={labels.searchPlaceholder} aria-label={labels.search} />
           </form>
+          <Bell href={href("/app/notifications")} initial={unread} label={labels.bell} countLabel={unreadLabel} />
           <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
             <span>{email}</span>
             <button type="submit" className="btn btn-plain">{labels.signOut}</button>
