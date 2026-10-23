@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { t } from "@/lib/messages";
 import { Gantt } from "./Gantt";
 
-const labels = { chart: "Gantt chart", today: "Today", critical: "On the critical path", conflict: "Starts early", print: "Print", saveError: "Error", bar: t("gantt.bar"), empty: "No dated tasks", saveBaseline: "Save baseline", baselineName: "Baseline name", baselineSaved: "Saved", baselineNone: "No baseline yet", baselineLate: "{n} tasks late", slip: "{days} days against the baseline", milestone: "Milestone", task: "Task", start: "Start", end: "End", zoom: "Zoom", week: "Week", month: "Month", quarter: "Quarter", collapse: "Collapse phase", expand: "Expand phase", noPhase: "No phase", slipShort: "+{days} d" };
+const labels = { chart: "Gantt chart", today: "Today", critical: "On the critical path", conflict: "Starts early", print: "Print", saveError: "Error", bar: t("gantt.bar"), empty: "No dated tasks", saveBaseline: "Save baseline", baselineName: "Baseline name", baselineSaved: "Saved", baselineNone: "No baseline yet", baselineLate: "{n} tasks late", slip: "{days} days against the baseline", milestone: "Milestone", task: "Task", start: "Start", end: "End", zoom: "Zoom", week: "Week", month: "Month", quarter: "Quarter", collapse: "Collapse phase", expand: "Expand phase", noPhase: "No phase", slipShort: "+{days} d", baselineActive: "Baseline: {name}.", baselineLegend: "Baseline dates" };
 const task = (id: string, startDate: string, dueDate: string) => ({ id, title: id, startDate, dueDate, phase: null });
 const save = async () => {};
 
@@ -35,9 +35,11 @@ describe("Gantt", () => {
   it("shows slip against a baseline and the save button only when allowed", () => {
     const tasks = [task("a", "2026-11-01", "2026-11-05")];
     const base = { a: { startDate: "2026-11-01", dueDate: "2026-11-03" } };
-    const html = renderToStaticMarkup(<Gantt tasks={tasks} dependencies={[]} onSave={save} baseline={base} onBaseline={async () => {}} labels={labels} />);
+    const html = renderToStaticMarkup(<Gantt tasks={tasks} dependencies={[]} onSave={save} baseline={base} baselineName="Kick-off" onBaseline={async () => {}} labels={labels} />);
     expect(html).toContain("2 days against the baseline");
     expect(html).toContain("1 tasks late");
+    expect(html).toContain("Baseline: Kick-off.");
+    expect(html).toContain('data-baseline="true"');
     expect(html).toContain("+2 d");
     expect(html).toContain("Save baseline");
     expect(html).toContain("Baseline name");

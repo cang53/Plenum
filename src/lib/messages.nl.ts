@@ -516,6 +516,8 @@ export const nl: Record<keyof typeof en, string> = {
   "gantt.collapse": "Fase inklappen",
   "gantt.expand": "Fase uitklappen",
   "gantt.noPhase": "Geen fase",
+  "gantt.baselineActive": "Basisplan: {name}.",
+  "gantt.baselineLegend": "Data basisplan",
   "gantt.slipShort": "+{days} d",
   "gantt.milestone": "Mijlpaal",
   "gantt.slip": "{days} dagen ten opzichte van het basisplan",

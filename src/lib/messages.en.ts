@@ -514,6 +514,8 @@ export const en = {
   "gantt.collapse": "Collapse phase",
   "gantt.expand": "Expand phase",
   "gantt.noPhase": "No phase",
+  "gantt.baselineActive": "Baseline: {name}.",
+  "gantt.baselineLegend": "Baseline dates",
   "gantt.slipShort": "+{days} d",
   "gantt.milestone": "Milestone",
   "gantt.slip": "{days} days against the baseline",
