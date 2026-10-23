@@ -14,6 +14,7 @@
     "test:e2e": "playwright test",
     "seed": "node --env-file=.env.local scripts/seed-local.mjs",
     "check:budget": "node scripts/check-budget.mjs",
+    "deploy:check": "node scripts/deploy-check.mjs",
     "check:switches": "node --env-file-if-exists=.env.local scripts/check-switches.mjs",
     "pilot:dry-run": "node --env-file=.env.local scripts/pilot-dry-run.mjs"
   },
