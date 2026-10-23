@@ -30,13 +30,15 @@ type Props = {
   // Live pages send the reply by email; without it the reply button is not shown.
   // Live pages let a manager tag an attachment as a drawing, permit and so on.
   onTagAttachment?: TagAttachment;
+  // Live pages offer a suggested reply that fills the box; null means none available.
+  onDraftReply?: (messageId: string) => Promise<string | null>;
   onReply?: (messageId: string, text: string, confirmWider: boolean) => Promise<"sent" | "wider">;
   // Live pages let a member or manager open a site log form prefilled from a message.
   // A link template with {id}; a function cannot be passed from a server page to this component.
   siteLogHref?: string;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, onTagAttachment, siteLogHref, language = "en" }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onDraftReply, onTranslate, onTagAttachment, siteLogHref, language = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
@@ -46,7 +48,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
   const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
   // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
-  const [reply, setReply] = useState<{ messageId: string; text: string; wider: boolean; sent?: boolean; failed?: boolean } | null>(null);
+  const [reply, setReply] = useState<{ messageId: string; text: string; wider: boolean; sent?: boolean; failed?: boolean; drafting?: boolean; noDraft?: boolean } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
   // Translations are fetched on click and kept in the page only. null: none available, so the original stays.
   const [translations, setTranslations] = useState<Record<string, string | null>>({});
@@ -83,6 +85,11 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
     return true;
   };
 
+  const suggestReply = async (messageId: string, run: NonNullable<Props["onDraftReply"]>) => {
+    setReply((r) => r && { ...r, drafting: true, noDraft: false });
+    const text = await run(messageId).catch((error) => (logError("reply draft failed", error), null));
+    setReply((r) => r && { ...r, drafting: false, noDraft: text === null, text: text ?? r.text });
+  };
   const sendReply = async (confirmWider: boolean) => {
     if (!reply || !onReply || !reply.text.trim()) return;
     try {
@@ -239,6 +246,11 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                       <textarea rows={3} value={reply.text} onChange={(e) => setReply({ messageId: m.id, text: e.target.value, wider: false })} />
                     </label>
                     <p className="meta">{t("reply.to")}: {m.fromAddress}</p>
+                    {onDraftReply && (
+                      <button type="button" className="link-button" disabled={reply.drafting} onClick={() => void suggestReply(m.id, onDraftReply)}>
+                        {t(reply.noDraft ? "reply.draftUnavailable" : "reply.draft")}
+                      </button>
+                    )}
                     {reply.wider && <p role="alert">{t("reply.wider")}</p>}
                     {reply.failed && <p role="alert">{t("reply.error")}</p>}
                     <div>
