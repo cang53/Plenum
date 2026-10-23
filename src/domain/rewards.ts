@@ -41,3 +41,8 @@ export function streakWeeks(tasks: StreakTask[], today: string): number {
   }
   return weeks;
 }
+
+// A decision counts as knowledge once it is written up (has details) and linked to its source message.
+export function knowledgeCount(decisions: { details: string; sourceMessageId: string | null }[]): number {
+  return decisions.filter((d) => d.details.trim() !== "" && d.sourceMessageId !== null).length;
+}

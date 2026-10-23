@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
+import { projectRewardsOn, rewardsOn, streakWeeks, knowledgeCount, switchList } from "./rewards";
 
 describe("rewardsOn", () => {
   it("is on with no switches", () => expect(rewardsOn([], "North")).toBe(true));
@@ -47,4 +47,15 @@ describe("streakWeeks", () => {
     const t = [{ dueDate: "2026-10-07", status: "done", updatedAt: "2026-10-08T09:00:00Z" }];
     expect(streakWeeks(t, today)).toBe(104);
   });
+});
+
+describe("knowledgeCount", () => {
+  it("counts only decisions that are written up and linked to a message", () => {
+    expect(knowledgeCount([
+      { details: "Why we chose X", sourceMessageId: "m1" },
+      { details: "  ", sourceMessageId: "m2" },
+      { details: "No source", sourceMessageId: null },
+    ])).toBe(1);
+  });
+  it("is zero for no decisions", () => expect(knowledgeCount([])).toBe(0));
 });
