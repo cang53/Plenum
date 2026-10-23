@@ -1,0 +1,11 @@
+/* Site log: one day as stacked sections (weather, people, deliveries, notes) with a day stepper. Flat, tokens only. */
+.sl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); margin-block-end: var(--s4); }
+.sl-bar h2 { margin: 0; font-size: var(--text-lg); font-variant-numeric: tabular-nums; }
+.sl-bar a { text-decoration: none; }
+.sl-sites { display: flex; flex-wrap: wrap; gap: var(--s3); font-size: var(--text-sm); margin-block-end: var(--s3); }
+.sl-sites a[aria-current="page"] { color: var(--text); font-weight: var(--weight-semibold); }
+.sl-sec { border-block-start: 1px solid var(--border); padding-block: var(--s3); display: grid; gap: var(--s1); }
+.sl-sec h3 { margin: 0; font-size: var(--text-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); font-weight: var(--weight-semibold); display: flex; justify-content: space-between; }
+.sl-sec p { margin: 0; overflow-wrap: anywhere; }
+.sl-edit { margin-block: var(--s4); }
+.sl-edit summary { cursor: pointer; }

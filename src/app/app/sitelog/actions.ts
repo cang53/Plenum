@@ -9,7 +9,7 @@ import { checkSiteLog } from "@/domain/siteLog";
 export async function submitSiteLog(form: FormData): Promise<void> {
   const projectId = String(form.get("projectId"));
   const input = checkSiteLog(form);
-  let result = input.ok ? "saved=1" : `error=${input.error}`;
+  let result = input.ok ? `saved=1&site=${encodeURIComponent(input.value.site)}&date=${input.value.date}` : `error=${input.error}`;
   if (input.ok) {
     try {
       await saveSiteLog(await supabaseServer(), projectId, input.value);

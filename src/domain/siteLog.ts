@@ -20,3 +20,18 @@ export function checkSiteLog(form: { get(k: string): FormDataEntryValue | null |
 export function prefillSiteLog(m: { subject: string; body_text: string; received_at: string }): { site: string; date: string; work: string } {
   return { site: m.subject.trim().slice(0, 100), date: m.received_at.slice(0, 10), work: m.body_text.trim().slice(0, 4000) };
 }
+
+// The day shown: the asked-for site (else the newest log's site) and date (else today). Dates are plain YYYY-MM-DD strings.
+export function pickDay<L extends { site: string; log_date: string }>(logs: L[], site: string | undefined, date: string | undefined, today: string): { site: string; date: string; log: L | undefined; sites: string[]; days: string[] } {
+  const sites = [...new Set(logs.map((l) => l.site))].sort();
+  const s = site ?? logs[0]?.site ?? "";
+  const d = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
+  return { site: s, date: d, log: logs.find((l) => l.site === s && l.log_date === d), sites, days: logs.filter((l) => l.site === s).map((l) => l.log_date) };
+}
+
+// The neighbouring date, for the day stepper.
+export function stepDay(date: string, delta: number): string {
+  const t = new Date(`${date}T00:00:00Z`);
+  t.setUTCDate(t.getUTCDate() + delta);
+  return t.toISOString().slice(0, 10);
+}
