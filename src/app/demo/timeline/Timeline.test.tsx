@@ -16,4 +16,10 @@ describe("Timeline", () => {
     expect(bars.length).toBe(demoMessages(now).length);
     expect(html).toMatch(/class="badge badge-warning">Needs a decision/);
   });
+  it("shows each suggestion with Accept, Edit and Dismiss buttons and a link to its source message", () => {
+    for (const name of ["Accept", "Edit", "Dismiss"]) expect(html).toContain(`>${name}</button>`);
+    const href = html.match(/Source message: <a href="#(message-[^"]+)"/)?.[1];
+    expect(href).toBeTruthy();
+    expect(html).toContain(`id="${href}"`);
+  });
 });

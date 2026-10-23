@@ -124,7 +124,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
               ? "suggested"
               : linkedTo(items, m.id).length > 0 ? "linked" : "new";
             return (
-              <article key={m.id} className="message" data-state={state}>
+              <article key={m.id} id={`message-${m.id}`} className="message" data-state={state}>
                 <header>
                   <span className="chip">{t(`source.${m.source}`)}</span>
                   <strong>{m.fromName ?? m.fromAddress}</strong>
@@ -160,7 +160,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                 {suggestions
                   .filter((s) => s.messageId === m.id && s.status === "pending" && !decided[s.id] && drafting?.suggestionId !== s.id)
                   .map((s) => (
-                    <div key={s.id} className="suggestion" role="group" aria-label={t("triage.title")}>
+                    <div key={s.id} className="suggestion glass" role="group" aria-label={t("triage.title")}>
                       <p className="meta">
                         <input type="checkbox" checked={picked.includes(s.id)} aria-label={`${t("bulk.selectSuggestion")}: ${s.title}`}
                           onChange={(e) => setPicked((p) => (e.target.checked ? [...p, s.id] : p.filter((x) => x !== s.id)))} />{" "}
@@ -170,19 +170,19 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                         <span className="chip">{t(`kind.${s.kind}`)}</span> <strong>{s.title}</strong>
                       </p>
                       {s.details && <p className="body">{s.details}</p>}
-                      <p className="meta">{t("link.fromMessage")}: {m.subject || t("timeline.noSubject")}</p>
-                      <div>
+                      <p className="meta">{t("triage.source")}: <a href={`#message-${m.id}`}>{m.subject || t("timeline.noSubject")}</a></p>
+                      <div className="suggestion-actions">
                         <button
                           type="button"
-                          className="button"
+                          className="btn btn-primary"
                           onClick={() => decide(s.id, "accepted", toDraft(s), m.id)}
                         >
                           {t("triage.accept")}
                         </button>{" "}
-                        <button type="button" className="button" onClick={() => setDrafting({ messageId: m.id, draft: toDraft(s), suggestionId: s.id })}>
+                        <button type="button" className="btn btn-secondary" onClick={() => setDrafting({ messageId: m.id, draft: toDraft(s), suggestionId: s.id })}>
                           {t("triage.edit")}
                         </button>{" "}
-                        <button type="button" className="button" onClick={() => decide(s.id, "dismissed")}>
+                        <button type="button" className="btn btn-plain" onClick={() => decide(s.id, "dismissed")}>
                           {t("triage.dismiss")}
                         </button>
                       </div>
