@@ -39,14 +39,14 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
   const invitations = await listInvitations(supabase, project.id);
   return (
     <main id="main" className="center-stage">
-      <div className="state-card">
+      <div className="surface state-card">
       <h1>{t("welcome.ready")}</h1>
-      <section className="glass">
+      <section>
         <h2>{t("welcome.addressTitle")}</h2>
         <p><code>{projectAddress(project.email_slug, process.env.INBOUND_EMAIL_DOMAIN)}</code></p>
         <p className="intro">{t("welcome.addressHelp")}</p>
       </section>
-      <section className="glass">
+      <section>
         <h2>{t("members.invite")}</h2>
         {invitations.length > 0 && (
           <ul>{invitations.map((i) => <li key={i.id}>{i.email} ({t(`role.${i.role as (typeof ROLES)[number]}`)})</li>)}</ul>
