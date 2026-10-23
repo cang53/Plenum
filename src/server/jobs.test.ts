@@ -7,6 +7,7 @@ const store = (claimed: string[], over: Partial<JobStore> = {}): JobStore => ({
   finish: vi.fn(async () => {}),
   failedEmails: async () => [mail],
   purge: async () => 3,
+  draftReports: async () => 2,
   digestRows: async () => [],
   ...over,
 });
@@ -15,7 +16,7 @@ describe("runJobs", () => {
   it("skips a job that was already claimed", async () => {
     const send = vi.fn();
     const s = store([]);
-    expect(await runJobs(s, { send })).toEqual({ digest: { ran: false }, purge: { ran: false }, "retry-send": { ran: false } });
+    expect(await runJobs(s, { send })).toEqual({ digest: { ran: false }, purge: { ran: false }, "status-report": { ran: false }, "retry-send": { ran: false } });
     expect(send).not.toHaveBeenCalled();
     expect(s.finish).not.toHaveBeenCalled();
   });
@@ -33,6 +34,13 @@ describe("runJobs", () => {
     const s = store(["purge"]);
     expect((await runJobs(s, { send: async () => {} })).purge).toEqual({ ran: true, detail: "3 purged" });
     expect(s.finish).toHaveBeenCalledWith("purge", true, "3 purged");
+  });
+
+  it("drafts the weekly status reports (drafts only, nothing is emailed)", async () => {
+    const send = vi.fn();
+    const s = store(["status-report"]);
+    expect((await runJobs(s, { send }))["status-report"]).toEqual({ ran: true, detail: "2 drafted" });
+    expect(send).not.toHaveBeenCalled();
   });
 
   it("records a failing job without stopping the others", async () => {
