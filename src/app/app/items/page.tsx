@@ -8,6 +8,7 @@ import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 import { WorkSwitch } from "@/app/WorkSwitch";
 import { bulkTasks, saveItem } from "./actions";
+import { OfflineTasks } from "./OfflineTasks";
 import { ItemsTable } from "./ItemsTable";
 
 type Plan = { members: Member[]; phases: { id: string; name: string }[]; tasks: { id: string; title: string }[] };
@@ -87,6 +88,11 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
       <h1>{t("items.title")}</h1>
       <p className="intro">{t("items.intro")}</p>
       <WorkSwitch current="items" projectId={project.id} t={t} />
+      <OfflineTasks
+        project={project.name}
+        tasks={items.filter((i) => i.kind === "task").map((i) => ({ id: i.id, title: i.title, status: i.status }))}
+        labels={{ title: t("offline.quick"), hint: t("offline.hint"), status: t("board.statusLabel"), note: t("offline.note"), add: t("offline.add"), pending: t("offline.pending"), synced: t("offline.synced"), conflicts: t("offline.conflicts"), statuses: Object.fromEntries(STATUSES.map((s) => [s, t(`status.${s}` as MessageKey)])) }}
+      />
       <nav className="items-filter" aria-label={t("items.filter.label")}>
         <div className="segmented">
           {[undefined, ...MANUAL_KINDS].map((k) => (
