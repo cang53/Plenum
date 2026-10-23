@@ -11,7 +11,7 @@
   color: var(--text-secondary);
 }
 .items-table tbody tr + tr td, .data-table tbody tr + tr td { border-block-start: 1px solid var(--border); }
-.items-table tbody tr:hover, .data-table tbody tr:hover { background: var(--glass-soft); }
+.items-table tbody tr:hover, .data-table tbody tr:hover { background: var(--surface-muted); }
 .items-table td { vertical-align: top; }
 .items-table summary { cursor: pointer; font-weight: var(--weight-medium); }
 .items-filter { margin-block: var(--s4); }

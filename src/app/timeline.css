@@ -25,7 +25,7 @@
 .message .body { margin: 0; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; }
 .message .folded { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* The agent card is glass so it reads as separate from the message it came from; the buttons carry the decision. */
+/* The agent card is a surface so it reads as separate from the message it came from; the buttons carry the decision. */
 .suggestion {
   display: flex;
   flex-direction: column;

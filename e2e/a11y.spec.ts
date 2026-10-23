@@ -32,7 +32,7 @@ test("demo timeline fits a phone screen without sideways page scroll", async ({ 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-// Light and dark, with the user's contrast and motion preferences, on the glass screens that need no sign-in.
+// Light and dark, with the user's contrast and motion preferences, on the screens that need no sign-in.
 const modes = [
   { name: "light", scheme: "light" },
   { name: "dark", scheme: "dark" },

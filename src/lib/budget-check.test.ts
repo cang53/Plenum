@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { checkBundle, checkGlass } from "../../scripts/budget-check.mjs";
 
-const budget = { jsBytesDefault: 100, jsBytesByRoute: { "/big": 200 }, cssBytes: 50, maxBlurPx: 24, maxBackdropRules: 2 };
+const budget = { jsBytesDefault: 100, jsBytesByRoute: { "/big": 200 }, cssBytes: 50, maxBackdropRules: 2 };
 
 describe("bundle budget", () => {
   it("passes within budget and honours a per-route limit", () => {
@@ -13,12 +13,12 @@ describe("bundle budget", () => {
 });
 
 describe("glass budget", () => {
-  const ok = ["a{-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px)} :root{--glass-blur: 24px}"];
+  const ok = ["a{-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px)}"];
   it("ignores the prefixed twin and passes", () => {
     expect(checkGlass(ok, 50, budget)).toEqual([]);
   });
   it("fails on too many blurred surfaces, a big blur and big CSS", () => {
-    const css = ["a{backdrop-filter:x}b{backdrop-filter:x}c{backdrop-filter:x} :root{--glass-blur:40px}"];
-    expect(checkGlass(css, 51, budget)).toHaveLength(3);
+    const css = ["a{backdrop-filter:x}b{backdrop-filter:x}c{backdrop-filter:x}"];
+    expect(checkGlass(css, 51, budget)).toHaveLength(2);
   });
 });

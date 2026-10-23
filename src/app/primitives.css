@@ -1,5 +1,5 @@
 /* Flat primitives: 1px lines, no blur, no gradients. Only menus and dialogs lift.
-   Everything reads tokens. .glass stays as a flat alias until S14-24 removes its last users. */
+   Everything reads tokens. */
 .ambient {
   min-height: 100vh;
   background: var(--surface-subtle);
@@ -7,7 +7,7 @@
   font-family: var(--font);
 }
 
-.glass, .surface {
+.surface {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
