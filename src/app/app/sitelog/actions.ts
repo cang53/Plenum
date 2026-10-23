@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { saveSiteLog } from "@/data/live";
 import { checkSiteLog } from "@/domain/siteLog";
+import type { LogEntry } from "@/lib/offline-queue";
 
 // The database lets only members and managers write, and audits the save.
 export async function submitSiteLog(form: FormData): Promise<void> {
@@ -18,4 +19,11 @@ export async function submitSiteLog(form: FormData): Promise<void> {
     }
   }
   redirect(`/app/sitelog?project=${projectId}&${result}`);
+}
+
+// One entry written offline. Checked again here and by the database; a throw keeps it waiting on the device.
+export async function syncSiteLog({ projectId, ...entry }: LogEntry): Promise<void> {
+  const input = checkSiteLog({ get: (k) => (entry as Record<string, unknown>)[k]?.toString() });
+  if (!input.ok) throw new Error(input.error);
+  await saveSiteLog(await supabaseServer(), projectId, input.value);
 }

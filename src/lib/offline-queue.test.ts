@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getKey, open, type KeyStore } from "./offline-crypto";
-import { enqueue, flush, planChange, QUEUE_KEY, readQueue, readSnapshot, saveSnapshot, VIEW_KEY, wipe, type Change, type Vault } from "./offline-queue";
+import { enqueue, enqueueLog, flush, flushLogs, readLogs, planChange, QUEUE_KEY, readQueue, readSnapshot, saveSnapshot, VIEW_KEY, wipe, type Change, type Vault } from "./offline-queue";
 
 const keyStore = () => {
   let k: CryptoKey | undefined;
@@ -92,5 +92,26 @@ describe("planChange", () => {
   });
   it("is not a conflict when someone already set the same status", () => {
     expect(planChange({ status: "done", details: "" }, { ...c, note: undefined })).toEqual({ patch: { status: "done" }, conflict: false });
+  });
+});
+
+describe("site log outbox", () => {
+  const e = (site: string, work = "") => ({ projectId: "p", site, date: "2026-10-20", weather: "", headcount: 1, work, delays: "" });
+  it("replaces the same site and day, and sends in order", async () => {
+    const s = await store();
+    await enqueueLog(s, e("A", "one"));
+    await enqueueLog(s, e("B"));
+    await enqueueLog(s, e("A", "two"));
+    const sent: string[] = [];
+    expect(await flushLogs(s, async (x) => void sent.push(x.site + x.work))).toEqual({ synced: 2, left: 0 });
+    expect(sent).toEqual(["B", "Atwo"]);
+  });
+  it("keeps the rest when the network drops, and wipe clears it", async () => {
+    const s = await store();
+    await enqueueLog(s, e("A"));
+    await enqueueLog(s, e("B"));
+    expect(await flushLogs(s, async () => { throw new Error("offline"); })).toEqual({ synced: 0, left: 2 });
+    wipe(s.s);
+    expect(await readLogs(s)).toEqual([]);
   });
 });

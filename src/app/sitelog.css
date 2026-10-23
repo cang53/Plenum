@@ -9,3 +9,10 @@
 .sl-sec p { margin: 0; overflow-wrap: anywhere; }
 .sl-edit { margin-block: var(--s4); }
 .sl-edit summary { cursor: pointer; }
+.sl-state { margin: 0 0 var(--s3); padding: var(--s2) var(--s3); border: 1px solid var(--border); background: var(--surface); font-size: var(--text-sm); }
+.sl-state[data-offline] { border-color: var(--warning); color: var(--warning); }
+.sl-add { display: none; }
+@media (max-width: 48rem) {
+  .sl-add { display: flex; justify-content: center; width: 100%; min-height: 3rem; font-size: var(--text-lg); margin-block: var(--s3); }
+  .sl-edit summary { padding-block: var(--s2); }
+}
