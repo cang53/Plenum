@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { listBoardTasks, listStreakTasks, listPendingSuggestions, suggestionAccuracy } from "@/data/live";
+import { listBoardTasks, listStreakTasks, listMilestones, listPendingSuggestions, suggestionAccuracy } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
-import { knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
+import { celebratedMilestones, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
 import { getT } from "@/lib/locale";
 
 // Project overview: one card per project, what needs attention, and the way into AI review. Aggregate only.
@@ -33,6 +33,8 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     listStreakTasks(supabase, current.id),
     supabase.from("reward_switches").select("site"),
   ]);
+  const off = (switches ?? []).map((r) => r.site as string);
+  const cheers = celebratedMilestones(await listMilestones(supabase, current.id), off, today);
   const rewardsShown = projectRewardsOn((switches ?? []).map((r) => r.site), sites);
   const { data: decisions } = rewardsShown
     ? await supabase.from("decisions").select("details, source_message_id").eq("project_id", current.id)
@@ -58,6 +60,13 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
           </li>
         ))}
       </ul>
+      {cheers.length > 0 && (
+        <section className="surface overview-panel" aria-labelledby="cheer">
+          <h2 id="cheer"><span aria-hidden="true">🎉</span> {t("cheer.title")}</h2>
+          <p>{cheers.join(", ")}</p>
+          <p className="meta">{t("cheer.note")}</p>
+        </section>
+      )}
       {streak !== null && (
         <section className="surface overview-panel" aria-labelledby="streak">
           <h2 id="streak"><span aria-hidden="true">🔥</span> {t("streak.title")}</h2>

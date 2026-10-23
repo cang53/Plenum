@@ -51,3 +51,13 @@ export function knowledgeCount(decisions: { details: string; sourceMessageId: st
 export function isEarlyWarning(createdAt: string, dueDate: string | null): boolean {
   return !!dueDate && Date.parse(dueDate) - Date.parse(createdAt.slice(0, 10)) >= 14 * 86_400_000;
 }
+
+export type Milestone = { title: string; dueDate: string | null; status: string; updatedAt: string; site: string };
+
+// Milestones finished on or before their date in the last 14 days and not switched off. Titles only, no owner.
+export function celebratedMilestones(ms: Milestone[], offSites: string[], today: string): string[] {
+  const since = Date.parse(today) - 14 * 86_400_000;
+  return ms
+    .filter((m) => m.status === "done" && m.dueDate && m.updatedAt.slice(0, 10) <= m.dueDate && Date.parse(m.updatedAt) >= since && rewardsOn(offSites, m.site))
+    .map((m) => m.title);
+}
