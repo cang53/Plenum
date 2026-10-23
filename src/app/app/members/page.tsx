@@ -1,6 +1,8 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listInvitations, listMembers, listProjects } from "@/data/projects";
 import { isExpired, ROLES } from "@/domain/invitations";
+import { ACTIONS, can } from "@/domain/permissions";
+import { initials } from "@/domain/board";
 import { getT } from "@/lib/locale";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { changeRole, invite, removeMember, resend, withdraw } from "./actions";
@@ -24,7 +26,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
           <tbody>
             {members.map((m) => (
               <tr key={m.userId}>
-                <td>{m.name}<br /><small className="meta">{m.email}</small></td>
+                <td><span className="person"><span className="av" aria-hidden="true">{initials(m.name)}</span><span>{m.name}<br /><small className="meta">{m.email}</small></span></span></td>
                 <td>
                   <form action={changeRole} className="inline-form">
                     <input type="hidden" name="projectId" value={project.id} />
@@ -76,6 +78,22 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
           </table>
         </div>
       )}
+      <h2>{t("members.matrix")}</h2>
+      <p className="intro">{t("members.matrixIntro")}</p>
+      <div className="surface data-table">
+        <table>
+          <caption className="sr-only">{t("members.matrix")}</caption>
+          <thead><tr><th scope="col">{t("members.actions")}</th>{ROLES.map((r) => <th key={r} scope="col">{t(`role.${r}`)}</th>)}</tr></thead>
+          <tbody>
+            {ACTIONS.map((a) => (
+              <tr key={a}>
+                <th scope="row">{t(`perm.${a}`)}</th>
+                {ROLES.map((r) => <td key={r}>{can(r, a) ? <span className="perm-yes" role="img" aria-label={t("members.allowed")}>●</span> : <span className="perm-no" role="img" aria-label={t("members.notAllowed")}>–</span>}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <h2>{t("members.invite")}</h2>
       <form action={invite} className="surface form-card">
         <input type="hidden" name="projectId" value={project.id} />

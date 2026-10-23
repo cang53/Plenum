@@ -10,6 +10,7 @@
 @import "./sitelog.css";
 @import "./timesheet.css";
 @import "./states.css";
+@import "./people.css";
 
 * {
   box-sizing: border-box;

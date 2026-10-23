@@ -15,6 +15,11 @@ export type Action =
   | "timesheet.approve"
   | "report.send";
 
+export const ACTIONS: readonly Action[] = [
+  "project.edit", "members.manage", "plan.edit", "task.updateAssigned", "suggestion.approveAny",
+  "suggestion.approveOwnTask", "message.reply", "hours.log", "timesheet.approve", "report.send",
+];
+
 const allowed: Record<ProjectRole, readonly Action[]> = {
   project_manager: [
     "project.edit",

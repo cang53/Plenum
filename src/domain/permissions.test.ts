@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { can, effectiveRole } from "./permissions";
+import { ACTIONS, can, effectiveRole } from "./permissions";
 
 describe("can", () => {
   it("lets project managers approve timesheets and send reports", () => {
@@ -35,5 +35,12 @@ describe("effectiveRole", () => {
   it("keeps the project role otherwise", () => {
     expect(effectiveRole("member", false)).toBe("member");
     expect(effectiveRole(undefined, false)).toBeNull();
+  });
+});
+
+describe("ACTIONS", () => {
+  it("lists every action the matrix can show, once", () => {
+    expect(new Set(ACTIONS).size).toBe(ACTIONS.length);
+    expect(ACTIONS.filter((a) => can("project_manager", a))).toHaveLength(ACTIONS.length);
   });
 });
