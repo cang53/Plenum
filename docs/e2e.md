@@ -4,6 +4,8 @@
 
 `e2e/stage9.spec.ts` covers the stage 9 screens on a fresh project: daily site log, risks and issues, baselines on the Gantt, and document tags on an attachment.
 
+`e2e/a11y-signed-in.spec.ts` runs axe on the signed-in stage 9 to 12 screens: risks, site log, timesheet, timesheets and the overview with rewards.
+
 `e2e/timesheet.spec.ts` covers the timesheet flow: enter hours, submit the week, approve it, download the CSV.
 
 `e2e/core-flow.spec.ts` drives the core flow in a browser: sign in with the emailed link, receive a message, accept the AI suggestion, see the task on the board and change its status. It uses the local Supabase stack, the offline email and AI fakes, and no cloud accounts.
