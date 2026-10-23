@@ -139,18 +139,6 @@ input[type="search"] {
 
 
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 12px;
-  background: #e8edf1;
-  color: #3a4655;
-  font-size: 12px;
-  font-weight: 600;
-}
-
 .attachments {
   display: flex;
   flex-wrap: wrap;
