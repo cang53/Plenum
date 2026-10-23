@@ -18,3 +18,6 @@ $$;
 create trigger workspace_members_keep_last_admin
 before update of role or delete on public.workspace_members
 for each row execute function public.keep_last_admin();
+
+-- Trigger-only: nobody needs to call it directly.
+revoke execute on function public.keep_last_admin() from public, anon, authenticated;
