@@ -33,7 +33,7 @@ test("add a risk and an issue", async ({ page }) => {
     await section.getByText(/^New /).click();
     const form = section.locator("form").first();
     await form.getByLabel("Title", { exact: true }).fill(title);
-    await form.getByLabel("Type", { exact: true }).selectOption(kind);
+    await form.locator("select[name=riskKind]").selectOption(kind);
     await form.getByRole("button", { name: "Create" }).click();
     await expect(section.getByText(title)).toBeVisible();
   }
@@ -58,7 +58,7 @@ test("tag an attachment as a document with a revision", async ({ page }) => {
   await page.goto(`/app/timeline?project=${project}`);
   const row = page.getByRole("listitem").filter({ hasText: "cabinet.pdf" });
   await row.getByText("Tag document").click();
-  await row.getByLabel("Type", { exact: true }).selectOption("drawing");
+  await row.locator("select[name=type]").selectOption("drawing");
   await row.getByLabel("Number", { exact: true }).fill("A-101");
   await row.getByLabel("Revision", { exact: true }).fill("B");
   await clickUntil(row.getByRole("button", { name: "Save tag" }), async () => {
