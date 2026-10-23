@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Notification } from "@/domain/notifications";
+import { hiddenKinds, type Notification } from "@/domain/notifications";
 import { PAGE_SIZE, afterFilter, decodeCursor, toPage, type Page } from "@/domain/paging";
 
 export type Project = { id: string; name: string; email_slug: string };
@@ -50,10 +50,28 @@ export async function listInvitations(client: SupabaseClient, projectId: string)
   return (data ?? []).map((i) => ({ id: i.id, email: i.email, role: i.role, expiresAt: i.expires_at }));
 }
 
+// Row-level security limits this to the signed-in person's own unread notifications.
+export async function unreadCount(client: SupabaseClient): Promise<number> {
+  const hidden = await hiddenFor(client);
+  let q = client.from("notifications").select("id", { count: "exact", head: true }).is("read_at", null);
+  if (hidden.length) q = q.not("kind", "in", `(${hidden.join(",")})`);
+  const { count, error } = await q;
+  if (error) throw error;
+  return count ?? 0;
+}
+
+async function hiddenFor(client: SupabaseClient) {
+  const { data: { user } } = await client.auth.getUser();
+  const { data } = await client.from("profiles").select("digest_suggestions").eq("id", user?.id ?? "").maybeSingle();
+  return hiddenKinds(data);
+}
+
 // Row-level security limits this to the signed-in person's own notifications in this project.
 export async function listNotifications(client: SupabaseClient, projectId: string, after?: string): Promise<Page<Notification>> {
   const cursor = decodeCursor(after);
   let q = client.from("notifications").select("id, kind, subject, created_at, read_at").eq("project_id", projectId);
+  const hidden = await hiddenFor(client);
+  if (hidden.length) q = q.not("kind", "in", `(${hidden.join(",")})`);
   if (cursor) q = q.or(afterFilter("created_at", cursor));
   const { data, error } = await q.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
   if (error) throw error;
