@@ -117,20 +117,20 @@ export async function dismissSuggestion(client: SupabaseClient, id: string): Pro
   if (!data?.length) throw new Error("suggestion not found or not allowed");
 }
 
-export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; riskKind: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; site: string; ownerId: string | null; phaseId: string | null; parentId: string | null; predecessorIds: string[]; createdAt: string };
+export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; riskKind: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; site: string; isMilestone: boolean; ownerId: string | null; phaseId: string | null; parentId: string | null; predecessorIds: string[]; createdAt: string };
 
 // Tasks, decisions and risks of a project for the edit screen, newest first.
 export async function listManualItems(client: SupabaseClient, projectId: string, after?: string): Promise<Page<ManualItem>> {
   const cursor = decodeCursor(after);
   const found = await Promise.all(
     MANUAL_KINDS.map(async (kind) => {
-      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, site, owner_id, phase_id, parent_id, created_at" : kind === "risk" ? "id, title, details, status, kind, due_date, owner_id, created_at" : "id, title, details, created_at";
+      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, site, is_milestone, owner_id, phase_id, parent_id, created_at" : kind === "risk" ? "id, title, details, status, kind, due_date, owner_id, created_at" : "id, title, details, created_at";
       let q = client.from(TABLE[kind]).select(cols).eq("project_id", projectId);
       if (cursor) q = q.or(afterFilter("created_at", cursor));
       const { data, error } = await q.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
       if (error) throw error;
       return ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({
-        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", riskKind: kind === "risk" ? r.kind ?? "risk" : "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", site: r.site ?? "", ownerId: r.owner_id ?? null, phaseId: r.phase_id ?? null, parentId: r.parent_id ?? null, predecessorIds: [] as string[], createdAt: r.created_at as string,
+        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", riskKind: kind === "risk" ? r.kind ?? "risk" : "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", site: r.site ?? "", isMilestone: (r.is_milestone as unknown) === true, ownerId: r.owner_id ?? null, phaseId: r.phase_id ?? null, parentId: r.parent_id ?? null, predecessorIds: [] as string[], createdAt: r.created_at as string,
       }));
     }),
   );
@@ -211,13 +211,13 @@ export async function listAuditPage(client: SupabaseClient, projectId: string, a
 // Dated tasks and their dependencies for the Gantt view.
 export async function listGanttPlan(client: SupabaseClient, projectId: string) {
   const [tasks, deps] = await Promise.all([
-    client.from("tasks").select("id, title, start_date, due_date, phases(name)").eq("project_id", projectId).order("start_date", { nullsFirst: false }),
+    client.from("tasks").select("id, title, start_date, due_date, is_milestone, phases(name)").eq("project_id", projectId).order("start_date", { nullsFirst: false }),
     client.from("task_dependencies").select("predecessor_id, successor_id, kind, lag_days, tasks:successor_id!inner(project_id)").eq("tasks.project_id", projectId),
   ]);
   if (tasks.error) throw tasks.error;
   if (deps.error) throw deps.error;
   return {
-    tasks: ((tasks.data ?? []) as unknown as { id: string; title: string; start_date: string | null; due_date: string | null; phases: { name: string } | null }[]).map((r) => ({ id: r.id, title: r.title, startDate: r.start_date, dueDate: r.due_date, phase: r.phases?.name ?? null })),
+    tasks: ((tasks.data ?? []) as unknown as { id: string; title: string; start_date: string | null; due_date: string | null; is_milestone: boolean; phases: { name: string } | null }[]).map((r) => ({ id: r.id, title: r.title, startDate: r.start_date, dueDate: r.due_date, isMilestone: r.is_milestone, phase: r.phases?.name ?? null })),
     dependencies: (deps.data ?? []).map((d) => ({ predecessorId: d.predecessor_id as string, successorId: d.successor_id as string, kind: d.kind as "FS" | "SS" | "FF" | "SF", lagDays: d.lag_days as number })),
   };
 }

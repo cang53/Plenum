@@ -15,7 +15,7 @@ export default async function GanttPage({ searchParams }: { searchParams: Promis
   const [plan, baselines, { data: role }] = await Promise.all([listGanttPlan(supabase, project.id), listBaselines(supabase, project.id), supabase.rpc("project_role_of", { p: project.id })]);
   const picked = baselines.find((b) => b.id === params.baseline) ?? baselines[0]; // default: the latest
   const baseline = picked ? await getBaselineDates(supabase, picked.id) : null;
-  const labels = { chart: t("gantt.chart"), today: t("gantt.today"), critical: t("gantt.critical"), conflict: t("gantt.conflict"), print: t("gantt.print"), saveError: t("gantt.saveError"), bar: t("gantt.bar"), empty: t("gantt.empty"), saveBaseline: t("gantt.saveBaseline"), baselineName: t("gantt.baselineName"), baselineSaved: t("gantt.baselineSaved"), baselineNone: t("gantt.baselineNone"), baselineLate: t("gantt.baselineLate"), slip: t("gantt.slip") };
+  const labels = { chart: t("gantt.chart"), today: t("gantt.today"), critical: t("gantt.critical"), conflict: t("gantt.conflict"), print: t("gantt.print"), saveError: t("gantt.saveError"), bar: t("gantt.bar"), empty: t("gantt.empty"), saveBaseline: t("gantt.saveBaseline"), baselineName: t("gantt.baselineName"), baselineSaved: t("gantt.baselineSaved"), baselineNone: t("gantt.baselineNone"), baselineLate: t("gantt.baselineLate"), slip: t("gantt.slip"), milestone: t("gantt.milestone") };
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>

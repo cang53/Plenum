@@ -20,6 +20,7 @@ export type ItemInput = {
   dueDate: string | null;
   costCode: string;
   site: string;
+  isMilestone: boolean;
   ownerId: string | null;
   phaseId: string | null;
   parentId: string | null;
@@ -42,6 +43,7 @@ export function itemFromForm(form: FormData): ItemInput {
     dueDate: text(form, "dueDate") || null,
     costCode: text(form, "costCode"),
     site: text(form, "site"),
+    isMilestone: form.get("isMilestone") === "on",
     ownerId: text(form, "ownerId") || null,
     phaseId: text(form, "phaseId") || null,
     parentId: text(form, "parentId") || null,
@@ -59,9 +61,9 @@ export function itemFromForm(form: FormData): ItemInput {
 }
 
 // The columns to write for this kind. Decisions have no status.
-export function toColumns(item: ItemInput): Record<string, string | null> {
+export function toColumns(item: ItemInput): Record<string, string | boolean | null> {
   const base = { title: item.title };
-  if (item.kind === "task") return { ...base, details: item.details, status: item.status, priority: item.priority, start_date: item.startDate, due_date: item.dueDate, cost_code: item.costCode || null, site: item.site, owner_id: item.ownerId, phase_id: item.phaseId, parent_id: item.parentId };
+  if (item.kind === "task") return { ...base, details: item.details, status: item.status, priority: item.priority, start_date: item.startDate, due_date: item.dueDate, cost_code: item.costCode || null, site: item.site, is_milestone: item.isMilestone, owner_id: item.ownerId, phase_id: item.phaseId, parent_id: item.parentId };
   if (item.kind === "risk") return { ...base, details: item.details, status: item.status, kind: item.riskKind, due_date: item.dueDate, owner_id: item.ownerId };
   return { ...base, details: item.details };
 }

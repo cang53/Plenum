@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { t } from "@/lib/messages";
 import { Gantt } from "./Gantt";
 
-const labels = { chart: "Gantt chart", today: "Today", critical: "On the critical path", conflict: "Starts early", print: "Print", saveError: "Error", bar: t("gantt.bar"), empty: "No dated tasks", saveBaseline: "Save baseline", baselineName: "Baseline name", baselineSaved: "Saved", baselineNone: "No baseline yet", baselineLate: "{n} tasks late", slip: "{days} days against the baseline" };
+const labels = { chart: "Gantt chart", today: "Today", critical: "On the critical path", conflict: "Starts early", print: "Print", saveError: "Error", bar: t("gantt.bar"), empty: "No dated tasks", saveBaseline: "Save baseline", baselineName: "Baseline name", baselineSaved: "Saved", baselineNone: "No baseline yet", baselineLate: "{n} tasks late", slip: "{days} days against the baseline", milestone: "Milestone" };
 const task = (id: string, startDate: string, dueDate: string) => ({ id, title: id, startDate, dueDate, phase: null });
 const save = async () => {};
 
@@ -19,6 +19,11 @@ describe("Gantt", () => {
     expect(html).toContain(`${named}. ${labels.critical}`);
     expect(html.match(/class="gantt-bar"/g)).toHaveLength(2);
     expect(html).toContain("Print");
+  });
+  it("draws a milestone as a marked, labelled bar", () => {
+    const html = renderToStaticMarkup(<Gantt tasks={[{ ...task("m", "2026-11-01", "2026-11-03"), isMilestone: true }]} dependencies={[]} onSave={save} labels={labels} />);
+    expect(html).toContain('data-milestone="true"');
+    expect(html).toContain(". Milestone");
   });
   it("shows slip against a baseline and the save button only when allowed", () => {
     const tasks = [task("a", "2026-11-01", "2026-11-05")];

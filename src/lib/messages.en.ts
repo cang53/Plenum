@@ -377,6 +377,8 @@ export const en = {
   "gantt.baselineSaved": "Baseline saved. Slip is now measured against it.",
   "gantt.baselineNone": "No baseline yet. A project manager can save the current dates as one.",
   "gantt.baselineLate": "{n} tasks finish later than the baseline. The thin line under a bar shows the baseline dates.",
+  "items.milestone": "Milestone",
+  "gantt.milestone": "Milestone",
   "gantt.slip": "{days} days against the baseline",
   "gantt.bar": "{title}, {start} to {due}",
   "ui.segmented.items": "Items",

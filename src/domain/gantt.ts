@@ -1,8 +1,8 @@
 // Gantt layout and critical path. Dates are ISO strings (YYYY-MM-DD); only dated tasks get a bar.
 import type { Dependency, PlanTask } from "./schedule";
 
-export type GanttTask = PlanTask & { phase: string | null };
-export type GanttBar = { id: string; title: string; phase: string | null; startDay: number; length: number; start: string; due: string };
+export type GanttTask = PlanTask & { phase: string | null; isMilestone?: boolean };
+export type GanttBar = { id: string; title: string; phase: string | null; startDay: number; length: number; start: string; due: string; isMilestone: boolean };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -27,7 +27,10 @@ export function buildBars(tasks: GanttTask[]): { bars: GanttBar[]; firstDay: num
   const firstDay = Math.min(...dated.map((t) => dayOf(t.startDate)));
   const lastDay = Math.max(...dated.map((t) => dayOf(t.dueDate)));
   const bars = dated
-    .map((t) => ({ id: t.id, title: t.title, phase: t.phase, startDay: dayOf(t.startDate) - firstDay, length: dayOf(t.dueDate) - dayOf(t.startDate) + 1, start: t.startDate, due: t.dueDate }))
+    // a milestone is a point in time: one day wide, on its due date
+    .map((t) => (t.isMilestone
+      ? { id: t.id, title: t.title, phase: t.phase, startDay: dayOf(t.dueDate) - firstDay, length: 1, start: t.startDate, due: t.dueDate, isMilestone: true }
+      : { id: t.id, title: t.title, phase: t.phase, startDay: dayOf(t.startDate) - firstDay, length: dayOf(t.dueDate) - dayOf(t.startDate) + 1, start: t.startDate, due: t.dueDate, isMilestone: false }))
     .sort((a, b) => a.startDay - b.startDay || a.title.localeCompare(b.title));
   return { bars, firstDay, totalDays: lastDay - firstDay + 1 };
 }
