@@ -7,7 +7,8 @@ export type PlanTask = {
   dueDate: string | null;
 };
 
-export type Dependency = { predecessorId: string; successorId: string };
+// kind and lagDays default to finish-to-start with no lag.
+export type Dependency = { predecessorId: string; successorId: string; kind?: "FS" | "SS" | "FF" | "SF"; lagDays?: number };
 
 export type Conflict = {
   predecessor: PlanTask;
@@ -22,16 +23,19 @@ function days(from: string, to: string): number {
   return Math.round((Date.parse(to) - Date.parse(from)) / DAY_MS);
 }
 
-// Finish-to-start: a successor should start after its predecessor's due date.
+// Finish-to-start: a successor should start after its predecessor's due date (plus lag).
+// Start-to-start, finish-to-finish and start-to-finish compare the matching ends, which may be the same day.
 export function findConflicts(tasks: PlanTask[], dependencies: Dependency[]): Conflict[] {
   const byId = new Map(tasks.map((task) => [task.id, task]));
   const conflicts: Conflict[] = [];
-  for (const { predecessorId, successorId } of dependencies) {
+  for (const { predecessorId, successorId, kind = "FS", lagDays = 0 } of dependencies) {
     const predecessor = byId.get(predecessorId);
     const successor = byId.get(successorId);
-    if (!predecessor?.dueDate || !successor?.startDate) continue;
-    const gap = days(predecessor.dueDate, successor.startDate);
-    if (gap <= 0) conflicts.push({ predecessor, successor, overlapDays: 1 - gap });
+    const from = kind[0] === "S" ? predecessor?.startDate : predecessor?.dueDate;
+    const to = kind[1] === "S" ? successor?.startDate : successor?.dueDate;
+    if (!predecessor || !successor || !from || !to) continue;
+    const slack = days(from, to) - lagDays;
+    if (kind === "FS" ? slack <= 0 : slack < 0) conflicts.push({ predecessor, successor, overlapDays: kind === "FS" ? 1 - slack : -slack });
   }
   return conflicts;
 }
