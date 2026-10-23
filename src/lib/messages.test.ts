@@ -1,7 +1,9 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { messages, t } from "@/lib/messages";
+import { findHardCodedStrings } from "../../scripts/check-strings.mjs";
 
 describe("t", () => {
   it("returns the English string for a key", () => {
@@ -34,18 +36,13 @@ describe("t", () => {
 });
 
 describe("components", () => {
-  // Visible text in a .tsx file must come from t(); this catches text typed between tags or in label attributes.
-  const files = (dir: string): string[] =>
-    readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
-      e.isDirectory() ? files(join(dir, e.name)) : e.name.endsWith(".tsx") ? [join(dir, e.name)] : [],
-    );
   it("hard-code no interface strings", () => {
-    const found: string[] = [];
-    for (const f of files("src/app")) {
-      const src = readFileSync(f, "utf8");
-      for (const m of src.matchAll(/(?<![\w=)\]])>\s*([A-Za-z][^<>{}\n]*[a-z]{3}[^<>{}\n]*)\s*</g)) found.push(`${f}: ${m[1]}`);
-      for (const m of src.matchAll(/\b(?:aria-label|placeholder|title|alt)="([^"]+)"/g)) found.push(`${f}: ${m[1]}`);
-    }
-    expect(found).toEqual([]);
+    expect(findHardCodedStrings()).toEqual([]);
+  });
+
+  it("catches text, quoted children and label attributes", () => {
+    const dir = mkdtempSync(join(tmpdir(), "strings-"));
+    writeFileSync(join(dir, "A.tsx"), `<p>Hello there</p>; <b>{"Quoted text"}</b>; <input placeholder="Type here" label="Name" />; <i>{t("ok")}</i>`);
+    expect(findHardCodedStrings(dir)).toHaveLength(4);
   });
 });
