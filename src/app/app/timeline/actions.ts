@@ -11,6 +11,7 @@ import { emailSender } from "@/server/email-config";
 import { replyToMessage } from "@/server/reply";
 import { isLocale } from "@/lib/messages";
 import { inboundConfig } from "@/server/inbound-config";
+import { draftReply } from "@/server/replyDraft";
 import { translateMessage } from "@/server/translate";
 import { aiAsk, supabaseTriageIo } from "@/server/triage-run";
 
@@ -63,6 +64,24 @@ export async function translateMessageAction(messageId: string, language: string
   return translateMessage(
     messageId,
     language,
+    {
+      async load(id) {
+        const { data } = await supabase.from("messages").select("project_id, subject, body_text").eq("id", id).maybeSingle();
+        return data ? { projectId: data.project_id, subject: data.subject ?? "", body: data.body_text ?? "" } : null;
+      },
+      takeCall: supabaseTriageIo(config.supabaseUrl, config.serviceRoleKey).takeCall,
+    },
+    aiAsk(),
+  );
+}
+
+// Fills the reply box only; nothing is sent. Null means "no draft available".
+export async function draftReplyAction(messageId: string): Promise<string | null> {
+  const config = inboundConfig();
+  if (!config) return null;
+  const supabase = await supabaseServer();
+  return draftReply(
+    messageId,
     {
       async load(id) {
         const { data } = await supabase.from("messages").select("project_id, subject, body_text").eq("id", id).maybeSingle();

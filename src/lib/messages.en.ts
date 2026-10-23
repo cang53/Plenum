@@ -297,6 +297,8 @@ export const en = {
   "timeline.demoNotice": "Demo data: these emails are examples, and attachments cannot be opened yet.",
   "reply.action": "Reply by email",
   "reply.label": "Your reply",
+  "reply.draft": "Suggest a reply",
+  "reply.draftUnavailable": "No suggestion available: write it yourself",
   "reply.to": "Goes to",
   "reply.send": "Send reply",
   "reply.sendAnyway": "Send anyway",

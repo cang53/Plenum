@@ -8,7 +8,7 @@ import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
 import { WorkSwitch } from "@/app/WorkSwitch";
 import { Timeline } from "@/app/demo/timeline/Timeline";
-import { acceptSuggestionAction, dismissSuggestionAction, replyAction, tagAttachmentAction, translateMessageAction } from "./actions";
+import { acceptSuggestionAction, draftReplyAction, dismissSuggestionAction, replyAction, tagAttachmentAction, translateMessageAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +45,7 @@ export default async function TimelinePage({ searchParams }: { searchParams: Pro
         onDismiss={dismissSuggestionAction}
         onReply={replyAction}
         onTranslate={translateMessageAction}
+        onDraftReply={draftReplyAction}
         onTagAttachment={role === "project_manager" ? tagAttachmentAction : undefined}
         siteLogHref={role === "member" || role === "project_manager" ? `/app/sitelog?project=${project.id}&message={id}` : undefined}
         language={locale}

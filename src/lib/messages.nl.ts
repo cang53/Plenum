@@ -299,6 +299,8 @@ export const nl: Record<keyof typeof en, string> = {
   "timeline.demoNotice": "Demogegevens: deze e-mails zijn voorbeelden en bijlagen kunnen nog niet worden geopend.",
   "reply.action": "Antwoord per e-mail",
   "reply.label": "Je antwoord",
+  "reply.draft": "Stel een antwoord voor",
+  "reply.draftUnavailable": "Geen voorstel beschikbaar: schrijf het zelf",
   "reply.to": "Gaat naar",
   "reply.send": "Antwoord versturen",
   "reply.sendAnyway": "Toch versturen",
