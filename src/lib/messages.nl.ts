@@ -13,6 +13,7 @@ export const nl: Record<keyof typeof en, string> = {
   "app.skip": "Ga naar de hoofdinhoud",
   "app.loading": "Laden…",
   "app.error": "Er ging iets mis aan onze kant. Uw gegevens zijn veilig.",
+  "app.errorTitle": "Dat is niet gelukt",
   "app.retry": "Probeer opnieuw",
   "app.tagline":
     "Eén projecttijdlijn voor industriële teams. Berichten uit Teams en e-mails worden taken, besluiten en rapporten, en een persoon keurt elke AI-suggestie goed.",

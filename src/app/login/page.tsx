@@ -10,28 +10,30 @@ export default async function Login({
   const { next, sent, error } = await searchParams;
   const t = await getT();
   return (
-    <main id="main" className="home">
+    <main id="main" className="ambient center-stage">
+      <div className="glass state-card">
       <h1>{t("login.title")}</h1>
       {authProvider() === "entra" ? (
         <form action={signInWithEntra}>
           {error && <p role="alert">{t("login.entraError")}</p>}
           <input type="hidden" name="next" value={next ?? ""} />
-          <button type="submit">{t("login.entra")}</button>
+          <button type="submit" className="btn btn-primary">{t("login.entra")}</button>
         </form>
       ) : sent ? (
-        <p role="status">{t("login.sent")}</p>
+        <p role="status" className="intro">{t("login.sent")}</p>
       ) : (
         <form action={sendLink}>
-          <p>{t("login.intro")}</p>
+          <p className="intro">{t("login.intro")}</p>
           {error && <p role="alert">{t("login.error")}</p>}
           <input type="hidden" name="next" value={next ?? ""} />
           <label>
-            {t("login.email")}
-            <input type="email" name="email" required autoComplete="email" />
+            <span className="field-label">{t("login.email")}</span>
+            <input className="field" type="email" name="email" required autoComplete="email" />
           </label>
-          <button type="submit">{t("login.submit")}</button>
+          <button type="submit" className="btn btn-primary">{t("login.submit")}</button>
         </form>
       )}
+      </div>
     </main>
   );
 }
