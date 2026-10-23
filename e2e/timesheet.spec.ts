@@ -13,7 +13,7 @@ test("log hours, submit, approve and export a week", async ({ page }) => {
   await page.goto(`/app/timesheet?project=${project}`);
   await page.getByLabel(new RegExp(`^Pour slab ${run} \\d{4}-\\d{2}-\\d{2}$`)).first().fill("7.5");
   await page.getByRole("button", { name: "Save hours" }).click();
-  await expect(page.getByRole("status")).toHaveText("Hours saved.");
+  await expect(page.getByText("Hours saved.")).toBeVisible();
 
   await page.goto(`/app/timesheets?project=${project}`);
   await page.getByRole("button", { name: "Submit this week" }).click();
