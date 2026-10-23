@@ -20,9 +20,10 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
   const [owner, setOwner] = useState("");
+  const [site, setSite] = useState("");
   const [dragging, setDragging] = useState<string | null>(null);
 
-  const columns = buildColumns(tasks, { phase: phase || undefined, owner: owner || undefined });
+  const columns = buildColumns(tasks, { phase: phase || undefined, owner: owner || undefined, site: site || undefined });
   const [failed, setFailed] = useState<{ id: string; status: TaskStatus } | null>(null);
   const move = (id: string, status: TaskStatus) => {
     const before = tasks;
@@ -53,6 +54,15 @@ export function Board({ initialTasks, onMove, locale = "en" }: Props) {
             <option value="">{t("board.all")}</option>
             {distinct(tasks.map((task) => task.ownerName)).map((o) => (
               <option key={o}>{o}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {t("board.filterSite")}
+          <select value={site} onChange={(e) => setSite(e.target.value)}>
+            <option value="">{t("board.all")}</option>
+            {distinct(tasks.map((task) => task.site)).map((s) => (
+              <option key={s}>{s}</option>
             ))}
           </select>
         </label>

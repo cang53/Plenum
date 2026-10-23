@@ -1,6 +1,6 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listManualItems, type ManualItem } from "@/data/live";
-import { currentProject, listProjects } from "@/data/projects";
+import { listManualItems, listPlanChoices, type ManualItem } from "@/data/live";
+import { currentProject, listMembers, listProjects, type Member } from "@/data/projects";
 import { MANUAL_KINDS, PRIORITIES, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
 import type { MessageKey } from "@/lib/messages";
@@ -8,7 +8,9 @@ import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 import { saveItem } from "./actions";
 
-function Fields({ item, kind, projectId, t }: { item?: ManualItem; kind: ManualItem["kind"]; projectId: string; t: (key: MessageKey) => string }) {
+type Plan = { members: Member[]; phases: { id: string; name: string }[]; tasks: { id: string; title: string }[] };
+
+function Fields({ item, kind, projectId, plan, t }: { item?: ManualItem; kind: ManualItem["kind"]; projectId: string; plan: Plan; t: (key: MessageKey) => string }) {
   return (
     <form action={saveItem}>
       <input type="hidden" name="kind" value={kind} />
@@ -31,6 +33,30 @@ function Fields({ item, kind, projectId, t }: { item?: ManualItem; kind: ManualI
           <label>{t("items.start")} <input type="date" name="startDate" defaultValue={item?.startDate ?? ""} /></label>
           <label>{t("board.due")} <input type="date" name="dueDate" defaultValue={item?.dueDate ?? ""} /></label>
           <label>{t("items.costCode")} <input name="costCode" maxLength={40} defaultValue={item?.costCode ?? ""} /></label>
+          <label>{t("items.site")} <input name="site" maxLength={80} defaultValue={item?.site ?? ""} /></label>
+          <label>{t("items.owner")}{" "}
+            <select name="ownerId" defaultValue={item?.ownerId ?? ""}>
+              <option value="">{t("items.none")}</option>
+              {plan.members.map((m) => <option key={m.userId} value={m.userId}>{m.name || m.email}</option>)}
+            </select>
+          </label>
+          <label>{t("items.phase")}{" "}
+            <select name="phaseId" defaultValue={item?.phaseId ?? ""}>
+              <option value="">{t("items.none")}</option>
+              {plan.phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </label>
+          <label>{t("items.parent")}{" "}
+            <select name="parentId" defaultValue={item?.parentId ?? ""}>
+              <option value="">{t("items.none")}</option>
+              {plan.tasks.filter((o) => o.id !== item?.id).map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
+            </select>
+          </label>
+          <label>{t("items.predecessors")}{" "}
+            <select name="predecessorIds" multiple defaultValue={item?.predecessorIds ?? []}>
+              {plan.tasks.filter((o) => o.id !== item?.id).map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
+            </select>
+          </label>
         </>
       )}
       {kind === "risk" && (
@@ -51,7 +77,8 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const { project: chosen, after } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
-  const { rows: items, next } = await listManualItems(supabase, project.id, after);
+  const [{ rows: items, next }, choices, members] = await Promise.all([listManualItems(supabase, project.id, after), listPlanChoices(supabase, project.id), listMembers(supabase, project.id)]);
+  const plan = { members, ...choices };
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -62,7 +89,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           <h2>{t(`items.group.${kind}` as MessageKey)}</h2>
           <details>
             <summary>{t("items.new")} {t(`kind.${kind}`).toLowerCase()}</summary>
-            <Fields kind={kind} projectId={project.id} t={t} />
+            <Fields kind={kind} projectId={project.id} plan={plan} t={t} />
           </details>
           {!items.some((i) => i.kind === kind) && <p className="intro">{t("items.empty")}</p>}
           <ul>
@@ -70,7 +97,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
               <li key={i.id}>
                 <details>
                   <summary>{i.title}</summary>
-                  <Fields item={i} kind={kind} projectId={project.id} t={t} />
+                  <Fields item={i} kind={kind} projectId={project.id} plan={plan} t={t} />
                 </details>
               </li>
             ))}

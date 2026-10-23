@@ -20,10 +20,23 @@ describe("itemFromForm", () => {
   });
 });
 
+describe("plan fields", () => {
+  it("reads site, owner, phase, parent and predecessors, and drops blanks and repeats", () => {
+    const f = form({ kind: "task", title: "x", site: " Yard ", ownerId: "u1", phaseId: "p1", parentId: "" });
+    f.append("predecessorIds", "a");
+    f.append("predecessorIds", "a");
+    f.append("predecessorIds", "");
+    expect(itemFromForm(f)).toMatchObject({ site: "Yard", ownerId: "u1", phaseId: "p1", parentId: null, predecessorIds: ["a"] });
+  });
+  it("refuses a site over 80 characters", () => {
+    expect(() => itemFromForm(form({ kind: "task", title: "x", site: "y".repeat(81) }))).toThrow();
+  });
+});
+
 describe("toColumns", () => {
   it("gives decisions no status", () => {
-    const base = { title: "t", details: "d", status: "todo", priority: "high", startDate: null, dueDate: null, costCode: "" };
-    expect(toColumns({ ...base, kind: "task" })).toEqual({ title: "t", details: "d", status: "todo", priority: "high", start_date: null, due_date: null, cost_code: null });
+    const base = { title: "t", details: "d", status: "todo", priority: "high", startDate: null, dueDate: null, costCode: "", site: "Yard", ownerId: null, phaseId: "p1", parentId: null, predecessorIds: [] };
+    expect(toColumns({ ...base, kind: "task" })).toEqual({ title: "t", details: "d", status: "todo", priority: "high", start_date: null, due_date: null, cost_code: null, site: "Yard", owner_id: null, phase_id: "p1", parent_id: null });
     expect(toColumns({ ...base, kind: "decision" })).toEqual({ title: "t", details: "d" });
     expect(toColumns({ ...base, kind: "risk", status: "closed" })).toEqual({ title: "t", details: "d", status: "closed" });
   });
