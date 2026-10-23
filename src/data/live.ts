@@ -5,6 +5,7 @@ import type { AuditRow } from "@/domain/audit";
 import { STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
 import { ITEM_KINDS, ITEM_TABLE, isValidDraft, type ItemDraft, type LinkedItem } from "@/domain/linking";
 import { PAGE_SIZE, afterFilter, decodeCursor, toPage, type Page } from "@/domain/paging";
+import type { Activity } from "@/domain/timesheetDraft";
 import type { SiteLogInput } from "@/domain/siteLog";
 import type { StoredSuggestion } from "@/domain/triage";
 import { fromRow, type MessageRow, type TimelineMessage } from "@/domain/timeline";
@@ -304,6 +305,12 @@ export async function listHours(client: SupabaseClient, projectId: string, from:
 export async function listMyTasks(client: SupabaseClient, projectId: string, userId: string, extraIds: string[]): Promise<{ id: string; title: string }[]> {
   const mine = `owner_id.eq.${userId}` + (extraIds.length ? `,id.in.(${extraIds.join(",")})` : "");
   const { data, error } = await client.from("tasks").select("id, title").eq("project_id", projectId).or(mine).order("title").limit(PAGE_SIZE);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function listWeekActivity(client: SupabaseClient, projectId: string, from: string, to: string): Promise<Activity[]> {
+  const { data, error } = await client.rpc("my_week_activity", { p_project: projectId, p_from: from, p_to: to });
   if (error) throw error;
   return data ?? [];
 }
