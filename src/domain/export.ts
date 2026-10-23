@@ -13,5 +13,5 @@ export function tableCsv(rows: Record<string, unknown>[]): string {
 
 export const exportTables = [
   "projects", "project_members", "phases", "tasks", "task_dependencies", "messages",
-  "decisions", "risks", "change_requests", "suggestions", "audit_log",
+  "decisions", "risks", "change_requests", "suggestions", "site_logs", "audit_log",
 ];

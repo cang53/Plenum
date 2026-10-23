@@ -5,6 +5,7 @@ import type { AuditRow } from "@/domain/audit";
 import { STATUSES, type BoardTask, type TaskStatus } from "@/domain/board";
 import { ITEM_KINDS, ITEM_TABLE, isValidDraft, type ItemDraft, type LinkedItem } from "@/domain/linking";
 import { PAGE_SIZE, afterFilter, decodeCursor, toPage, type Page } from "@/domain/paging";
+import type { SiteLogInput } from "@/domain/siteLog";
 import type { StoredSuggestion } from "@/domain/triage";
 import { fromRow, type MessageRow, type TimelineMessage } from "@/domain/timeline";
 
@@ -249,4 +250,19 @@ export async function bulkUpdateTasks(client: SupabaseClient, ids: string[], pat
   const { data, error } = await client.from("tasks").update(patch).in("id", ids).select("id");
   if (error) throw error;
   if (data?.length !== ids.length) throw new Error("some tasks were not found or not allowed");
+}
+
+export type SiteLog = { id: string; site: string; log_date: string; weather: string; headcount: number; work_done: string; delays: string };
+
+export async function listSiteLogs(client: SupabaseClient, projectId: string): Promise<SiteLog[]> {
+  const { data, error } = await client.from("site_logs").select("id, site, log_date, weather, headcount, work_done, delays")
+    .eq("project_id", projectId).order("log_date", { ascending: false }).order("site").limit(PAGE_SIZE);
+  if (error) throw error;
+  return data ?? [];
+}
+
+// One log per site and day: saving again replaces it. The database checks the role and logs the save.
+export async function saveSiteLog(client: SupabaseClient, projectId: string, l: SiteLogInput): Promise<void> {
+  const { error } = await client.rpc("save_site_log", { p_project: projectId, p_site: l.site, p_date: l.date, p_weather: l.weather, p_headcount: l.headcount, p_work: l.work, p_delays: l.delays });
+  if (error) throw error;
 }
