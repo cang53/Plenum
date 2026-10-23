@@ -179,6 +179,8 @@ export const en = {
   "goal.note": "Counted for the whole team, never per person.",
   "goal.set": "Set this month's challenge",
   "goal.clear": "Remove the challenge",
+  "history.title": "Past challenges",
+  "history.met": "Challenge met",
   "settings.removed": "Person removed.",
   "rewards.title": "Team rewards",
   "rewards.intro": "Rewards celebrate the team, never a person. Turn them off for sites that do not want them. Switching a site off hides rewards for it everywhere.",

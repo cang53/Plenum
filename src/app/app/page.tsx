@@ -5,7 +5,7 @@ import { listBoardTasks, listStreakTasks, listMilestones, listPendingSuggestions
 import { currentProject, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
-import { celebratedMilestones, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
+import { celebratedMilestones, challengeMet, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
 import { getT } from "@/lib/locale";
 import { setTeamGoal } from "./actions";
 
@@ -47,6 +47,7 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
         supabase.rpc("can_manage_project", { p: current.id }),
       ])
     : [{ data: null }, { data: false }];
+  const { data: history } = rewardsShown ? await supabase.rpc("team_goal_history", { p: current.id }) : { data: null };
   const goal = (goalRows as { weeks_done: number; weeks_total: number }[] | null)?.[0];
   const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? (streakTasks.length ? streakWeeks(streakTasks, today) : 0) : null;
   return (
@@ -109,6 +110,20 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
               <button className="btn btn-secondary" type="submit">{goal ? t("goal.clear") : t("goal.set")}</button>
             </form>
           )}
+        </section>
+      )}
+      {rewardsShown && history && history.length > 0 && (
+        <section className="surface overview-panel" aria-labelledby="history">
+          <h2 id="history">{t("history.title")}</h2>
+          <ul>
+            {(history as { month: string; weeks_done: number; weeks_total: number }[]).map((h) => (
+              <li key={h.month}>
+                {h.month.slice(0, 7)}: {t("goal.progress").replace("{done}", String(h.weeks_done)).replace("{total}", String(h.weeks_total))}
+                {challengeMet(h.weeks_done, h.weeks_total) && <span className="badge badge-success"> {t("history.met")}</span>}
+              </li>
+            ))}
+          </ul>
+          <p className="meta">{t("goal.note")}</p>
         </section>
       )}
       <section className="surface overview-panel" aria-labelledby="attention">

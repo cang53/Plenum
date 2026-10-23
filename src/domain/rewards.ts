@@ -66,3 +66,6 @@ export function celebratedMilestones(ms: Milestone[], offSites: string[], today:
     .filter((m) => m.status === "done" && m.dueDate && m.updatedAt.slice(0, 10) <= m.dueDate && Date.parse(m.updatedAt) >= since && rewardsOn(offSites, m.site))
     .map((m) => m.title);
 }
+
+// A past month earns the "challenge met" badge when every week counted was on time.
+export const challengeMet = (done: number, total: number) => total > 0 && done >= total;
