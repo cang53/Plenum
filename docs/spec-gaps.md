@@ -36,6 +36,9 @@ Spec re-read against main after stages 6 to 10. Closed since S6-7: reply, transl
 | Admin as its own role | Still a workspace flag | later, with rewards |
 | Critical path highlight | Built in S8-3 though the spec lists it out of v1; kept | none |
 
+## Plan S12
+The last open spec item, team rewards, is planned in `stage12-backlog.md`.
+
 ## Sweep S11-8
 Spec re-read against main after stage 11. Closed since S10-5: milestones (S10-7), accepted and dismissed counts per project (S10-8), reply drafting (S10-9), and timesheets: grid, approval and lock, CSV export, AI draft with source links (S11-3 to S11-6). The timesheet table row in the S10-5 sweep above is now built. Admin as its own role is S11-7.
 
