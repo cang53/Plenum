@@ -20,6 +20,9 @@ begin
   if jsonb_array_length(doc->'projects') < 1 or jsonb_array_length(doc->'tasks') < 1 then
     raise exception 'export is missing projects or tasks';
   end if;
+  if exists (select 1 from unnest(array['message_attachments','baselines','baseline_tasks','status_reports','site_logs']) k where jsonb_typeof(doc->k) <> 'array') then
+    raise exception 'export lacks a table';
+  end if;
   if exists (select 1 from jsonb_array_elements(doc->'projects') p where p->>'workspace_id' <> '10000000-0000-0000-0000-000000000001') then
     raise exception 'export holds another workspace''s project';
   end if;
