@@ -25,3 +25,14 @@ export async function linkMessageToTask(form: FormData): Promise<void> {
   if (!data?.length) throw new Error("task not found or already has a source");
   revalidatePath("/app/stream");
 }
+
+// Row-level rules let only a project manager pin; the database records who and when.
+export async function togglePin(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  const messageId = String(form.get("messageId"));
+  const { error } = form.get("pinned") === "1"
+    ? await supabase.from("message_pins").delete().eq("message_id", messageId)
+    : await supabase.from("message_pins").insert({ message_id: messageId, project_id: String(form.get("projectId")) });
+  if (error) throw error;
+  revalidatePath("/app/stream");
+}
