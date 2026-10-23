@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isEarlyWarning, knowledgeCount, projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
+import { goalPercent, isEarlyWarning, knowledgeCount, projectRewardsOn, rewardsOn, streakWeeks, switchList } from "./rewards";
 
 
 
@@ -68,4 +68,12 @@ describe("isEarlyWarning", () => {
     expect(isEarlyWarning("2026-10-01T09:00:00Z", "2026-10-14")).toBe(false);
   });
   it("is false without a due date", () => expect(isEarlyWarning("2026-10-01T09:00:00Z", null)).toBe(false));
+});
+
+describe("goalPercent", () => {
+  it("rounds the share of weeks done", () => expect(goalPercent(1, 3)).toBe(33));
+  it("is zero with no weeks and never above 100", () => {
+    expect(goalPercent(0, 0)).toBe(0);
+    expect(goalPercent(5, 4)).toBe(100);
+  });
 });

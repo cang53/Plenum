@@ -51,3 +51,8 @@ export function knowledgeCount(decisions: { details: string; sourceMessageId: st
 export function isEarlyWarning(createdAt: string, dueDate: string | null): boolean {
   return !!dueDate && Date.parse(dueDate) - Date.parse(createdAt.slice(0, 10)) >= 14 * 86_400_000;
 }
+
+// Team challenge progress as a whole percent; no goal or no weeks yet means no bar.
+export function goalPercent(done: number, total: number): number {
+  return total > 0 ? Math.round((Math.min(done, total) / total) * 100) : 0;
+}
