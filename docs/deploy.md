@@ -1,6 +1,6 @@
 # Deploy to Vercel
 
-`vercel.json` pins the Next.js build and the Dublin region (`dub1`). Security headers come from `next.config.ts`. No CSP yet: it needs per-request nonces, so it is queued.
+`vercel.json` pins the Next.js build and the Dublin region (`dub1`). Security headers come from `next.config.ts`. The CSP is set per request in `src/middleware.ts` (nonce, see `src/lib/csp.ts`). It ships report-only; set `CSP_MODE=enforce` on the host once the browser console shows no violations.
 
 ## Connect (the only account step)
 1. In Vercel, import `cang53/Plenum`. Region and build settings are read from `vercel.json`.
