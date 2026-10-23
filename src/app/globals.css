@@ -16,7 +16,7 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font-family: system-ui, sans-serif;
+  font-family: var(--font);
 }
 
 .home {

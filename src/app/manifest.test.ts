@@ -10,7 +10,7 @@ describe("manifest", () => {
   it("is installable on a phone", () => {
     expect(m.display).toBe("standalone");
     expect(m.start_url).toBe("/app");
-    expect(m.theme_color).toBe("#234f40");
+    expect(m.theme_color).toBe("#2b4fd0");
   });
   it("has PNG icons of the declared size, including a maskable one", () => {
     const pngs = (m.icons ?? []).filter((i) => i.type === "image/png");
