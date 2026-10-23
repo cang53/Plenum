@@ -14,14 +14,15 @@ const fake = (result: unknown) => {
 describe("taskFromRow", () => {
   it("flattens phase and owner", () => {
     const task = taskFromRow({
-      id: "t", title: "Lift", status: "todo", due_date: "2026-11-01", position: 2,
+      id: "t", title: "Lift", status: "todo", due_date: "2026-11-01", priority: "normal", position: 2,
       phases: { name: "Site" }, profiles: { display_name: "Ann" },
     });
-    expect(task).toEqual({ id: "t", title: "Lift", status: "todo", phase: "Site", ownerName: "Ann", dueDate: "2026-11-01", position: 2 });
+    expect(task).toEqual({ id: "t", title: "Lift", status: "todo", phase: "Site", ownerName: "Ann", dueDate: "2026-11-01", priority: "normal", position: 2 });
   });
   it("allows no phase or owner", () => {
-    const task = taskFromRow({ id: "t", title: "x", status: "done", due_date: null, position: 0, phases: null, profiles: null });
+    const task = taskFromRow({ id: "t", title: "x", status: "done", due_date: null, priority: "high", position: 0, phases: null, profiles: null });
     expect(task.phase).toBeNull();
+    expect(task.priority).toBe("high");
     expect(task.ownerName).toBeNull();
   });
 });

@@ -3,6 +3,7 @@ import { listBoardTasks } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { getLocale, getT } from "@/lib/locale";
 import { Board } from "@/app/demo/board/Board";
+import { WorkSwitch } from "@/app/WorkSwitch";
 import { saveTaskStatus } from "./actions";
 
 export default async function BoardPage({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
@@ -17,6 +18,7 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
       <p className="eyebrow">{project.name}</p>
       <h1>{t("board.title")}</h1>
       <p className="intro">{t("board.intro")}</p>
+      <WorkSwitch current="board" projectId={project.id} t={t} />
       <Board key={project.id} initialTasks={tasks} onMove={saveTaskStatus} locale={locale} />
     </main>
   );
