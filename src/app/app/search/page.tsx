@@ -1,17 +1,23 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects, searchProject } from "@/data/projects";
 import { plainSnippet, searchHref } from "@/domain/search";
+import { FilterFields } from "@/app/app/FilterFields";
+import { listBoardTasks } from "@/data/live";
+import { filterParams, parseFilters } from "@/domain/filters";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getT } from "@/lib/locale";
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ project?: string; q?: string; after?: string }> }) {
+export default async function SearchPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, q = "", after } = await searchParams;
+  const raw = await searchParams;
+  const { project: chosen, q = "", after } = raw;
+  const filters = parseFilters(raw);
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const query = q.trim();
-  const { rows: hits, next } = query ? await searchProject(supabase, project.id, query, after) : { rows: [], next: null };
+  const { rows: hits, next } = query ? await searchProject(supabase, project.id, query, after, filters) : { rows: [], next: null };
+  const tasks = (await listBoardTasks(supabase, project.id)).map(({ id, title }) => ({ id, title }));
   return (
     <main id="main" className="page">
       <p className="eyebrow">{project.name}</p>
@@ -21,6 +27,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         <label>
           {t("search.label")} <input type="search" name="q" defaultValue={query} maxLength={200} />
         </label>{" "}
+        <FilterFields t={t} values={filters} tasks={tasks} />
         <button type="submit">{t("search.submit")}</button>
       </form>
       {query && hits.length === 0 && <p>{t("search.empty")}</p>}
@@ -32,7 +39,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           </li>
         ))}
       </ul>
-      <MoreLink path="/app/search" params={{ project: project.id, q: query }} next={next} label={t("paging.more")} />
+      <MoreLink path="/app/search" params={{ project: project.id, q: query, ...filterParams(filters) }} next={next} label={t("paging.more")} />
     </main>
   );
 }

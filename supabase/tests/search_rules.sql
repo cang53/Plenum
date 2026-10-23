@@ -17,6 +17,17 @@ do $$ begin
   if not exists (select 1 from public.search_project('20000000-0000-0000-0000-000000000001', 'x@example.com')) then
     raise exception 'search missed a message by sender';
   end if;
+  -- A date range in the past or the future finds nothing; today's range finds the message.
+  if exists (select 1 from public.search_project('20000000-0000-0000-0000-000000000001', 'crane', 0, '2000-01-01', '2000-01-02')) then
+    raise exception 'date range ignored';
+  end if;
+  if not exists (select 1 from public.search_project('20000000-0000-0000-0000-000000000001', 'crane', 0, current_date, current_date)) then
+    raise exception 'date range missed today';
+  end if;
+  -- A linked task that does not exist leaves no message or decision.
+  if exists (select 1 from public.search_project('20000000-0000-0000-0000-000000000001', 'crane', 0, null, null, gen_random_uuid())) then
+    raise exception 'linked task filter ignored';
+  end if;
   if exists (select 1 from public.search_project('20000000-0000-0000-0000-000000000001', 'zzzznothing')) then
     raise exception 'search matched nothing-word';
   end if;
