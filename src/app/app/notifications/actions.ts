@@ -24,3 +24,13 @@ export async function saveDigest(form: FormData): Promise<void> {
   if (error) throw error;
   revalidatePath("/app", "layout");
 }
+
+// Snooze is private to the person: it hides the suggestion from their own list until tomorrow.
+export async function snoozeSuggestion(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+  const { error } = await supabase.from("suggestion_snoozes").upsert({ user_id: user.id, suggestion_id: String(form.get("id")), until: new Date(Date.now() + 864e5).toISOString() });
+  if (error) throw error;
+  revalidatePath("/app/notifications");
+}
