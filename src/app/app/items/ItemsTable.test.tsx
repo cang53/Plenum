@@ -16,6 +16,10 @@ describe("ItemsTable", () => {
     expect(html).toContain("2026-11-01");
     expect(html).toContain("<form>edit</form>");
   });
+  it("links each task to its side sheet when given a link builder", () => {
+    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} rows={[{ item, edit: null }]} sheetHref={(id) => `/app/items?task=${id}`} />);
+    expect(html).toContain('href="/app/items?task=1"');
+  });
   it("shows the plain-English empty state without a table", () => {
     const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} rows={[]} />);
     expect(html).toContain(t("items.empty", "en"));

@@ -13,6 +13,8 @@ type Props = {
   onAdd?: (title: string, status: TaskStatus) => Promise<BoardTask>;
   // The signed-in person's language; the demo stays English.
   locale?: Locale;
+  // Where a card's title leads (the task side sheet). Without it (the demo) the title is plain text.
+  openHref?: (taskId: string) => string;
 };
 
 const PRIORITY_DOT = { low: "st-todo", normal: "st-todo", high: "st-warn" } as const;
@@ -21,7 +23,7 @@ const FIELDS = ["priority", "phase", "due", "owner"] as const;
 type Field = (typeof FIELDS)[number];
 const GROUPS: readonly GroupBy[] = ["status", "phase", "owner", "week"];
 
-export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
+export function Board({ initialTasks, onMove, onAdd, locale = "en", openHref }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
@@ -171,7 +173,7 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
                     <span>{taskKey(task.id)}</span>
                     {shows("priority") && <span className={`st ${PRIORITY_DOT[task.priority]}`}>{t(`priority.${task.priority}`)}</span>}
                   </span>
-                  <h3>{task.title}</h3>
+                  <h3>{openHref ? <a href={openHref(task.id)}>{task.title}</a> : task.title}</h3>
                   <span className="card-meta">
                     {task.phase && shows("phase") ? <span className="chip">{task.phase}</span> : <span />}
                     <span className="card-owner">
