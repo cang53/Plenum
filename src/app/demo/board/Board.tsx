@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buildColumns, distinct, initials, moveTask, STATUSES, taskKey, type BoardTask, type TaskStatus } from "@/domain/board";
+import { buildColumns, distinct, groupTasks, initials, moveTask, STATUSES, taskKey, type BoardTask, type GroupBy, type TaskStatus } from "@/domain/board";
 import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -17,15 +17,33 @@ type Props = {
 
 const PRIORITY_DOT = { low: "st-todo", normal: "st-todo", high: "st-warn" } as const;
 
+const FIELDS = ["priority", "phase", "due", "owner"] as const;
+type Field = (typeof FIELDS)[number];
+const GROUPS: readonly GroupBy[] = ["status", "phase", "owner", "week"];
+
 export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
   const [owner, setOwner] = useState("");
   const [site, setSite] = useState("");
+  const [groupBy, setGroupBy] = useState<GroupBy>("status");
+  const [hidden, setHidden] = useState<Field[]>([]);
+  const shows = (field: Field) => !hidden.includes(field);
   const [dragging, setDragging] = useState<string | null>(null);
 
-  const columns = buildColumns(tasks, { phase: phase || undefined, owner: owner || undefined, site: site || undefined });
+  const due = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
+  const statusColumns = buildColumns(tasks, { phase: phase || undefined, owner: owner || undefined, site: site || undefined });
+  const byStatus = groupBy === "status";
+  const label = (key: string) =>
+    key === ""
+      ? t(`board.none.${groupBy}` as MessageKey)
+      : groupBy === "week"
+        ? `${t("board.weekOf")} ${due(key)}`
+        : key;
+  const columns = byStatus
+    ? statusColumns.map((c) => ({ key: c.status, name: t(`status.${c.status}`), tasks: c.tasks }))
+    : groupTasks(statusColumns.flatMap((c) => c.tasks), groupBy).map((g) => ({ key: g.key, name: label(g.key), tasks: g.tasks }));
   const [failed, setFailed] = useState<{ id: string; status: TaskStatus } | null>(null);
   const move = (id: string, status: TaskStatus) => {
     const before = tasks;
@@ -55,7 +73,6 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
       setAddFailed(true);
     }
   };
-  const due = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
 
   return (
     <>
@@ -87,6 +104,25 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
             ))}
           </select>
         </label>
+        <label>
+          {t("board.groupBy")}
+          <select value={groupBy} onChange={(e) => { setGroupBy(e.target.value as GroupBy); setAdding(null); }}>
+            {GROUPS.map((g) => (
+              <option key={g} value={g}>{t(`board.group.${g}` as MessageKey)}</option>
+            ))}
+          </select>
+        </label>
+        <details className="display-menu">
+          <summary>{t("board.display")}</summary>
+          <div>
+            {FIELDS.map((f) => (
+              <label key={f}>
+                <input type="checkbox" checked={shows(f)} onChange={() => setHidden((h) => (h.includes(f) ? h.filter((x) => x !== f) : [...h, f]))} />
+                {t(`board.field.${f}` as MessageKey)}
+              </label>
+            ))}
+          </div>
+        </details>
       </div>
       {failed && (
         <p role="alert" className="notice">
@@ -98,21 +134,21 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
         <div className="board">
           {columns.map((column) => (
             <section
-              key={column.status}
+              key={column.key}
               className={`board-column${dragging ? " drop-ready" : ""}`}
-              aria-label={t(`status.${column.status}`)}
+              aria-label={column.name}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
-                if (dragging) move(dragging, column.status);
+                if (dragging && byStatus) move(dragging, column.key as TaskStatus);
                 setDragging(null);
               }}
             >
               <h2>
-                <span>{t(`status.${column.status}`)} <span className="count">{column.tasks.length}</span></span>
-                <button type="button" className="btn btn-plain" aria-label={`${t("board.add")}: ${t(`status.${column.status}`)}`} onClick={() => setAdding(column.status)}>+</button>
+                <span>{column.name} <span className="count">{column.tasks.length}</span></span>
+                {byStatus && <button type="button" className="btn btn-plain" aria-label={`${t("board.add")}: ${column.name}`} onClick={() => setAdding(column.key as TaskStatus)}>+</button>}
               </h2>
-              {adding === column.status && (
-                <form className="board-add" action={(form) => add(form, column.status)} onKeyDown={(e) => e.key === "Escape" && setAdding(null)}>
+              {adding === column.key && (
+                <form className="board-add" action={(form) => add(form, column.key as TaskStatus)} onKeyDown={(e) => e.key === "Escape" && setAdding(null)}>
                   <input className="field" name="title" required autoFocus aria-label={t("board.addTitle")} placeholder={t("board.addTitle")} />
                   {addFailed && <p role="alert" className="field-error">{t("board.addError")}</p>}
                   <span className="board-add-actions">
@@ -121,28 +157,29 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en" }: Props) {
                   </span>
                 </form>
               )}
-              {column.tasks.length === 0 && adding !== column.status && <p className="empty">{t("board.empty")}</p>}
+              {column.tasks.length === 0 && adding !== column.key && <p className="empty">{t("board.empty")}</p>}
               {column.tasks.map((task) => (
                 <article
                   key={task.id}
                   className="card"
                   data-dragging={dragging === task.id}
-                  draggable
+                  draggable={byStatus}
                   onDragStart={() => setDragging(task.id)}
                   onDragEnd={() => setDragging(null)}
                 >
                   <span className="card-id">
                     <span>{taskKey(task.id)}</span>
-                    <span className={`st ${PRIORITY_DOT[task.priority]}`}>{t(`priority.${task.priority}`)}</span>
+                    {shows("priority") && <span className={`st ${PRIORITY_DOT[task.priority]}`}>{t(`priority.${task.priority}`)}</span>}
                   </span>
                   <h3>{task.title}</h3>
                   <span className="card-meta">
-                    {task.phase ? <span className="chip">{task.phase}</span> : <span />}
+                    {task.phase && shows("phase") ? <span className="chip">{task.phase}</span> : <span />}
                     <span className="card-owner">
-                      {task.dueDate && <span className="n">{due(task.dueDate)}</span>}
-                      {task.ownerName && <span className="av" role="img" aria-label={task.ownerName}>{initials(task.ownerName)}</span>}
+                      {task.dueDate && shows("due") && <span className="n">{due(task.dueDate)}</span>}
+                      {task.ownerName && shows("owner") && <span className="av" role="img" aria-label={task.ownerName}>{initials(task.ownerName)}</span>}
                     </span>
                   </span>
+                  {task.status === "blocked" && task.waitingOn && <span className="waiting-on">{t("board.waitingOn")}: {task.waitingOn}</span>}
                   <label className="status-select">
                     {t("board.statusLabel")}
                     <select value={task.status} onChange={(e) => move(task.id, e.target.value as TaskStatus)}>
