@@ -22,21 +22,29 @@ export default async function RolesPage() {
       {projects.map((p, i) => (
         <section key={p.id}>
           <h2>{p.name}</h2>
-          <ul>
-            {members[i].map((m) => (
-              <li key={m.userId}>
-                {m.name} ({m.email})
-                <form action={changeRole}>
-                  <input type="hidden" name="projectId" value={p.id} />
-                  <input type="hidden" name="userId" value={m.userId} />
-                  <label>{t("members.role")} <select name="role" defaultValue={m.role}>
-                    {ROLES.map((r) => <option key={r} value={r}>{t(`role.${r}`)}</option>)}
-                  </select></label>
-                  <button type="submit">{t("members.saveRole")}</button>
-                </form>
-              </li>
-            ))}
-          </ul>
+          <div className="surface data-table">
+            <table>
+              <caption className="sr-only">{p.name}</caption>
+              <thead><tr><th scope="col">{t("members.person")}</th><th scope="col">{t("members.role")}</th></tr></thead>
+              <tbody>
+                {members[i].map((m) => (
+                  <tr key={m.userId}>
+                    <td>{m.name}<br /><small className="meta">{m.email}</small></td>
+                    <td>
+                      <form action={changeRole} className="inline-form">
+                        <input type="hidden" name="projectId" value={p.id} />
+                        <input type="hidden" name="userId" value={m.userId} />
+                        <select name="role" defaultValue={m.role} aria-label={`${t("members.role")}: ${m.name}`} className="field">
+                          {ROLES.map((r) => <option key={r} value={r}>{t(`role.${r}`)}</option>)}
+                        </select>
+                        <button type="submit" className="btn btn-secondary">{t("members.saveRole")}</button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       ))}
     </main>
