@@ -15,6 +15,10 @@ test("log hours, submit, approve and export a week", async ({ page }) => {
   await page.getByRole("button", { name: "Save hours" }).click();
   await expect(page.getByText("Hours saved.")).toBeVisible();
 
+  await expect(page.getByRole("cell", { name: "7.5", exact: true }).first()).toBeVisible();
+  await page.getByRole("link", { name: "Copy last week" }).click();
+  await expect(page.getByText("Last week has no hours to copy.")).toBeVisible();
+
   await page.goto(`/app/timesheets?project=${project}`);
   await page.getByRole("button", { name: "Submit this week" }).click();
   await expect(page.getByText("Waiting for approval")).toBeVisible();

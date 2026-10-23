@@ -366,6 +366,12 @@ export async function setTimesheetWeek(client: SupabaseClient, projectId: string
   if (error) throw error;
 }
 
+export async function myWeekStatus(client: SupabaseClient, projectId: string, userId: string, week: string): Promise<TimesheetWeek["status"] | null> {
+  const { data, error } = await client.from("timesheet_weeks").select("status").eq("project_id", projectId).eq("user_id", userId).eq("week_start", week).maybeSingle();
+  if (error) throw error;
+  return data?.status ?? null;
+}
+
 export async function submitTimesheetWeek(client: SupabaseClient, projectId: string, userId: string, week: string): Promise<void> {
   const { error } = await client.from("timesheet_weeks").insert({ project_id: projectId, user_id: userId, week_start: week });
   if (error && error.code !== "23505") throw error;

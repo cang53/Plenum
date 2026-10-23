@@ -34,6 +34,22 @@ export function checkGrid(form: { entries(): Iterable<[string, FormDataEntryValu
   return { ok: true, value: out };
 }
 
+export const DAY_TARGET = 8;
+export const WEEK_TARGET = 40;
+
+export const sumHours = (xs: (number | undefined)[]): number => Math.round(xs.reduce<number>((a, x) => a + (x ?? 0), 0) * 100) / 100;
+
+// "over" past the target, "met" at or past it for the week, otherwise "under". Days only go over; a short day is normal.
+export function targetState(total: number, target: number, week = false): "under" | "met" | "over" {
+  if (total > target) return "over";
+  return week && total === target ? "met" : "under";
+}
+
+// Last week's hours moved forward seven days, for the cells the person has not filled yet.
+export function copyWeek(rows: { task_id: string; work_date: string; hours: number }[]): { taskId: string; date: string; hours: number }[] {
+  return rows.map((r) => ({ taskId: r.task_id, date: shiftWeek(r.work_date, 1), hours: r.hours }));
+}
+
 export type WeekDecision = "approved" | "sent_back";
 
 export function checkDecision(form: { get(k: string): unknown }): { week: string; user: string; decision: WeekDecision; note: string } | null {
