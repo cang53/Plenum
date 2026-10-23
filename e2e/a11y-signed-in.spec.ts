@@ -17,6 +17,7 @@ test("no axe violations on risks, site log, timesheet and rewards", async ({ pag
     ["timesheet", `/app/timesheet?project=${project}`],
     ["timesheets", `/app/timesheets?project=${project}`],
     ["rewards", `/app?project=${project}`],
+    ["stream", `/app/stream?project=${project}`],
   ];
   for (const [name, path] of screens) {
     await page.goto(path);

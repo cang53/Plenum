@@ -6,6 +6,7 @@ export type NavItem = { path: string; label: MessageKey; group: NavGroup };
 // Pages everyone in a project sees, then the ones their role unlocks. Row-level security still decides what each page shows.
 export function navItems(role: string | undefined, isAdmin: boolean): NavItem[] {
   const items: NavItem[] = [
+    { path: "/app/stream", label: "app.stream", group: "project" },
     { path: "/app", label: "app.overview", group: "project" },
     { path: "/app/board", label: "app.board", group: "project" },
     { path: "/app/timeline", label: "app.timeline", group: "project" },
