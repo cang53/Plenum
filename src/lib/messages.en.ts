@@ -492,6 +492,7 @@ export const en = {
   "gantt.chart": "Gantt chart",
   "gantt.today": "Today",
   "gantt.critical": "On the critical path",
+  "gantt.criticalToggle": "Critical path",
   "gantt.conflict": "Starts before a predecessor is due",
   "gantt.depends": "Depends on",
   "gantt.print": "Print or save as PDF",

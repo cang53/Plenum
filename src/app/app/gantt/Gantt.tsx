@@ -8,7 +8,7 @@ import { intlLocale, type Locale } from "@/lib/messages";
 const ROW_PX = 28; // keep in step with --gantt-row in gantt.css
 const ZOOMS: Zoom[] = ["week", "month", "quarter"];
 
-type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineName: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string; milestone: string; task: string; start: string; end: string; zoom: string; week: string; month: string; quarter: string; collapse: string; expand: string; noPhase: string; slipShort: string };
+type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineName: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string; milestone: string; task: string; start: string; end: string; zoom: string; week: string; month: string; quarter: string; collapse: string; expand: string; noPhase: string; slipShort: string; criticalToggle: string };
 
 export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, onBaseline, labels, locale = "en" }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale }) {
   const [tasks, setTasks] = useState(initial);
@@ -17,6 +17,9 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
   const [zoom, setZoom] = useState<Zoom>("month");
   const [folded, setFolded] = useState<Set<string | null>>(new Set());
   const [name, setName] = useState("");
+  const [showCritical, setShowCritical] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
+  const moved = useRef(false);
   const drag = useRef<{ id: string; x: number; days: number } | null>(null);
   const { bars, firstDay, totalDays } = useMemo(() => buildBars(tasks), [tasks]);
   const critical = useMemo(() => criticalPath(tasks, dependencies), [tasks, dependencies]);
@@ -67,11 +70,12 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
     zoom === "quarter" ? `Q${Math.floor(new Date(`${iso}T00:00:00Z`).getUTCMonth() / 3) + 1} ${iso.slice(0, 4)}`
     : zoom === "week" ? show(iso) : new Intl.DateTimeFormat(intlLocale[locale], { timeZone: "UTC", month: "short", year: "2-digit" }).format(new Date(`${iso}T00:00:00Z`));
   return (
-    <section className="gantt" aria-label={labels.chart}>
+    <section className="gantt" data-critical-path={showCritical} aria-label={labels.chart}>
       <div className="gantt-toolbar">
         <div className="gantt-zoom" role="group" aria-label={labels.zoom}>
           {ZOOMS.map((z) => <button key={z} type="button" aria-pressed={z === zoom} onClick={() => setZoom(z)}>{labels[z]}</button>)}
         </div>
+        <button type="button" className="btn gantt-print" aria-pressed={showCritical} onClick={() => setShowCritical((v) => !v)}>{labels.criticalToggle}</button>
         <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
         {onBaseline && (
           <form onSubmit={(e) => { e.preventDefault(); void saveBase(); }}>
@@ -113,12 +117,14 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
               {dependencies.map((d) => {
                 const from = rows[row.get(d.predecessorId) ?? -1]?.bar;
                 const to = rows[row.get(d.successorId) ?? -1]?.bar;
-                if (!from || !to) return null;
+                const onPath = showCritical && critical.has(d.predecessorId) && critical.has(d.successorId);
+                const touches = selected === d.predecessorId || selected === d.successorId;
+                if (!from || !to || !(onPath || touches)) return null;
                 const x1 = (from.startDay + from.length) * dayPx;
                 const y1 = row.get(d.predecessorId)! * ROW_PX + ROW_PX / 2;
                 const x2 = to.startDay * dayPx;
                 const y2 = row.get(d.successorId)! * ROW_PX + ROW_PX / 2;
-                return <path key={`${d.predecessorId}-${d.successorId}`} d={`M${x1} ${y1} H${x1 + 6} V${y2} H${x2}`} data-critical={critical.has(d.predecessorId) && critical.has(d.successorId)} />;
+                return <path key={`${d.predecessorId}-${d.successorId}`} d={`M${x1} ${y1} H${x1 + 6} V${y2} H${x2}`} data-critical={onPath} data-selected={touches} />;
               })}
             </svg>
             {rows.map((r, i) => r.summary && <div key={r.key} className="gantt-summary" aria-hidden="true" style={{ insetInlineStart: r.startDay * dayPx, width: (r.endDay - r.startDay + 1) * dayPx, top: i * ROW_PX }} />)}
@@ -139,6 +145,8 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
                   data-milestone={b.isMilestone}
                   data-critical={critical.has(b.id)}
                   data-late={late}
+                  aria-pressed={selected === b.id}
+                  onClick={() => { if (!moved.current) setSelected((s) => (s === b.id ? null : b.id)); moved.current = false; }}
                   style={{ insetInlineStart: b.startDay * dayPx, width: b.length * dayPx, top: i * ROW_PX + 6 }}
                   aria-label={labels.bar.replace("{title}", b.title).replace("{start}", b.start).replace("{due}", b.due) + (b.isMilestone ? `. ${labels.milestone}` : "") + (critical.has(b.id) ? `. ${labels.critical}` : "") + (late ? `. ${labels.conflict}` : "") + (days ? `. ${labels.slip.replace("{days}", String(days))}` : "")}
                   onKeyDown={(e) => {
@@ -153,6 +161,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
                   onPointerUp={(e) => {
                     const d = drag.current;
                     drag.current = null;
+                    moved.current = !!d?.days;
                     e.currentTarget.style.transform = "";
                     if (d) void move(d.id, d.days);
                   }}

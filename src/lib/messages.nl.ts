@@ -494,6 +494,7 @@ export const nl: Record<keyof typeof en, string> = {
   "gantt.chart": "Gantt-diagram",
   "gantt.today": "Vandaag",
   "gantt.critical": "Op het kritieke pad",
+  "gantt.criticalToggle": "Kritiek pad",
   "gantt.conflict": "Begint voordat een voorganger klaar is",
   "gantt.depends": "Hangt af van",
   "gantt.print": "Afdrukken of opslaan als pdf",
