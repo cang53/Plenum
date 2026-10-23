@@ -7,7 +7,7 @@ import { findConflicts, type Dependency } from "@/domain/schedule";
 const DAY_PX = 28;
 const ROW_PX = 40;
 
-type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineName: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string };
+type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineName: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string; milestone: string };
 
 export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, onBaseline, labels }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; onBaseline?: (name: string) => Promise<void>; labels: Labels }) {
   const [tasks, setTasks] = useState(initial);
@@ -85,10 +85,11 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
               key={b.id}
               type="button"
               className="gantt-bar"
+              data-milestone={b.isMilestone}
               data-critical={critical.has(b.id)}
               data-late={late.has(b.id)}
               style={{ insetInlineStart: b.startDay * DAY_PX, width: b.length * DAY_PX, top: i * ROW_PX + 6 }}
-              aria-label={labels.bar.replace("{title}", b.title).replace("{start}", b.start).replace("{due}", b.due) + (critical.has(b.id) ? `. ${labels.critical}` : "") + (late.has(b.id) ? `. ${labels.conflict}` : "") + (slip.get(b.id) ? `. ${labels.slip.replace("{days}", String(slip.get(b.id)))}` : "")}
+              aria-label={labels.bar.replace("{title}", b.title).replace("{start}", b.start).replace("{due}", b.due) + (b.isMilestone ? `. ${labels.milestone}` : "") + (critical.has(b.id) ? `. ${labels.critical}` : "") + (late.has(b.id) ? `. ${labels.conflict}` : "") + (slip.get(b.id) ? `. ${labels.slip.replace("{days}", String(slip.get(b.id)))}` : "")}
               onKeyDown={(e) => {
                 if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); void move(b.id, e.key === "ArrowLeft" ? -1 : 1); }
               }}
@@ -113,6 +114,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
       <ul className="gantt-legend">
         <li data-critical="true">{labels.critical}</li>
         <li data-late="true">{labels.conflict}</li>
+        <li data-milestone="true">{labels.milestone}</li>
       </ul>
     </section>
   );

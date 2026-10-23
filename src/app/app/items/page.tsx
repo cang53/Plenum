@@ -35,6 +35,7 @@ function Fields({ item, kind, projectId, plan, t }: { item?: ManualItem; kind: M
           </label>
           <label>{t("items.start")} <input type="date" name="startDate" defaultValue={item?.startDate ?? ""} /></label>
           <label>{t("board.due")} <input type="date" name="dueDate" defaultValue={item?.dueDate ?? ""} /></label>
+          <label><input type="checkbox" name="isMilestone" defaultChecked={item?.isMilestone ?? false} /> {t("items.milestone")}</label>
           <label>{t("items.costCode")} <input name="costCode" maxLength={40} defaultValue={item?.costCode ?? ""} /></label>
           <label>{t("items.site")} <input name="site" maxLength={80} defaultValue={item?.site ?? ""} /></label>
           <label>{t("items.owner")}{" "}

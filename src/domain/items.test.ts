@@ -20,6 +20,15 @@ describe("itemFromForm", () => {
   });
 });
 
+describe("milestones", () => {
+  it("reads the milestone box and writes it for tasks", () => {
+    expect(itemFromForm(form({ kind: "task", title: "x", isMilestone: "on" })).isMilestone).toBe(true);
+    const plain = itemFromForm(form({ kind: "task", title: "x" }));
+    expect(plain.isMilestone).toBe(false);
+    expect(toColumns(plain)).toMatchObject({ is_milestone: false });
+  });
+});
+
 describe("risks and issues", () => {
   it("defaults to a risk and refuses an unknown type", () => {
     expect(itemFromForm(form({ kind: "risk", title: "x" })).riskKind).toBe("risk");
@@ -43,8 +52,8 @@ describe("plan fields", () => {
 
 describe("toColumns", () => {
   it("gives decisions no status", () => {
-    const base = { title: "t", details: "d", status: "todo", riskKind: "issue", priority: "high", startDate: null, dueDate: null, costCode: "", site: "Yard", ownerId: null, phaseId: "p1", parentId: null, predecessorIds: [] };
-    expect(toColumns({ ...base, kind: "task" })).toEqual({ title: "t", details: "d", status: "todo", priority: "high", start_date: null, due_date: null, cost_code: null, site: "Yard", owner_id: null, phase_id: "p1", parent_id: null });
+    const base = { title: "t", details: "d", status: "todo", riskKind: "issue", priority: "high", startDate: null, dueDate: null, costCode: "", site: "Yard", isMilestone: false, ownerId: null, phaseId: "p1", parentId: null, predecessorIds: [] };
+    expect(toColumns({ ...base, kind: "task" })).toEqual({ title: "t", details: "d", status: "todo", priority: "high", start_date: null, due_date: null, cost_code: null, site: "Yard", is_milestone: false, owner_id: null, phase_id: "p1", parent_id: null });
     expect(toColumns({ ...base, kind: "decision" })).toEqual({ title: "t", details: "d" });
     expect(toColumns({ ...base, kind: "risk", status: "closed", dueDate: "2026-12-01", ownerId: "u1" })).toEqual({ title: "t", details: "d", status: "closed", kind: "issue", due_date: "2026-12-01", owner_id: "u1" });
   });

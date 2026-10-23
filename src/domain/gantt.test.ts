@@ -3,6 +3,14 @@ import { buildBars, criticalPath, shiftDates, slipDays } from "./gantt";
 
 const task = (id: string, startDate: string | null, dueDate: string | null) => ({ id, title: id, startDate, dueDate, phase: null });
 
+describe("milestones", () => {
+  it("sit one day wide on the due date", () => {
+    const { bars } = buildBars([{ ...task("a", "2026-11-01", "2026-11-03"), isMilestone: false }, { ...task("m", "2026-11-01", "2026-11-10"), isMilestone: true }]);
+    const m = bars.find((b) => b.id === "m")!;
+    expect(m).toMatchObject({ startDay: 9, length: 1, isMilestone: true });
+  });
+});
+
 describe("buildBars", () => {
   it("places bars on a day grid from the earliest start and skips undated tasks", () => {
     const { bars, totalDays } = buildBars([task("b", "2026-11-05", "2026-11-06"), task("a", "2026-11-01", "2026-11-03"), task("c", null, null)]);

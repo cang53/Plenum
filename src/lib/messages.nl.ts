@@ -379,6 +379,8 @@ export const nl: Record<keyof typeof en, string> = {
   "gantt.baselineSaved": "Basisplan opgeslagen. Vertraging wordt nu hieraan gemeten.",
   "gantt.baselineNone": "Nog geen basisplan. Een projectmanager kan de huidige data als basisplan opslaan.",
   "gantt.baselineLate": "{n} taken eindigen later dan in het basisplan. De dunne lijn onder een balk toont de data van het basisplan.",
+  "items.milestone": "Mijlpaal",
+  "gantt.milestone": "Mijlpaal",
   "gantt.slip": "{days} dagen ten opzichte van het basisplan",
   "gantt.bar": "{title}, {start} tot {due}",
   "ui.segmented.items": "Items",
