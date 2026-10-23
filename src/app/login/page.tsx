@@ -10,8 +10,8 @@ export default async function Login({
   const { next, sent, error } = await searchParams;
   const t = await getT();
   return (
-    <main id="main" className="ambient center-stage">
-      <div className="glass state-card">
+    <main id="main" className="center-stage">
+      <div className="surface state-card">
       <h1>{t("login.title")}</h1>
       {authProvider() === "entra" ? (
         <form action={signInWithEntra}>

@@ -1,6 +1,6 @@
-/* Login, welcome, error and loading: one centered card, one skeleton. Tokens only. */
+/* Login, welcome, error and loading: flat card with a 1px line, flat skeleton bars. Tokens only. */
 .center-stage { display: grid; place-items: center; padding: var(--s6) var(--s4); }
-.state-card { width: min(28rem, 100%); padding: var(--s8) var(--s6); background: var(--glass-dense); }
+.state-card { width: min(28rem, 100%); padding: var(--s6); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .state-card h1 { margin: 0 0 var(--s2); font-size: var(--text-xl); letter-spacing: var(--tracking-tight); color: var(--text); }
 .state-card .intro { margin: 0 0 var(--s5); color: var(--text-secondary); }
 .state-card form { display: grid; gap: var(--s4); }
@@ -11,17 +11,17 @@
 .skeleton { display: grid; gap: var(--s3); }
 .skeleton-line {
   height: var(--s4);
-  border-radius: var(--radius-full);
-  background: linear-gradient(90deg, var(--surface-muted) 25%, var(--surface-hover) 50%, var(--surface-muted) 75%);
-  background-size: 200% 100%;
-  animation: shimmer var(--motion-slow) linear infinite;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  animation: pulse var(--motion-slow) ease-in-out infinite alternate;
 }
 .skeleton-line:nth-child(2) { width: 80%; }
 .skeleton-line:nth-child(3) { width: 60%; }
-@keyframes shimmer { to { background-position: -200% 0; } }
+@keyframes pulse { to { opacity: 0.5; } }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-line { animation: none; }
 }
-.state-card section { margin-block-end: var(--s5); }
+.state-card section { margin-block-end: var(--s5); padding: var(--s4); border: 1px solid var(--border); border-radius: var(--radius); }
 .state-card label { display: block; }
 .state-card .check { display: flex; }
+.flat-error { margin: var(--s6) auto; max-width: 28rem; padding: var(--s4); font-family: system-ui, sans-serif; }

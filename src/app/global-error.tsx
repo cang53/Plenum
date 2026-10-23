@@ -8,7 +8,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
   useEffect(() => reportClientError(error), [error]);
   return (
     <html lang="en">
-      <body>
+      <body className="flat-error">
         <p role="alert">{t("app.error", "en")}</p>
         <button type="button" onClick={reset}>{t("app.retry", "en")}</button>
       </body>
