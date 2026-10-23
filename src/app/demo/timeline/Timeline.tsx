@@ -22,11 +22,15 @@ type Props = {
   // Live pages save the decision; the demo leaves these out and keeps changes in the page.
   onAccept?: (suggestionId: string, draft: ItemDraft) => Promise<void>;
   onDismiss?: (suggestionId: string) => Promise<void>;
+  // Live pages translate a message for display; null means keep the original.
+  onTranslate?: (messageId: string, language: string) => Promise<string | null>;
   // The signed-in person's language; the demo stays English.
   language?: Locale;
+  // Live pages send the reply by email; without it the reply button is not shown.
+  onReply?: (messageId: string, text: string, confirmWider: boolean) => Promise<"sent" | "wider">;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, language = "en" }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, language = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
@@ -36,10 +40,27 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
   const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
   // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
+  const [reply, setReply] = useState<{ messageId: string; text: string; wider: boolean; sent?: boolean; failed?: boolean } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
+  // Translations are fetched on click and kept in the page only. null: none available, so the original stays.
+  const [translations, setTranslations] = useState<Record<string, string | null>>({});
+  const [translated, setTranslated] = useState<Record<string, boolean>>({});
+  const [translating, setTranslating] = useState<string | null>(null);
   const [saveFailed, setSaveFailed] = useState<(() => void) | null>(null);
   const makeItem = (messageId: string, draft: ItemDraft) =>
     setItems((prev) => [...prev, { id: `${draft.kind}-${prev.length}`, kind: draft.kind, title: draft.title.trim(), messageId }]);
+  const toggleTranslation = async (id: string, run: NonNullable<Props["onTranslate"]>) => {
+    if (translations[id] === undefined) {
+      setTranslating(id);
+      const text = await run(id, language).catch((error) => (logError("translation failed", error), null));
+      setTranslating(null);
+      setTranslations((prev) => ({ ...prev, [id]: text }));
+      setTranslated((prev) => ({ ...prev, [id]: text !== null }));
+    } else setTranslated((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+  const shownBody = (m: TimelineMessage) => (translated[m.id] ? translations[m.id] : m.bodyText);
+  const translateLabel = (id: string): MessageKey =>
+    translations[id] === undefined ? "translate.show" : translations[id] === null ? "translate.unavailable" : translated[id] ? "translate.original" : "translate.again";
   // Saves the decision first (when the page saves), so a failure leaves the suggestion open.
   const decide = async (id: string, outcome: "accepted" | "dismissed", draft?: ItemDraft, messageId?: string): Promise<boolean> => {
     try {
@@ -54,6 +75,17 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
     if (draft && messageId) makeItem(messageId, draft);
     setDecided((prev) => ({ ...prev, [id]: outcome }));
     return true;
+  };
+
+  const sendReply = async (confirmWider: boolean) => {
+    if (!reply || !onReply || !reply.text.trim()) return;
+    try {
+      const result = await onReply(reply.messageId, reply.text, confirmWider);
+      setReply(result === "wider" ? { ...reply, wider: true, failed: false } : { ...reply, text: "", wider: false, sent: true, failed: false });
+    } catch (error) {
+      logError("reply failed", error);
+      setReply({ ...reply, failed: true });
+    }
   };
 
   const locale = intlLocale[language];
@@ -118,7 +150,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
         <section key={d.day} className="timeline-day" aria-label={dayLabel(d.day)} data-today={relativeDay(d.day, now, timeZone) === "today"}>
           <h2>{dayLabel(d.day)}</h2>
           {d.messages.map((m) => {
-            const long = m.bodyText.length > LONG_BODY;
+            const long = m.bodyText.length > LONG_BODY; // folding follows the original length
             const expanded = Boolean(open[m.id]);
             const state = suggestions.some((s) => s.messageId === m.id && s.status === "pending" && !decided[s.id])
               ? "suggested"
@@ -133,7 +165,12 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                   <time dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                 </header>
                 <h3>{m.subject || t("timeline.noSubject")}</h3>
-                <p className={long && !expanded ? "body folded" : "body"}>{m.bodyText}</p>
+                <p className={long && !expanded ? "body folded" : "body"}>{shownBody(m)}</p>
+                {onTranslate && (
+                  <button type="button" className="link-button" disabled={translating === m.id || translations[m.id] === null} onClick={() => toggleTranslation(m.id, onTranslate)}>
+                    {t(translateLabel(m.id))}
+                  </button>
+                )}
                 {long && (
                   <button type="button" className="link-button" aria-expanded={expanded} onClick={() => setOpen({ ...open, [m.id]: !expanded })}>
                     {expanded ? t("timeline.showLess") : t("timeline.showMore")}
@@ -188,6 +225,30 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                       </div>
                     </div>
                   ))}
+                {onReply && m.source === "email" && m.fromAddress && (reply?.messageId === m.id && !reply.sent ? (
+                  <form className="reply-form glass" onSubmit={(e) => { e.preventDefault(); void sendReply(false); }}>
+                    <label>
+                      {t("reply.label")}
+                      <textarea rows={3} value={reply.text} onChange={(e) => setReply({ messageId: m.id, text: e.target.value, wider: false })} />
+                    </label>
+                    <p className="meta">{t("reply.to")}: {m.fromAddress}</p>
+                    {reply.wider && <p role="alert">{t("reply.wider")}</p>}
+                    {reply.failed && <p role="alert">{t("reply.error")}</p>}
+                    <div>
+                      {reply.wider ? (
+                        <button type="button" className="button" onClick={() => void sendReply(true)}>{t("reply.sendAnyway")}</button>
+                      ) : (
+                        <button type="submit" className="button" disabled={!reply.text.trim()}>{t("reply.send")}</button>
+                      )}{" "}
+                      <button type="button" className="button" onClick={() => setReply(null)}>{t("link.cancel")}</button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    {reply?.messageId === m.id && reply.sent && <p className="meta" role="status">{t("reply.sent")}</p>}
+                    <button type="button" className="link-button" onClick={() => setReply({ messageId: m.id, text: "", wider: false })}>{t("reply.action")}</button>
+                  </>
+                ))}
                 {drafting?.messageId === m.id ? (
                   <form
                     className="link-form"
