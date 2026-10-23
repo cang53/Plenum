@@ -14,5 +14,8 @@ Four flags decide what is live. Defaults are safe: nothing leaves the system. Se
 2. **SES**: verify the sending domain (DKIM, SPF), leave the sandbox, set the variables. Inbound stays as in `inbound-email.md`.
 3. **Entra ID**: register the app (redirect `<site>/auth/callback`), create a client secret, set the variables.
 
+## Dry run (S13-6)
+Run on main with no cloud accounts and no Docker (the local Supabase stack could not start here, so the database and sign-in steps are covered by `npm run test:db` and `npm run test:e2e` in CI). `npm run check:switches` passes with the defaults and fails with a list of missing variables for each flag set to its live value; `tsc`, lint and tests pass.
+
 ## Known gaps
-The flags and checks exist; the provider code behind some of them does not yet. `TEAMS_PROVIDER=live` makes `teamsPoster()` throw until live Teams posting is built (stage 13 later). `EMAIL_PROVIDER=ses` makes `emailSender()` throw until the SES sender (stage 3 task 12) is added, and `AUTH_PROVIDER=entra` only changes the login page until the Auth.js Entra provider (stage 3 task 3) is wired. Bedrock is fully wired. Do not flip those two flags in production before that code lands.
+Only `TEAMS_PROVIDER=live` is not built: `teamsPoster()` throws until live Teams posting exists (later, needs admin consent). SES sending, the Auth.js Entra provider and Bedrock are wired, but none has been run against a real account; the first live run is the real test, so flip one switch at a time in the order above.
