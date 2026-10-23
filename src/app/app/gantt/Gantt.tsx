@@ -7,12 +7,13 @@ import { findConflicts, type Dependency } from "@/domain/schedule";
 const DAY_PX = 28;
 const ROW_PX = 40;
 
-type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string };
+type Labels = { chart: string; today: string; critical: string; conflict: string; print: string; saveError: string; bar: string; empty: string; saveBaseline: string; baselineName: string; baselineSaved: string; baselineNone: string; baselineLate: string; slip: string };
 
-export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, onBaseline, labels }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; onBaseline?: () => Promise<void>; labels: Labels }) {
+export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, onBaseline, labels }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; onBaseline?: (name: string) => Promise<void>; labels: Labels }) {
   const [tasks, setTasks] = useState(initial);
   const [error, setError] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [name, setName] = useState("");
   const drag = useRef<{ id: string; x: number; days: number } | null>(null);
   const { bars, firstDay, totalDays } = useMemo(() => buildBars(tasks), [tasks]);
   const critical = useMemo(() => criticalPath(tasks, dependencies), [tasks, dependencies]);
@@ -37,7 +38,8 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
   const saveBase = async () => {
     setError(false);
     try {
-      await onBaseline!();
+      await onBaseline!(name);
+      setName("");
       setSaved(true);
     } catch {
       setError(true);
@@ -50,7 +52,12 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, o
   return (
     <section className="gantt" aria-label={labels.chart}>
       <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
-      {onBaseline && <button type="button" className="btn gantt-print" onClick={saveBase}>{labels.saveBaseline}</button>}
+      {onBaseline && (
+        <form onSubmit={(e) => { e.preventDefault(); void saveBase(); }}>
+          <label>{labels.baselineName} <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required /></label>
+          <button type="submit" className="btn gantt-print">{labels.saveBaseline}</button>
+        </form>
+      )}
       {saved && <p role="status">{labels.baselineSaved}</p>}
       {baseline ? <p>{labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p className="intro">{labels.baselineNone}</p>}
       {error && <p role="alert">{labels.saveError}</p>}

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { t } from "@/lib/messages";
 import { Gantt } from "./Gantt";
 
-const labels = { chart: "Gantt chart", today: "Today", critical: "On the critical path", conflict: "Starts early", print: "Print", saveError: "Error", bar: t("gantt.bar"), empty: "No dated tasks", saveBaseline: "Save baseline", baselineSaved: "Saved", baselineNone: "No baseline yet", baselineLate: "{n} tasks late", slip: "{days} days against the baseline" };
+const labels = { chart: "Gantt chart", today: "Today", critical: "On the critical path", conflict: "Starts early", print: "Print", saveError: "Error", bar: t("gantt.bar"), empty: "No dated tasks", saveBaseline: "Save baseline", baselineName: "Baseline name", baselineSaved: "Saved", baselineNone: "No baseline yet", baselineLate: "{n} tasks late", slip: "{days} days against the baseline" };
 const task = (id: string, startDate: string, dueDate: string) => ({ id, title: id, startDate, dueDate, phase: null });
 const save = async () => {};
 
@@ -27,6 +27,7 @@ describe("Gantt", () => {
     expect(html).toContain("2 days against the baseline");
     expect(html).toContain("1 tasks late");
     expect(html).toContain("Save baseline");
+    expect(html).toContain("Baseline name");
     expect(renderToStaticMarkup(<Gantt tasks={tasks} dependencies={[]} onSave={save} labels={labels} />)).not.toContain("Save baseline");
   });
 });
