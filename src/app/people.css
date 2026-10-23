@@ -1,4 +1,0 @@
-/* People and roles: avatar beside the name, read-only permission matrix. */
-.person { display: flex; align-items: center; gap: var(--s2); }
-.perm-yes { color: var(--accent); }
-.perm-no { color: var(--text-muted); }

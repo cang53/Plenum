@@ -26,7 +26,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
           <tbody>
             {members.map((m) => (
               <tr key={m.userId}>
-                <td><span className="person"><span className="av" aria-hidden="true">{initials(m.name)}</span><span>{m.name}<br /><small className="meta">{m.email}</small></span></span></td>
+                <td><span className="row-actions"><span className="av" aria-hidden="true">{initials(m.name)}</span><span>{m.name}<br /><small className="meta">{m.email}</small></span></span></td>
                 <td>
                   <form action={changeRole} className="inline-form">
                     <input type="hidden" name="projectId" value={project.id} />
@@ -88,7 +88,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
             {ACTIONS.map((a) => (
               <tr key={a}>
                 <th scope="row">{t(`perm.${a}`)}</th>
-                {ROLES.map((r) => <td key={r}>{can(r, a) ? <span className="perm-yes" role="img" aria-label={t("members.allowed")}>●</span> : <span className="perm-no" role="img" aria-label={t("members.notAllowed")}>–</span>}</td>)}
+                {ROLES.map((r) => <td key={r}>{can(r, a) ? <span role="img" aria-label={t("members.allowed")}>●</span> : <span role="img" aria-label={t("members.notAllowed")}>–</span>}</td>)}
               </tr>
             ))}
           </tbody>
