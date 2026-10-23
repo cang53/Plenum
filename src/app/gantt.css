@@ -22,10 +22,13 @@
 .gantt-plot { position: relative; }
 .gantt-arrows { position: absolute; inset: 0; pointer-events: none; fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
 .gantt-arrows path[data-critical="true"] { stroke: var(--text); }
+.gantt-arrows [data-selected="true"] { stroke: var(--primary); }
+.gantt-toolbar [aria-pressed="true"] { color: var(--primary); border-color: currentcolor; }
 .gantt-today { position: absolute; top: 0; bottom: 0; width: 0; border-inline-start: 1.5px solid var(--status-blocked); }
 .gantt-today span { position: absolute; top: 0; inset-inline-start: var(--s1); font-size: var(--text-xs); color: var(--text); background: var(--surface); }
 .gantt-bar { position: absolute; height: 14px; padding: 0; background: var(--primary); border: 0; border-radius: 2px; cursor: grab; touch-action: none; }
-.gantt-bar[data-critical="true"] { box-shadow: 0 0 0 1.5px var(--text); }
+.gantt[data-critical-path="true"] .gantt-bar[data-critical="true"] { box-shadow: 0 0 0 1.5px var(--text); }
+.gantt-bar[aria-pressed="true"] { outline: 2px solid var(--primary); }
 .gantt-bar[data-late="true"] { background: var(--status-blocked); }
 .gantt-bar[data-milestone="true"] { width: 12px !important; height: 12px; margin-inline-start: -6px; margin-top: 1px; background: var(--text); rotate: 45deg; border-radius: 1px; /* not transform: dragging sets that */ }
 .gantt-summary { position: absolute; height: 6px; margin-top: 11px; background: var(--text); }
