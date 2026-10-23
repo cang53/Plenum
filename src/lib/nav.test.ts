@@ -15,4 +15,9 @@ describe("navItems", () => {
     expect(paths("project_manager", false)).not.toContain("/app/roles");
     expect(paths("member", true)).toEqual(expect.arrayContaining(["/app/audit", "/app/roles"]));
   });
+  it("puts every page in a group and leaves the inbox out of the list", () => {
+    const items = navItems("project_manager", true);
+    expect(items.every((i) => ["project", "site", "admin"].includes(i.group))).toBe(true);
+    expect(items.map((i) => i.path)).not.toContain("/app/notifications");
+  });
 });
