@@ -70,5 +70,5 @@ test("tag an attachment as a document with a revision", async () => {
   await clickUntil(row.getByRole("button", { name: "Save tag" }), async () => {
     await expect(row.getByText("Latest revision")).toBeVisible({ timeout: 3000 });
   });
-  await expect(row.getByText("Drawing", { exact: true })).toBeVisible();
+  await expect(row.locator(".chip", { hasText: "Drawing" })).toBeVisible();
 });
