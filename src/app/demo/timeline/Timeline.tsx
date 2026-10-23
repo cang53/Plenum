@@ -10,6 +10,8 @@ import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/
 // Bodies longer than this start folded, with a button to show the rest.
 const LONG_BODY = 280;
 
+const STATE_BADGE = { suggested: "badge-warning", linked: "badge-success", new: "" } as const;
+
 type Props = {
   messages: TimelineMessage[];
   suggestions: StoredSuggestion[];
@@ -102,17 +104,21 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
       {messages.length > 0 && shown === 0 && <p className="empty">{t("timeline.noResults")}</p>}
 
       {days.map((d) => (
-        <section key={d.day} className="timeline-day" aria-label={dayLabel(d.day)}>
+        <section key={d.day} className="timeline-day" aria-label={dayLabel(d.day)} data-today={relativeDay(d.day, now, timeZone) === "today"}>
           <h2>{dayLabel(d.day)}</h2>
           {d.messages.map((m) => {
             const long = m.bodyText.length > LONG_BODY;
             const expanded = Boolean(open[m.id]);
+            const state = suggestions.some((s) => s.messageId === m.id && s.status === "pending" && !decided[s.id])
+              ? "suggested"
+              : linkedTo(items, m.id).length > 0 ? "linked" : "new";
             return (
-              <article key={m.id} className="message">
+              <article key={m.id} className="message" data-state={state}>
                 <header>
                   <span className="chip">{t(`source.${m.source}`)}</span>
                   <strong>{m.fromName ?? m.fromAddress}</strong>
                   {m.fromName && <span className="meta">{m.fromAddress}</span>}
+                  <span className={`badge ${STATE_BADGE[state]}`}>{t(`timeline.state.${state}`)}</span>
                   <time dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                 </header>
                 <h3>{m.subject || t("timeline.noSubject")}</h3>
