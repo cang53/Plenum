@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkSiteLog, prefillSiteLog } from "./siteLog";
+import { checkSiteLog, pickDay, prefillSiteLog, stepDay } from "./siteLog";
 
 const form = (o: Record<string, string>) => new Map(Object.entries(o));
 
@@ -28,5 +28,21 @@ describe("site log from a message", () => {
     expect(p.site).toBe("Hall 2");
     expect(p.date).toBe("2026-11-03");
     expect(p.work).toHaveLength(4000);
+  });
+});
+
+describe("day view", () => {
+  const logs = [{ site: "B", log_date: "2026-10-22" }, { site: "A", log_date: "2026-10-21" }, { site: "B", log_date: "2026-10-20" }];
+  it("defaults to the newest site and today, and finds that day's log", () => {
+    const d = pickDay(logs, undefined, undefined, "2026-10-22");
+    expect(d).toMatchObject({ site: "B", date: "2026-10-22", sites: ["A", "B"], days: ["2026-10-22", "2026-10-20"] });
+    expect(d.log).toBe(logs[0]);
+  });
+  it("ignores a bad date and has no log for an empty day", () => {
+    expect(pickDay(logs, "A", "nope", "2026-10-23")).toMatchObject({ date: "2026-10-23", log: undefined });
+  });
+  it("steps across month and year ends", () => {
+    expect(stepDay("2026-10-31", 1)).toBe("2026-11-01");
+    expect(stepDay("2026-01-01", -1)).toBe("2025-12-31");
   });
 });

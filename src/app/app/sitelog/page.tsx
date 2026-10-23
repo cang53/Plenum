@@ -3,10 +3,10 @@ import { getMessageForSiteLog, listSiteLogs } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { getT } from "@/lib/locale";
 import { messages, type MessageKey } from "@/lib/messages";
-import { prefillSiteLog } from "@/domain/siteLog";
+import { pickDay, prefillSiteLog, stepDay } from "@/domain/siteLog";
 import { submitSiteLog } from "./actions";
 
-type Search = { project?: string; saved?: string; error?: string; message?: string };
+type Search = { project?: string; site?: string; date?: string; saved?: string; error?: string; message?: string };
 
 export default async function SiteLogPage({ searchParams }: { searchParams: Promise<Search> }) {
   const t = await getT();
@@ -18,6 +18,9 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
   const source = sp.message ? await getMessageForSiteLog(supabase, project.id, sp.message) : null;
   const pre = source ? prefillSiteLog(source) : null;
   const canWrite = role === "member" || role === "project_manager";
+  const day = pickDay(logs, sp.site, sp.date, new Date().toISOString().slice(0, 10));
+  const log = day.log;
+  const href = (o: { site?: string; date?: string }) => `/app/sitelog?${new URLSearchParams({ project: project.id, site: o.site ?? day.site, date: o.date ?? day.date })}`;
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
     <main id="main" className="page">
@@ -26,33 +29,47 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
       <p className="intro">{t("sitelog.intro")}</p>
       {error && <p role="alert" className="badge badge-danger">{error}</p>}
       {sp.saved && <p role="status" className="badge badge-success">{t("sitelog.saved")}</p>}
-      {canWrite ? (
-        <form action={submitSiteLog} className="surface form-card">
-          <input type="hidden" name="projectId" value={project.id} />
-          {pre && <><input type="hidden" name="sourceMessageId" value={sp.message} /><p className="hint">{t("sitelog.fromMessage")}</p></>}
-          <p><label><span className="field-label">{t("sitelog.site")}</span><input className="field" name="site" defaultValue={pre?.site} maxLength={100} required /></label></p>
-          <p><label><span className="field-label">{t("sitelog.date")}</span><input className="field" type="date" name="date" defaultValue={pre?.date} required /></label></p>
-          <p><label><span className="field-label">{t("sitelog.weather")}</span><input className="field" name="weather" maxLength={100} /></label></p>
-          <p><label><span className="field-label">{t("sitelog.headcount")}</span><input className="field" type="number" name="headcount" min={0} max={100000} defaultValue={0} /></label></p>
-          <p><label><span className="field-label">{t("sitelog.work")}</span><textarea className="field" name="work" defaultValue={pre?.work} maxLength={4000} rows={3} /></label></p>
-          <p><label><span className="field-label">{t("sitelog.delays")}</span><textarea className="field" name="delays" maxLength={4000} rows={2} /></label></p>
-          <p className="hint">{t("sitelog.replaceHint")}</p>
-          <button type="submit" className="btn btn-primary">{t("sitelog.save")}</button>
-        </form>
-      ) : <p>{t("sitelog.readOnly")}</p>}
-      {logs.length === 0 ? <p>{t("sitelog.empty")}</p> : (
-        <ul className="surface">
-          {logs.map((l) => (
-            <li key={l.id}>
-              <h2>{l.site} · {l.log_date}</h2>
-              <p>{t("sitelog.weather")}: {l.weather || "-"} · {t("sitelog.headcount")}: {l.headcount}</p>
-              {l.work_done && <p>{l.work_done}</p>}
-              {l.delays && <p>{t("sitelog.delays")}: {l.delays}</p>}
-              {l.source_message_id && <p className="meta"><a href={`/app/timeline?project=${project.id}#message-${l.source_message_id}`}>{t("sitelog.source")}</a></p>}
-            </li>
-          ))}
-        </ul>
+      <nav aria-label={t("sitelog.sites")} className="sl-sites">
+        {day.sites.map((n) => <a key={n} href={href({ site: n })} aria-current={n === day.site ? "page" : undefined}>{n}</a>)}
+      </nav>
+      <div className="sl-bar">
+        <a className="chip" href={href({ date: stepDay(day.date, -1) })} aria-label={t("sitelog.prevDay")}>◂</a>
+        <h2>{day.site ? `${day.site} · ${day.date}` : day.date}</h2>
+        <a className="chip" href={href({ date: stepDay(day.date, 1) })} aria-label={t("sitelog.nextDay")}>▸</a>
+      </div>
+      {log ? (
+        <section aria-label={`${log.site} ${log.log_date}`}>
+          <div className="sl-sec"><h3>{t("sitelog.weather")}</h3><p>{log.weather || "-"}</p></div>
+          <div className="sl-sec"><h3>{t("sitelog.people")}<span className="n">{log.headcount}</span></h3><p className="hint">{t("sitelog.peopleHint")}</p></div>
+          <div className="sl-sec"><h3>{t("sitelog.deliveries")}</h3><p className="hint">{t("sitelog.deliveriesHint")}</p></div>
+          <div className="sl-sec">
+            <h3>{t("sitelog.notes")}</h3>
+            {log.work_done && <p>{log.work_done}</p>}
+            {log.delays && <p>{t("sitelog.delays")}: {log.delays}</p>}
+            {log.source_message_id && <p className="meta"><a href={`/app/timeline?project=${project.id}#message-${log.source_message_id}`}>{t("sitelog.source")}</a></p>}
+          </div>
+        </section>
+      ) : <p className="sl-sec">{t("sitelog.dayEmpty")}</p>}
+      {day.days.length > 1 && (
+        <p className="sl-sites">{t("sitelog.otherDays")}: {day.days.filter((d) => d !== day.date).slice(0, 14).map((d) => <a key={d} href={href({ date: d })}>{d}</a>)}</p>
       )}
+      {canWrite ? (
+        <details className="sl-edit" open={!log || !!pre}>
+          <summary>{t("sitelog.edit")}</summary>
+          <form action={submitSiteLog} className="surface form-card">
+            <input type="hidden" name="projectId" value={project.id} />
+            {pre && <><input type="hidden" name="sourceMessageId" value={sp.message} /><p className="hint">{t("sitelog.fromMessage")}</p></>}
+            <p><label><span className="field-label">{t("sitelog.site")}</span><input className="field" name="site" defaultValue={pre?.site ?? day.site} maxLength={100} required /></label></p>
+            <p><label><span className="field-label">{t("sitelog.date")}</span><input className="field" type="date" name="date" defaultValue={pre?.date ?? day.date} required /></label></p>
+            <p><label><span className="field-label">{t("sitelog.weather")}</span><input className="field" name="weather" maxLength={100} defaultValue={log?.weather} /></label></p>
+            <p><label><span className="field-label">{t("sitelog.headcount")}</span><input className="field" type="number" name="headcount" min={0} max={100000} defaultValue={log?.headcount ?? 0} /></label></p>
+            <p><label><span className="field-label">{t("sitelog.work")}</span><textarea className="field" name="work" defaultValue={pre?.work ?? log?.work_done} maxLength={4000} rows={3} /></label></p>
+            <p><label><span className="field-label">{t("sitelog.delays")}</span><textarea className="field" name="delays" maxLength={4000} rows={2} defaultValue={log?.delays} /></label></p>
+            <p className="hint">{t("sitelog.replaceHint")}</p>
+            <button type="submit" className="btn btn-primary">{t("sitelog.save")}</button>
+          </form>
+        </details>
+      ) : <p>{t("sitelog.readOnly")}</p>}
     </main>
   );
 }
