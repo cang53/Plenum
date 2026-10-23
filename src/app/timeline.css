@@ -34,6 +34,8 @@
   padding: var(--s4);
 }
 .suggestion p { margin: 0; }
+
+.reply-form { display: grid; gap: var(--s2); padding: var(--s3); margin-block: var(--s2); }
 .suggestion-actions { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .notice-list { list-style: none; margin: 0 0 var(--s4); padding: 0; }
 .notice-list li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); padding: var(--s3) var(--s4); }

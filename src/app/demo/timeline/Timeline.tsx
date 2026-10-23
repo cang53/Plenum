@@ -26,9 +26,11 @@ type Props = {
   onTranslate?: (messageId: string, language: string) => Promise<string | null>;
   // The signed-in person's language; the demo stays English.
   language?: Locale;
+  // Live pages send the reply by email; without it the reply button is not shown.
+  onReply?: (messageId: string, text: string, confirmWider: boolean) => Promise<"sent" | "wider">;
 };
 
-export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onTranslate, language = "en" }: Props) {
+export function Timeline({ messages, suggestions, now, timeZone, linked = [], onAccept, onDismiss, onReply, onTranslate, language = "en" }: Props) {
   const t = (key: MessageKey) => translate(key, language);
   const [query, setQuery] = useState("");
   const [on, setOn] = useState("");
@@ -38,6 +40,7 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
   const [drafting, setDrafting] = useState<{ messageId: string; draft: ItemDraft; suggestionId?: string } | null>(null);
   // Which suggestions a person has dealt with.
   const [decided, setDecided] = useState<Record<string, "accepted" | "dismissed">>({});
+  const [reply, setReply] = useState<{ messageId: string; text: string; wider: boolean; sent?: boolean; failed?: boolean } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
   // Translations are fetched on click and kept in the page only. null: none available, so the original stays.
   const [translations, setTranslations] = useState<Record<string, string | null>>({});
@@ -72,6 +75,17 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
     if (draft && messageId) makeItem(messageId, draft);
     setDecided((prev) => ({ ...prev, [id]: outcome }));
     return true;
+  };
+
+  const sendReply = async (confirmWider: boolean) => {
+    if (!reply || !onReply || !reply.text.trim()) return;
+    try {
+      const result = await onReply(reply.messageId, reply.text, confirmWider);
+      setReply(result === "wider" ? { ...reply, wider: true, failed: false } : { ...reply, text: "", wider: false, sent: true, failed: false });
+    } catch (error) {
+      logError("reply failed", error);
+      setReply({ ...reply, failed: true });
+    }
   };
 
   const locale = intlLocale[language];
@@ -211,6 +225,30 @@ export function Timeline({ messages, suggestions, now, timeZone, linked = [], on
                       </div>
                     </div>
                   ))}
+                {onReply && m.source === "email" && m.fromAddress && (reply?.messageId === m.id && !reply.sent ? (
+                  <form className="reply-form glass" onSubmit={(e) => { e.preventDefault(); void sendReply(false); }}>
+                    <label>
+                      {t("reply.label")}
+                      <textarea rows={3} value={reply.text} onChange={(e) => setReply({ messageId: m.id, text: e.target.value, wider: false })} />
+                    </label>
+                    <p className="meta">{t("reply.to")}: {m.fromAddress}</p>
+                    {reply.wider && <p role="alert">{t("reply.wider")}</p>}
+                    {reply.failed && <p role="alert">{t("reply.error")}</p>}
+                    <div>
+                      {reply.wider ? (
+                        <button type="button" className="button" onClick={() => void sendReply(true)}>{t("reply.sendAnyway")}</button>
+                      ) : (
+                        <button type="submit" className="button" disabled={!reply.text.trim()}>{t("reply.send")}</button>
+                      )}{" "}
+                      <button type="button" className="button" onClick={() => setReply(null)}>{t("link.cancel")}</button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    {reply?.messageId === m.id && reply.sent && <p className="meta" role="status">{t("reply.sent")}</p>}
+                    <button type="button" className="link-button" onClick={() => setReply({ messageId: m.id, text: "", wider: false })}>{t("reply.action")}</button>
+                  </>
+                ))}
                 {drafting?.messageId === m.id ? (
                   <form
                     className="link-form"

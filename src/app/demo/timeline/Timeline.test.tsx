@@ -16,6 +16,13 @@ describe("Timeline", () => {
     expect(bars.length).toBe(demoMessages(now).length);
     expect(html).toMatch(/class="badge badge-warning">Needs a decision/);
   });
+  it("offers a reply button only when the page can send replies", () => {
+    const withReply = renderToStaticMarkup(
+      <Timeline messages={demoMessages(now)} suggestions={[]} now={now.toISOString()} timeZone={demoProject.timeZone} onReply={async () => "sent"} />,
+    );
+    expect(withReply).toContain("Reply by email");
+    expect(html).not.toContain("Reply by email");
+  });
   it("shows each suggestion with Accept, Edit and Dismiss buttons and a link to its source message", () => {
     for (const name of ["Accept", "Edit", "Dismiss"]) expect(html).toContain(`>${name}</button>`);
     const href = html.match(/Source message: <a href="#(message-[^"]+)"/)?.[1];
