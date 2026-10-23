@@ -2,7 +2,7 @@
 
 Goal: finish what stage 9 left half-done (found in review) and check the whole app against the v1 spec once more. One PR per row, about 400 lines or fewer.
 
-**Migrations:** each row owns one reserved number, S10-n = 109+n (S10-1 = 110 ... S10-6 = 115), named `supabase/migrations/<date>0000<number>_<name>.sql`; a row with no SQL leaves its number unused.
+**Migrations:** each row owns one reserved number, S10-n = 109+n (S10-1 = 110 ... S10-9 = 118), named `supabase/migrations/<date>0000<number>_<name>.sql`; a row with no SQL leaves its number unused.
 
 | # | Mig | Task | Done when |
 |---|-----|------|-----------|
@@ -12,6 +12,9 @@ Goal: finish what stage 9 left half-done (found in review) and check the whole a
 | S10-4 | 113 | Choose a baseline | Baselines get a name and a list; the Gantt compares against the one picked, default the latest; counts per task only |
 | S10-5 | none | Spec gap sweep | The v1 spec compared with main again; `spec-gaps.md` updated; every remaining gap is a row here or marked "later" |
 | S10-6 | none | End-to-end for stage 9 screens | Playwright covers site log, risks and issues, baselines and document tags on the seeded project; runs in CI |
+| S10-7 | 116 | Milestones | A task can be marked as a milestone; the Gantt draws it as a diamond; set on the items screen, audited |
+| S10-8 | none | Suggestion accuracy per project | The project page shows accepted and dismissed suggestion counts per project; no per-person split |
+| S10-9 | none | Reply drafting | A person asks for a draft reply in the sender's language; it fills the reply box, nothing is sent without a click; behind the AI switch with rules fallback |
 
 ## Order
-S10-1, S10-2 (known gaps), S10-3, S10-4, then S10-5, S10-6.
+S10-1, S10-2 (known gaps), S10-3, S10-4, then S10-5, S10-6, S10-7 to S10-9.
