@@ -20,4 +20,7 @@ describe("navItems", () => {
     expect(items.every((i) => ["project", "site", "admin"].includes(i.group))).toBe(true);
     expect(items.map((i) => i.path)).not.toContain("/app/notifications");
   });
+  it("lists the stream first for everyone", () => {
+    for (const role of ["member", "contributor", undefined]) expect(paths(role, false)[0]).toBe("/app/stream");
+  });
 });

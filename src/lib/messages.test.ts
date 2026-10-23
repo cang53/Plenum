@@ -26,7 +26,7 @@ describe("t", () => {
   });
 
   // A Dutch value equal to the English one is probably an untranslated copy; shared words are listed here.
-  const sameInDutch = ["app.name", "board.statusLabel", "app.items", "settings.project", "risk.open", "audit.item", "link.details", "ui.lang.en", "ui.lang.nl", "ui.segmented.items", "ui.segmented.gantt", "gantt.title", "search.document", "doc.revision", "shell.inbox", "shell.group.project"];
+  const sameInDutch = ["app.name", "board.statusLabel", "app.items", "settings.project", "risk.open", "audit.item", "link.details", "ui.lang.en", "ui.lang.nl", "ui.segmented.items", "ui.segmented.gantt", "gantt.title", "search.document", "doc.revision", "shell.inbox", "shell.group.project", "app.stream", "stream.title"];
   it("translates every Dutch string", () => {
     const untranslated = Object.keys(messages.en).filter(
       (k) => !sameInDutch.includes(k) && (messages.nl as Record<string, string>)[k] === (messages.en as Record<string, string>)[k],
