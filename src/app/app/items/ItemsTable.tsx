@@ -25,7 +25,7 @@ export function ItemsTable({ kind, rows, t, rewards = false }: { kind: ManualIte
           {rows.map(({ item, edit }) => (
             <tr key={item.id}>
               {kind === "task" && <td><input type="checkbox" name="ids" value={item.id} form="bulk" aria-label={`${t("bulk.select")}: ${item.title}`} /></td>}
-              <td><details><summary data-row>{item.title}{kind === "risk" && item.riskKind === "issue" ? ` (${t("kind.issue")})` : ""}</summary>{rewards && kind === "risk" && isEarlyWarning(item.createdAt, item.dueDate) && <span className="badge">{t("rewards.early")}</span>}{edit}</details></td>
+              <td><details><summary data-row>{item.title}{kind === "risk" && item.riskKind === "issue" ? ` (${t("kind.issue")})` : ""}</summary>{rewards && kind === "risk" && item.riskKind !== "issue" && isEarlyWarning(item.createdAt, item.dueDate) && <span className="badge">{t("rewards.early")}</span>}{edit}</details></td>
               <td>{status(item)}</td>
               <td>{kind === "decision" ? "" : item.dueDate ?? ""}</td>
             </tr>

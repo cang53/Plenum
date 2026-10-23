@@ -101,7 +101,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   // Risks have no site, so only the "off everywhere" switch hides the badge.
   const [{ data: switches }, { data: risks }] = await Promise.all([
     supabase.from("reward_switches").select("site"),
-    supabase.from("risks").select("created_at, due_date").eq("project_id", project.id),
+    supabase.from("risks").select("created_at, due_date").neq("kind", "issue").eq("project_id", project.id),
   ]);
   const rewards = rewardsOn((switches ?? []).map((r) => r.site as string), "");
   const early = rewards ? (risks ?? []).filter((r) => isEarlyWarning(r.created_at as string, r.due_date as string | null)).length : 0;
