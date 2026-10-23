@@ -1,0 +1,31 @@
+/* Stream: flat message rows, day rules, grouped senders. Read-only composer line at the foot. */
+.stream-head { display: flex; align-items: baseline; gap: var(--s3); margin-block-end: var(--s4); }
+.stream-head h1 { margin: 0; font-size: var(--text-xl, 1.25rem); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.stream .sub { color: var(--text-muted); font-size: var(--text-xs); }
+.stream .dayrule { display: flex; align-items: center; gap: var(--s3); margin: var(--s4) 0 var(--s1); font-size: var(--text-xs); font-weight: var(--weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.stream .dayrule::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
+.stream-row { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: var(--s3); padding-block: 7px; }
+.stream-row .t { padding-top: 1px; color: var(--text-muted); font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
+.stream-row .tx { min-width: 0; overflow-wrap: anywhere; }
+.stream-row p { margin: 0; }
+.stream-row .who { margin-inline-end: 6px; font-weight: var(--weight-semibold); }
+.stream-row .subject { font-weight: var(--weight-medium, 500); }
+.stream-row .text, .stream-row details { white-space: pre-line; color: var(--text-secondary); }
+.stream-row summary { cursor: pointer; list-style: none; }
+.stream-row details[open] summary { display: none; }
+.stream-row .sm { display: block; margin-block-start: 3px; color: var(--text-muted); font-size: var(--text-xs); }
+.src { display: inline-block; padding: 0 5px; border: 1px solid var(--border); border-radius: 3px; font-size: 0.6875rem; font-weight: var(--weight-semibold); color: var(--text-secondary); white-space: nowrap; }
+.src b { margin-inline-end: 3px; color: var(--text); font-weight: var(--weight-semibold); }
+.stream .comp { display: flex; align-items: center; gap: var(--s3); margin-block-start: var(--s6); padding: var(--s2) var(--s3); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-muted); }
+.stream .comp span { flex: 1; }
+.stream .comp em { font-style: normal; font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--primary); }
+.stream .newline { display: flex; align-items: center; gap: var(--s3); margin: var(--s2) 0 0; font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--primary); }
+.stream .newline::before, .stream .newline::after { content: ""; flex: 1; border-top: 1px solid var(--primary); }
+.stream-row { position: relative; }
+.stream-row .tools { position: absolute; inset-block-start: 2px; inset-inline-end: 0; display: none; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.stream-row:hover .tools, .stream-row:focus-within .tools { display: flex; }
+.stream-row .tools form { display: flex; gap: 4px; }
+.stream-row .link-pop { position: relative; }
+.stream-row .link-pop summary { list-style: none; }
+.stream-row .link-pop form { position: absolute; inset-inline-end: 0; margin-block-start: 4px; padding: var(--s2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); z-index: 1; }
+.stream-row .linked { color: var(--primary); }
