@@ -67,6 +67,11 @@ jobs:
         run: |
           for i in 1 2 3; do
             timeout 180 npx playwright install --with-deps chromium && exit 0
+            # A timed-out run leaves its apt-get alive and holding the dpkg lock, so stop it before the retry.
+            sudo pkill -x apt-get || true
+            sudo pkill -x dpkg || true
+            sleep 3
+            sudo dpkg --configure -a || true
           done
           exit 1
       # Registries rate limit shared runners, so keep the Supabase images in the Actions cache.
