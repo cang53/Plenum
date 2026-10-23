@@ -178,7 +178,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
         </div>
       </div>
       <ul className="gantt-legend">
-        <li data-critical="true">{labels.critical}</li>
+        {showCritical && <li data-critical="true">{labels.critical}</li>}
         <li data-late="true">{labels.conflict}</li>
         <li data-milestone="true">{labels.milestone}</li>
         {baseline && <li data-baseline="true">{labels.baselineLegend}</li>}
