@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { browserVault } from "@/lib/offline-crypto";
 import { enqueue, flush, readQueue, saveSnapshot, type Snapshot } from "@/lib/offline-queue";
 import { syncTaskChange } from "./actions";
 
@@ -13,24 +14,26 @@ export function OfflineTasks({ project, tasks, labels }: { project: string; task
   const [shown, setShown] = useState(tasks);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const sync = async () => {
-    if (!readQueue(localStorage).length) return;
-    const { synced, conflicts } = await flush(localStorage, syncTaskChange);
-    setPending(readQueue(localStorage).length);
+    const v = await browserVault();
+    if (!(await readQueue(v)).length) return;
+    const { synced, conflicts } = await flush(v, syncTaskChange);
+    setPending((await readQueue(v)).length);
     setMessage(conflicts.length ? `${labels.conflicts}: ${conflicts.length}` : synced ? `${labels.synced}: ${synced}` : "");
   };
   useEffect(() => {
-    saveSnapshot(localStorage, { savedAt: new Date().toISOString(), project, tasks });
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPending(readQueue(localStorage).length);
-    void sync();
+    void browserVault().then(async (v) => {
+      await saveSnapshot(v, { savedAt: new Date().toISOString(), project, tasks });
+      setPending((await readQueue(v)).length);
+      void sync();
+    });
     window.addEventListener("online", sync);
     return () => window.removeEventListener("online", sync);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const change = (id: string, patch: { status?: string; note?: string }) => {
+  const change = async (id: string, patch: { status?: string; note?: string }) => {
     const task = shown.find((t) => t.id === id);
     if (!task) return;
-    setPending(enqueue(localStorage, { taskId: id, baseStatus: task.status, ...patch }).length);
+    setPending((await enqueue(await browserVault(), { taskId: id, baseStatus: task.status, ...patch })).length);
     if (patch.status) setShown(shown.map((t) => (t.id === id ? { ...t, status: patch.status! } : t)));
     if (patch.note) setNotes({ ...notes, [id]: "" });
     void sync();
