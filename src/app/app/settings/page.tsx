@@ -4,7 +4,7 @@ import { messages, type MessageKey } from "@/lib/messages";
 import { getLocale, getT } from "@/lib/locale";
 import { exportTables } from "@/domain/export";
 import { ConfirmDialog } from "../ConfirmDialog";
-import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject } from "./actions";
+import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject, saveRewardSwitches } from "./actions";
 
 type Search = { project?: string; saved?: string; removed?: string; error?: string };
 
@@ -27,6 +27,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         .eq("workspace_id", ws?.workspace_id ?? "").neq("user_id", user?.id ?? "")
         .returns<{ user_id: string; profiles: { display_name: string; email: string } | null }[]>()
     : { data: null };
+  const { data: switches } = isAdmin
+    ? await supabase.from("reward_switches").select("site").eq("workspace_id", ws?.workspace_id ?? "")
+    : { data: null };
+  const offSites = (switches ?? []).map((r) => r.site);
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
     <main id="main" className="page">
@@ -83,6 +87,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <li key={k}><a href={`/app/export?workspace=${ws?.workspace_id}&table=${k}`} download>{k}.csv</a></li>
             ))}
           </ul>
+          <form action={saveRewardSwitches} className="surface form-card">
+            <h2>{t("rewards.title")}</h2>
+            <input type="hidden" name="projectId" value={project.id} />
+            <p>{t("rewards.intro")}</p>
+            <p><label><input type="checkbox" name="everywhere" value="yes" defaultChecked={offSites.includes("")} /> {t("rewards.everywhere")}</label></p>
+            <p><label><span className="field-label">{t("rewards.sites")}</span>
+              <textarea className="field" name="sites" rows={3} defaultValue={offSites.filter(Boolean).join("\n")} /></label>
+              <small className="meta">{t("rewards.help")}</small></p>
+            <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
+          </form>
           <h2>{t("settings.danger")}</h2>
           <div className="surface form-card danger-zone">
             <ConfirmDialog trigger={t("settings.deleteProjectButton")} title={t("settings.deleteProjectButton")} body={t("settings.deleteProjectHelp")} cancel={t("link.cancel")}>
