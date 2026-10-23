@@ -8,7 +8,7 @@ import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
 import { WorkSwitch } from "@/app/WorkSwitch";
 import { Timeline } from "@/app/demo/timeline/Timeline";
-import { acceptSuggestionAction, dismissSuggestionAction, replyAction } from "./actions";
+import { acceptSuggestionAction, dismissSuggestionAction, replyAction, translateMessageAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +43,7 @@ export default async function TimelinePage({ searchParams }: { searchParams: Pro
         onAccept={acceptSuggestionAction}
         onDismiss={dismissSuggestionAction}
         onReply={replyAction}
+        onTranslate={translateMessageAction}
         language={locale}
         now={new Date().toISOString()}
         timeZone={demoProject.timeZone}

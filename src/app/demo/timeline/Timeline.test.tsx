@@ -30,3 +30,13 @@ describe("Timeline", () => {
     expect(html).toContain(`id="${href}"`);
   });
 });
+
+describe("Timeline translation", () => {
+  const now = new Date();
+  const render = (onTranslate?: () => Promise<string | null>) =>
+    renderToStaticMarkup(<Timeline messages={demoMessages(now)} suggestions={[]} now={now.toISOString()} timeZone={demoProject.timeZone} onTranslate={onTranslate} />);
+  it("offers translation only where the page can translate", () => {
+    expect(render()).not.toContain("Translate this message");
+    expect(render(async () => null)).toContain("Translate this message");
+  });
+});
