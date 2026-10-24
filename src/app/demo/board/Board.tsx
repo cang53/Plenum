@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buildColumns, distinct, groupTasks, initials, moveTask, taskKey, type BoardTask, type GroupBy, type TaskStatus } from "@/domain/board";
+import { buildColumns, distinct, groupTasks, initials, moveTask, STATUSES, taskKey, type BoardTask, type GroupBy, type TaskStatus } from "@/domain/board";
 import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -184,6 +184,17 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
                     </span>
                   </span>
                   {task.status === "blocked" && task.waitingOn && <span className="waiting-on">{t("board.waitingOn")}: {task.waitingOn}</span>}
+                  {/* Kept for keyboard and touch, where dragging is not possible; shown only on hover or focus so the card stays as designed. */}
+                  <label className="status-select">
+                    {t("board.statusLabel")}
+                    <select value={task.status} onChange={(e) => move(task.id, e.target.value as TaskStatus)}>
+                      {STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {t(`status.${s}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </article>
               ))}
             </section>
