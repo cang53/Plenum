@@ -18,14 +18,14 @@ type TaskRow = {
   due_date: string | null;
   priority: BoardTask["priority"];
   position: number;
-  created_at: string;
+  number: number;
   site: string;
   phases: { name: string } | null;
   profiles: { display_name: string } | null;
   source?: { subject: string } | null;
 };
 
-export function taskFromRow(row: TaskRow, number: number): BoardTask {
+export function taskFromRow(row: TaskRow): BoardTask {
   return {
     id: row.id,
     title: row.title,
@@ -35,7 +35,7 @@ export function taskFromRow(row: TaskRow, number: number): BoardTask {
     dueDate: row.due_date,
     priority: row.priority,
     position: row.position,
-    number,
+    number: row.number,
     site: row.site || null,
     waitingOn: row.status === "blocked" ? row.source?.subject || null : null,
   };
@@ -45,13 +45,11 @@ export function taskFromRow(row: TaskRow, number: number): BoardTask {
 export async function listBoardTasks(client: SupabaseClient, projectId: string): Promise<BoardTask[]> {
   const { data, error } = await client
     .from("tasks")
-    .select("id, title, status, due_date, priority, position, created_at, site, phases(name), profiles:owner_id(display_name), source:messages!source_message_id(subject)")
+    .select("id, title, status, due_date, priority, position, number, site, phases(name), profiles:owner_id(display_name), source:messages!source_message_id(subject)")
     .eq("project_id", projectId)
     .is("parent_id", null);
   if (error) throw error;
-  // The number is the task's place in creation order, so it stays the same between visits.
-  const rows = ((data ?? []) as unknown as TaskRow[]).sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id));
-  return rows.map((row, i) => taskFromRow(row, i + 1));
+  return ((data ?? []) as unknown as TaskRow[]).map(taskFromRow);
 }
 
 // Adds a task in a column; row-level security decides who may.
@@ -61,11 +59,10 @@ export async function addBoardTask(client: SupabaseClient, projectId: string, ti
   const { data, error } = await client
     .from("tasks")
     .insert({ project_id: projectId, title: title.trim(), status })
-    .select("id, title, status, due_date, priority, position, created_at, site, phases(name), profiles:owner_id(display_name), source:messages!source_message_id(subject)")
+    .select("id, title, status, due_date, priority, position, number, site, phases(name), profiles:owner_id(display_name), source:messages!source_message_id(subject)")
     .single();
   if (error) throw error;
-  const { count } = await client.from("tasks").select("id", { count: "exact", head: true }).eq("project_id", projectId).is("parent_id", null);
-  return taskFromRow(data as unknown as TaskRow, count ?? 1);
+  return taskFromRow(data as unknown as TaskRow);
 }
 
 // The database trigger writes the audit entry for the change.

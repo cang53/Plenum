@@ -13,7 +13,7 @@ export type BoardTask = {
   dueDate: string | null;
   priority: "low" | "normal" | "high";
   position: number;
-  // Order of creation within the project, from 1; the number part of the card ID.
+  // Per-project task number, from 1 and never reused; the number part of the card ID.
   number: number;
   site: string | null;
   // Subject of the message a blocked task was made from, if any.
