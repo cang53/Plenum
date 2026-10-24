@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { authProvider, safeNext } from "@/auth/provider";
+import { authProvider, passwordLoginEnabled, safeNext } from "@/auth/provider";
 import { supabaseServer } from "@/auth/supabase";
 import { clientKey, createPersistentLimiter, restRateLimitHit } from "@/lib/rate-limit";
 
@@ -33,4 +33,20 @@ export async function signInWithEntra(formData: FormData) {
   const next = safeNext(String(formData.get("next") ?? ""));
   const { signIn } = await import("@/auth/entra");
   await signIn("microsoft-entra-id", { redirectTo: `/auth/entra?next=${encodeURIComponent(next)}` });
+}
+
+// Testing only (TEST_PASSWORD_LOGIN=1); rate limited like the email link.
+export async function signInWithPassword(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const next = safeNext(String(formData.get("next") ?? ""));
+  if (!passwordLoginEnabled() || !email || !password) redirect("/login?error=1");
+  const hit = restRateLimitHit(process.env.SUPABASE_URL ?? "", process.env.SUPABASE_SERVICE_ROLE_KEY ?? "");
+  const ip = clientKey({ headers: await headers() } as Request);
+  if (!(await createPersistentLimiter(hit, 10, 60_000)(`login-password:${ip}`))) redirect("/login?error=1");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) redirect("/login?error=1");
+  await supabase.rpc("accept_my_invitations");
+  redirect(next);
 }

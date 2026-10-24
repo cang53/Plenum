@@ -1,6 +1,6 @@
-import { authProvider } from "@/auth/provider";
+import { authProvider, passwordLoginEnabled } from "@/auth/provider";
 import { getT } from "@/lib/locale";
-import { sendLink, signInWithEntra } from "./actions";
+import { sendLink, signInWithEntra, signInWithPassword } from "./actions";
 
 export default async function Login({
   searchParams,
@@ -31,6 +31,20 @@ export default async function Login({
             <input className="field" type="email" name="email" required autoComplete="email" />
           </label>
           <button type="submit" className="btn btn-primary">{t("login.submit")}</button>
+        </form>
+      )}
+      {passwordLoginEnabled() && (
+        <form action={signInWithPassword}>
+          <input type="hidden" name="next" value={next ?? ""} />
+          <label>
+            <span className="field-label">{t("login.email")}</span>
+            <input className="field" type="email" name="email" required autoComplete="email" />
+          </label>
+          <label>
+            <span className="field-label">{t("login.password")}</span>
+            <input className="field" type="password" name="password" required autoComplete="current-password" />
+          </label>
+          <button type="submit" className="btn btn-primary">{t("login.passwordSubmit")}</button>
         </form>
       )}
       </div>

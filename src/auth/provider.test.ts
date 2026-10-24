@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authProvider, needsSession, safeNext } from "./provider";
+import { authProvider, needsSession, passwordLoginEnabled, safeNext } from "./provider";
 
 describe("authProvider", () => {
   it("defaults to the Supabase email link", () => {
@@ -28,5 +28,13 @@ describe("needsSession", () => {
     expect(needsSession("/application")).toBe(false);
     expect(needsSession("/login")).toBe(false);
     expect(needsSession("/demo/board")).toBe(false);
+  });
+});
+
+describe("passwordLoginEnabled", () => {
+  it("is off by default and only on for the Supabase provider", () => {
+    expect(passwordLoginEnabled({})).toBe(false);
+    expect(passwordLoginEnabled({ TEST_PASSWORD_LOGIN: "1" })).toBe(true);
+    expect(passwordLoginEnabled({ TEST_PASSWORD_LOGIN: "1", AUTH_PROVIDER: "entra" })).toBe(false);
   });
 });

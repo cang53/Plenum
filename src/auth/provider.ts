@@ -13,3 +13,8 @@ export function safeNext(next: string | null | undefined): string {
 export function needsSession(pathname: string): boolean {
   return pathname === "/app" || pathname.startsWith("/app/");
 }
+
+// Off unless TEST_PASSWORD_LOGIN=1: a password form for testing before the sign-in email is set up.
+export function passwordLoginEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return env.TEST_PASSWORD_LOGIN === "1" && authProvider(env) === "supabase";
+}

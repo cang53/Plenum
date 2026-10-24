@@ -35,6 +35,8 @@ export const nl: Record<keyof typeof en, string> = {
   "login.submit": "Stuur mij een link",
   "login.sent": "Kijk in uw e-mail voor de inloglink. U kunt deze pagina sluiten.",
   "login.error": "We konden de link niet versturen. Controleer het adres en probeer opnieuw.",
+  "login.password": "Wachtwoord",
+  "login.passwordSubmit": "Inloggen met wachtwoord",
   "login.entra": "Inloggen met uw bedrijfsaccount",
   "login.entraError": "Inloggen met uw bedrijfsaccount is niet gelukt. Probeer het opnieuw.",
   "app.signedIn": "U bent ingelogd",
