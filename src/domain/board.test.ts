@@ -83,3 +83,14 @@ describe("groupTasks", () => {
     expect(groupTasks(tasks, "week").map((g) => g.key)).toEqual(["2026-11-02", "2026-11-09", "2026-11-23", "2026-11-30"]);
   });
 });
+
+describe("due filter", () => {
+  const due = (dueDate: string | null) => ({ ...tasks[0]!, id: `d-${dueDate}`, status: "todo" as const, dueDate });
+  const list = [due("2026-10-20"), due("2026-10-28"), due("2026-11-20"), due(null)];
+  const ids = (due: "overdue" | "week" | "none") => buildColumns(list, { due, today: "2026-10-27" })[0]!.tasks.map((t) => t.dueDate);
+  it("finds overdue, this week and undated tasks", () => {
+    expect(ids("overdue")).toEqual(["2026-10-20"]);
+    expect(ids("week")).toEqual(["2026-10-28"]);
+    expect(ids("none")).toEqual([null]);
+  });
+});

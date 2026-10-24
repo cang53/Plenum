@@ -22,14 +22,27 @@ export type BoardTask = {
 
 export type BoardColumn = { status: TaskStatus; tasks: BoardTask[] };
 
-export type BoardFilter = { phase?: string; owner?: string; site?: string };
+export type DueFilter = "overdue" | "week" | "none";
+
+// today is YYYY-MM-DD; needed only for the overdue and this-week filters.
+export type BoardFilter = { phase?: string; owner?: string; site?: string; due?: DueFilter; today?: string };
+
+// shortcut: one fixed limit for In progress, until projects can set their own.
+export const WIP_LIMIT = 4;
+
+function matchesDue(date: string | null, due: DueFilter, today = ""): boolean {
+  if (due === "none") return !date;
+  if (!date) return false;
+  return due === "overdue" ? date < today : weekStart(date) === weekStart(today);
+}
 
 export function buildColumns(tasks: BoardTask[], filter: BoardFilter = {}): BoardColumn[] {
   const visible = tasks.filter(
     (task) =>
       (!filter.phase || task.phase === filter.phase) &&
       (!filter.owner || task.ownerName === filter.owner) &&
-      (!filter.site || task.site === filter.site),
+      (!filter.site || task.site === filter.site) &&
+      (!filter.due || matchesDue(task.dueDate, filter.due, filter.today)),
   );
   return STATUSES.map((status) => ({
     status,

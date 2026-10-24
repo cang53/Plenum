@@ -15,11 +15,12 @@
 .segmented > a[aria-current="page"] { border-color: var(--primary); color: var(--text); font-weight: var(--weight-semibold); }
 .segmented > a:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 
-.board-filters { display: flex; flex-wrap: wrap; gap: var(--s4); margin-block: var(--s3); color: var(--text-secondary); font-size: var(--text-sm); }
-.board-filters label { display: flex; align-items: center; gap: var(--s2); font-size: var(--text-xs); }
+.board-filters { display: flex; flex-wrap: wrap; gap: var(--s2); margin-block: var(--s3); color: var(--text-secondary); font-size: var(--text-xs); }
+.chip-select { min-height: var(--target); padding: 0 var(--s3); border: 1px solid var(--border); border-radius: var(--radius-sm, 4px); background: var(--surface); color: var(--text-secondary); font: inherit; cursor: pointer; display: inline-flex; align-items: center; }
 .display-menu { position: relative; }
-.display-menu summary { cursor: pointer; }
+.display-menu summary { list-style-position: inside; }
 .display-menu div { position: absolute; z-index: 5; display: grid; gap: var(--s2); min-width: 160px; margin-block-start: var(--s1); padding: var(--s3); background: var(--surface); border: 1px solid var(--border); }
+.board-column h2 .count.over { color: var(--warning); }
 .waiting-on { color: var(--warning); font-size: var(--text-xs); }
 .board-scroll { overflow-x: auto; padding-block-end: var(--s2); }
 .board { display: grid; grid-template-columns: repeat(4, minmax(200px, 1fr)); min-width: 840px; }

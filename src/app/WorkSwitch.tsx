@@ -3,12 +3,11 @@ import type { MessageKey } from "@/lib/messages";
 const VIEWS = [
   { id: "board", label: "ui.segmented.board" },
   { id: "timeline", label: "ui.segmented.timeline" },
-  { id: "gantt", label: "ui.segmented.gantt" },
   { id: "items", label: "ui.segmented.items" },
 ] as const satisfies readonly { id: string; label: MessageKey }[];
 
 // Board / Timeline / Items switch; links, because each view is its own page.
-export function WorkSwitch({ current, projectId, t }: { current: (typeof VIEWS)[number]["id"]; projectId: string; t: (key: MessageKey) => string }) {
+export function WorkSwitch({ current, projectId, t }: { current: (typeof VIEWS)[number]["id"] | "gantt"; projectId: string; t: (key: MessageKey) => string }) {
   return (
     <nav className="work-switch" aria-label={t("ui.segmented.label")}>
       <div className="segmented">

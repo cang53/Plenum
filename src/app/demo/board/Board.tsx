@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buildColumns, distinct, groupTasks, initials, moveTask, STATUSES, taskKey, type BoardTask, type GroupBy, type TaskStatus } from "@/domain/board";
+import { buildColumns, distinct, groupTasks, initials, moveTask, STATUSES, taskKey, WIP_LIMIT, type BoardTask, type DueFilter, type GroupBy, type TaskStatus } from "@/domain/board";
 import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -23,21 +23,22 @@ const PRIORITY_DOT = { low: "st-todo", normal: "st-todo", high: "st-warn" } as c
 
 const FIELDS = ["priority", "phase", "due", "owner"] as const;
 type Field = (typeof FIELDS)[number];
+const DUE_FILTERS: readonly DueFilter[] = ["overdue", "week", "none"];
 const GROUPS: readonly GroupBy[] = ["status", "phase", "owner", "week"];
 
 export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, prefix = "T" }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
-  const [phase, setPhase] = useState("");
   const [owner, setOwner] = useState("");
-  const [site, setSite] = useState("");
+  const [dueFilter, setDueFilter] = useState<DueFilter | "">("");
+  const [doneCollapsed, setDoneCollapsed] = useState(false);
   const [groupBy, setGroupBy] = useState<GroupBy>("status");
   const [hidden, setHidden] = useState<Field[]>([]);
   const shows = (field: Field) => !hidden.includes(field);
   const [dragging, setDragging] = useState<string | null>(null);
 
   const due = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
-  const statusColumns = buildColumns(tasks, { phase: phase || undefined, owner: owner || undefined, site: site || undefined });
+  const statusColumns = buildColumns(tasks, { owner: owner || undefined, due: dueFilter || undefined, today: new Date().toISOString().slice(0, 10) });
   const byStatus = groupBy === "status";
   const label = (key: string) =>
     key === ""
@@ -80,44 +81,26 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
 
   return (
     <>
-      <div className="board-filters">
-        <label>
-          {t("board.filterPhase")}
-          <select value={phase} onChange={(e) => setPhase(e.target.value)}>
-            <option value="">{t("board.all")}</option>
-            {distinct(tasks.map((task) => task.phase)).map((p) => (
-              <option key={p}>{p}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {t("board.filterOwner")}
-          <select value={owner} onChange={(e) => setOwner(e.target.value)}>
-            <option value="">{t("board.all")}</option>
-            {distinct(tasks.map((task) => task.ownerName)).map((o) => (
-              <option key={o}>{o}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {t("board.filterSite")}
-          <select value={site} onChange={(e) => setSite(e.target.value)}>
-            <option value="">{t("board.all")}</option>
-            {distinct(tasks.map((task) => task.site)).map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {t("board.groupBy")}
-          <select value={groupBy} onChange={(e) => { setGroupBy(e.target.value as GroupBy); setAdding(null); }}>
-            {GROUPS.map((g) => (
-              <option key={g} value={g}>{t(`board.group.${g}` as MessageKey)}</option>
-            ))}
-          </select>
-        </label>
+      <div className="board-filters" role="group" aria-label={t("board.filters")}>
+        <select className="chip-select" aria-label={t("board.groupBy")} value={groupBy} onChange={(e) => { setGroupBy(e.target.value as GroupBy); setAdding(null); }}>
+          {GROUPS.map((g) => (
+            <option key={g} value={g}>{t("board.groupBy")}: {t(`board.group.${g}` as MessageKey)}</option>
+          ))}
+        </select>
+        <select className="chip-select" aria-label={t("board.filterOwner")} value={owner} onChange={(e) => setOwner(e.target.value)}>
+          <option value="">{t("board.filterOwner")}</option>
+          {distinct(tasks.map((task) => task.ownerName)).map((o) => (
+            <option key={o}>{o}</option>
+          ))}
+        </select>
+        <select className="chip-select" aria-label={t("board.filterDue")} value={dueFilter} onChange={(e) => setDueFilter(e.target.value as DueFilter | "")}>
+          <option value="">{t("board.filterDue")}</option>
+          {DUE_FILTERS.map((d) => (
+            <option key={d} value={d}>{t(`board.due.${d}` as MessageKey)}</option>
+          ))}
+        </select>
         <details className="display-menu">
-          <summary>{t("board.display")}</summary>
+          <summary className="chip-select">{t("board.display")}</summary>
           <div>
             {FIELDS.map((f) => (
               <label key={f}>
@@ -136,7 +119,11 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
       )}
       <div className="board-scroll">
         <div className="board">
-          {columns.map((column) => (
+          {columns.map((column) => {
+            const wip = byStatus && column.key === "in_progress";
+            const isDone = byStatus && column.key === "done";
+            const cards = isDone && doneCollapsed ? [] : column.tasks;
+            return (
             <section
               key={column.key}
               className={`board-column${dragging ? " drop-ready" : ""}`}
@@ -148,8 +135,12 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
               }}
             >
               <h2>
-                <span>{column.name} <span className="count">{column.tasks.length}</span></span>
-                {byStatus && <button type="button" className="btn btn-plain" aria-label={`${t("board.add")}: ${column.name}`} onClick={() => setAdding(column.key as TaskStatus)}>+</button>}
+                <span>
+                  {column.name}{" "}
+                  <span className={`count${wip && column.tasks.length > WIP_LIMIT ? " over" : ""}`}>{wip ? t("board.wip").replace("{n}", String(column.tasks.length)).replace("{max}", String(WIP_LIMIT)) : column.tasks.length}</span>
+                </span>
+                {byStatus && !isDone && <button type="button" className="btn btn-plain" aria-label={`${t("board.add")}: ${column.name}`} onClick={() => setAdding(column.key as TaskStatus)}>+</button>}
+                {byStatus && isDone && <button type="button" className="btn btn-plain" aria-expanded={!doneCollapsed} onClick={() => setDoneCollapsed(!doneCollapsed)}>{t(doneCollapsed ? "board.expand" : "board.collapse")}</button>}
               </h2>
               {adding === column.key && (
                 <form className="board-add" action={(form) => add(form, column.key as TaskStatus)} onKeyDown={(e) => e.key === "Escape" && setAdding(null)}>
@@ -161,8 +152,8 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
                   </span>
                 </form>
               )}
-              {column.tasks.length === 0 && adding !== column.key && <p className="empty">{t("board.empty")}</p>}
-              {column.tasks.map((task) => (
+              {cards.length === 0 && adding !== column.key && !(isDone && doneCollapsed) && <p className="empty">{t("board.empty")}</p>}
+              {cards.map((task) => (
                 <article
                   key={task.id}
                   className="card"
@@ -198,7 +189,8 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
                 </article>
               ))}
             </section>
-          ))}
+            );
+          })}
         </div>
       </div>
     </>
