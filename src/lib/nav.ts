@@ -9,7 +9,7 @@ export function navItems(role: string | undefined, isAdmin: boolean): NavItem[] 
     { path: "/app/stream", label: "app.stream", group: "project" },
     { path: "/app", label: "app.overview", group: "project" },
     { path: "/app/board", label: "app.board", group: "project" },
-    { path: "/app/timeline", label: "app.timeline", group: "project" },
+    { path: "/app/gantt", label: "app.timeline", group: "project" },
     { path: "/app/items", label: "app.items", group: "project" },
     { path: "/app/sitelog", label: "app.sitelog", group: "site" },
     { path: "/app/timesheet", label: "app.timesheet", group: "site" },

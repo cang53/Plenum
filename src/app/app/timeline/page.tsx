@@ -6,7 +6,6 @@ import { FilterFields } from "@/app/app/FilterFields";
 import { filterParams, parseFilters } from "@/domain/filters";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
-import { WorkSwitch } from "@/app/WorkSwitch";
 import { Timeline } from "@/app/demo/timeline/Timeline";
 import { acceptSuggestionAction, draftReplyAction, dismissSuggestionAction, replyAction, tagAttachmentAction, translateMessageAction } from "./actions";
 
@@ -38,7 +37,6 @@ export default async function TimelinePage({ searchParams }: { searchParams: Pro
         <button type="submit">{t("filter.apply")}</button>{" "}
         <a href={`/app/timeline?project=${project.id}`}>{t("filter.clear")}</a>
       </form>
-      <WorkSwitch current="timeline" projectId={project.id} t={t} />
       <Timeline key={project.id} messages={messages} suggestions={suggestions}
         linked={linked}
         onAccept={acceptSuggestionAction}
