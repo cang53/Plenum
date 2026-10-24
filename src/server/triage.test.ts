@@ -8,8 +8,8 @@ const message = {
 
 describe("suggestFor", () => {
   it("sends the message to the model and parses the answer", async () => {
-    const ask = vi.fn().mockResolvedValue('{"kind":"risk","title":"Gearbox late","details":"28 Nov."}');
-    expect(await suggestFor(message, ask)).toEqual({ kind: "risk", title: "Gearbox late", details: "28 Nov." });
+    const ask = vi.fn().mockResolvedValue('{"kind":"risk","title":"Gearbox late","details":"28 Nov.","reason":"Email says 28 Nov."}');
+    expect(await suggestFor(message, ask)).toEqual({ kind: "risk", title: "Gearbox late", details: "28 Nov.", reason: "Email says 28 Nov." });
     expect(ask.mock.calls[0][1]).toContain("Subject: Gearbox delivery date");
   });
 

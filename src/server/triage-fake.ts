@@ -14,7 +14,7 @@ export const ruleBasedAsk: Ask = async (_system, user) => {
   const subject = /^Subject: (.*)$/m.exec(header)?.[1]?.trim() ?? "";
   const body = rest.join("\n\n").trim();
   const text = `${subject}\n${body}`.toLowerCase();
-  const hit = RULES.find(([, pattern]) => pattern.test(text));
+  const hit = RULES.map(([kind, pattern]) => [kind, pattern.exec(text)?.[0]] as const).find(([, word]) => word);
   if (!hit || !subject) return '{"kind":"none"}';
-  return JSON.stringify({ kind: hit[0], title: subject, details: body.split(/(?<=[.!?])\s/)[0] ?? "" });
+  return JSON.stringify({ kind: hit[0], title: subject, details: body.split(/(?<=[.!?])\s/)[0] ?? "", reason: `The message says "${hit[1]}".` });
 };

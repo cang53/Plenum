@@ -37,7 +37,7 @@ describe("newSince", () => {
 });
 
 describe("suggestionsByMessage", () => {
-  const s = (id: string, messageId: string, status: "pending" | "accepted" | "dismissed") => ({ id, messageId, kind: "task" as const, title: id, details: "", status });
+  const s = (id: string, messageId: string, status: "pending" | "accepted" | "dismissed") => ({ id, messageId, kind: "task" as const, title: id, details: "", reason: "r", status });
   it("groups pending suggestions under their message and skips resolved ones", () => {
     const by = suggestionsByMessage([s("1", "m1", "pending"), s("2", "m1", "pending"), s("3", "m2", "accepted")]);
     expect(by.get("m1")?.map((x) => x.id)).toEqual(["1", "2"]);

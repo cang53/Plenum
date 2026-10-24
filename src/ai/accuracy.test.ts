@@ -19,7 +19,7 @@ describe("test set", () => {
 
 describe("score", () => {
   it("counts matching kinds and treats null as none", () => {
-    const report = score(["task", "none", "risk"], [{ kind: "task", title: "t", details: "" }, null, { kind: "task", title: "t", details: "" }]);
+    const report = score(["task", "none", "risk"], [{ kind: "task", title: "t", details: "", reason: "r" }, null, { kind: "task", title: "t", details: "", reason: "r" }]);
     expect(report.correct).toBe(2);
     expect(report.byKind.risk).toEqual({ correct: 0, total: 1 });
     expect(formatReport(report)).toContain("2/3 (67%)");

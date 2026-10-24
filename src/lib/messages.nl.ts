@@ -406,6 +406,7 @@ export const nl: Record<keyof typeof en, string> = {
   "inbox.tab.history": "Geschiedenis",
   "inbox.empty.needs": "Er wacht niets op jouw klik.",
   "inbox.empty.history": "Er is nog niets besloten.",
+  "inbox.why": "Waarom",
   "inbox.snooze": "Uitstellen tot morgen",
   "inbox.managersOnly": "Alleen een projectmanager kan dit toepassen of afwijzen.",
   "inbox.did.accepted": "Toegepast door {name} op {date}",

@@ -404,6 +404,7 @@ export const en = {
   "inbox.tab.history": "History",
   "inbox.empty.needs": "Nothing waits for your click.",
   "inbox.empty.history": "Nothing has been decided yet.",
+  "inbox.why": "Why",
   "inbox.snooze": "Snooze until tomorrow",
   "inbox.managersOnly": "Only a project manager can apply or dismiss this.",
   "inbox.did.accepted": "Applied by {name} on {date}",
