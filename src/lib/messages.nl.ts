@@ -29,10 +29,6 @@ export const nl: Record<keyof typeof en, string> = {
   "app.retry": "Probeer opnieuw",
   "app.tagline":
     "Eén projecttijdlijn voor industriële teams. Berichten uit Teams en e-mails worden taken, besluiten en rapporten, en een persoon keurt elke AI-suggestie goed.",
-  "home.status": "In aanbouw: fase 2, de kernlus.",
-  "home.demoLink": "Open het demobord",
-  "home.demoTimeline": "Open de demotijdlijn",
-  "home.signIn": "Inloggen",
   "login.title": "Inloggen",
   "login.intro": "Vul uw werk-e-mailadres in. Wij sturen een link waarmee u inlogt; er is geen wachtwoord.",
   "login.email": "Werk-e-mail",
