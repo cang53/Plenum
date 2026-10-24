@@ -2,8 +2,11 @@
 .shell { display: flex; min-height: 100vh; align-items: flex-start; background: var(--surface-subtle); color: var(--text); font-family: var(--font); }
 .shell-side { position: sticky; top: 0; width: 10.75rem; flex: none; height: 100vh; overflow-y: auto; padding: var(--s3) var(--s2); border-right: 1px solid var(--border); background: var(--surface-subtle); display: flex; flex-direction: column; gap: 1px; font-size: var(--text-sm); }
 .shell-brand { padding: 2px var(--s2) var(--s3); font-size: var(--text-md); font-weight: var(--weight-semibold); letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
-.shell-project, .shell-projects { margin: 0 0 var(--s2); padding: 6px var(--s2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-weight: var(--weight-medium); }
-.shell-projects summary { cursor: pointer; }
+.shell-project { margin: 0 0 var(--s2); padding: 6px var(--s2); font-weight: var(--weight-medium); }
+.shell-projects { margin: 0 0 var(--s2); padding: 6px var(--s2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-weight: var(--weight-medium); }
+.shell-projects summary { cursor: pointer; display: flex; justify-content: space-between; list-style: none; }
+.shell-projects summary::-webkit-details-marker { display: none; }
+.shell-projects summary::after { content: "▾"; color: var(--text-muted); }
 .shell-projects ul { margin: var(--s2) 0 0; padding: 0; list-style: none; }
 .shell-projects a { display: block; padding: var(--s1) 0; color: var(--text-secondary); text-decoration: none; }
 .shell-projects a[aria-current] { color: var(--text); font-weight: var(--weight-semibold); }
@@ -16,9 +19,8 @@
 .shell-badge { min-width: 1.1rem; padding: 0 6px; border-radius: 8px; background: var(--primary); color: var(--on-primary); font-size: var(--text-xs); font-variant-numeric: tabular-nums; line-height: 1.1rem; text-align: center; }
 .shell-body { flex: 1; min-width: 0; }
 .shell-top { display: flex; align-items: center; gap: var(--s3); min-height: 2.75rem; padding: var(--s2) var(--s4); border-bottom: 1px solid var(--border); background: var(--surface); }
-.shell-search { position: relative; flex: 1; max-width: 17.5rem; margin-inline-end: auto; }
-.shell-search .field { width: 100%; padding-inline-end: 2rem; }
-.shell-search .kbd { position: absolute; inset-block: 50% auto; inset-inline-end: var(--s2); transform: translateY(-50%); }
+.shell-find { flex: 1; max-width: 17.5rem; margin-inline-end: auto; display: flex; justify-content: space-between; align-items: center; gap: var(--s2); padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text-muted); font: inherit; font-size: var(--text-sm); cursor: pointer; }
+.shell-find:hover { background: var(--surface-hover); }
 .shell-top .btn-primary { text-decoration: none; }
 .shell-top .btn-primary .kbd { border-color: currentColor; background: none; color: inherit; }
 .shell-account { display: flex; align-items: center; gap: var(--s3); margin: 0; font-size: var(--text-sm); color: var(--text-secondary); }
@@ -30,7 +32,7 @@
   .shell { display: block; padding-bottom: 3rem; }
   .shell-side { display: none; }
   .shell-top { padding-inline: var(--s2); }
-  .shell-account span, .shell-top .btn-primary .kbd, .shell-search .kbd { display: none; }
+  .shell-account span, .shell-top .btn-primary .kbd { display: none; }
   .shell-bar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; inset: auto 0 0; border-top: 1px solid var(--border); background: var(--surface); z-index: 5; }
   .shell-bar .shell-link { justify-content: center; padding: var(--s3) 0; border-radius: 0; font-size: 0.6875rem; font-weight: var(--weight-medium); color: var(--text-muted); }
   .shell-bar .shell-link[aria-current="page"] { background: none; color: var(--text); font-weight: var(--weight-semibold); box-shadow: inset 0 2px 0 var(--primary); }

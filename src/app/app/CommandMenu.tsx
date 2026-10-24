@@ -60,8 +60,8 @@ export function CommandMenu({ project, labels }: { project?: string; labels: Lab
 
   return (
     <>
-      <button type="button" className="btn btn-secondary" onClick={() => dialog.current?.showModal()} aria-keyshortcuts="Control+K Meta+K">
-        {labels.open} <kbd className="kbd" aria-hidden="true">⌘K</kbd>
+      <button type="button" className="shell-find" data-command-open onClick={() => dialog.current?.showModal()} aria-keyshortcuts="Control+K Meta+K">
+        <span>{labels.open}</span> <kbd className="kbd" aria-hidden="true">⌘K</kbd>
       </button>
       <dialog ref={dialog} className="dialog cmd" aria-label={labels.title} onClose={reset} onToggle={(e) => (e.target as HTMLDialogElement).open && input.current?.focus()}>
         <input
