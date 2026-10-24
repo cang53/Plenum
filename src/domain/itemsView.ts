@@ -26,3 +26,7 @@ export function matchesQuick(r: Row, q: QuickFilter, me: string | null, today: s
   }
   return true;
 }
+
+// One count per quick filter, over every task of the project (not just the loaded page).
+export const quickCounts = (rows: Row[], me: string | null, today: string): Record<QuickFilter, number> =>
+  Object.fromEntries(QUICK_FILTERS.map((q) => [q, rows.filter((r) => matchesQuick(r, q, me, today)).length])) as Record<QuickFilter, number>;

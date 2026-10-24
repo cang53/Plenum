@@ -3,7 +3,7 @@ import { listManualItems, listPlanChoices, type ManualItem } from "@/data/live";
 import { currentProject, listMembers, listProjects, type Member } from "@/data/projects";
 import { MANUAL_KINDS, PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
-import { COLUMNS, matchesQuick, parseColumns, parseQuick, QUICK_FILTERS } from "@/domain/itemsView";
+import { COLUMNS, matchesQuick, parseColumns, parseQuick, QUICK_FILTERS, quickCounts } from "@/domain/itemsView";
 import { isEarlyWarning, rewardsOn } from "@/domain/rewards";
 import type { MessageKey } from "@/lib/messages";
 import { MoreLink } from "@/app/app/MoreLink";
@@ -109,10 +109,12 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const href = (q: string) => `/app/items?project=${project.id}${q === "all" ? "" : `&quick=${q}`}${keep}`;
   const plan = { members, ...choices };
   // Risks have no site, so only the "off everywhere" switch hides the badge.
-  const [{ data: switches }, { data: risks }] = await Promise.all([
+  const [{ data: switches }, { data: risks }, { data: taskRows }] = await Promise.all([
     supabase.from("reward_switches").select("site"),
     supabase.from("risks").select("created_at, due_date").neq("kind", "issue").eq("project_id", project.id),
+    supabase.from("tasks").select("status, due_date, owner_id").eq("project_id", project.id),
   ]);
+  const counts = quickCounts((taskRows ?? []).map((r) => ({ status: r.status as string, dueDate: r.due_date as string | null, ownerId: r.owner_id as string | null })), user?.id ?? null, today);
   const rewards = rewardsOn((switches ?? []).map((r) => r.site as string), "");
   const early = rewards ? (risks ?? []).filter((r) => isEarlyWarning(r.created_at as string, r.due_date as string | null)).length : 0;
   return (
@@ -137,7 +139,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
       <div className="items-tools">
         <nav className="items-quick" aria-label={t("items.quick.label")}>
           {QUICK_FILTERS.map((q) => (
-            <a key={q} href={href(q)} aria-current={q === quick ? "page" : undefined}>{t(`items.quick.${q}` as MessageKey)}</a>
+            <a key={q} href={href(q)} aria-current={q === quick ? "page" : undefined}>{t(`items.quick.${q}` as MessageKey)} <span className="items-count">{counts[q]}</span></a>
           ))}
         </nav>
         <details className="items-cols">

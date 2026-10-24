@@ -43,8 +43,8 @@ describe("Gantt", () => {
     const base = { a: { startDate: "2026-11-01", dueDate: "2026-11-03" } };
     const html = renderToStaticMarkup(<Gantt tasks={tasks} dependencies={[]} onSave={save} baseline={base} baselineName="Kick-off" onBaseline={async () => {}} labels={labels} />);
     expect(html).toContain("2 days against the baseline");
+    expect(html).toContain('<span class="chip">Baseline: Kick-off</span>');
     expect(html).toContain("1 tasks late");
-    expect(html).toContain("Baseline: Kick-off.");
     expect(html).toContain('data-baseline="true"');
     expect(html).toContain("+2 d");
     expect(html).toContain("Save baseline");

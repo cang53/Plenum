@@ -75,11 +75,12 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
         <div className="gantt-zoom" role="group" aria-label={labels.zoom}>
           {ZOOMS.map((z) => <button key={z} type="button" aria-pressed={z === zoom} onClick={() => setZoom(z)}>{labels[z]}</button>)}
         </div>
+        {baseline && <span className="chip">{labels.baselineActive.replace("{name}", baselineName).replace(/\.$/, "")}</span>}
         <button type="button" className="chip-select" aria-pressed={showCritical} onClick={() => setShowCritical((v) => !v)}>{labels.criticalToggle}</button>
         <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
       </div>
       <div className="gantt-baselinebar">
-        {baseline ? <p><strong>{labels.baselineActive.replace("{name}", baselineName)}</strong> {labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p>{labels.baselineNone}</p>}
+        {baseline ? <p>{labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p>{labels.baselineNone}</p>}
         {picker}
         {onBaseline && (
           <form onSubmit={(e) => { e.preventDefault(); void saveBase(); }}>
