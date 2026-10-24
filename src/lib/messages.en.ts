@@ -33,6 +33,8 @@ export const en = {
   "login.submit": "Send me a link",
   "login.sent": "Check your email for the sign-in link. You can close this page.",
   "login.error": "We could not send the link. Check the address and try again.",
+  "login.password": "Password",
+  "login.passwordSubmit": "Sign in with password",
   "login.entra": "Sign in with your company account",
   "login.entraError": "We could not sign you in with your company account. Try again.",
   "app.signedIn": "You are signed in",

@@ -25,6 +25,7 @@ CI runs `npm run check:switches` on every pull request, so a misconfigured defau
 | `APP_URL` | no | always | Public site URL, used in email links |
 | `JOBS_SECRET` | **yes** | for background jobs | Without it `/api/jobs` returns 403 |
 | `AUTH_PROVIDER` | no | optional | `supabase` (default) or `entra` |
+| `TEST_PASSWORD_LOGIN` | no | testing only | `1` shows an email and password form on `/login`; remove it before real users arrive |
 | `EMAIL_PROVIDER` | no | optional | `fake` (default) or `ses`; `ses` also needs `SES_FROM_ADDRESS`, `AWS_REGION` (EU) and AWS keys |
 | `AI_PROVIDER` | no | optional | `rules` (default) or `bedrock` |
 | `SES_FROM_ADDRESS` | no | if `ses` | Verified sender |
