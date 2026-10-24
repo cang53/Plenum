@@ -131,6 +131,11 @@ begin
   exception when raise_exception then
     if sqlerrm = 'a day was submitted twice' then raise; end if;
   end;
-  if not exists (select 1 from public.audit_log where action = 'site_log_submitted') then raise exception 'submit not audited'; end if;
 end $$;
 commit;
+
+-- The audit log is not readable by members, so check it as the owner.
+do $$
+begin
+  if not exists (select 1 from public.audit_log where action = 'site_log_submitted') then raise exception 'submit not audited'; end if;
+end $$;
