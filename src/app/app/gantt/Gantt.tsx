@@ -75,7 +75,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
         <div className="gantt-zoom" role="group" aria-label={labels.zoom}>
           {ZOOMS.map((z) => <button key={z} type="button" aria-pressed={z === zoom} onClick={() => setZoom(z)}>{labels[z]}</button>)}
         </div>
-        <button type="button" className="btn gantt-print" aria-pressed={showCritical} onClick={() => setShowCritical((v) => !v)}>{labels.criticalToggle}</button>
+        <button type="button" className="chip-select" aria-pressed={showCritical} onClick={() => setShowCritical((v) => !v)}>{labels.criticalToggle}</button>
         <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
       </div>
       <div className="gantt-baselinebar">

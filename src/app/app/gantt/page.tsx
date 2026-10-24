@@ -26,10 +26,11 @@ export default async function GanttPage({ searchParams }: { searchParams: Promis
   );
   return (
     <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("gantt.title")}</h1>
+      <div className="board-head">
+        <h1>{t("app.timeline")}</h1>
+        <WorkSwitch current="timeline" projectId={project.id} t={t} />
+      </div>
       <p className="intro">{t("gantt.intro")}</p>
-      <WorkSwitch current="gantt" projectId={project.id} t={t} />
       <Gantt key={`${project.id}-${picked?.id}`} tasks={plan.tasks} dependencies={plan.dependencies} onSave={saveTaskDates} baseline={baseline} baselineName={picked?.name} picker={picker || undefined} onBaseline={role === "project_manager" ? saveProjectBaseline.bind(null, project.id) : undefined} labels={labels} locale={locale} />
     </main>
   );
