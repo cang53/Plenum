@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matchesQuick, parseColumns, parseQuick } from "./itemsView";
+import { matchesQuick, parseColumns, parseQuick, quickCounts } from "./itemsView";
 
 const today = "2026-10-23"; // a Friday; the week is 19 to 25 October
 const r = (status: string, dueDate: string | null, ownerId: string | null = null) => ({ status, dueDate, ownerId });
@@ -34,5 +34,12 @@ describe("params", () => {
     expect(parseColumns(undefined)).toEqual(["owner", "due"]);
     expect(parseColumns(["site", "bogus", "priority"])).toEqual(["priority", "site"]);
     expect(parseColumns("-")).toEqual([]);
+  });
+});
+
+describe("quickCounts", () => {
+  it("counts every task per filter", () => {
+    const c = quickCounts([r("blocked", "2026-10-30", "u1"), r("todo", "2026-10-20", "u1"), r("done", "2026-10-20")], "u1", today);
+    expect(c).toEqual({ all: 3, mine: 2, at_risk: 2, blocked: 1, week: 1 });
   });
 });
