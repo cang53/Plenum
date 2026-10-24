@@ -14,18 +14,18 @@ const fake = (result: unknown) => {
 describe("taskFromRow", () => {
   it("flattens phase and owner", () => {
     const task = taskFromRow({
-      id: "t", title: "Lift", status: "todo", due_date: "2026-11-01", priority: "normal", position: 2, site: "Yard",
+      id: "t", title: "Lift", status: "todo", due_date: "2026-11-01", priority: "normal", position: 2, created_at: "2026-10-01", site: "Yard",
       phases: { name: "Site" }, profiles: { display_name: "Ann" },
-    });
-    expect(task).toEqual({ id: "t", title: "Lift", status: "todo", phase: "Site", ownerName: "Ann", dueDate: "2026-11-01", priority: "normal", position: 2, site: "Yard", waitingOn: null });
+    }, 7);
+    expect(task).toEqual({ id: "t", title: "Lift", status: "todo", phase: "Site", ownerName: "Ann", dueDate: "2026-11-01", priority: "normal", position: 2, number: 7, site: "Yard", waitingOn: null });
   });
   it("names the message a blocked task waits on", () => {
-    const row = { id: "t", title: "x", status: "blocked" as const, due_date: null, priority: "normal" as const, position: 0, site: "", phases: null, profiles: null, source: { subject: "Re: delivery" } };
-    expect(taskFromRow(row).waitingOn).toBe("Re: delivery");
-    expect(taskFromRow({ ...row, status: "todo" }).waitingOn).toBeNull();
+    const row = { id: "t", title: "x", status: "blocked" as const, due_date: null, priority: "normal" as const, position: 0, created_at: "2026-10-01", site: "", phases: null, profiles: null, source: { subject: "Re: delivery" } };
+    expect(taskFromRow(row, 1).waitingOn).toBe("Re: delivery");
+    expect(taskFromRow({ ...row, status: "todo" }, 1).waitingOn).toBeNull();
   });
   it("allows no phase or owner", () => {
-    const task = taskFromRow({ id: "t", title: "x", status: "done", due_date: null, priority: "high", position: 0, site: "", phases: null, profiles: null });
+    const task = taskFromRow({ id: "t", title: "x", status: "done", due_date: null, priority: "high", position: 0, created_at: "2026-10-01", site: "", phases: null, profiles: null }, 1);
     expect(task.phase).toBeNull();
     expect(task.priority).toBe("high");
     expect(task.ownerName).toBeNull();

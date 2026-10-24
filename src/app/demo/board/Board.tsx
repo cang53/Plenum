@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buildColumns, distinct, groupTasks, initials, moveTask, STATUSES, taskKey, type BoardTask, type GroupBy, type TaskStatus } from "@/domain/board";
+import { buildColumns, distinct, groupTasks, initials, moveTask, taskKey, type BoardTask, type GroupBy, type TaskStatus } from "@/domain/board";
 import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -15,6 +15,8 @@ type Props = {
   locale?: Locale;
   // Start of the link a card's title leads to (the task side sheet); the task id is appended. Without it (the demo) the title is plain text.
   openBase?: string;
+  // Start of every card ID, such as "P-204"; the task number follows.
+  prefix?: string;
 };
 
 const PRIORITY_DOT = { low: "st-todo", normal: "st-todo", high: "st-warn" } as const;
@@ -23,7 +25,7 @@ const FIELDS = ["priority", "phase", "due", "owner"] as const;
 type Field = (typeof FIELDS)[number];
 const GROUPS: readonly GroupBy[] = ["status", "phase", "owner", "week"];
 
-export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase }: Props) {
+export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, prefix = "T" }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [phase, setPhase] = useState("");
@@ -67,7 +69,7 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase }: 
     try {
       const task = onAdd
         ? await onAdd(title, status)
-        : { id: `demo-${tasks.length + 1}`, title, status, phase: null, ownerName: null, dueDate: null, priority: "normal" as const, position: tasks.length, site: null };
+        : { id: `demo-${tasks.length + 1}`, title, status, phase: null, ownerName: null, dueDate: null, priority: "normal" as const, position: tasks.length, number: Math.max(0, ...tasks.map((x) => x.number)) + 1, site: null };
       setTasks((current) => [...current, task]);
       setAdding(null);
     } catch (error) {
@@ -170,7 +172,7 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase }: 
                   onDragEnd={() => setDragging(null)}
                 >
                   <span className="card-id">
-                    <span>{taskKey(task.id)}</span>
+                    <span>{taskKey(prefix, task.number)}</span>
                     {shows("priority") && <span className={`st ${PRIORITY_DOT[task.priority]}`}>{t(`priority.${task.priority}`)}</span>}
                   </span>
                   <h3>{openBase ? <a href={`${openBase}${task.id}`}>{task.title}</a> : task.title}</h3>
@@ -182,16 +184,6 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase }: 
                     </span>
                   </span>
                   {task.status === "blocked" && task.waitingOn && <span className="waiting-on">{t("board.waitingOn")}: {task.waitingOn}</span>}
-                  <label className="status-select">
-                    {t("board.statusLabel")}
-                    <select value={task.status} onChange={(e) => move(task.id, e.target.value as TaskStatus)}>
-                      {STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {t(`status.${s}`)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
                 </article>
               ))}
             </section>
