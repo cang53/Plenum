@@ -1,5 +1,3 @@
--- Every suggestion says why it was made (shown as "Why" in the Inbox). Older rows get a generic line so they stay editable.
-alter table public.suggestions add column reason text not null default '';
-update public.suggestions set reason = 'Suggested before reasons were recorded. See the source message.' where reason = '';
-alter table public.suggestions add constraint suggestions_reason_present check (length(trim(reason)) > 0);
-alter table public.suggestions alter column reason drop default;
+-- Every suggestion says why it was made (shown as "Why" in the Inbox). Triage always writes one (the app drops answers
+-- without a reason); the default only covers rows written before this column existed and direct test inserts.
+alter table public.suggestions add column reason text not null default 'Not recorded. See the source message.' check (length(trim(reason)) > 0);
