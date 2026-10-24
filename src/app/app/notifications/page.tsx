@@ -33,6 +33,7 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
     <main id="main" className="page inbox">
       <InboxKeys />
       <h1>{t("inbox.title")}</h1>
+      <p className="intro">{t("inbox.keys")}</p>
       <nav className="tabs" aria-label={t("inbox.title")}>
         {(["needs", "mentions", "history"] as const).map((tb) => <a key={tb} href={link(tb)} aria-current={tb === tab ? "page" : undefined}>{t(`inbox.tab.${tb}`)}</a>)}
       </nav>

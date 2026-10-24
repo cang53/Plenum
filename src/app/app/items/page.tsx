@@ -117,11 +117,11 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const early = rewards ? (risks ?? []).filter((r) => isEarlyWarning(r.created_at as string, r.due_date as string | null)).length : 0;
   return (
     <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("items.title")}</h1>
-      <p className="intro">{t("items.intro")}</p>
-      <p><a href={`/app/import?project=${project.id}`}>{t("import.title")}</a></p>
-      <WorkSwitch current="items" projectId={project.id} t={t} />
+      <div className="board-head">
+        <h1>{t("items.title")}</h1>
+        <WorkSwitch current="items" projectId={project.id} t={t} />
+        <a className="btn" href={`/app/import?project=${project.id}`}>{t("import.title")}</a>
+      </div>
       <OfflineTasks
         project={project.name}
         tasks={items.filter((i) => i.kind === "task").map((i) => ({ id: i.id, title: i.title, status: i.status }))}

@@ -39,8 +39,10 @@ export default async function TimesheetPage({ searchParams }: { searchParams: Pr
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
     <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("hours.title")}</h1>
+      <div className="board-head">
+        <h1>{t("hours.title")}</h1>
+        <span className="sub">{project.name}</span>
+      </div>
       <p className="intro">{t("hours.intro")}</p>
       {error && <p role="alert" className="badge badge-danger">{error}</p>}
       {sp.saved && <p role="status" className="badge badge-success">{t("hours.saved")}</p>}

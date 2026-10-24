@@ -32,8 +32,10 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
     <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("timesheets.title")}</h1>
+      <div className="board-head">
+        <h1>{t("timesheets.title")}</h1>
+        <span className="sub">{project.name}</span>
+      </div>
       <nav className="tabs ts-tabs" aria-label={t("timesheets.tabs")}>
         <a href={`/app/timesheet?project=${project.id}`}>{t("timesheets.tab.week")}</a>
         <a href={base} aria-current="page">{t("timesheets.tab.approvals")}{manager && ` · ${pending}`}</a>
