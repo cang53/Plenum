@@ -1,21 +1,6 @@
-import Link from "next/link";
-import { t } from "@/lib/messages";
+import { redirect } from "next/navigation";
 
+// The product lives under /app; signed-out visitors are sent on to /login by the middleware.
 export default function Home() {
-  return (
-    <main id="main" className="home">
-      <h1>{t("app.name")}</h1>
-      <p>{t("app.tagline")}</p>
-      <p className="status">{t("home.status")}</p>
-      <p>
-        <Link href="/login">{t("home.signIn")}</Link>
-      </p>
-      <p>
-        <Link href="/demo/board">{t("home.demoLink")}</Link>
-      </p>
-      <p>
-        <Link href="/demo/timeline">{t("home.demoTimeline")}</Link>
-      </p>
-    </main>
-  );
+  redirect("/app");
 }

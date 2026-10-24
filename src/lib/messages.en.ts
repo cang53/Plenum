@@ -27,10 +27,6 @@ export const en = {
   "app.retry": "Try again",
   "app.tagline":
     "One project timeline for industrial teams. Teams messages and emails become tasks, decisions and reports, and a person approves every AI suggestion.",
-  "home.status": "Under construction: stage 2, the core loop.",
-  "home.demoLink": "Open the demo board",
-  "home.demoTimeline": "Open the demo timeline",
-  "home.signIn": "Sign in",
   "login.title": "Sign in",
   "login.intro": "Enter your work email. We send you a link that signs you in; there is no password.",
   "login.email": "Work email",
