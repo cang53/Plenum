@@ -1,22 +1,29 @@
-/* Items list: one dense surface per kind; the header is the only glass and stays visible while scrolling. */
-.items-table, .data-table { margin-block-end: var(--s4); overflow: clip; }
+/* Items list: compact rows and expandable details, modeled on the benchmark's work register. */
+.items-table, .data-table { margin-block-end: var(--s5); overflow: clip; border-radius: var(--radius); }
 .items-table table, .data-table table { display: table; width: 100%; }
 .items-table thead th, .data-table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--glass);
-  border-block-end: 1px solid var(--glass-edge);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+  background: var(--surface);
+  border-block-end: 1px solid var(--border);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
 }
 .items-table tbody tr + tr td, .data-table tbody tr + tr td { border-block-start: 1px solid var(--border); }
-.items-table tbody tr:hover, .data-table tbody tr:hover { background: var(--glass-soft); }
+.items-table tbody tr:hover, .data-table tbody tr:hover { background: var(--surface-hover); }
 .items-table td { vertical-align: top; }
-.items-table summary { cursor: pointer; font-weight: var(--weight-medium); }
+.items-table td { padding-block: var(--s3); }
+.items-table summary { cursor: pointer; font-weight: var(--weight-semibold); color: var(--text); }
 .items-filter { margin-block: var(--s4); }
+.items-page > section > details { margin: 0 0 var(--s3); }
+.items-page > section > details > summary { display: inline-flex; align-items: center; min-height: var(--target); cursor: pointer; color: var(--text); font-weight: var(--weight-medium); }
+.items-page > section > details > form, .items-table details > form { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--s3) var(--s4); max-width: 60rem; margin: var(--s3) 0; padding: var(--s4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-subtle); }
+.items-page > section > details > form label, .items-table details > form label { display: grid; gap: var(--s1); color: var(--text-secondary); font-size: var(--text-sm); }
+.items-page > section > details > form label:first-of-type, .items-page > section > details > form label:nth-of-type(2), .items-table details > form label:first-of-type, .items-table details > form label:nth-of-type(2) { grid-column: 1 / -1; }
+.items-page > section > details > form button, .items-table details > form button { justify-self: start; background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .data-table td { vertical-align: middle; }
 .inline-form, .row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }

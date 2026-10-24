@@ -1,18 +1,22 @@
-/* Board: dense columns on the ambient background; glass is kept for the switch and filters. */
-.work-switch { margin-block: var(--s4); }
+/* Board, timeline and items share an understated view switch. */
+.work-switch { margin: var(--s4) 0 var(--s5); border-bottom: 1px solid var(--border); }
+.work-switch .segmented { display: flex; gap: var(--s5); padding: 0; border: 0; border-radius: 0; background: transparent; }
 .segmented > a {
   display: inline-flex;
   align-items: center;
   min-height: calc(var(--target) - var(--s2));
   padding: 0 var(--s4);
-  border-radius: var(--radius-full);
+  min-height: 2.25rem;
+  padding: 0 0 var(--s2);
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   color: var(--text-secondary);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   text-decoration: none;
 }
-.segmented > a:hover { background: var(--glass-soft); }
-.segmented > a[aria-current="page"] { background: var(--glass-selected); color: var(--text); box-shadow: var(--glass-inset); }
+.segmented > a:hover { color: var(--text); background: transparent; }
+.segmented > a[aria-current="page"] { background: transparent; color: var(--text); border-color: var(--primary); box-shadow: none; font-weight: var(--weight-semibold); }
 .segmented > a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
 .board-filters { display: flex; flex-wrap: wrap; gap: var(--s4); margin-block: var(--s4); font-size: var(--text-sm); }

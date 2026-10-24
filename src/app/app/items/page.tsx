@@ -97,11 +97,15 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const [{ rows: items, next }, choices, members] = await Promise.all([listManualItems(supabase, project.id, after), listPlanChoices(supabase, project.id), listMembers(supabase, project.id)]);
   const plan = { members, ...choices };
   return (
-    <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("items.title")}</h1>
-      <p className="intro">{t("items.intro")}</p>
-      <p><a href={`/app/import?project=${project.id}`}>{t("import.title")}</a></p>
+    <main id="main" className="page items-page">
+      <header className="page-heading">
+        <div>
+          <p className="eyebrow">{project.name}</p>
+          <h1>{t("items.title")}</h1>
+          <p className="intro">{t("items.intro")}</p>
+        </div>
+        <a className="btn btn-secondary" href={`/app/import?project=${project.id}`}>{t("import.title")}</a>
+      </header>
       <WorkSwitch current="items" projectId={project.id} t={t} />
       <OfflineTasks
         project={project.name}

@@ -2,18 +2,16 @@
    Everything reads tokens, so the reduced-transparency, high-contrast and no-blur fallbacks apply for free. */
 .ambient {
   min-height: 100vh;
-  background: var(--ambient-background), var(--surface-subtle);
+  background: var(--ambient-background);
   color: var(--text);
   font-family: var(--font);
 }
 
 .glass {
   background: var(--glass);
-  border: 1px solid var(--glass-edge);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow: none;
 }
 
 @supports (corner-shape: squircle) {
@@ -25,7 +23,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--elevation);
+  box-shadow: none;
 }
 
 .btn {
@@ -36,7 +34,7 @@
   min-height: var(--target);
   padding: 0 var(--s5);
   border: 1px solid transparent;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius);
   font: inherit;
   font-size: var(--text-base);
   font-weight: var(--weight-medium);
@@ -51,9 +49,9 @@
 .btn-primary { background: var(--primary); color: var(--on-primary); box-shadow: var(--elevation); }
 .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
 .btn-secondary {
-  background: var(--glass-dense);
-  border-color: var(--glass-edge);
-  box-shadow: var(--glass-inset);
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: none;
 }
 .btn-secondary:hover:not(:disabled) { background: var(--glass-selected); }
 .btn-plain { color: var(--text-secondary); }
@@ -64,7 +62,7 @@
   width: 100%;
   min-height: var(--target);
   padding: 0 var(--s4);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
@@ -98,17 +96,15 @@
   gap: var(--s1);
   padding: var(--s1);
   border: 1px solid var(--glass-edge);
-  border-radius: var(--radius-full);
-  background: var(--glass);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border-radius: var(--radius);
+  background: transparent;
+  box-shadow: none;
 }
 .segmented > button {
   min-height: calc(var(--target) - var(--s2));
   padding: 0 var(--s4);
   border: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   background: none;
   color: var(--text-secondary);
   font: inherit;
@@ -119,9 +115,9 @@
 }
 .segmented > button:hover { background: var(--glass-soft); }
 .segmented > button[aria-pressed="true"], .segmented > button[aria-selected="true"] {
-  background: var(--glass-selected);
+  background: var(--accent-soft);
   color: var(--text);
-  box-shadow: var(--glass-inset);
+  box-shadow: none;
 }
 
 .dialog {
@@ -129,11 +125,9 @@
   padding: var(--s6);
   border: 1px solid var(--glass-edge);
   border-radius: var(--radius-lg);
-  background: var(--glass-dense);
+  background: var(--surface);
   color: var(--text);
-  box-shadow: var(--glass-inset), var(--elevation-dialog);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow: var(--elevation-dialog);
 }
 .dialog::backdrop { background: color-mix(in srgb, var(--text) 30%, transparent); }
 .dialog h2 { margin: 0 0 var(--s2); font-size: var(--text-xl); letter-spacing: var(--tracking-tight); }
