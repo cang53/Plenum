@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildColumns, distinct, groupTasks, weekStart, initials, moveTask, taskKey, type BoardTask } from "./board";
+import { buildColumns, distinct, groupTasks, weekStart, initials, moveTask, projectPrefix, taskKey, type BoardTask } from "./board";
 
 const tasks: BoardTask[] = [
-  { id: "1", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", priority: "normal", position: 0, site: "Yard" },
-  { id: "2", title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta", dueDate: "2026-11-28", priority: "normal", position: 0, site: null },
-  { id: "3", title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin", dueDate: "2026-11-07", priority: "normal", position: 1, site: null },
-  { id: "4", title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas", dueDate: "2026-12-05", priority: "normal", position: 0, site: null },
+  { id: "1", number: 1, title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas", dueDate: "2026-11-14", priority: "normal", position: 0, site: "Yard" },
+  { id: "2", number: 2, title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta", dueDate: "2026-11-28", priority: "normal", position: 0, site: null },
+  { id: "3", number: 3, title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin", dueDate: "2026-11-07", priority: "normal", position: 1, site: null },
+  { id: "4", number: 4, title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas", dueDate: "2026-12-05", priority: "normal", position: 0, site: null },
 ];
 
 describe("buildColumns", () => {
@@ -58,7 +58,9 @@ describe("distinct", () => {
 
 describe("card marks", () => {
   it("builds a short ID and initials", () => {
-    expect(taskKey("3f9a12c0-1111-2222-3333-444455556666")).toBe("T-3F9A");
+    expect(taskKey("P-204", 21)).toBe("P-204-21");
+    expect(projectPrefix("Pump skid P-204")).toBe("P-204");
+    expect(projectPrefix("Line 4 retrofit, Ghent plant")).toBe("L4R");
     expect(initials("Jan de Wit")).toBe("JD");
     expect(initials("  marta ")).toBe("M");
   });

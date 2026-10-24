@@ -6,12 +6,12 @@ import type { StoredSuggestion } from "@/domain/triage";
 export const demoProject = { id: "demo", name: "Line 4 retrofit, Ghent plant", timeZone: "Europe/Brussels" };
 
 export const demoTasks: BoardTask[] = [
-  { id: "t1", title: "Lifting permit", status: "done", phase: "Site works", ownerName: "Jonas Peeters", dueDate: "2026-10-27", priority: "low", position: 0, site: "Rotterdam yard" },
-  { id: "t2", title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas Peeters", dueDate: "2026-11-14", priority: "high", position: 0, site: "Rotterdam yard" },
-  { id: "t3", title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin Kaya", dueDate: "2026-11-07", priority: "normal", position: 1, site: null },
-  { id: "t4", title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta Silva", dueDate: "2026-11-28", priority: "high", position: 0, site: null, waitingOn: "Re: Gearbox shipping date" },
-  { id: "t5", title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas Peeters", dueDate: "2026-12-05", priority: "normal", position: 0, site: "Antwerp works" },
-  { id: "t6", title: "Electrical tests", status: "todo", phase: "Commissioning", ownerName: "Aylin Kaya", dueDate: "2026-12-08", priority: "low", position: 1, site: null },
+  { id: "t1", number: 1, title: "Lifting permit", status: "done", phase: "Site works", ownerName: "Jonas Peeters", dueDate: "2026-10-27", priority: "low", position: 0, site: "Rotterdam yard" },
+  { id: "t2", number: 2, title: "Lifting works", status: "in_progress", phase: "Site works", ownerName: "Jonas Peeters", dueDate: "2026-11-14", priority: "high", position: 0, site: "Rotterdam yard" },
+  { id: "t3", number: 3, title: "Cabinet drawings", status: "in_progress", phase: "Engineering", ownerName: "Aylin Kaya", dueDate: "2026-11-07", priority: "normal", position: 1, site: null },
+  { id: "t4", number: 4, title: "Gearbox delivery", status: "blocked", phase: "Procurement", ownerName: "Marta Silva", dueDate: "2026-11-28", priority: "high", position: 0, site: null, waitingOn: "Re: Gearbox shipping date" },
+  { id: "t5", number: 5, title: "Install gearbox", status: "todo", phase: "Site works", ownerName: "Jonas Peeters", dueDate: "2026-12-05", priority: "normal", position: 0, site: "Antwerp works" },
+  { id: "t6", number: 6, title: "Electrical tests", status: "todo", phase: "Commissioning", ownerName: "Aylin Kaya", dueDate: "2026-12-08", priority: "low", position: 1, site: null },
 ];
 
 // Demo emails, dated relative to now so the timeline always shows today and recent days.

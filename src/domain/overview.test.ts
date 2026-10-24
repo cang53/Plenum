@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { BoardTask } from "./board";
 import { byPhase, dueThisWeek, summarize } from "./overview";
 
-const task = (id: string, status: BoardTask["status"], dueDate: string | null): BoardTask => ({ id, title: id, status, phase: null, ownerName: "A", dueDate, priority: "normal", position: 0, site: null });
+const task = (id: string, status: BoardTask["status"], dueDate: string | null): BoardTask => ({ id, title: id, status, phase: null, ownerName: "A", dueDate, priority: "normal", position: 0, number: 1, site: null });
 
 describe("summarize", () => {
   it("counts statuses and the done percentage", () => {

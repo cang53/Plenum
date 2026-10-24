@@ -2,6 +2,7 @@ import { supabaseServer } from "@/auth/supabase";
 import { listBoardTasks } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { getLocale, getT } from "@/lib/locale";
+import { projectPrefix } from "@/domain/board";
 import { Board } from "@/app/demo/board/Board";
 import { WorkSwitch } from "@/app/WorkSwitch";
 import { TaskSheet } from "../tasks/[id]/TaskSheet";
@@ -21,7 +22,7 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
         <h1>{t("board.title")}</h1>
         <WorkSwitch current="board" projectId={project.id} t={t} />
       </div>
-      <Board key={project.id} initialTasks={tasks} onMove={saveTaskStatus} onAdd={createBoardTask.bind(null, project.id)} locale={locale} openBase={`/app/board?project=${project.id}&task=`} />
+      <Board key={project.id} initialTasks={tasks} onMove={saveTaskStatus} onAdd={createBoardTask.bind(null, project.id)} locale={locale} prefix={projectPrefix(project.name)} openBase={`/app/board?project=${project.id}&task=`} />
       {task && <TaskSheet id={task} closeHref={`/app/board?project=${project.id}`} />}
     </main>
   );

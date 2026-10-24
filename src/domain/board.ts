@@ -13,6 +13,8 @@ export type BoardTask = {
   dueDate: string | null;
   priority: "low" | "normal" | "high";
   position: number;
+  // Per-project task number, from 1 and never reused; the number part of the card ID.
+  number: number;
   site: string | null;
   // Subject of the message a blocked task was made from, if any.
   waitingOn?: string | null;
@@ -49,9 +51,15 @@ export function distinct(values: (string | null)[]): string[] {
   return [...new Set(values.filter((v): v is string => Boolean(v)))].sort();
 }
 
-// Short card ID from the task id; the database has no project counter yet.
-export function taskKey(id: string): string {
-  return `T-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
+// Card ID prefix from the project name: a code like "P-204" if the name has one, else up to three initials.
+export function projectPrefix(name: string): string {
+  const code = name.match(/\b[A-Z]{1,4}-\d+\b/)?.[0];
+  return code ?? (name.split(/\s+/).filter(Boolean).slice(0, 3).map((w) => w[0]!.toUpperCase()).join("") || "T");
+}
+
+// Card ID such as "P-204-21": project prefix and task number.
+export function taskKey(prefix: string, number: number): string {
+  return `${prefix}-${number}`;
 }
 
 // Initials for the owner mark; never a photo or a figure per person.
