@@ -643,6 +643,8 @@ export const en = {
   "ui.dialog.cancel": "Keep it",
   "ui.dialog.confirm": "Delete task",
   "overview.title": "Overview",
+  "overview.handover": "Handover {date}",
+  "overview.daysLeft": "{n} days left",
   "overview.intro": "Where each project stands today. Numbers are for the whole project, never for individuals.",
   "overview.attention": "Needs attention",
   "overview.attentionNone": "Nothing is blocked or overdue.",

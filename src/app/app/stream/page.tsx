@@ -54,7 +54,7 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
           {pins.map((p) => (
             <article key={p.messageId} className="pin">
               <p className="subject">{p.message.subject || t("timeline.noSubject")}</p>
-              {decisions && <p className="text">{p.message.bodyText}</p>}
+              <p className={decisions ? "text" : "text clamp"}>{p.message.bodyText}</p>
               <p className="sm">
                 {p.message.fromName || p.message.fromAddress} · {t("stream.pinnedBy").replace("{name}", p.pinnedBy).replace("{date}", date.format(new Date(p.pinnedAt)))}
                 {canPin && (

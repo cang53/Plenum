@@ -48,6 +48,9 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const slip = baseline ? Math.max(0, ...slipDays(plan.tasks, baseline).values()) : null;
   const blocked = pulse.counts.blocked;
   const milestones = (await listMilestones(supabase, current.id)).sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"));
+  const long = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" });
+  // The last milestone date stands in for handover.
+  const handover = milestones.map((m) => m.dueDate).filter((d): d is string => !!d).at(-1);
   const suggestions = (await listPendingSuggestions(supabase, current.id)).length;
   const accuracy = await suggestionAccuracy(supabase, current.id);
   const [{ tasks: streakTasks, sites }, { data: switches }] = await Promise.all([
@@ -75,10 +78,10 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
       <header className="ov-head">
         <div>
           <h1>{t("overview.title")}</h1>
-          <p className="sub">{current.name} · {t("overview.intro")}</p>
+          <p className="sub">{[current.name, long.format(new Date()), ...(handover ? [t("overview.handover").replace("{date}", fmt(handover)), t("overview.daysLeft").replace("{n}", String(Math.max(0, Math.round((Date.parse(handover) - Date.parse(today)) / 864e5))))] : [])].join(" · ")}</p>
         </div>
         <span className={`st ${update ? HEALTH_CLASS[update.health] : "st-todo"}`}>{update ? t(`overview.health.${update.health}`) : t("overview.health.none")}</span>
-        {suggestions > 0 && <a className="btn btn-primary" href={`/app/timeline?project=${current.id}`}>{t("overview.review").replace("{n}", String(suggestions))}</a>}
+        {suggestions > 0 && <a className="btn btn-primary" href={`/app/notifications?project=${current.id}`}>{t("overview.review").replace("{n}", String(suggestions))}</a>}
       </header>
       {update && (
         <p className="ov-update">

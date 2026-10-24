@@ -645,6 +645,8 @@ export const nl: Record<keyof typeof en, string> = {
   "ui.dialog.cancel": "Behouden",
   "ui.dialog.confirm": "Taak verwijderen",
   "overview.title": "Overzicht",
+  "overview.handover": "Oplevering {date}",
+  "overview.daysLeft": "nog {n} dagen",
   "overview.intro": "Waar elk project vandaag staat. De cijfers gelden voor het hele project, nooit voor individuen.",
   "overview.attention": "Aandacht nodig",
   "overview.attentionNone": "Niets is geblokkeerd of te laat.",
