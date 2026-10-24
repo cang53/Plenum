@@ -1,16 +1,17 @@
 import { supabaseServer } from "@/auth/supabase";
 import { getMessageForSiteLog, listSiteLogs } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
-import { getT } from "@/lib/locale";
-import { messages, type MessageKey } from "@/lib/messages";
+import { getLocale, getT } from "@/lib/locale";
+import { intlLocale, messages, type MessageKey } from "@/lib/messages";
 import { pickDay, prefillSiteLog, stepDay } from "@/domain/siteLog";
-import { submitSiteLog } from "./actions";
+import { signOffSiteLog, submitSiteLog } from "./actions";
 import { SiteLogForm } from "./SiteLogForm";
 
 type Search = { project?: string; site?: string; date?: string; saved?: string; error?: string; message?: string; add?: string };
 
 export default async function SiteLogPage({ searchParams }: { searchParams: Promise<Search> }) {
   const t = await getT();
+  const locale = intlLocale[await getLocale()];
   const sp = await searchParams;
   const supabase = await supabaseServer();
   const project = currentProject(await listProjects(supabase), sp.project);
@@ -21,6 +22,7 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
   const canWrite = role === "member" || role === "project_manager";
   const day = pickDay(logs, sp.site, sp.date, new Date().toISOString().slice(0, 10));
   const log = day.log;
+  const locked = !!log?.submitted_at;
   const href = (o: { site?: string; date?: string }) => `/app/sitelog?${new URLSearchParams({ project: project.id, site: o.site ?? day.site, date: o.date ?? day.date })}`;
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
@@ -53,10 +55,25 @@ export default async function SiteLogPage({ searchParams }: { searchParams: Prom
           </div>
         </section>
       ) : <p className="sl-sec">{t("sitelog.dayEmpty")}</p>}
+      {log && (
+        <div className="sl-sec">
+          <h3>{t("sitelog.signOff")}</h3>
+          {locked ? <p>{t("sitelog.signedBy").replace("{name}", log.signer || "?").replace("{when}", new Date(log.submitted_at!).toLocaleString(locale))}</p> : canWrite ? (
+            <form action={signOffSiteLog} className="sl-sign">
+              <input type="hidden" name="projectId" value={project.id} />
+              <input type="hidden" name="logId" value={log.id} />
+              <input type="hidden" name="site" value={log.site} />
+              <input type="hidden" name="date" value={log.log_date} />
+              <button type="submit" className="btn btn-primary">{t("sitelog.submitDay")}</button>
+              <span className="sub">{t("sitelog.submitHint")}</span>
+            </form>
+          ) : null}
+        </div>
+      )}
       {day.days.length > 1 && (
         <p className="sl-sites">{t("sitelog.otherDays")}: {day.days.filter((d) => d !== day.date).slice(0, 14).map((d) => <a key={d} href={href({ date: d })}>{d}</a>)}</p>
       )}
-      {canWrite ? (
+      {canWrite && locked ? <p>{t("sitelog.locked")}</p> : canWrite ? (
         <>
         <a className="btn btn-primary sl-add" href={`${href({})}&add=1#sl-form`}>{t("sitelog.add")}</a>
         <SiteLogForm action={submitSiteLog} projectId={project.id} open={!log || !!pre || !!sp.add} labels={{ summary: t("sitelog.edit"), offline: t("sitelog.offline"), waiting: t("sitelog.waiting"), sent: t("sitelog.sent"), invalid: t("sitelog.invalid") }}>

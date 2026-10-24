@@ -307,13 +307,19 @@ export async function bulkUpdateTasks(client: SupabaseClient, ids: string[], pat
   if (data?.length !== ids.length) throw new Error("some tasks were not found or not allowed");
 }
 
-export type SiteLog = { id: string; site: string; log_date: string; weather: string; headcount: number; work_done: string; delays: string; source_message_id: string | null };
+export type SiteLog = { id: string; site: string; log_date: string; weather: string; headcount: number; work_done: string; delays: string; source_message_id: string | null; submitted_at: string | null; signer: string };
 
 export async function listSiteLogs(client: SupabaseClient, projectId: string): Promise<SiteLog[]> {
-  const { data, error } = await client.from("site_logs").select("id, site, log_date, weather, headcount, work_done, delays, source_message_id")
+  const { data, error } = await client.from("site_logs").select("id, site, log_date, weather, headcount, work_done, delays, source_message_id, submitted_at, profiles:submitted_by(display_name)")
     .eq("project_id", projectId).order("log_date", { ascending: false }).order("site").limit(PAGE_SIZE);
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map(({ profiles, ...l }) => ({ ...l, signer: (profiles as unknown as { display_name: string } | null)?.display_name ?? "" }));
+}
+
+// A submitted day is locked: the database refuses further saves.
+export async function submitSiteLog(client: SupabaseClient, logId: string): Promise<void> {
+  const { error } = await client.rpc("submit_site_log", { p_log: logId });
+  if (error) throw error;
 }
 
 // One log per site and day: saving again replaces it. The database checks the role and logs the save.
