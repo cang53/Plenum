@@ -398,6 +398,7 @@ export const en = {
   "filter.apply": "Apply filters",
   "filter.clear": "Clear filters",
   "inbox.title": "Inbox",
+  "inbox.keys": "J and K move, A applies, D dismisses, H snoozes",
   "inbox.tab.needs": "Needs your click",
   "inbox.tab.mentions": "Mentions",
   "inbox.tab.history": "History",

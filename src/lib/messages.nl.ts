@@ -400,6 +400,7 @@ export const nl: Record<keyof typeof en, string> = {
   "filter.apply": "Filters toepassen",
   "filter.clear": "Filters wissen",
   "inbox.title": "Postvak",
+  "inbox.keys": "J en K bewegen, A past toe, D wijst af, H stelt uit",
   "inbox.tab.needs": "Wacht op jouw klik",
   "inbox.tab.mentions": "Vermeldingen",
   "inbox.tab.history": "Geschiedenis",
