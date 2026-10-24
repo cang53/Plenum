@@ -113,11 +113,11 @@ export async function listPins(client: SupabaseClient, projectId: string): Promi
 export async function listPendingSuggestions(client: SupabaseClient, projectId: string): Promise<StoredSuggestion[]> {
   const { data, error } = await client
     .from("suggestions")
-    .select("id, message_id, kind, title, details, status")
+    .select("id, message_id, kind, title, details, reason, status")
     .eq("project_id", projectId)
     .eq("status", "pending");
   if (error) throw error;
-  return (data ?? []).map((r) => ({ id: r.id, messageId: r.message_id, kind: r.kind, title: r.title, details: r.details, status: r.status }));
+  return (data ?? []).map((r) => ({ id: r.id, messageId: r.message_id, kind: r.kind, title: r.title, details: r.details, reason: r.reason, status: r.status }));
 }
 
 // Accepted and dismissed counts for one project; never split by person.

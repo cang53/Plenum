@@ -75,6 +75,7 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
                 <dt>{t("stream.before")}</dt><dd>{open.subject || t("timeline.noSubject")}<span className="sm">{open.from} · {open.receivedAt && when(open.receivedAt)}</span><span className="body">{open.body}</span></dd>
                 <dt>{t("stream.after")}</dt><dd>{t(`stream.linked.${open.kind}`)}: {open.title}{open.details && <span className="sm">{open.details}</span>}</dd>
               </dl>
+              {open.reason && <><h3 className="k">{t("inbox.why")}</h3><p>{open.reason}</p></>}
               <p className="sm">{t("stream.basedOn")}: <a href={`/app/stream?project=${project.id}#msg-${open.messageId}`}>{open.subject || t("timeline.noSubject")}</a></p>
               {open.status !== "pending" ? (
                 <p className="sm">{t(`inbox.did.${open.status}`).replace("{name}", open.resolvedBy || "?").replace("{date}", open.resolvedAt ? when(open.resolvedAt) : "")}</p>

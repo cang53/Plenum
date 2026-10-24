@@ -15,7 +15,7 @@ describe("triageMessage", () => {
   it("saves the suggestion for the message's project", async () => {
     const fake = io();
     expect(await triageMessage("m1", fake, ruleBasedAsk)).toBe(true);
-    expect(fake.save).toHaveBeenCalledWith({ project_id: "p1", message_id: "m1", kind: "task", title: "Crane inspection", details: "Please book the inspection." });
+    expect(fake.save).toHaveBeenCalledWith({ project_id: "p1", message_id: "m1", kind: "task", title: "Crane inspection", details: "Please book the inspection.", reason: 'The message says "please".' });
   });
 
   it("lets triage read attachment text without storing it on the message", async () => {

@@ -46,6 +46,6 @@ export function demoMessages(now: Date): TimelineMessage[] {
 
 // Example AI suggestions for the demo emails (stored ones would come from public.suggestions).
 export const demoSuggestions: StoredSuggestion[] = [
-  { id: "s1", messageId: "m1", status: "pending", kind: "change_request", title: "Resequence install after gearbox delay", details: "Delivery moves from 14 Nov to 28 Nov, so the install needs a new slot." },
-  { id: "s2", messageId: "m3", status: "pending", kind: "task", title: "Send updated cabinet drawings to Aylin", details: "Needed before Thursday to finish the wiring plans." },
+  { id: "s1", messageId: "m1", status: "pending", kind: "change_request", title: "Resequence install after gearbox delay", details: "Delivery moves from 14 Nov to 28 Nov, so the install needs a new slot.", reason: "The supplier's email moves the gearbox delivery by two weeks." },
+  { id: "s2", messageId: "m3", status: "pending", kind: "task", title: "Send updated cabinet drawings to Aylin", details: "Needed before Thursday to finish the wiring plans.", reason: "Aylin asks for the drawings before Thursday." },
 ];

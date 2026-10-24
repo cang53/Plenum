@@ -3,24 +3,25 @@ import { buildUserPrompt, parseSuggestion, toDraft } from "./triage";
 
 describe("parseSuggestion", () => {
   it("reads a valid answer, also when wrapped in text or a code fence", () => {
-    const answer = 'Here you go:\n```json\n{"kind":"risk","title":" Gearbox late ","details":"Slips to 28 Nov."}\n```';
-    expect(parseSuggestion(answer)).toEqual({ kind: "risk", title: "Gearbox late", details: "Slips to 28 Nov." });
+    const answer = 'Here you go:\n```json\n{"kind":"risk","title":" Gearbox late ","details":"Slips to 28 Nov.","reason":" The email says 28 Nov. "}\n```';
+    expect(parseSuggestion(answer)).toEqual({ kind: "risk", title: "Gearbox late", details: "Slips to 28 Nov.", reason: "The email says 28 Nov." });
   });
 
   it("returns nothing when the model sees nothing to track", () => {
     expect(parseSuggestion('{"kind":"none"}')).toBeNull();
   });
 
-  it.each(["", "no json here", "{broken", '{"kind":"epic","title":"x"}', '{"kind":"task"}', '{"kind":"task","title":"  "}', "[1]"])(
+  it.each(["", "no json here", "{broken", '{"kind":"epic","title":"x"}', '{"kind":"task"}', '{"kind":"task","title":"  "}', '{"kind":"task","title":"x"}', '{"kind":"task","title":"x","reason":" "}', "[1]"])(
     "treats %j as no suggestion",
     (answer) => expect(parseSuggestion(answer)).toBeNull(),
   );
 
   it("keeps details optional and caps long text", () => {
-    const parsed = parseSuggestion(JSON.stringify({ kind: "task", title: "t".repeat(300), details: "d".repeat(900) }));
+    const parsed = parseSuggestion(JSON.stringify({ kind: "task", title: "t".repeat(300), details: "d".repeat(900), reason: "r".repeat(900) }));
     expect(parsed?.title).toHaveLength(120);
     expect(parsed?.details).toHaveLength(500);
-    expect(parseSuggestion('{"kind":"task","title":"x"}')?.details).toBe("");
+    expect(parsed?.reason).toHaveLength(300);
+    expect(parseSuggestion('{"kind":"task","title":"x","reason":"r"}')?.details).toBe("");
   });
 });
 
@@ -37,6 +38,6 @@ describe("buildUserPrompt", () => {
 
 describe("toDraft", () => {
   it("turns a suggestion into an editable draft", () => {
-    expect(toDraft({ kind: "decision", title: "T", details: "D" })).toEqual({ kind: "decision", title: "T", details: "D" });
+    expect(toDraft({ kind: "decision", title: "T", details: "D", reason: "R" })).toEqual({ kind: "decision", title: "T", details: "D" });
   });
 });

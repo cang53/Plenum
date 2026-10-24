@@ -8,7 +8,7 @@ import { suggestFor } from "./triage";
 describe("ruleBasedAsk", () => {
   it("turns a delay mail into a risk with the subject as title", async () => {
     const message = toMessage({ expected: "risk", subject: "Gearbox", body: "Delivery slips to 28 Nov. Sorry." }, 0);
-    expect(await suggestFor(message, ruleBasedAsk)).toEqual({ kind: "risk", title: "Gearbox", details: "Delivery slips to 28 Nov." });
+    expect(await suggestFor(message, ruleBasedAsk)).toEqual({ kind: "risk", title: "Gearbox", details: "Delivery slips to 28 Nov.", reason: 'The message says "slips".' });
   });
 
   it("suggests nothing for small talk", async () => {
