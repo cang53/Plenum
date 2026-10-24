@@ -4,7 +4,7 @@ import type { ManualItem } from "@/data/live";
 import { t } from "@/lib/messages";
 import { ItemsTable } from "./ItemsTable";
 
-const item = { id: "1", kind: "task", title: "Pour slab", status: "doing", dueDate: "2026-11-01" } as ManualItem;
+const item = { id: "1", kind: "task", title: "Pour slab", status: "in_progress", dueDate: "2026-11-01" } as ManualItem;
 const T = (k: Parameters<typeof t>[0]) => t(k, "en");
 
 describe("ItemsTable", () => {

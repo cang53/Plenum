@@ -1,7 +1,9 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { demoMessages, demoProject, demoSuggestions } from "@/data/demo";
 import { Timeline } from "./Timeline";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {}, refresh: () => {} }) }));
 
 describe("Timeline", () => {
   const now = new Date();

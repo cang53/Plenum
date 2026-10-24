@@ -23,7 +23,7 @@ export function Shortcuts({ labels }: { labels: Labels }) {
       if (!action) return;
       e.preventDefault();
       const project = new URLSearchParams(window.location.search).get("project");
-      if (action === "search") document.querySelector<HTMLInputElement>('.shell-search input[type="search"]')?.focus();
+      if (action === "search") document.querySelector<HTMLElement>("[data-command-open]")?.click();
       else if (action === "new") router.push(project ? `/app/items?project=${encodeURIComponent(project)}` : "/app/items");
       else if (action === "next") move(1);
       else if (action === "prev") move(-1);
@@ -33,7 +33,7 @@ export function Shortcuts({ labels }: { labels: Labels }) {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [router]);
-  const rows: [string, string][] = [["/", labels.search], ["n", labels.new], ["j", labels.next], ["k", labels.prev], ["?", labels.help]];
+  const rows: [string, string][] = [["/", labels.search], ["c", labels.new], ["j", labels.next], ["k", labels.prev], ["?", labels.help]];
   return (
     <dialog ref={sheet} className="dialog" aria-label={labels.title}>
       <h2>{labels.title}</h2>

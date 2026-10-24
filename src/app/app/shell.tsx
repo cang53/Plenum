@@ -13,7 +13,8 @@ type Props = {
   fallbackItems: Item[];
   email: string;
   unread: number;
-  labels: Record<"brand" | "main" | "projects" | "search" | "searchPlaceholder" | "account" | "signOut" | "mobile" | "bell" | "newTask", string> & { menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
+  streamNew: Record<string, number>;
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "newTask" | "mywork" | "streamNew", string> & { views: Record<"title" | "at_risk" | "blocked" | "week", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -21,18 +22,28 @@ type Props = {
 
 const GROUPS: Group[] = ["project", "site", "admin"];
 
-export function Shell({ projects, itemsByProject, fallbackItems, email, unread, unreadLabel, labels, children }: Props) {
+export function Shell({ projects, itemsByProject, fallbackItems, email, unread, streamNew, unreadLabel, labels, children }: Props) {
   const pathname = usePathname();
   const chosen = useSearchParams().get("project");
   const project = projects.find((p) => p.id === chosen) ?? projects[0];
   const items = (project && itemsByProject[project.id]) || fallbackItems;
   const href = (path: string) => (project ? `${path}?project=${project.id}` : path);
   const current = (path: string) => (path === "/app" ? pathname === path : pathname.startsWith(path));
-  const link = (i: Item) => (
-    <a key={i.path} href={href(i.path)} className="shell-link" aria-current={current(i.path) ? "page" : undefined}>
-      {i.label}
-    </a>
+  const fresh = project ? (streamNew[project.id] ?? 0) : 0;
+  const link = (i: Item) => {
+    const badge = i.path === "/app/stream" && fresh > 0;
+    return (
+      <a key={i.path} href={href(i.path)} className={`shell-link${badge ? " shell-unread" : ""}`} aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : undefined}>
+        <span aria-hidden={badge || undefined}>{i.label}</span>
+        {badge && <span className="shell-badge" aria-hidden="true">{fresh > 99 ? "99+" : fresh}</span>}
+      </a>
+    );
+  };
+  const quick = (q: string) => `/app/items?${project ? `project=${project.id}&` : ""}quick=${q}`;
+  const quickLink = (q: string, label: string) => (
+    <a key={q} href={quick(q)} className="shell-link" aria-current={pathname === "/app/items" && quickNow === q ? "page" : undefined}>{label}</a>
   );
+  const quickNow = useSearchParams().get("quick");
   const inbox = (
     <Bell href={href("/app/notifications")} initial={unread} label={labels.bell} current={pathname.startsWith("/app/notifications")} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
   );
@@ -52,6 +63,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
         )}
         {projects.length === 1 && <p className="shell-project">{project?.name}</p>}
         {inbox}
+        {quickLink("mine", labels.mywork)}
         <nav aria-label={labels.main}>
           {GROUPS.map((g) => {
             const group = items.filter((i) => i.group === g);
@@ -62,17 +74,18 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
               </div>
             );
           })}
+          {items.some((i) => i.group === "project") && (
+            <div role="group" aria-labelledby="shell-group-views">
+              <h2 id="shell-group-views" className="shell-group">{labels.views.title}</h2>
+              {(["at_risk", "blocked", "week"] as const).map((q) => quickLink(q, labels.views[q]))}
+            </div>
+          )}
         </nav>
       </aside>
       <div className="shell-body">
         <header className="shell-top">
-          <form action="/app/search" role="search" className="shell-search">
-            {project && <input type="hidden" name="project" value={project.id} />}
-            <input type="search" name="q" className="field" placeholder={labels.searchPlaceholder} aria-label={labels.search} />
-            <kbd className="kbd" aria-hidden="true">/</kbd>
-          </form>
           <CommandMenu project={project?.id} labels={labels.menu} />
-          <a className="btn btn-primary" href={href("/app/items")}>{labels.newTask} <kbd className="kbd" aria-hidden="true">N</kbd></a>
+          <a className="btn btn-primary" href={href("/app/items")}>{labels.newTask} <kbd className="kbd" aria-hidden="true">C</kbd></a>
           <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
             <span>{email}</span>
             <button type="submit" className="btn btn-plain">{labels.signOut}</button>

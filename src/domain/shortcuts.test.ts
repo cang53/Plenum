@@ -5,11 +5,11 @@ const key = (k: string, extra = {}) => shortcutFor({ key: k, ctrlKey: false, met
 
 describe("shortcutFor", () => {
   it("maps the keys", () => {
-    expect(["/", "n", "j", "k", "?"].map((k) => key(k))).toEqual(["search", "new", "next", "prev", "help"]);
+    expect(["/", "c", "j", "k", "?"].map((k) => key(k))).toEqual(["search", "new", "next", "prev", "help"]);
   });
   it("stays out of the way while typing or with a modifier", () => {
-    expect(key("n", { typing: true })).toBeNull();
-    expect(key("n", { metaKey: true })).toBeNull();
+    expect(key("c", { typing: true })).toBeNull();
+    expect(key("c", { metaKey: true })).toBeNull();
     expect(key("x")).toBeNull();
   });
 });

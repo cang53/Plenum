@@ -9,7 +9,7 @@ describe("Bell", () => {
     const html = renderToStaticMarkup(<Bell {...props} initial={3} />);
     expect(html).toContain('href="/app/notifications?project=p1"');
     expect(html).toContain("Inbox: 3 unread");
-    expect(html).not.toMatch(/hidden/);
+    expect(html).not.toMatch(/role="status"[^>]*\shidden/);
   });
   it("is just the link, with the badge hidden, when nothing is unread", () => {
     const html = renderToStaticMarkup(<Bell {...props} initial={0} />);

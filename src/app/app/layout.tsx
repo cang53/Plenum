@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { supabaseServer } from "@/auth/supabase";
 import { listProjects, unreadCount } from "@/data/projects";
 import { getT } from "@/lib/locale";
@@ -20,8 +21,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { data: admin } = ws ? await supabase.rpc("is_workspace_admin", { ws: ws.workspace_id }) : { data: false };
   const items = (role?: string) => navItems(role, Boolean(admin)).map((i) => ({ path: i.path, label: t(i.label), group: i.group }));
   const itemsByProject = Object.fromEntries(projects.map((p) => [p.id, items(roles[p.id])]));
+  // New stream messages since the stream was last opened on this device; a first visit shows none, like the New line.
+  const jar = await cookies();
+  const streamNew = Object.fromEntries(await Promise.all(projects.map(async (p) => {
+    const since = jar.get(`stream-read-${p.id}`)?.value;
+    if (!since || Number.isNaN(Date.parse(since))) return [p.id, 0];
+    const { count } = await supabase.from("messages").select("id", { count: "exact", head: true }).eq("project_id", p.id).gt("received_at", since);
+    return [p.id, count ?? 0];
+  })));
   return (
     <Shell
+      streamNew={streamNew}
       projects={projects.map((p) => ({ id: p.id, name: p.name }))}
       itemsByProject={itemsByProject}
       fallbackItems={items()}
@@ -32,8 +42,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         brand: t("app.name"),
         main: t("shell.main"),
         projects: t("shell.projects"),
-        search: t("app.search"),
-        searchPlaceholder: t("shell.searchPlaceholder"),
+        mywork: t("shell.mywork"),
+        streamNew: t("shell.streamNew"),
         account: t("shell.account"),
         signOut: t("app.signOut"),
         mobile: t("shell.mobile"),
@@ -43,6 +53,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           open: t("menu.open"), title: t("menu.title"), placeholder: t("menu.placeholder"), actions: t("menu.actions"), results: t("menu.results"), empty: t("menu.empty"),
           newTask: t("shell.newTask"), search: t("menu.search"), task: t("search.task"), message: t("search.message"), decision: t("search.decision"),
         },
+        views: { title: t("shell.group.views"), at_risk: t("shell.view.at_risk"), blocked: t("shell.view.blocked"), week: t("shell.view.week") },
         group: { project: t("shell.group.project"), site: t("shell.group.site"), admin: t("shell.group.admin") },
       }}
     >
