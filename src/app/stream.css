@@ -78,3 +78,51 @@
 .agent-acts .btn { border-radius: var(--radius-full); }
 .stream .comp { display: flex; flex-direction: column; gap: 12px; margin-block-start: var(--s4); padding: 14px; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--surface-subtle); color: var(--text-muted); }
 .stream .comp em { align-self: flex-start; font-style: normal; font-size: var(--text-xs); color: var(--text-muted); }
+
+/* Rebuilt after the design artifact (Stream): one bar with tabs and source filter, pinned banner,
+   time-column rows with sender and source inline, tinted agent card, hover toolbar. */
+.stream .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.stream-bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s3) var(--s5); padding-block-end: var(--s3); border-bottom: 1px solid var(--glass-border); margin-block-end: var(--s3); }
+.stream-bar h1 { margin: 0; font-size: 1.125rem; font-weight: 600; }
+.stream-bar .tabs { display: flex; gap: var(--s4); margin: 0; border: 0; }
+.stream-bar .tabs a, .stream-bar .filt a { padding-block: 2px; color: var(--text-muted); text-decoration: none; border-bottom: 2px solid transparent; font-size: var(--text-sm); }
+.stream-bar .tabs a[aria-current="page"] { color: var(--text); font-weight: 600; border-bottom-color: var(--primary); }
+.stream-bar .filt { display: flex; gap: var(--s3); margin-inline-start: auto; }
+.stream-bar .filt a[aria-current="true"] { color: var(--text); font-weight: 600; border-bottom: 1px solid var(--text); }
+.stream-bar a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.stream .n { font-variant-numeric: tabular-nums; }
+.stream .pins { padding: 0; border: 0; background: none; }
+.stream .pin { padding: 6px 12px; border-inline-start: 2px solid var(--primary); border-radius: 0 var(--radius) var(--radius) 0; background: var(--glass); font-size: var(--text-sm); color: var(--text-secondary); }
+.stream .pin + .pin { border-top: 0; margin-block-start: var(--s2); }
+.stream .pin b { color: var(--text); }
+.stream .dayrule { display: flex; align-items: center; gap: 10px; margin: var(--s4) 0 var(--s1); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.06em; }
+.stream .dayrule::after { content: ""; flex: 1; border-top: 1px solid var(--glass-border); }
+.stream .newline { color: var(--danger); }
+.stream .newline::before { content: none; }
+.stream .newline::after { border-color: currentColor; }
+.stream .newline span { text-transform: uppercase; letter-spacing: 0.06em; }
+.stream-row { grid-template-columns: 52px minmax(0, 1fr); gap: 12px; padding-block: 7px; }
+.stream-row.cont .t { opacity: 0; }
+.stream-row:hover { background: var(--glass); margin-inline: -8px; padding-inline: 8px; border-radius: 4px; }
+.stream-row .t { padding-top: 1px; }
+.stream-row .meta { justify-content: flex-start; gap: 8px; margin: 0; }
+.stream-row .who { color: var(--text); font-weight: 600; }
+.stream-row .src { padding: 0 6px; border: 1px solid var(--glass-border); border-radius: 3px; background: none; font-size: 0.6875rem; font-weight: 600; line-height: 1.5; }
+.stream-row .tools { inset-block-start: -12px; inset-inline-end: 6px; padding: 0; background: var(--surface); }
+.stream-row .tools .btn { padding: 2px 8px; font-size: 0.6875rem; min-height: 0; border-radius: 0; }
+.agent-card { margin: 6px 0 6px 64px; padding: 10px 12px; gap: 7px; border: 0; border-radius: 4px; background: var(--info-surface); backdrop-filter: none; }
+.agent-tag { font-size: var(--text-sm); }
+.agent-tag::before { content: "\2727\00a0"; }
+.agent-title { font-size: var(--text-sm); font-weight: 500; }
+.agent-details { font-size: var(--text-sm); color: var(--text-secondary); }
+.agent-card .from { font-size: 0.6875rem; color: var(--text-muted); }
+.agent-card .from a { color: var(--primary); font-weight: 500; }
+.agent-acts .btn { border-radius: var(--radius); min-height: 0; padding: 4px 11px; font-size: var(--text-xs); }
+.stream .comp { flex-direction: row; align-items: center; gap: 10px; margin-block-start: var(--s5); padding: 6px 6px 6px 12px; border-radius: var(--radius); background: none; }
+.stream .comp span { flex: 1; min-width: 0; }
+.stream .comp em { align-self: auto; color: var(--primary); font-weight: 600; }
+@media (max-width: 720px) { .agent-card { margin-inline-start: 0; } .stream-bar .filt { margin-inline-start: 0; } }
+.agent-tag { display: block; }
+.stream-row .text, .stream-row details { font-size: var(--text-sm); }
+.stream-row .tx > p + p { margin-block-start: 2px; }
+.agent-acts .btn, .stream .comp .btn { border-radius: var(--radius); }

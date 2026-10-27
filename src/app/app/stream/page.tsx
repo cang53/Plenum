@@ -16,16 +16,17 @@ export const dynamic = "force-dynamic";
 // A body longer than this folds behind its first lines.
 const LONG_BODY = 280;
 
-export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string }> }) {
+export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
   const supabase = await supabaseServer();
-  const { project: chosen, after, view } = await searchParams;
+  const { project: chosen, after, view, source } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const tz = demoProject.timeZone;
   const { rows, next } = await listTimelineMessages(supabase, project.id, after);
-  const days = buildStream(rows, new Date().toISOString(), tz);
+  const only = source === "email" || source === "teams" ? source : undefined;
+  const days = buildStream(only ? rows.filter((m) => m.source === only) : rows, new Date().toISOString(), tz);
   const fresh = newSince(rows, (await cookies()).get(`stream-read-${project.id}`)?.value);
   const linked = await listLinkedItems(supabase, project.id, rows.map((m) => m.id));
   const proposed = suggestionsByMessage(await listPendingSuggestions(supabase, project.id));
@@ -35,27 +36,31 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const { data: canPin } = await supabase.rpc("can_manage_project", { p: project.id });
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
-  const heading = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
   return (
     <main id="main" className="page stream">
-      <header className="stream-head">
-        <h1>{t("stream.title")}</h1>
-        <span className="sub">{project.name} · {heading.format(new Date())}</span>
-      </header>
       <MarkRead projectId={project.id} />
-      <nav className="tabs" aria-label={t("stream.views")}>
-        <a href={`/app/stream?project=${project.id}`} aria-current={decisions ? undefined : "page"}>{t("stream.tab.all")}</a>
-        <a href={`/app/stream?project=${project.id}&view=decisions`} aria-current={decisions ? "page" : undefined}>{t("stream.tab.decisions")} · {pins.length}</a>
-      </nav>
+      <header className="stream-bar">
+        <h1>{t("stream.title")}</h1>
+        <nav className="tabs" aria-label={t("stream.views")}>
+          <a href={`/app/stream?project=${project.id}`} aria-current={decisions ? undefined : "page"}>{t("stream.tab.all")}</a>
+          <a href={`/app/stream?project=${project.id}&view=decisions`} aria-current={decisions ? "page" : undefined}>{t("stream.tab.decisions")} <span className="n">{pins.length}</span></a>
+        </nav>
+        {!decisions && (
+          <nav className="filt" aria-label={t("stream.filter")}>
+            {([undefined, "teams", "email"] as const).map((k) => (
+              <a key={k ?? "all"} href={`/app/stream?project=${project.id}${k ? `&source=${k}` : ""}`} aria-current={only === k ? "true" : undefined}>{t(k ? `stream.source.${k}` : "stream.filter.all")}</a>
+            ))}
+          </nav>
+        )}
+      </header>
       {(decisions || pins.length > 0) && (
         <section className="pins" aria-labelledby="pins-h">
-          <h2 id="pins-h">{t("stream.pinned")}</h2>
+          <h2 id="pins-h" className="sr">{t("stream.pinned")}</h2>
           {pins.length === 0 && <p className="sm">{t("stream.noPins")}</p>}
           {pins.map((p) => (
             <article key={p.messageId} className="pin">
-              <p className="subject">{p.message.subject || t("timeline.noSubject")}</p>
-              <p className={decisions ? "text" : "text clamp"}>{p.message.bodyText}</p>
+              <p className={decisions ? "text" : "text clamp"}><b>{t("stream.pinned")}</b> · {p.message.subject || t("timeline.noSubject")}. {p.message.bodyText}</p>
               <p className="sm">
                 {p.message.fromName || p.message.fromAddress} · {t("stream.pinnedBy").replace("{name}", p.pinnedBy).replace("{date}", date.format(new Date(p.pinnedAt)))}
                 {canPin && (
@@ -81,20 +86,15 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
             g.messages.map((m, i) => (
               <div key={m.id}>
               {fresh?.id === m.id && <p className="newline" role="separator"><span>{t("stream.new")} · {fresh.count}</span></p>}
-              <article className="stream-row" id={`msg-${m.id}`}>
-                <p className="who-line">
-                  {i === 0 && (
-                    <>
-                      <span className="avatar" aria-hidden="true">{(m.fromName || m.fromAddress).charAt(0).toUpperCase()}</span>
-                      <span className="who">{m.fromName || m.fromAddress}</span>
-                    </>
-                  )}
-                </p>
+              <article className={`stream-row${i === 0 ? "" : " cont"}`} id={`msg-${m.id}`}>
+                <time className="t" dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                 <div className="tx">
-                  <p className="meta">
-                    <span className="src"><b aria-hidden="true">{SOURCE_BADGE[m.source]}</b>{t(`stream.source.${m.source}`)}</span>
-                    <time className="t" dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
-                  </p>
+                  {i === 0 && (
+                    <p className="meta">
+                      <span className="who">{m.fromName || m.fromAddress}</span>
+                      <span className="src"><b aria-hidden="true">{SOURCE_BADGE[m.source]}</b>{t(`stream.source.${m.source}`)}</span>
+                    </p>
+                  )}
                   <p className="subject">{m.subject || t("timeline.noSubject")}</p>
                   {m.bodyText.length > LONG_BODY ? (
                     <details><summary>{m.bodyText.slice(0, LONG_BODY)}…</summary>{m.bodyText}</details>
@@ -137,14 +137,10 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
               </article>
               {(proposed.get(m.id) ?? []).map((sg) => (
                 <section key={sg.id} className="agent-card" aria-label={t("stream.agent")}>
-                  <p className="agent-tag"><span>{t("stream.agent")}</span><span className="pill">{t("stream.pending")}</span></p>
+                  <p className="agent-tag">{t("stream.agent")} · {t(`stream.linked.${sg.kind}`)}</p>
                   <p className="agent-title">{sg.title}</p>
-                  <p className="agent-kind"><span className="pill">{t(`stream.linked.${sg.kind}`)}</span></p>
                   {sg.details && <p className="agent-details">{sg.details}</p>}
-                  <blockquote className="agent-source">
-                    <a href={`#msg-${m.id}`}>{t("stream.basedOn")} · {time.format(new Date(m.receivedAt))} · {m.fromName || m.fromAddress}</a>
-                    <q>{m.subject || t("timeline.noSubject")}</q>
-                  </blockquote>
+                  <p className="from">{t("stream.basedOn")} <a href={`#msg-${m.id}`}>{m.fromName || m.fromAddress}, {time.format(new Date(m.receivedAt))}</a></p>
                   <div className="agent-acts">
                     <form action={applySuggestion}>
                       {["id", "kind", "title", "details"].map((k) => <input key={k} type="hidden" name={k} value={k === "id" ? sg.id : String(sg[k as "kind" | "title" | "details"])} />)}
@@ -162,10 +158,9 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
                     </details>
                     <form action={dismissSuggestionForm}>
                       <input type="hidden" name="id" value={sg.id} />
-                      <button type="submit" className="btn btn-plain">{t("stream.dismiss")}</button>
+                      <button type="submit" className="btn btn-secondary">{t("stream.dismiss")}</button>
                     </form>
                   </div>
-                  <p className="sm">{t("stream.decisionNote")}</p>
                 </section>
               ))}
               </div>
@@ -177,6 +172,7 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
       <p className="comp">
         <span>{t("stream.composer")}</span>
         <em>{t("stream.projectOnly")}</em>
+        <button type="button" className="btn btn-primary" disabled>{t("stream.send")}</button>
       </p>
     </main>
   );
