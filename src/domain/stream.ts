@@ -1,4 +1,4 @@
-// Stream logic: project messages newest day first, oldest message first inside a day, consecutive messages from one sender grouped.
+// Stream logic: project messages in reading order (oldest day first, oldest message first inside a day, newest at the bottom), consecutive messages from one sender grouped.
 import type { StoredSuggestion } from "./triage";
 import { dayKey, relativeDay, type TimelineMessage } from "./timeline";
 
@@ -12,7 +12,7 @@ export function buildStream(messages: TimelineMessage[], now: string, timeZone: 
     const key = dayKey(m.receivedAt, timeZone);
     byDay.set(key, [...(byDay.get(key) ?? []), m]);
   }
-  return [...byDay].map(([day, list]) => {
+  return [...byDay].reverse().map(([day, list]) => {
     const groups: StreamGroup[] = [];
     for (const m of list.reverse()) {
       const sender = m.fromAddress.toLowerCase();

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
-import { applySuggestion, createTaskFromMessage, dismissSuggestionForm, linkMessageToTask, togglePin } from "./actions";
+import { StreamKeys } from "./StreamKeys";
+import { applySuggestion, createTaskFromMessage, createTaskFromNote, dismissSuggestionForm, linkMessageToTask, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
@@ -93,6 +94,7 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
                   ))}
                 </section>
               )}
+          {!decisions && <MoreLink path="/app/stream" params={{ project: project.id }} next={next} label={t("stream.earlier")} />}
           {!decisions && days.length === 0 && <p>{t("timeline.empty")}</p>}
           {!decisions && days.map((d) => (
             <section key={d.day} className="msgs-main" aria-labelledby={`day-${d.day}`}>
@@ -114,7 +116,7 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
                       </div>
                       <div className="envelope">
                         <p className="subject">{m.subject || t("timeline.noSubject")}</p>
-                        <p className="line">{t("stream.from")} {m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress}</p>
+                        <p className="line" title={m.fromAddress}>{t("stream.from")} {m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress}</p>
                       </div>
                       {m.bodyText.length > LONG_BODY ? (
                         <details>
@@ -140,14 +142,14 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
                             <input type="hidden" name="projectId" value={project.id} />
                             <input type="hidden" name="messageId" value={m.id} />
                             {pinned.has(m.id) && <input type="hidden" name="pinned" value="1" />}
-                            <button type="submit" disabled={readOnly} className="btn btn-plain">{pinned.has(m.id) ? t("stream.unpin") : t("stream.pin")}</button>
+                            <button type="submit" data-act="pin" disabled={readOnly} className="btn btn-plain">{pinned.has(m.id) ? t("stream.unpin") : t("stream.pin")}</button>
                           </form>
                         )}
                         <form action={createTaskFromMessage}>
                           <input type="hidden" name="projectId" value={project.id} />
                           <input type="hidden" name="messageId" value={m.id} />
                           <input type="hidden" name="title" value={m.subject || t("timeline.noSubject")} />
-                          <button type="submit" disabled={readOnly} className="btn btn-plain">{t("stream.createTask")}</button>
+                          <button type="submit" data-act="task" disabled={readOnly} className="btn btn-plain">{t("stream.createTask")}</button>
                         </form>
                         {open && open.length > 0 && (
                           <details className="link-pop">
@@ -199,14 +201,17 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
               })}
             </section>
           ))}
-          {!decisions && <MoreLink path="/app/stream" params={{ project: project.id }} next={next} label={t("paging.more")} />}
-          <div className="comp">
-            <span>{t("stream.composer")}</span>
-            <p className="comp-foot">
-              <span>🔒 {t("stream.projectOnly")}</span>
-              <button type="button" className="btn btn-primary" disabled>{t("stream.send")}</button>
-            </p>
-          </div>
+          {!decisions && (
+            <form className="comp" action={createTaskFromNote}>
+              <input type="hidden" name="projectId" value={project.id} />
+              <textarea name="title" rows={1} required disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
+              <p className="comp-foot">
+                <span>🔒 {t("stream.projectOnly")} · {t("stream.composerHint")}</span>
+                <button type="submit" className="btn btn-primary" disabled={readOnly}>{t("stream.send")}</button>
+              </p>
+            </form>
+          )}
+          {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} />}
         </div>
         <aside className="msgs-side" aria-label={t("stream.linkedItems")}>
           <section className="side-card">

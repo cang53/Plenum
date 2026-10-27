@@ -53,3 +53,12 @@ export async function dismissSuggestionForm(form: FormData): Promise<void> {
   await dismissSuggestion(await supabaseServer(), String(form.get("id")));
   revalidatePath("/app/stream");
 }
+
+// A task typed straight into the composer has no source message; row-level rules decide who may add it.
+export async function createTaskFromNote(form: FormData): Promise<void> {
+  const title = String(form.get("title") ?? "").trim();
+  if (!title) return;
+  const { error } = await (await supabaseServer()).from("tasks").insert({ project_id: String(form.get("projectId")), title });
+  if (error) throw error;
+  revalidatePath("/app/stream");
+}
