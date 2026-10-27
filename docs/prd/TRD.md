@@ -194,7 +194,7 @@ Rules: new logic ships with tests; access rules ship with SQL tests; domain code
 | R7 | Auth.js is a v5 beta | API changes, security fixes | Pin versions; isolate in `src/auth/`; revisit on stable release |
 | R8 | Raw email and attachments in S3 | Retention and deletion must cover S3 as well as Postgres | Make purge and project deletion remove S3 objects; add a lifecycle rule |
 | R9 | Jobs depend on a GitHub Actions cron | Delayed or skipped runs | Jobs are idempotent and claimed; add an uptime check on `job_runs` age |
-| R10 | Bundle budgets near the limit (Gantt 603 KB of 603 KB class) | Slow pages on site networks | Code-split heavy views before adding features |
+| R10 | Bundle budgets are tight (the Gantt budget was raised to 603 KB, timeline and board to 650 KB) | Slow pages on site networks | Code-split heavy views before adding features |
 | R11 | Offline queue conflicts on reconnect | Lost or duplicate edits | Last-write rules documented; add conflict tests before wide pilot |
 | R12 | Stage 14 restyle touches many components | Visual regressions, a11y drift | Keep restyle PRs markup/CSS only; axe e2e stays required |
 
