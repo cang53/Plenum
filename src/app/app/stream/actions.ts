@@ -44,6 +44,7 @@ export async function dismissSuggestionForm(form: FormData): Promise<void> {
 }
 
 // Writes into the project's stream as the signed-in person; the subject is the conversation. The database function checks access.
+// p_allow_empty is sent only with files, so plain messages still work before migration 151 is applied.
 // Files go to the private bucket under <project>/<message>/ and are recorded on the message by a second database function.
 export async function postMessage(form: FormData): Promise<void> {
   const body = String(form.get("body") ?? "").trim();
@@ -52,7 +53,7 @@ export async function postMessage(form: FormData): Promise<void> {
   if (checkFiles(files)) throw new Error(checkFiles(files)!);
   const supabase = await supabaseServer();
   const projectId = String(form.get("projectId"));
-  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), p_allow_empty: files.length > 0 });
+  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}) });
   if (error) throw error;
   for (const f of files) {
     const path = `${projectId}/${id}/${crypto.randomUUID()}-${safeName(f.name)}`;
