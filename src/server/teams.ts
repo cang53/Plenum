@@ -1,3 +1,5 @@
+import { logError } from "@/lib/log";
+
 // Teams behind one small interface, like email. Fake keeps posts in memory. Live (TEAMS_PROVIDER=live) reads each mapped
 // channel through Microsoft Graph (app permission ChannelMessage.Read.All) and posts through a Teams Workflows webhook,
 // because Graph does not let an app post channel messages as itself.
@@ -121,5 +123,5 @@ export function teamsReaderFromEnv(env: Record<string, string | undefined> = pro
     clientSecret: env.AUTH_MICROSOFT_ENTRA_ID_SECRET, supabaseUrl: env.SUPABASE_URL, serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY,
   };
   if (!Object.values(e).every(Boolean)) return undefined;
-  return () => readTeamsChannels({ ...(e as Omit<TeamsReaderEnv, "channels">), channels: teamsChannels(env.TEAMS_CHANNELS) });
+  return () => readTeamsChannels({ ...(e as Omit<TeamsReaderEnv, "channels">), channels: teamsChannels(env.TEAMS_CHANNELS) }, fetch, (e) => logError("teams read failed", e));
 }
