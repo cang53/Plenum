@@ -6,7 +6,7 @@ declare
   v_id uuid;
   v_body text := btrim(coalesce(p_body, ''));
 begin
-  if not public.can_see_project(p_project) then
+  if not coalesce(public.can_see_project(p_project), false) then
     raise exception 'not allowed' using errcode = '42501';
   end if;
   if v_body = '' then
