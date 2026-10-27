@@ -32,7 +32,9 @@ In entra.microsoft.com (signed in to the test tenant): App registrations, New re
 
 If Graph answers 403 after consent, wait a few minutes; if it persists, Microsoft may require a protected API access request for message reading in your tenant ([reports](https://learn.microsoft.com/en-us/answers/questions/6049168/channelmessage-read-all-application-permission-ret)). I could not confirm this either way.
 
-## 4. Vercel environment variables
+## 4. Link the channel and set Vercel variables
+
+In Plenum, open the project's Settings, paste the channel link (Get link to channel) into **Teams channel** and save. That replaces `TEAMS_TEAM_ID` and `TEAMS_CHANNELS` (both still work as a fallback; the settings link wins). Run `db/apply-teams-channel.sql` first. Settings also shows the project slug and email address.
 
 | Variable | Value |
 |---|---|
