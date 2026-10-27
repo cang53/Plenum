@@ -100,3 +100,42 @@ begin
   if not exists (select 1 from public.status_reports where project_id = '20000000-0000-0000-0000-000000000001'
     and body_text like '%Site Hall 9: 2 days logged, 16 headcount-days, 1 delay days%') then raise exception 'site line missing or wrong'; end if;
 end $$;
+
+-- Submit and lock: a member signs off, the day then refuses saves, and a contributor cannot sign off.
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000d', true);
+do $$
+begin
+  begin
+    perform public.submit_site_log((select id from public.site_logs where site = 'Hall 2'));
+    raise exception 'a contributor submitted a day';
+  exception when raise_exception then
+    if sqlerrm = 'a contributor submitted a day' then raise; end if;
+  end;
+end $$;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+select public.submit_site_log((select id from public.site_logs where site = 'Hall 2'));
+do $$
+begin
+  if not exists (select 1 from public.site_logs where site = 'Hall 2' and submitted_at is not null and submitted_by = '00000000-0000-0000-0000-00000000000c') then raise exception 'sign-off not recorded'; end if;
+  begin
+    perform public.save_site_log('20000000-0000-0000-0000-000000000001', 'Hall 2', '2026-11-03', 'Dry', 1, '', '');
+    raise exception 'a submitted day accepted a save';
+  exception when raise_exception then
+    if sqlerrm = 'a submitted day accepted a save' then raise; end if;
+  end;
+  begin
+    perform public.submit_site_log((select id from public.site_logs where site = 'Hall 2'));
+    raise exception 'a day was submitted twice';
+  exception when raise_exception then
+    if sqlerrm = 'a day was submitted twice' then raise; end if;
+  end;
+end $$;
+commit;
+
+-- The audit log is not readable by members, so check it as the owner.
+do $$
+begin
+  if not exists (select 1 from public.audit_log where action = 'site_log_submitted') then raise exception 'submit not audited'; end if;
+end $$;
