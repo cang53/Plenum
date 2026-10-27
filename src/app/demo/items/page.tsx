@@ -1,7 +1,7 @@
 import type { ManualItem } from "@/data/live";
 import { demoProject, demoSuggestions, demoTasks } from "@/data/demo";
 import { MANUAL_KINDS } from "@/domain/items";
-import { GroupHead, ItemsHead, matchesItem } from "@/app/app/items/ItemsHead";
+import { CreateOption, GroupHead, ItemsHead, matchesItem } from "@/app/app/items/ItemsHead";
 import { ItemsTable } from "@/app/app/items/ItemsTable";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale, type MessageKey } from "@/lib/messages";
@@ -31,7 +31,7 @@ export default async function DemoItemsPage({ searchParams }: { searchParams: Pr
     <main id="main" className="page items-page">
       <p className="notice">{t("gantt.demoNotice")}</p>
       <ItemsHead t={t} action="/demo/items" keep={[]} query={query} owners={names("ownerId")} phases={names("phaseId")} pending={demoSuggestions.length} reviewHref="/demo/messages"
-        create={MANUAL_KINDS.map((k) => <details key={k} name="create-item"><summary>{t(`kind.${k}` as MessageKey)}</summary><p className="notice">{t("gantt.demoNotice")}</p></details>)} />
+        create={MANUAL_KINDS.map((k) => <CreateOption key={k} kind={k} t={t}><p className="notice">{t("gantt.demoNotice")}</p></CreateOption>)} />
       {(!kind || kind === "task") && (
         <>
           <GroupHead title={t("items.group.task")} rows={tasks} label={(s) => t(`status.${s}` as MessageKey)} />

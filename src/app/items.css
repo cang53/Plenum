@@ -163,3 +163,16 @@
 .items-table tr.grp td { height: auto; }
 .items-chip select { max-width: 13rem; }
 @media (max-width: 720px) { .items-head { flex-wrap: wrap; } .items-search input[type="search"] { width: 100%; } }
+
+/* Create menu, from Figma: title and help, then one row per kind with symbol, description and arrow. */
+.items-create-menu { gap: var(--s2); width: 20rem; padding: var(--s4); border-radius: 1.375rem; background: var(--surface-subtle); }
+.items-create-menu h2 { margin: 0; font-size: var(--text-lg); line-height: 1.5625rem; font-weight: var(--weight-semibold); letter-spacing: -0.45px; color: var(--text); }
+.items-create-menu > p { margin: 0 0 var(--s1); font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.create-option > summary { display: flex; align-items: center; gap: var(--s3); min-height: 4.125rem; padding: 10px; border-radius: 0.75rem; list-style: none; }
+.create-option > summary::-webkit-details-marker { display: none; }
+.create-sym { flex: none; width: 1.875rem; font-size: 1.5rem; line-height: 1.8125rem; text-align: center; color: var(--primary); }
+.create-text { flex: 1; display: grid; gap: 3px; min-width: 0; }
+.create-text b { font-size: var(--text-base); line-height: 1.25rem; font-weight: var(--weight-semibold); }
+.create-text span { font-size: var(--text-sm); line-height: 1.125rem; font-weight: 400; color: var(--text-secondary); }
+.create-arrow { flex: none; font-size: var(--text-xs); color: var(--text-secondary); }
+.create-option[open] .create-arrow { transform: rotate(90deg); }

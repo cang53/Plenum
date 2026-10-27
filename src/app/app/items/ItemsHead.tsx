@@ -46,7 +46,11 @@ export function ItemsHead({ t, action, keep, query, owners, phases, pending, rev
         </div>
         <details className="items-create">
           <summary className="btn btn-primary">＋ {t("items.createMenu")} ⌄</summary>
-          <div className="items-create-menu">{create}</div>
+          <div className="items-create-menu">
+            <h2>{t("items.createMenu")}</h2>
+            <p>{t("items.createHelp")}</p>
+            {create}
+          </div>
         </details>
       </div>
       <form className="items-search" method="get" action={action} role="search">
@@ -65,6 +69,22 @@ export function ItemsHead({ t, action, keep, query, owners, phases, pending, rev
         </div>
       )}
     </>
+  );
+}
+
+const KIND_SYMBOL = { task: "✓", decision: "◇", risk: "△" } as const;
+
+// One row of the Create menu: kind symbol, name, one line of help and a disclosure arrow; its form opens below.
+export function CreateOption({ kind, t, children }: { kind: keyof typeof KIND_SYMBOL; t: T; children?: ReactNode }) {
+  return (
+    <details name="create-item" className="create-option">
+      <summary>
+        <span className="create-sym" aria-hidden="true">{KIND_SYMBOL[kind]}</span>
+        <span className="create-text"><b>{t(`kind.${kind}` as MessageKey)}</b><span>{t(`items.create.${kind}` as MessageKey)}</span></span>
+        <span className="create-arrow" aria-hidden="true">›</span>
+      </summary>
+      {children}
+    </details>
   );
 }
 

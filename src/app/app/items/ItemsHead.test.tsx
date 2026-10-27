@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
+import { CreateOption, GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
 
 const item = { kind: "task", title: "Install gearbox", details: "Crane on site", status: "todo", ownerId: "u1", phaseId: "p1" };
 const all = { q: "", kind: "", status: "", owner: "", phase: "" };
@@ -31,5 +31,14 @@ describe("ItemsHead", () => {
     expect(html).toContain("Tasks · 3");
     expect(html).toContain("2 todo · 1 done");
     expect(renderToStaticMarkup(<GroupHead title="Decisions" rows={[{ status: "" }]} label={(s) => s} />)).not.toContain("1 ");
+  });
+});
+
+describe("CreateOption", () => {
+  it("shows the kind name, its help line and the form inside", () => {
+    const html = renderToStaticMarkup(<CreateOption kind="risk" t={(k) => k}><p>FORM</p></CreateOption>);
+    expect(html).toContain("kind.risk");
+    expect(html).toContain("items.create.risk");
+    expect(html).toContain("<p>FORM</p>");
   });
 });

@@ -15,7 +15,7 @@ import { bulkTasks } from "./actions";
 import { OfflineTasks } from "./OfflineTasks";
 import { ItemsTable } from "./ItemsTable";
 import { Fields } from "./ItemFields";
-import { GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
+import { CreateOption, GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
 
 export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
   const t = await getT();
@@ -54,10 +54,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
     <main id="main" className="page items-page">
       <ItemsHead t={t} action="/app/items" keep={[["project", project.id], ...(quick !== "all" ? [["quick", quick] as [string, string]] : []), ...cols]} query={query} owners={owners} phases={phaseNames} pending={suggestions.length} reviewHref={`/app/notifications?project=${project.id}`}
         create={MANUAL_KINDS.map((k) => (
-          <details key={k} name="create-item">
-            <summary>{t(`kind.${k}` as MessageKey)}</summary>
-            <Fields kind={k} projectId={project.id} plan={plan} t={t} />
-          </details>
+          <CreateOption key={k} kind={k} t={t}><Fields kind={k} projectId={project.id} plan={plan} t={t} /></CreateOption>
         ))} />
       <div className="items-bar">
         <WorkSwitch current="items" projectId={project.id} t={t} />
