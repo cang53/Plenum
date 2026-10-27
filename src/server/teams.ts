@@ -135,7 +135,9 @@ export function teamsReaderFromEnv(env: Record<string, string | undefined> = pro
   };
   if (!Object.values(e).every(Boolean)) return undefined;
   return async () => {
-    const channels = { ...teamsChannels(env.TEAMS_CHANNELS), ...(await linkedChannels(e.supabaseUrl!, e.serviceRoleKey!, fetchFn)) };
-    return readTeamsChannels({ ...(e as Omit<TeamsReaderEnv, "channels" | "teamId">), teamId: env.TEAMS_TEAM_ID, channels }, fetchFn, (err) => logError("teams read failed", err));
+    const onError = (err: unknown) => logError("teams read failed", err);
+    // Before the settings column exists the lookup fails; the env map still works.
+    const linked = await linkedChannels(e.supabaseUrl!, e.serviceRoleKey!, fetchFn).catch((err) => (onError(err), {}));
+    return readTeamsChannels({ ...(e as Omit<TeamsReaderEnv, "channels" | "teamId">), teamId: env.TEAMS_TEAM_ID, channels: { ...teamsChannels(env.TEAMS_CHANNELS), ...linked } }, fetchFn, onError);
   };
 }
