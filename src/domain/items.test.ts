@@ -73,3 +73,13 @@ describe("itemFromForm source message", () => {
     expect(() => itemFromForm(form("x; drop table"))).toThrow("unknown source message");
   });
 });
+
+describe("itemFromForm dates", () => {
+  it("refuses a due date before the start date", () => {
+    const f = new FormData();
+    f.set("kind", "task"); f.set("title", "Pour"); f.set("startDate", "2026-11-05"); f.set("dueDate", "2026-11-01");
+    expect(() => itemFromForm(f)).toThrow("due date is before start date");
+    f.set("dueDate", "2026-11-05");
+    expect(itemFromForm(f).dueDate).toBe("2026-11-05");
+  });
+});

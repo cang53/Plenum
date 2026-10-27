@@ -248,7 +248,7 @@ async function setPredecessors(client: SupabaseClient, taskId: string, ids: stri
   }
 }
 
-export async function createManualItem(client: SupabaseClient, projectId: string, item: ItemInput): Promise<void> {
+export async function createManualItem(client: SupabaseClient, projectId: string, item: ItemInput): Promise<string> {
   // A source must be a message of this project; an item created from a message links to it for good.
   if (item.sourceMessageId) {
     const { data: m, error: e } = await client.from("messages").select("id").eq("id", item.sourceMessageId).eq("project_id", projectId).maybeSingle();
@@ -257,6 +257,15 @@ export async function createManualItem(client: SupabaseClient, projectId: string
   const { data, error } = await client.from(TABLE[item.kind]).insert({ project_id: projectId, ...toColumns(item), ...(item.sourceMessageId ? { source_message_id: item.sourceMessageId } : {}) }).select("id");
   if (error) throw error;
   if (item.kind === "task" && data?.[0]) await setPredecessors(client, data[0].id, item.predecessorIds);
+  return data?.[0]?.id as string;
+}
+
+// What is saved now, for the conflict check.
+export async function currentItemText(client: SupabaseClient, kind: ManualItem["kind"], id: string): Promise<{ title: string; details: string; status: string | null } | null> {
+  const { data, error } = await client.from(TABLE[kind]).select(kind === "decision" ? "title, details" : "title, details, status").eq("id", id).maybeSingle();
+  if (error) throw error;
+  const row = data as unknown as { title: string; details: string | null; status?: string | null } | null;
+  return row ? { title: row.title, details: row.details ?? "", status: row.status ?? null } : null;
 }
 
 export async function updateManualItem(client: SupabaseClient, id: string, item: ItemInput): Promise<void> {

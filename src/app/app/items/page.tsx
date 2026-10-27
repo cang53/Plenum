@@ -16,14 +16,16 @@ import { ItemsTable } from "./ItemsTable";
 import { Fields } from "./ItemFields";
 import { ItemDetail } from "./ItemDetail";
 import { RowOptions } from "./RowOptions";
+import { EmptyState, Notice, SaveToast } from "./Notice";
+import { SAVED_PARAM } from "@/domain/saveState";
 import { activityKey } from "@/domain/taskDetail";
 import { taskKey, projectPrefix } from "@/domain/board";
 import { CreateOption, GroupHead, ItemsHead, listParam, matchesItem, queryPairs } from "./ItemsHead";
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string | string[]; quick?: string; col?: string | string[]; task?: string; detail?: string; create?: string; from?: string; title?: string; details?: string; edit?: string; q?: string; status?: string | string[]; owner?: string; phase?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string | string[]; quick?: string; col?: string | string[]; task?: string; detail?: string; create?: string; from?: string; saved?: string; title?: string; details?: string; edit?: string; q?: string; status?: string | string[]; owner?: string; phase?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after, kind: kindParam, quick: quickParam, col, task, detail, create, from, title: draftTitle, details: draftDetails, edit, q = "", status, owner = "", phase = "" } = await searchParams;
+  const { project: chosen, after, kind: kindParam, quick: quickParam, col, task, detail, create, from, saved, title: draftTitle, details: draftDetails, edit, q = "", status, owner = "", phase = "" } = await searchParams;
   const kinds = listParam(kindParam);
   const query = { q, kind: kinds, status: listParam(status), owner, phase };
   const quick = parseQuick(quickParam);
@@ -46,7 +48,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const source = opened?.sourceMessageId && sourceOf ? { ...sourceOf, href: `/app/stream#msg-${opened.sourceMessageId}`, review: suggestions.filter((x) => x.messageId === opened.sourceMessageId).map((x) => ({ title: x.title, href: `/app/notifications?project=${project.id}` }))[0] } : undefined;
   const origin = create && from && /^[0-9a-f-]{36}$/i.test(from) ? (await listSourceMessages(supabase, [from]))[from] : undefined;
   const dateLocale = intlLocale[await getLocale()];
-  const activity = !editing && opened?.kind === "task" ? (await taskActivity(supabase, opened.id)).map((a) => ({ at: a.at, text: `${a.who ?? t("taskDetail.someone")} ${t(activityKey(a.action))}`, href: a.messageId ? `/app/stream#msg-${a.messageId}` : undefined })) : [];
+  const activity = opened?.kind === "task" ? (await taskActivity(supabase, opened.id)).map((a) => ({ at: a.at, text: `${a.who ?? t("taskDetail.someone")} ${t(activityKey(a.action))}`, href: a.messageId ? `/app/stream#msg-${a.messageId}` : undefined })) : [];
   const canManage = (await supabase.rpc("can_manage_project", { p: project.id })).data === true;
   // Risks have no site, so only the "off everywhere" switch hides the badge.
   const [{ data: switches }, { data: risks }, { data: taskRows }] = await Promise.all([
@@ -68,8 +70,11 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         create={MANUAL_KINDS.map((k) => (
           <CreateOption key={k} kind={k} t={t} href={`${href(quick)}&create=${k}`} />
         ))} />
+      {saved && SAVED_PARAM.test(saved) && <SaveToast title={t("items.saved")} href={`${href(quick)}&detail=${saved.split(":")[1]}`} link={t("items.viewItem")} />}
+      {!canManage && <Notice tone="info" title={t("items.readonlyTitle")} body={t("items.readonlyBody")} />}
       {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} draft={{ title: draftTitle, details: draftDetails }} kindHref={(other) => `${href(quick)}&create=${other}${from ? `&from=${from}` : ""}`} source={origin && from ? { ...origin, id: from, href: `/app/stream#msg-${from}` } : undefined} t={t} />)}
-      {editing && <Fields item={editing} kind={editing.kind} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} source={source} t={t} />}
+      {editing && !canManage && <Notice tone="warn" title={t("items.deniedTitle")} body={t("items.deniedBody")}><a className="btn btn-secondary" href={`${href(quick)}&detail=${editing.id}`}>{t("items.viewItem")}</a><a className="btn btn-primary" href={href(quick)}>{t("items.back")}</a></Notice>}
+      {editing && canManage && <Fields item={editing} reloadHref={`${href(quick)}&edit=${editing.id}`} kind={editing.kind} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} source={source} t={t} />}
       <div className="items-bar">
         <WorkSwitch current="items" projectId={project.id} t={t} />
         <span className="grow" />
@@ -112,8 +117,8 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         </form>
       )}
       {showTasks && <GroupHead title={t("items.group.task")} rows={visibleTasks} label={(s) => t(`status.${s}` as MessageKey)} />}
-      {showTasks && ((quick !== "all" || q || query.status.length || owner || phase) && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} menu={menu} sheetHref={(id) => `${href(quick)}&detail=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item }))} />)}
-      {opened && !editing && <ItemDetail t={t} locale={dateLocale} item={opened} key_={opened.number ? taskKey(projectPrefix(project.name), opened.number) : ""} shareHref={`${href("all")}&detail=${opened.id}`} owner={opened.ownerId ? owners[opened.ownerId] : undefined} phase={opened.phaseId ? phaseNames[opened.phaseId] : undefined} source={source} activity={activity} canManage={canManage} closeHref={href(quick)} editHref={`${href(quick)}&edit=${opened.id}`} hoursHref={`/app/timesheet?project=${project.id}`} mine={!!user && opened.ownerId === user.id} today={today} />}
+      {showTasks && ((quick !== "all" || q || query.status.length || owner || phase) && !visibleTasks.length ? <EmptyState title={t("items.noMatchTitle")} body={t("items.noMatchHelp")}><a className="btn btn-secondary" href={`/app/items?project=${project.id}`}>{t("items.filter.clear")}</a></EmptyState> : <ItemsTable kind="task" t={t} menu={menu} sheetHref={(id) => `${href(quick)}&detail=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item }))} />)}
+      {opened && !(editing && canManage) && <ItemDetail t={t} locale={dateLocale} item={opened} key_={opened.number ? taskKey(projectPrefix(project.name), opened.number) : ""} shareHref={`${href("all")}&detail=${opened.id}`} owner={opened.ownerId ? owners[opened.ownerId] : undefined} phase={opened.phaseId ? phaseNames[opened.phaseId] : undefined} source={source} activity={activity} canManage={canManage} closeHref={href(quick)} editHref={`${href(quick)}&edit=${opened.id}`} hoursHref={`/app/timesheet?project=${project.id}`} mine={!!user && opened.ownerId === user.id} today={today} />}
       {MANUAL_KINDS.filter((k) => !kinds.length || kinds.includes(k)).filter((k) => k !== "task" && quick === "all").map((kind) => (
         <section key={kind}>
           <GroupHead title={t(`items.group.${kind}` as MessageKey)} rows={items.filter((i) => i.kind === kind && shown(i))} label={(s) => t(`risk.${s}` as MessageKey)} />

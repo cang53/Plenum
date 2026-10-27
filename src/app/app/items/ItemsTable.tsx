@@ -4,6 +4,7 @@ import { initials, projectPrefix, taskKey } from "@/domain/board";
 import { DEFAULT_COLUMNS, type Column } from "@/domain/itemsView";
 import { isEarlyWarning } from "@/domain/rewards";
 import type { MessageKey } from "@/lib/messages";
+import { EmptyState } from "./Notice";
 
 type T = (key: MessageKey) => string;
 
@@ -18,7 +19,7 @@ type Props = { kind: ManualItem["kind"]; rows: Row[]; t: T; rewards?: boolean; c
 
 // Table of one kind of item. Tasks form one table with an ID column and a divider row per status; the selected row opens in the panel below.
 export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_COLUMNS, owners = {}, phases = {}, project = "", locale = "en-GB", selected, sheetHref, menu }: Props) {
-  if (!rows.length) return <p className="intro">{t("items.empty")}</p>;
+  if (!rows.length) return <EmptyState title={t("items.noItems")} body={t("items.noItemsHelp")} />;
   const prefix = projectPrefix(project);
   const short = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" });
   const day = (d: string | null) => (d ? short.format(new Date(`${d}T00:00:00Z`)) : "");

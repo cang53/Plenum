@@ -1,23 +1,36 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-// Escape closes the inspector (a form with typed-in changes asks first), and the title field takes focus when a create form opens.
-export function InspectorKeys({ closeHref, discard, focusTitle = false }: { closeHref: string; discard: string; focusTitle?: boolean }) {
+type Text = { title: string; body: string; keep: string; discard: string };
+
+// Escape closes the inspector; typed-in changes ask first in a dialog. A create form puts focus in its title field.
+export function InspectorKeys({ closeHref, text, focusTitle = false }: { closeHref: string; text: Text; focusTitle?: boolean }) {
   const router = useRouter();
+  const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (focusTitle) document.querySelector<HTMLInputElement>(".item-inspector [name=title]")?.focus();
     let dirty = false;
     const mark = () => { dirty = true; };
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || document.querySelector("dialog[open]")) return;
-      if (!dirty || confirm(discard)) router.push(closeHref);
+      if (dirty) dialog.current?.showModal();
+      else router.push(closeHref);
     };
     const root = document.querySelector(".item-inspector");
     root?.addEventListener("input", mark);
     document.addEventListener("keydown", onKey);
     return () => { root?.removeEventListener("input", mark); document.removeEventListener("keydown", onKey); };
-  }, [closeHref, discard, focusTitle, router]);
-  return null;
+  }, [closeHref, focusTitle, router]);
+  return (
+    <dialog ref={dialog} className="dialog pop" aria-labelledby="unsaved-title">
+      <h3 id="unsaved-title">{text.title}</h3>
+      <p>{text.body}</p>
+      <div className="pop-actions">
+        <button type="button" className="btn btn-secondary" onClick={() => dialog.current?.close()}>{text.keep}</button>
+        <button type="button" className="btn btn-primary" onClick={() => router.push(closeHref)}>{text.discard}</button>
+      </div>
+    </dialog>
+  );
 }

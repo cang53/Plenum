@@ -3,20 +3,37 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { appendItemNote, saveHours, setTaskStatus, bulkUpdateTasks, createManualItem, deleteManualItem, setRiskStatus, updateManualItem } from "@/data/live";
+import { appendItemNote, currentItemText, saveHours, setTaskStatus, bulkUpdateTasks, createManualItem, deleteManualItem, setRiskStatus, updateManualItem } from "@/data/live";
 import { bulkFromForm } from "@/domain/bulk";
 import { itemFromForm, MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
+import { itemVersion, type SaveResult } from "@/domain/saveState";
 import { planChange, type Change, type SendResult } from "@/lib/offline-queue";
 
 // Row-level security decides who may write; a person who is not a project manager gets an error.
-export async function saveItem(form: FormData): Promise<void> {
-  const item = itemFromForm(form);
-  const supabase = await supabaseServer();
+export async function saveItem(_: SaveResult, form: FormData): Promise<SaveResult> {
+  let item;
+  try {
+    item = itemFromForm(form);
+  } catch (e) {
+    return { status: "invalid", message: String(e).includes("due date") ? "items.err.dates" : "items.err.title" };
+  }
   const id = String(form.get("id") ?? "");
-  if (id) await updateManualItem(supabase, id, item);
-  else await createManualItem(supabase, String(form.get("projectId")), item);
+  const back = String(form.get("back") ?? "/app/items");
+  let savedId = id;
+  try {
+    const supabase = await supabaseServer();
+    if (id) {
+      const base = String(form.get("base") ?? "");
+      const now = base ? await currentItemText(supabase, item.kind, id) : null;
+      if (now && itemVersion(now) !== base) return { status: "conflict", latest: { title: now.title, details: now.details } };
+      await updateManualItem(supabase, id, item);
+    } else savedId = await createManualItem(supabase, String(form.get("projectId")), item);
+  } catch {
+    return { status: "error" };
+  }
   revalidatePath("/app/items");
+  redirect(`${/^\/(app|demo)\//.test(back) ? back : "/app/items"}${back.includes("?") ? "&" : "?"}saved=${item.kind}:${savedId}`);
 }
 
 const kindOf = (form: FormData) => {

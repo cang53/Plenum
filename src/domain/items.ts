@@ -53,6 +53,7 @@ export function itemFromForm(form: FormData): ItemInput {
   };
   if (item.sourceMessageId && !/^[0-9a-f-]{36}$/i.test(item.sourceMessageId)) throw new Error("unknown source message");
   if (!item.title) throw new Error("title is required");
+  if (item.startDate && item.dueDate && item.dueDate < item.startDate) throw new Error("due date is before start date");
   if (kind === "task" && !STATUSES.includes(item.status as TaskStatus)) item.status = "todo";
   if (kind === "task" && !PRIORITIES.includes(item.priority as (typeof PRIORITIES)[number])) throw new Error("unknown priority");
   if (kind === "risk" && !RISK_STATUSES.includes(item.status as (typeof RISK_STATUSES)[number])) item.status = "open";

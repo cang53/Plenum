@@ -22,7 +22,7 @@ describe("ItemsTable", () => {
   });
   it("shows the plain-English empty state without a table", () => {
     const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} rows={[]} />);
-    expect(html).toContain(t("items.empty", "en"));
+    expect(html).toContain(t("items.noItems", "en"));
     expect(html).not.toContain("<table");
   });
   it("groups tasks under divider rows with counts, blocked first, Done collapsed, skipping empty groups", () => {

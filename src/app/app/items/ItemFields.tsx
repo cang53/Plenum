@@ -4,7 +4,9 @@ import { MANUAL_KINDS, PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/it
 import { STATUSES } from "@/domain/board";
 import type { MessageKey } from "@/lib/messages";
 import { saveItem } from "./actions";
+import { itemVersion } from "@/domain/saveState";
 import { InspectorKeys } from "./InspectorKeys";
+import { SaveForm, type SaveText } from "./SaveForm";
 import { KindSwitch } from "./KindSwitch";
 
 export type Plan = { members: Member[]; phases: { id: string; name: string }[]; tasks: { id: string; title: string }[] };
@@ -34,21 +36,26 @@ function SourceCard({ source, t }: { source: Source; t: Labels }) {
   );
 }
 
+export const saveText = (t: Labels, submit: string): SaveText => ({ cancel: t("link.cancel"), submit, saving: t("items.saving"), saveOnline: t("items.saveOnline"), offline: t("items.offline"), reconnect: t("items.reconnect"), demo: t("items.demoNotice"), failTitle: t("items.failTitle"), failBody: t("items.failBody"), keep: t("items.keepEditing"), retry: t("items.retry"), conflictTitle: t("items.conflictTitle"), conflictBody: t("items.conflictBody"), latest: t("items.latest"), review: t("items.review"), reload: t("items.reload"), reloadTitle: t("items.reloadTitle"), reloadBody: t("items.reloadBody"), reloadGo: t("items.reloadGo"), errTitle: t("items.err.title"), errDates: t("items.err.dates") });
+
+export const discardText = (t: Labels) => ({ title: t("items.unsaved"), body: t("items.discard"), keep: t("items.keepEditing"), discard: t("items.discardGo") });
+
 // The create/edit inspector: heading with close, scrolling body, footer with Cancel and the save button. One component for task, decision and risk.
 export type Source = { id?: string; subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string } };
 
-export function Fields({ item, kind, projectId, project = "", closeHref = "#", plan, source, draft, kindHref, t }: { item?: ManualItem; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
+export function Fields({ item, kind, projectId, project = "", closeHref = "#", reloadHref, demo = false, plan, source, draft, kindHref, t }: { item?: ManualItem; reloadHref?: string; demo?: boolean; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
   const people: Opt[] = plan.members.map((m) => [m.userId, m.name || m.email]);
   const none = t("items.none");
   const others: Opt[] = plan.tasks.filter((o) => o.id !== item?.id).map((o) => [o.id, o.title]);
   const heading = t(`items.${item ? "edit" : "new"}.${kind}` as MessageKey);
   return (
-    <form action={saveItem} className="item-form item-inspector" aria-label={heading}>
+    <SaveForm action={saveItem} text={saveText(t, t(item ? "items.save" : `items.new.${kind}` as MessageKey))} cancelHref={closeHref} reloadHref={reloadHref ?? closeHref} demo={demo} label={heading}>
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="projectId" value={projectId} />
-      {item && <input type="hidden" name="id" value={item.id} />}
+      <input type="hidden" name="back" value={closeHref} />
+      {item && <><input type="hidden" name="id" value={item.id} /><input type="hidden" name="base" value={itemVersion({ title: item.title, details: item.details, status: kind === "decision" ? null : item.status })} /></>}
       {!item && source?.id && <input type="hidden" name="sourceMessageId" value={source.id} />}
-      <InspectorKeys closeHref={closeHref} discard={t("items.discard")} focusTitle={!item} />
+      <InspectorKeys closeHref={closeHref} text={discardText(t)} focusTitle={!item} />
       <header className="insp-head">
         <div><h2>{heading}</h2><p>{project}</p></div>
         <a className="insp-close" href={closeHref} aria-label={t("items.close")}>✕</a>
@@ -104,10 +111,6 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", p
           </section>
         )}
       </div>
-      <footer className="insp-foot">
-        <a className="btn btn-secondary" href={closeHref}>{t("link.cancel")}</a>
-        <button type="submit" className="btn btn-primary">{t(item ? "items.save" : `items.new.${kind}` as MessageKey)}</button>
-      </footer>
-    </form>
+    </SaveForm>
   );
 }

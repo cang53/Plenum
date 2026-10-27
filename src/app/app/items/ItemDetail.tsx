@@ -37,7 +37,7 @@ export function ItemDetail({ t, locale, item, key_ = "", shareHref, owner, phase
   const hidden = <><input type="hidden" name="kind" value={kind} /><input type="hidden" name="id" value={item.id} /></>;
   return (
     <aside className="item-inspector item-detail" aria-label={heading}>
-      <InspectorKeys closeHref={closeHref} discard={t("items.discard")} />
+      <InspectorKeys closeHref={closeHref} text={{ title: t("items.unsaved"), body: t("items.discard"), keep: t("items.keepEditing"), discard: t("items.discardGo") }} />
       <header className="insp-head insp-bar">
         <a className="insp-close" href={closeHref} aria-label={t("taskDetail.close")}>✕</a>
         <h2>{heading}</h2>
@@ -117,7 +117,7 @@ export function ItemDetail({ t, locale, item, key_ = "", shareHref, owner, phase
       {canManage && (
         <footer className="insp-foot">
           <CopyLink href={shareHref} label={t("items.copyLink")} done={t("items.linkCopied")} failed={t("items.copyFailed")} />
-          <ConfirmDialog trigger={t("items.delete")} title={t("items.deleteTitle")} body={item.title} cancel={t("ui.dialog.cancel")}>
+          <ConfirmDialog trigger={t("items.delete")} title={t("items.deleteTitle")} body={`${item.title}. ${t("items.deleteBody")}`} cancel={t("ui.dialog.cancel")}>
             <form action={deleteItem}>{hidden}<input type="hidden" name="back" value={closeHref} /><button className="btn btn-primary">{t("items.deleteConfirm")}</button></form>
           </ConfirmDialog>
         </footer>
