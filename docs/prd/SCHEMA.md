@@ -205,6 +205,8 @@ Search helpers (`search_query`, `search_vec`, `search_snippet`, `superseded`) an
 
 ## 6. Triggers
 
+Trigger and function names, timing and events were read from the live catalog. The one-line purposes below are inferred from the names and the repo migrations; function bodies were read only for `create_topic`, `set_message_topic` and `project_role_of`.
+
 | Table | Trigger → function |
 |---|---|
 | audit_log | `no_change` (update/delete), `no_truncate` → `audit_log_is_append_only` |
