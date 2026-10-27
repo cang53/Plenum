@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { appendItemNote, currentItemText, saveHours, setTaskStatus, bulkUpdateTasks, createManualItem, deleteManualItem, setRiskStatus, updateManualItem } from "@/data/live";
+import { taskActivity, appendItemNote, currentItemText, saveHours, setTaskStatus, bulkUpdateTasks, createManualItem, deleteManualItem, setRiskStatus, updateManualItem } from "@/data/live";
 import { bulkFromForm } from "@/domain/bulk";
 import { itemFromForm, MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
@@ -19,7 +19,6 @@ export async function saveItem(_: SaveResult, form: FormData): Promise<SaveResul
     return { status: "invalid", message: String(e).includes("due date") ? "items.err.dates" : "items.err.title" };
   }
   const id = String(form.get("id") ?? "");
-  const back = String(form.get("back") ?? "/app/items");
   let savedId = id;
   try {
     const supabase = await supabaseServer();
@@ -32,8 +31,7 @@ export async function saveItem(_: SaveResult, form: FormData): Promise<SaveResul
   } catch {
     return { status: "error" };
   }
-  revalidatePath("/app/items");
-  redirect(`${/^\/(app|demo)\//.test(back) ? back : "/app/items"}${back.includes("?") ? "&" : "?"}saved=${item.kind}:${savedId}`);
+  return { status: "saved", kind: item.kind, id: savedId };
 }
 
 const kindOf = (form: FormData) => {
@@ -57,6 +55,11 @@ export async function quickUpdate(form: FormData): Promise<void> {
   if (note) await appendItemNote(client, "task", id, note, new Date().toISOString().slice(0, 10));
   if (hours > 0) await saveHours(client, { taskId: id, date, hours });
   revalidatePath("/app/items");
+}
+
+// Task history for the detail panel, loaded after the panel is already open.
+export async function loadActivity(taskId: string) {
+  return taskActivity(await supabaseServer(), taskId);
 }
 
 export async function toggleRisk(form: FormData): Promise<void> {
