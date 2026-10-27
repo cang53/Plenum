@@ -42,11 +42,6 @@ const kindOf = (form: FormData) => {
   return kind;
 };
 
-export async function addItemNote(form: FormData): Promise<void> {
-  await appendItemNote(await supabaseServer(), kindOf(form), String(form.get("id")), String(form.get("note") ?? ""), new Date().toISOString().slice(0, 10));
-  revalidatePath("/app/items");
-}
-
 // A task owner who may not edit the task can still update their own status, add a note and book hours.
 export async function quickUpdate(form: FormData): Promise<void> {
   const client = await supabaseServer();

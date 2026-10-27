@@ -318,3 +318,39 @@ dialog.pop:not([open]) { display: none; }
 .items-flat tbody tr.sel td:first-child { border-inline-start: 1px solid var(--primary); border-start-start-radius: 0.625rem; border-end-start-radius: 0.625rem; }
 .items-flat tbody tr.sel td:last-child { border-inline-end: 1px solid var(--primary); border-start-end-radius: 0.625rem; border-end-end-radius: 0.625rem; }
 .items-flat .row-opts > summary { width: 2.75rem; height: 2.75rem; background: var(--control); color: var(--text); font-size: 1.1875rem; font-weight: var(--weight-semibold); }
+
+/* Detail inspector, from Figma: two-line toolbar, accent kind line, large title, borderless property pairs with dividers, flat reply area, tinted manager footer. */
+.item-detail { width: min(37.5rem, calc(100vw - 2rem)); border-radius: 1.5rem; background: var(--surface); }
+.insp-bar { min-height: 5.25rem; padding: 1.25rem; gap: var(--s2); border-block-end: 1px solid var(--glass-border); }
+.insp-bar > div { flex: 1; display: grid; gap: 3px; min-width: 0; }
+.insp-bar h2 { font-size: var(--text-base); line-height: 1.25rem; letter-spacing: -0.23px; }
+.insp-bar p { margin: 0; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-read { gap: 1.125rem; }
+.insp-kindline { margin: 0; font-size: var(--text-base); line-height: 1.25rem; font-weight: var(--weight-semibold); color: var(--primary); }
+.insp-identity { display: grid; gap: var(--s2); }
+.item-detail .insp-title { font-size: var(--text-2xl); line-height: 2.125rem; font-weight: 700; letter-spacing: 0.38px; }
+.item-detail .insp-text { margin: 0; font-size: var(--text-base); line-height: 1.25rem; color: var(--text); }
+.insp-props { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; margin: 0; }
+.insp-props .rp { display: grid; gap: 5px; padding: 9px 0; border-block-end: 1px solid var(--glass-border); }
+.insp-props .rp.full { grid-column: 1 / -1; }
+.insp-props .rp:nth-last-of-type(1) { border-block-end: 0; }
+.insp-props dt { font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-props dd { display: block; min-height: 0; margin: 0; padding: 0; border: 0; background: none; font-size: var(--text-base); line-height: 1.25rem; font-weight: 400; color: var(--text); }
+.insp-props dd a { display: block; color: var(--text); text-decoration: none; }
+.insp-props .rel-note { grid-column: 1 / -1; margin: 0; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-card-label a { color: inherit; text-decoration: none; }
+.insp-card .strong { font-weight: var(--weight-semibold); }
+.insp-attrib p { margin: 0 0 5px; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-activity-block { display: grid; gap: var(--s3); padding-block-start: var(--s4); border-block-start: 1px solid var(--glass-border); }
+.insp-activity-block .insp-sub { margin: 0; font-size: var(--text-lg); line-height: 1.5625rem; font-weight: var(--weight-semibold); letter-spacing: -0.45px; color: var(--text); }
+.act { display: grid; gap: 5px; }
+.act p { margin: 0; }
+.act-text { font-size: var(--text-base); line-height: 1.25rem; color: var(--text); }
+.insp-note label { display: grid; gap: 6px; font-size: var(--text-sm); color: var(--text-secondary); }
+.insp-note textarea { min-height: 6.25rem; padding: var(--s3); border: 1px solid var(--border-strong); border-radius: 0.75rem; background: var(--accent-soft); color: var(--text); font: inherit; font-size: var(--text-base); }
+.insp-actions { flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+.insp-actions .insp-card-note { flex: 1; min-width: 12rem; margin: 0; }
+.insp-actions .btn { flex: none; }
+.insp-manage { flex-wrap: wrap; padding: 1rem; gap: 10px; }
+.insp-manage .btn { flex: none; }
+.insp-manage .btn-plain { flex: none; background: var(--danger-surface); }

@@ -13,8 +13,8 @@ const HEAD: Record<Column, MessageKey> = { phase: "items.phase", owner: "items.o
 const ORDER: readonly Column[] = ["owner", "phase", "priority", "due", "site", "costCode"];
 // Groups run from what needs attention to what is finished.
 const GROUPS = ["blocked", "in_progress", "todo", "done"] as const;
-const STATUS_ICON: Record<string, string> = { todo: "○", in_progress: "◐", blocked: "⊘", done: "✓", open: "○", closed: "✓", recorded: "◇" };
-const PRIORITY_ICON: Record<string, string> = { urgent: "!!", high: "!", normal: "–", low: "↓" };
+export const STATUS_ICON: Record<string, string> = { todo: "○", in_progress: "◐", blocked: "⊘", done: "✓", open: "○", closed: "✓", recorded: "◇" };
+export const PRIORITY_ICON: Record<string, string> = { urgent: "!!", high: "!", normal: "–", low: "↓" };
 
 type Props = { kind: ManualItem["kind"]; rows: Row[]; t: T; rewards?: boolean; columns?: readonly Column[]; owners?: Record<string, string>; phases?: Record<string, string>; project?: string; locale?: string; selected?: string; sheetHref?: (taskId: string) => string; menu?: (item: ManualItem) => ReactNode; today?: string };
 

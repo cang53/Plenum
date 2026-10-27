@@ -4,10 +4,11 @@ import type { ManualItem } from "@/data/live";
 import { t as tr } from "@/lib/messages";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
-vi.mock("./actions", () => ({ addItemNote: () => {}, deleteItem: () => {}, toggleRisk: () => {}, quickUpdate: () => {} }));
+vi.mock("@/app/app/stream/actions", () => ({ postMessage: () => {} }));
+vi.mock("./actions", () => ({ deleteItem: () => {}, toggleRisk: () => {}, quickUpdate: () => {} }));
 const T = (k: Parameters<typeof tr>[0]) => tr(k, "en");
 const base = { id: "i1", kind: "task", title: "Pour slab", details: "Crane on site", status: "todo", priority: "high", startDate: null, dueDate: "2026-11-01", costCode: "C-12", site: "", ownerId: "u1", phaseId: null, createdAt: "2026-10-01T00:00:00Z" } as ManualItem;
-const props = { t: T, locale: "en-GB", shareHref: "/s", activity: [], closeHref: "/list", editHref: "/list&edit=i1" };
+const props = { projectId: "p", t: T, locale: "en-GB", shareHref: "/s", activity: [], closeHref: "/list", editHref: "/list&edit=i1" };
 
 describe("ItemDetail", () => {
   it("shows task properties read-only, with Edit and manager actions only for managers", async () => {
