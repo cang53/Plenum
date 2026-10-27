@@ -354,3 +354,13 @@ dialog.pop:not([open]) { display: none; }
 .insp-manage { flex-wrap: wrap; padding: 1rem; gap: 10px; }
 .insp-manage .btn { flex: none; }
 .insp-manage .btn-plain { flex: none; background: var(--danger-surface); }
+
+/* Detail inspector is one column (the two-column grid is for the edit form). */
+.insp-read { display: flex; flex-direction: column; align-items: stretch; flex-wrap: nowrap; }
+.insp-read > * { min-width: 0; }
+.insp-read .wide { grid-column: auto; }
+.item-detail { display: flex; flex-direction: column; }
+.item-detail .insp-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.item-detail .insp-bar .btn, .item-detail .insp-actions .btn, .item-detail .insp-card .btn, .item-detail .insp-manage .btn, .insp-close { text-decoration: none; }
+.item-detail .insp-foot, .item-detail .insp-bar { flex: none; }
+.insp-read .insp-identity .insp-text { white-space: pre-line; }
