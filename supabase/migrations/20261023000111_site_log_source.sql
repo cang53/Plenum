@@ -6,7 +6,7 @@ create function public.save_site_log(p_project uuid, p_site text, p_date date, p
 returns uuid language plpgsql security definer set search_path = public as $$
 declare l uuid;
 begin
-  if public.project_role_of(p_project) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
+  if public.project_role_of(p_project) is null or public.project_role_of(p_project) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
   if p_source is not null and not exists (select 1 from messages where id = p_source and project_id = p_project) then
     raise exception 'the source message is not in this project';
   end if;

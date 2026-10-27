@@ -23,7 +23,7 @@ create function public.save_site_log(p_project uuid, p_site text, p_date date, p
 returns uuid language plpgsql security definer set search_path = public as $$
 declare l uuid;
 begin
-  if public.project_role_of(p_project) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
+  if public.project_role_of(p_project) is null or public.project_role_of(p_project) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
   insert into site_logs (project_id, site, log_date, weather, headcount, work_done, delays)
   values (p_project, trim(p_site), p_date, coalesce(p_weather, ''), coalesce(p_headcount, 0), coalesce(p_work, ''), coalesce(p_delays, ''))
   on conflict (project_id, site, log_date) do update

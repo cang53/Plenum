@@ -9,7 +9,7 @@ create or replace function public.save_site_log(p_project uuid, p_site text, p_d
 returns uuid language plpgsql security definer set search_path = public as $$
 declare l uuid;
 begin
-  if public.project_role_of(p_project) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
+  if public.project_role_of(p_project) is null or public.project_role_of(p_project) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
   if p_source is not null and not exists (select 1 from messages where id = p_source and project_id = p_project) then
     raise exception 'the source message is not in this project';
   end if;
@@ -32,7 +32,7 @@ language plpgsql security definer set search_path = public as $$
 declare p uuid;
 begin
   select project_id into p from site_logs where id = p_log;
-  if p is null or public.project_role_of(p) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
+  if p is null or public.project_role_of(p) is null or public.project_role_of(p) not in ('member', 'project_manager') then raise exception 'not allowed'; end if;
   update site_logs set submitted_at = now(), submitted_by = auth.uid() where id = p_log and submitted_at is null;
   if not found then raise exception 'this day is already submitted'; end if;
   perform write_audit(p, 'site_log_submitted', 'site_logs', p_log, null);
