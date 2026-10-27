@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { appendItemNote, bulkUpdateTasks, createManualItem, deleteManualItem, setRiskStatus, updateManualItem } from "@/data/live";
+import { appendItemNote, saveHours, setTaskStatus, bulkUpdateTasks, createManualItem, deleteManualItem, setRiskStatus, updateManualItem } from "@/data/live";
 import { bulkFromForm } from "@/domain/bulk";
 import { itemFromForm, MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
@@ -27,6 +27,23 @@ const kindOf = (form: FormData) => {
 
 export async function addItemNote(form: FormData): Promise<void> {
   await appendItemNote(await supabaseServer(), kindOf(form), String(form.get("id")), String(form.get("note") ?? ""), new Date().toISOString().slice(0, 10));
+  revalidatePath("/app/items");
+}
+
+// A task owner who may not edit the task can still update their own status, add a note and book hours.
+export async function quickUpdate(form: FormData): Promise<void> {
+  const client = await supabaseServer();
+  const id = String(form.get("id"));
+  const status = String(form.get("status") ?? "");
+  const hours = Number(form.get("hours") || 0);
+  const date = String(form.get("date") ?? "");
+  if (!STATUSES.some((s) => s === status)) throw new Error("unknown status");
+  if (!(hours >= 0 && hours <= 24)) throw new Error("hours must be between 0 and 24");
+  if (hours > 0 && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("date is required with hours");
+  await setTaskStatus(client, id, status);
+  const note = String(form.get("note") ?? "").trim();
+  if (note) await appendItemNote(client, "task", id, note, new Date().toISOString().slice(0, 10));
+  if (hours > 0) await saveHours(client, { taskId: id, date, hours });
   revalidatePath("/app/items");
 }
 

@@ -1,8 +1,10 @@
 import type { ManualItem } from "@/data/live";
 import { ConfirmDialog } from "@/app/app/ConfirmDialog";
 import type { MessageKey } from "@/lib/messages";
-import { addItemNote, deleteItem, toggleRisk } from "./actions";
+import { addItemNote, deleteItem, quickUpdate, toggleRisk } from "./actions";
+import { InspectorKeys } from "./InspectorKeys";
 import { CopyLink } from "./CopyLink";
+import { STATUSES } from "@/domain/board";
 import type { Source } from "./ItemFields";
 
 type T = (key: MessageKey) => string;
@@ -21,10 +23,12 @@ type Props = {
   closeHref: string;
   editHref: string;
   hoursHref?: string;
+  mine?: boolean;
+  today?: string;
 };
 
 // Read-only inspector for one task, decision or risk: properties, source, activity, a note box, and the manager actions.
-export function ItemDetail({ t, locale, item, key_ = "", shareHref, owner, phase, source, activity, canManage, closeHref, editHref, hoursHref }: Props) {
+export function ItemDetail({ t, locale, item, key_ = "", shareHref, owner, phase, source, activity, canManage, closeHref, editHref, hoursHref, mine = false, today = "" }: Props) {
   const day = (d: string | null) => (d ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(d)) : t("items.none"));
   const stamp = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
   const prop = (label: string, value: string) => <div key={label}><dt>{label}</dt><dd>{value || t("items.none")}</dd></div>;
@@ -33,6 +37,7 @@ export function ItemDetail({ t, locale, item, key_ = "", shareHref, owner, phase
   const hidden = <><input type="hidden" name="kind" value={kind} /><input type="hidden" name="id" value={item.id} /></>;
   return (
     <aside className="item-inspector item-detail" aria-label={heading}>
+      <InspectorKeys closeHref={closeHref} discard={t("items.discard")} />
       <header className="insp-head insp-bar">
         <a className="insp-close" href={closeHref} aria-label={t("taskDetail.close")}>✕</a>
         <h2>{heading}</h2>
@@ -87,6 +92,19 @@ export function ItemDetail({ t, locale, item, key_ = "", shareHref, owner, phase
             {!activity.length && <li className="sub">{t("items.noActivity")}</li>}
           </ul>
         </section>
+        {kind === "task" && mine && !canManage && (
+          <form action={quickUpdate} className="wide insp-card insp-quick" aria-label={t("items.quick.title")}>
+            <input type="hidden" name="id" value={item.id} />
+            <p className="insp-card-label">{t("items.quick.title")}</p>
+            <label>{t("items.quick.status")}<select name="status" defaultValue={item.status}>{STATUSES.map((x) => <option key={x} value={x}>{t(`status.${x}` as MessageKey)}</option>)}</select></label>
+            <label>{t("items.noteLabel")}<textarea name="note" maxLength={2000} /></label>
+            <div className="insp-pair">
+              <label>{t("items.quick.hours")}<input type="number" name="hours" min="0" max="24" step="0.25" inputMode="decimal" /></label>
+              <label>{t("items.quick.date")}<input type="date" name="date" defaultValue={today} /></label>
+            </div>
+            <button type="submit" className="btn btn-primary">{t("items.quick.save")}</button>
+          </form>
+        )}
         <form action={addItemNote} className="wide insp-note">
           {hidden}
           <label>{t("items.noteLabel")}<textarea name="note" required maxLength={2000} /></label>

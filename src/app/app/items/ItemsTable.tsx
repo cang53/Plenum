@@ -14,10 +14,10 @@ const HEAD: Record<Column, MessageKey> = { phase: "items.phase", owner: "items.o
 const GROUPS = ["blocked", "in_progress", "todo", "done"] as const;
 const PRIORITY_DOT: Record<string, string> = { urgent: "st-bad", high: "st-warn", normal: "st-todo", low: "st-todo" };
 
-type Props = { kind: ManualItem["kind"]; rows: Row[]; t: T; rewards?: boolean; columns?: readonly Column[]; owners?: Record<string, string>; phases?: Record<string, string>; project?: string; locale?: string; selected?: string; sheetHref?: (taskId: string) => string };
+type Props = { kind: ManualItem["kind"]; rows: Row[]; t: T; rewards?: boolean; columns?: readonly Column[]; owners?: Record<string, string>; phases?: Record<string, string>; project?: string; locale?: string; selected?: string; sheetHref?: (taskId: string) => string; menu?: (item: ManualItem) => ReactNode };
 
 // Table of one kind of item. Tasks form one table with an ID column and a divider row per status; the selected row opens in the panel below.
-export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_COLUMNS, owners = {}, phases = {}, project = "", locale = "en-GB", selected, sheetHref }: Props) {
+export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_COLUMNS, owners = {}, phases = {}, project = "", locale = "en-GB", selected, sheetHref, menu }: Props) {
   if (!rows.length) return <p className="intro">{t("items.empty")}</p>;
   const prefix = projectPrefix(project);
   const short = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" });
@@ -44,6 +44,7 @@ export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_C
               <th scope="col">{t("items.col.id")}</th>
               <th scope="col">{t("link.title")}</th>
               {cols.map((c) => <th key={c} scope="col" className={align(c)}>{t(HEAD[c])}</th>)}
+              {menu && <th scope="col"><span className="sr-only">{t("items.rowOptions")}</span></th>}
             </tr>
           </thead>
           {GROUPS.map((s) => {
@@ -52,7 +53,7 @@ export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_C
             return (
               <tbody key={s} className="items-group">
                 <tr className="grp">
-                  <td colSpan={3 + cols.length}>
+                  <td colSpan={3 + cols.length + (menu ? 1 : 0)}>
                     <label><input type="checkbox" className="grp-toggle" defaultChecked={s === "done"} aria-label={t(`status.${s}` as MessageKey)} /><span className="items-group-name">{t(`status.${s}` as MessageKey)}</span> <span className="items-count">{group.length}</span></label>
                   </td>
                 </tr>
@@ -62,6 +63,7 @@ export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_C
                     <td className="id">{item.number ? taskKey(prefix, item.number) : ""}</td>
                     <td><b>{sheetHref ? <a href={sheetHref(item.id)} data-row>{item.title}</a> : item.title}</b></td>
                     {cols.map((c) => <td key={c} className={align(c)}>{cell(item, c)}</td>)}
+                    {menu && <td className="row-menu">{menu(item)}</td>}
                   </tr>
                 ))}
               </tbody>
@@ -80,6 +82,7 @@ export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_C
             <th scope="col">{t("link.title")}</th>
             {kind === "risk" && <th scope="col">{t("board.statusLabel")}</th>}
             {cols.map((c) => <th key={c} scope="col" className={align(c)}>{t(HEAD[c])}</th>)}
+            {menu && <th scope="col"><span className="sr-only">{t("items.rowOptions")}</span></th>}
           </tr>
         </thead>
         <tbody>
@@ -88,6 +91,7 @@ export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_C
               <td><b>{sheetHref ? <a href={sheetHref(item.id)} data-row>{item.title}</a> : item.title}</b>{kind === "risk" && item.riskKind === "issue" ? ` (${t("kind.issue")})` : ""}{rewards && kind === "risk" && item.riskKind !== "issue" && isEarlyWarning(item.createdAt, item.dueDate) && <> <span className="badge">{t("rewards.early")}</span></>}</td>
               {kind === "risk" && <td>{status(item)}</td>}
               {cols.map((c) => <td key={c} className={align(c)}>{cell(item, c)}</td>)}
+              {menu && <td className="row-menu">{menu(item)}</td>}
             </tr>
           ))}
         </tbody>

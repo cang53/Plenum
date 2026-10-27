@@ -15,15 +15,17 @@ import { OfflineTasks } from "./OfflineTasks";
 import { ItemsTable } from "./ItemsTable";
 import { Fields } from "./ItemFields";
 import { ItemDetail } from "./ItemDetail";
+import { RowOptions } from "./RowOptions";
 import { activityKey } from "@/domain/taskDetail";
 import { taskKey, projectPrefix } from "@/domain/board";
-import { CreateOption, GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
+import { CreateOption, GroupHead, ItemsHead, listParam, matchesItem, queryPairs } from "./ItemsHead";
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; detail?: string; create?: string; from?: string; edit?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string | string[]; quick?: string; col?: string | string[]; task?: string; detail?: string; create?: string; from?: string; title?: string; details?: string; edit?: string; q?: string; status?: string | string[]; owner?: string; phase?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after, kind: only, quick: quickParam, col, task, detail, create, from, edit, q = "", status = "", owner = "", phase = "" } = await searchParams;
-  const query = { q, kind: only ?? "", status, owner, phase };
+  const { project: chosen, after, kind: kindParam, quick: quickParam, col, task, detail, create, from, title: draftTitle, details: draftDetails, edit, q = "", status, owner = "", phase = "" } = await searchParams;
+  const kinds = listParam(kindParam);
+  const query = { q, kind: kinds, status: listParam(status), owner, phase };
   const quick = parseQuick(quickParam);
   const columns = parseColumns(col);
   const today = new Date().toISOString().slice(0, 10);
@@ -35,7 +37,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   // Quick filters are about tasks, so the other kinds step aside while one is on.
   const shown = (i: ManualItem) => quick === "all" || (i.kind === "task" && matchesQuick(i, quick, user?.id ?? null, today));
   const cols: [string, string][] = col === undefined ? [] : [col].flat().map((c) => ["col", c]);
-  const keep = `${new URLSearchParams([...Object.entries(query).filter(([, v]) => v), ...cols])}`.replace(/^(?=.)/, "&");
+  const keep = `${new URLSearchParams([...queryPairs(query), ...cols])}`.replace(/^(?=.)/, "&");
   const href = (q: string) => `/app/items?project=${project.id}${q === "all" ? "" : `&quick=${q}`}${keep}`;
   const plan = { members, ...choices };
   const editing = items.find((i) => i.id === edit);
@@ -58,14 +60,15 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const phaseNames = Object.fromEntries(choices.phases.map((p) => [p.id, p.name]));
   const visibleTasks = items.filter((i) => i.kind === "task" && shown(i));
   const selectedId = detail ?? task;
-  const showTasks = !only || only === "task";
+  const menu = (i: ManualItem) => <RowOptions t={t} title={i.title} openHref={`${href(quick)}&detail=${i.id}`} editHref={canManage ? `${href(quick)}&edit=${i.id}` : undefined} />;
+  const showTasks = !kinds.length || kinds.includes("task");
   return (
     <main id="main" className="page items-page">
       <ItemsHead t={t} action="/app/items" keep={[["project", project.id], ...(quick !== "all" ? [["quick", quick] as [string, string]] : []), ...cols]} query={query} owners={owners} phases={phaseNames} pending={suggestions.length} reviewHref={`/app/notifications?project=${project.id}`}
         create={MANUAL_KINDS.map((k) => (
           <CreateOption key={k} kind={k} t={t} href={`${href(quick)}&create=${k}`} />
         ))} />
-      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} source={origin && from ? { ...origin, id: from, href: `/app/stream#msg-${from}` } : undefined} t={t} />)}
+      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} draft={{ title: draftTitle, details: draftDetails }} kindHref={(other) => `${href(quick)}&create=${other}${from ? `&from=${from}` : ""}`} source={origin && from ? { ...origin, id: from, href: `/app/stream#msg-${from}` } : undefined} t={t} />)}
       {editing && <Fields item={editing} kind={editing.kind} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} source={source} t={t} />}
       <div className="items-bar">
         <WorkSwitch current="items" projectId={project.id} t={t} />
@@ -74,7 +77,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           <summary className="chip">{t("items.cols")} ▾</summary>
           <form method="get" action="/app/items">
             <input type="hidden" name="project" value={project.id} />
-            {only && <input type="hidden" name="kind" value={only} />}
+            {kinds.map((k) => <input key={k} type="hidden" name="kind" value={k} />)}
             {quick !== "all" && <input type="hidden" name="quick" value={quick} />}
             <input type="hidden" name="col" value="-" />
             {COLUMNS.map((c) => <label key={c}><input type="checkbox" name="col" value={c} defaultChecked={columns.includes(c)} /> {t(`items.col.${c}` as MessageKey)}</label>)}
@@ -109,13 +112,13 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         </form>
       )}
       {showTasks && <GroupHead title={t("items.group.task")} rows={visibleTasks} label={(s) => t(`status.${s}` as MessageKey)} />}
-      {showTasks && ((quick !== "all" || q || status || owner || phase) && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} sheetHref={(id) => `${href(quick)}&detail=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item }))} />)}
-      {opened && !editing && <ItemDetail t={t} locale={dateLocale} item={opened} key_={opened.number ? taskKey(projectPrefix(project.name), opened.number) : ""} shareHref={`${href("all")}&detail=${opened.id}`} owner={opened.ownerId ? owners[opened.ownerId] : undefined} phase={opened.phaseId ? phaseNames[opened.phaseId] : undefined} source={source} activity={activity} canManage={canManage} closeHref={href(quick)} editHref={`${href(quick)}&edit=${opened.id}`} hoursHref={`/app/timesheet?project=${project.id}`} />}
-      {MANUAL_KINDS.filter((k) => !MANUAL_KINDS.some((m) => m === only) || k === only).filter((k) => k !== "task" && quick === "all").map((kind) => (
+      {showTasks && ((quick !== "all" || q || query.status.length || owner || phase) && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} menu={menu} sheetHref={(id) => `${href(quick)}&detail=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item }))} />)}
+      {opened && !editing && <ItemDetail t={t} locale={dateLocale} item={opened} key_={opened.number ? taskKey(projectPrefix(project.name), opened.number) : ""} shareHref={`${href("all")}&detail=${opened.id}`} owner={opened.ownerId ? owners[opened.ownerId] : undefined} phase={opened.phaseId ? phaseNames[opened.phaseId] : undefined} source={source} activity={activity} canManage={canManage} closeHref={href(quick)} editHref={`${href(quick)}&edit=${opened.id}`} hoursHref={`/app/timesheet?project=${project.id}`} mine={!!user && opened.ownerId === user.id} today={today} />}
+      {MANUAL_KINDS.filter((k) => !kinds.length || kinds.includes(k)).filter((k) => k !== "task" && quick === "all").map((kind) => (
         <section key={kind}>
           <GroupHead title={t(`items.group.${kind}` as MessageKey)} rows={items.filter((i) => i.kind === kind && shown(i))} label={(s) => t(`risk.${s}` as MessageKey)} />
           {kind === "risk" && early > 0 && <p className="badge">{t("rewards.earlyCount").replace("{n}", String(early))}</p>}
-          <ItemsTable kind={kind} t={t} selected={selectedId} sheetHref={(id) => `${href(quick)}&detail=${id}`} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <a className="btn items-edit" href={`${href(quick)}&edit=${item.id}`}>{t(`items.edit.${kind}` as MessageKey)}</a> }))} />
+          <ItemsTable kind={kind} t={t} menu={menu} selected={selectedId} sheetHref={(id) => `${href(quick)}&detail=${id}`} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <a className="btn items-edit" href={`${href(quick)}&edit=${item.id}`}>{t(`items.edit.${kind}` as MessageKey)}</a> }))} />
         </section>
       ))}
       <OfflineTasks
@@ -123,7 +126,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         tasks={items.filter((i) => i.kind === "task").map((i) => ({ id: i.id, title: i.title, status: i.status }))}
         labels={{ title: t("offline.quick"), hint: t("offline.hint"), status: t("board.statusLabel"), note: t("offline.note"), add: t("offline.add"), pending: t("offline.pending"), synced: t("offline.synced"), conflicts: t("offline.conflicts"), statuses: Object.fromEntries(STATUSES.map((s) => [s, t(`status.${s}` as MessageKey)])) }}
       />
-      <MoreLink path="/app/items" params={{ project: project.id, ...(only ? { kind: only } : {}), ...(quick !== "all" ? { quick } : {}) }} next={next} label={t("paging.more")} />
+      <MoreLink path="/app/items" params={{ project: project.id, ...(kinds.length ? { kind: kinds.join(",") } : {}), ...(quick !== "all" ? { quick } : {}) }} next={next} label={t("paging.more")} />
     </main>
   );
 }

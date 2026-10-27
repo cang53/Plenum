@@ -1,9 +1,11 @@
 import { type ManualItem } from "@/data/live";
 import { type Member } from "@/data/projects";
-import { PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/items";
+import { MANUAL_KINDS, PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
 import type { MessageKey } from "@/lib/messages";
 import { saveItem } from "./actions";
+import { InspectorKeys } from "./InspectorKeys";
+import { KindSwitch } from "./KindSwitch";
 
 export type Plan = { members: Member[]; phases: { id: string; name: string }[]; tasks: { id: string; title: string }[] };
 
@@ -35,7 +37,7 @@ function SourceCard({ source, t }: { source: Source; t: Labels }) {
 // The create/edit inspector: heading with close, scrolling body, footer with Cancel and the save button. One component for task, decision and risk.
 export type Source = { id?: string; subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string } };
 
-export function Fields({ item, kind, projectId, project = "", closeHref = "#", plan, source, t }: { item?: ManualItem; source?: Source; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
+export function Fields({ item, kind, projectId, project = "", closeHref = "#", plan, source, draft, kindHref, t }: { item?: ManualItem; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
   const people: Opt[] = plan.members.map((m) => [m.userId, m.name || m.email]);
   const none = t("items.none");
   const others: Opt[] = plan.tasks.filter((o) => o.id !== item?.id).map((o) => [o.id, o.title]);
@@ -46,14 +48,15 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", p
       <input type="hidden" name="projectId" value={projectId} />
       {item && <input type="hidden" name="id" value={item.id} />}
       {!item && source?.id && <input type="hidden" name="sourceMessageId" value={source.id} />}
+      <InspectorKeys closeHref={closeHref} discard={t("items.discard")} focusTitle={!item} />
       <header className="insp-head">
         <div><h2>{heading}</h2><p>{project}</p></div>
         <a className="insp-close" href={closeHref} aria-label={t("items.close")}>✕</a>
       </header>
       <div className="insp-body">
-        {!item && <Field label={t("items.kindLabel")} wide><output className="insp-kind">{t(`kind.${kind}` as MessageKey)}</output></Field>}
+        {!item && <Field label={t("items.kindLabel")} wide>{kindHref ? <KindSwitch current={kind} options={MANUAL_KINDS.map((k) => ({ kind: k, label: t(`kind.${k}` as MessageKey), href: kindHref(k) }))} text={{ field: t("items.switch.field"), title: t("items.switch.title"), body: t("items.switch.body"), keep: t("items.switch.keep"), switch: t("items.switch.go"), open: t("items.switch.open") }} /> : <output className="insp-kind">{t(`kind.${kind}` as MessageKey)}</output>}</Field>}
         {!item && source && <SourceCard source={source} t={t} />}
-        <Field label={`${t("link.title")} *`} wide><input name="title" required defaultValue={item?.title ?? source?.subject} /></Field>
+        <Field label={`${t("link.title")} *`} wide><input name="title" required defaultValue={item?.title ?? draft?.title ?? source?.subject} /></Field>
         {kind === "task" && (
           <>
             <Field label={t("items.phase")}><Select name="phaseId" value={item?.phaseId ?? ""} options={plan.phases.map((p): Opt => [p.id, p.name])} none={none} /></Field>
@@ -66,7 +69,7 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", p
             <Field label={t("items.priority")}><Select name="priority" value={item?.priority || "normal"} options={PRIORITIES.map((p): Opt => [p, t(`priority.${p}`)])} /></Field>
           </>
         )}
-        <Field label={t("link.details")} wide><textarea name="details" maxLength={5000} defaultValue={item?.details} /></Field>
+        <Field label={t("link.details")} wide><textarea name="details" maxLength={5000} defaultValue={item?.details ?? draft?.details} /></Field>
         {kind === "risk" && (
           <fieldset className="wide insp-state">
             <legend>{t("risk.state")}</legend>

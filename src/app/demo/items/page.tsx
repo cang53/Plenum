@@ -1,9 +1,10 @@
 import type { ManualItem } from "@/data/live";
 import { demoProject, demoSuggestions, demoTasks } from "@/data/demo";
 import { MANUAL_KINDS } from "@/domain/items";
-import { CreateOption, GroupHead, ItemsHead, matchesItem } from "@/app/app/items/ItemsHead";
+import { CreateOption, GroupHead, ItemsHead, listParam, matchesItem, queryPairs } from "@/app/app/items/ItemsHead";
 import { Fields } from "@/app/app/items/ItemFields";
 import { ItemDetail } from "@/app/app/items/ItemDetail";
+import { RowOptions } from "@/app/app/items/RowOptions";
 import { ItemsTable } from "@/app/app/items/ItemsTable";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale, type MessageKey } from "@/lib/messages";
@@ -21,18 +22,20 @@ const items: ManualItem[] = [
 
 const plan = { members: [{ userId: "Jonas Peeters", name: "Jonas Peeters", email: "", role: "member" }, { userId: "Marta Silva", name: "Marta Silva", email: "", role: "member" }], phases: [{ id: "Install", name: "Install" }], tasks: demoTasks.map((x) => ({ id: x.id, title: x.title })) };
 
-export default async function DemoItemsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string; status?: string; owner?: string; phase?: string; task?: string; create?: string; edit?: string; detail?: string; from?: string }> }) {
+export default async function DemoItemsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string | string[]; status?: string | string[]; owner?: string; phase?: string; task?: string; create?: string; edit?: string; detail?: string; from?: string; title?: string; details?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
-  const { q = "", kind = "", status = "", owner = "", phase = "", task, detail, create, edit, from } = await searchParams;
-  const query = { q, kind, status, owner, phase };
+  const { q = "", kind, status, owner = "", phase = "", task, detail, create, edit, from, title: draftTitle, details: draftDetails } = await searchParams;
+  const kinds = listParam(kind);
+  const query = { q, kind: kinds, status: listParam(status), owner, phase };
   const shown = items.filter((i) => matchesItem(i, query));
   const names = (k: "ownerId" | "phaseId") => Object.fromEntries(items.flatMap((i) => (i[k] ? [[i[k], i[k]]] : [])));
   const tasks = shown.filter((i) => i.kind === "task");
   const selected = detail ?? task;
   const opened = !edit ? items.find((i) => i.id === selected) : undefined;
   const source = { subject: "Re: Gearbox delivery date", from: "Marta Silva", receivedAt: "2026-10-20T08:00:00Z", href: "/demo/messages", review: { title: "Move install to 7 Dec", href: "/demo/messages" } };
-  const keep = new URLSearchParams(Object.entries(query).filter(([, v]) => v));
+  const menu = (i: ManualItem) => <RowOptions t={t} title={i.title} openHref={`/demo/items?detail=${i.id}`} editHref={`/demo/items?edit=${i.id}`} />;
+  const keep = new URLSearchParams(queryPairs(query));
   return (
     <main id="main" className="page items-page">
       <p className="notice">{t("gantt.demoNotice")}</p>
@@ -40,17 +43,17 @@ export default async function DemoItemsPage({ searchParams }: { searchParams: Pr
         create={MANUAL_KINDS.map((k) => <CreateOption key={k} kind={k} t={t} href={`/demo/items?create=${k}`} />)} />
       {opened && <ItemDetail t={t} locale={locale} item={opened} key_={opened.number ? `L4-${opened.number}` : ""} shareHref={`/demo/items?detail=${opened.id}`} owner={opened.ownerId ?? undefined} phase={opened.phaseId ?? undefined} source={source} activity={[{ at: "2026-10-20T09:30:00Z", text: "Marta Silva created this from a message" }, { at: "2026-10-21T14:05:00Z", text: "Jonas Peeters changed the due date" }]} canManage closeHref="/demo/items" editHref={`/demo/items?edit=${opened.id}`} hoursHref="/demo/timesheet" />}
       {items.filter((i) => i.id === edit).map((i) => <Fields key={i.id} item={i} kind={i.kind} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} source={source} t={t} />)}
-      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} source={from ? { ...source, id: from } : undefined} t={t} />)}
-      {(!kind || kind === "task") && (
+      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} draft={{ title: draftTitle, details: draftDetails }} kindHref={(other) => `/demo/items?create=${other}${from ? `&from=${from}` : ""}`} source={from ? { ...source, id: from } : undefined} t={t} />)}
+      {(!kinds.length || kinds.includes("task")) && (
         <>
           <GroupHead title={t("items.group.task")} rows={tasks} label={(s) => t(`status.${s}` as MessageKey)} />
-          <ItemsTable kind="task" t={t} owners={names("ownerId")} phases={names("phaseId")} project={demoProject.name} locale={locale} selected={selected} sheetHref={(id) => `/demo/items?${keep}${keep.size ? "&" : ""}detail=${id}`} rows={tasks.map((item) => ({ item }))} />
+          <ItemsTable kind="task" t={t} menu={menu} owners={names("ownerId")} phases={names("phaseId")} project={demoProject.name} locale={locale} selected={selected} sheetHref={(id) => `/demo/items?${keep}${keep.size ? "&" : ""}detail=${id}`} rows={tasks.map((item) => ({ item }))} />
         </>
       )}
-      {(["risk", "decision"] as const).filter((k) => !kind || kind === k).map((k) => (
+      {(["risk", "decision"] as const).filter((k) => !kinds.length || kinds.includes(k)).map((k) => (
         <section key={k}>
           <GroupHead title={t(`items.group.${k}` as MessageKey)} rows={shown.filter((i) => i.kind === k)} label={(s) => t(`risk.${s}` as MessageKey)} />
-          <ItemsTable kind={k} t={t} selected={selected} sheetHref={(id) => `/demo/items?detail=${id}`} owners={names("ownerId")} rows={shown.filter((i) => i.kind === k).map((item) => ({ item }))} />
+          <ItemsTable kind={k} t={t} menu={menu} selected={selected} sheetHref={(id) => `/demo/items?detail=${id}`} owners={names("ownerId")} rows={shown.filter((i) => i.kind === k).map((item) => ({ item }))} />
         </section>
       ))}
     </main>

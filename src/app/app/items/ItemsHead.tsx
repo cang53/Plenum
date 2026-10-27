@@ -2,9 +2,16 @@ import type { ReactNode } from "react";
 import { STATUSES } from "@/domain/board";
 import { MANUAL_KINDS } from "@/domain/items";
 import type { MessageKey } from "@/lib/messages";
+import { PopSearch } from "./PopSearch";
 
 type T = (key: MessageKey) => string;
-export type ItemsQuery = { q: string; kind: string; status: string; owner: string; phase: string };
+export type ItemsQuery = { q: string; kind: string[]; status: string[]; owner: string; phase: string };
+
+// A query value may repeat (?kind=task&kind=risk) or be comma-joined (paging links).
+export const listParam = (v: string | string[] | undefined): string[] => [v ?? []].flat().flatMap((x) => x.split(",")).filter(Boolean);
+// The query as name/value pairs, one per picked value, for links and hidden fields.
+export const queryPairs = (q: ItemsQuery, skip = ""): [string, string][] =>
+  (Object.entries(q) as [keyof ItemsQuery, string | string[]][]).filter(([k]) => k !== skip).flatMap(([k, v]): [string, string][] => [v].flat().filter(Boolean).map((x) => [k, x]));
 
 type Props = {
   t: T;
@@ -22,21 +29,36 @@ type Props = {
 export function matchesItem(i: { kind: string; title: string; details?: string; status: string; ownerId: string | null; phaseId: string | null }, q: ItemsQuery): boolean {
   const text = q.q.trim().toLowerCase();
   return (!text || `${i.title} ${i.details ?? ""}`.toLowerCase().includes(text))
-    && (!q.kind || i.kind === q.kind) && (!q.status || i.status === q.status)
+    && (!q.kind.length || q.kind.includes(i.kind)) && (!q.status.length || q.status.includes(i.status))
     && (!q.owner || i.ownerId === q.owner) && (!q.phase || i.phaseId === q.phase);
 }
 
 // Page heading with the Create menu, then search and filter chips, then the pending-suggestion notice.
 export function ItemsHead({ t, action, keep, query, owners, phases, pending, reviewHref, create }: Props) {
-  const chip = (name: keyof ItemsQuery, label: MessageKey, options: [string, string][]) => (
-    <label className="items-chip">
-      <span className="sr-only">{t(label)}</span>
-      <select name={name} defaultValue={query[name]} aria-label={t(label)}>
-        <option value="">{`${t(label)} · ${t("items.filter.all")}`}</option>
-        {options.map(([v, l]) => <option key={v} value={v}>{`${t(label)} · ${l}`}</option>)}
-      </select>
-    </label>
-  );
+  // Each chip opens a card: checkboxes for Kind and Status, one choice for Owner and Phase (Owner with search), then Clear and Apply.
+  const chip = (name: "kind" | "status" | "owner" | "phase", label: MessageKey, options: [string, string][]) => {
+    const picked = [query[name]].flat().filter(Boolean);
+    const many = name === "kind" || name === "status";
+    const clear = `${action}?${new URLSearchParams([...keep, ...queryPairs(query, name)])}`;
+    const rows = options.map(([v, l]) => (
+      <label key={v} className="pop-opt" data-search={l.toLowerCase()}>
+        <input type={many ? "checkbox" : "radio"} name={name} value={v} defaultChecked={picked.includes(v)} />
+        <span className="pop-check" aria-hidden="true">✓</span><span>{l}</span>
+      </label>
+    ));
+    const summary = picked.length === 0 ? t("items.filter.all") : picked.length === 1 ? options.find(([v]) => v === picked[0])?.[1] ?? picked[0] : t("items.filter.n").replace("{n}", String(picked.length));
+    return (
+      <details className="items-chip" name="items-chip">
+        <summary aria-label={t(label)}>{`${t(label)} · ${summary}`} ⌄</summary>
+        <div className="pop" role="group" aria-label={t(label)}>
+          <h3>{t(label)}</h3>
+          <p>{t(many ? "items.filter.helpMany" : "items.filter.helpOne")}</p>
+          {name === "owner" ? <PopSearch label={t("items.search.people")}>{rows}</PopSearch> : <div className="pop-list">{rows}</div>}
+          <div className="pop-actions"><a className="btn btn-secondary" href={clear}>{t("items.filter.clear")}</a><button type="submit" className="btn btn-primary">{t("items.cols.apply")}</button></div>
+        </div>
+      </details>
+    );
+  };
   return (
     <>
       <div className="items-head">
@@ -60,8 +82,7 @@ export function ItemsHead({ t, action, keep, query, owners, phases, pending, rev
         {chip("status", "items.chip.status", STATUSES.map((s) => [s, t(`status.${s}` as MessageKey)]))}
         {chip("owner", "items.chip.owner", Object.entries(owners))}
         {chip("phase", "items.chip.phase", Object.entries(phases))}
-        <button type="submit" className="btn btn-secondary">{t("items.cols.apply")}</button>
-      </form>
+        </form>
       {pending > 0 && (
         <div className="items-pending" role="status">
           <p className="items-pending-title">{t("board.pending").replace("{n}", String(pending))}</p>
