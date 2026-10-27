@@ -113,3 +113,21 @@ describe("reading Teams", () => {
     expect(teamsReaderFromEnv({ TEAMS_PROVIDER: "live" })).toBeUndefined();
   });
 });
+
+describe("channels linked in settings", () => {
+  it("are read with their own team and win over TEAMS_CHANNELS", async () => {
+    const calls: string[] = [];
+    const f = vi.fn(async (url: string | URL | Request) => {
+      const u = String(url);
+      calls.push(u);
+      if (u.includes("/rest/v1/projects")) return Response.json([{ email_slug: "a", teams_team_id: "T2", teams_channel_id: "19:new@thread.tacv2" }]);
+      if (u.includes("oauth2")) return Response.json({ access_token: "t" });
+      return Response.json({ value: [] });
+    }) as unknown as typeof fetch;
+    const env = { TEAMS_PROVIDER: "live", AUTH_MICROSOFT_ENTRA_ID_TENANT_ID: "X", AUTH_MICROSOFT_ENTRA_ID_ID: "a", AUTH_MICROSOFT_ENTRA_ID_SECRET: "b", SUPABASE_URL: "https://db.example", SUPABASE_SERVICE_ROLE_KEY: "k", TEAMS_CHANNELS: '{"a":{"channel":"old"},"b":{"channel":"19:b@thread.tacv2"}}', TEAMS_TEAM_ID: "T1" };
+    await teamsReaderFromEnv(env, f)!();
+    expect(calls.some((u) => u.includes("/teams/T2/channels/19%3Anew%40thread.tacv2/"))).toBe(true);
+    expect(calls.some((u) => u.includes("/teams/T1/channels/19%3Ab%40thread.tacv2/"))).toBe(true);
+    expect(calls.some((u) => u.includes("channels/old"))).toBe(false);
+  });
+});

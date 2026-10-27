@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { switchList } from "@/domain/rewards";
-import { checkName, checkSlug, slugFrom } from "@/domain/settings";
+import { checkName, checkSlug, checkTeamsLink, slugFrom } from "@/domain/settings";
 import { LOCALE_COOKIE } from "@/lib/locale";
 import { isLocale } from "@/lib/messages";
 
@@ -49,6 +49,21 @@ export async function saveProject(form: FormData): Promise<void> {
   if (error?.code === "23505") back(projectId, "error=settings.slugTaken");
   if (error || !data?.length) back(projectId, "error=settings.saveError");
   revalidatePath("/app", "layout");
+  back(projectId, "saved=1");
+}
+
+// Row-level security lets only a project manager edit the project; an empty link unlinks the channel.
+export async function saveTeamsChannel(form: FormData): Promise<void> {
+  const projectId = String(form.get("projectId"));
+  const link = checkTeamsLink(String(form.get("link") ?? ""));
+  if (!link.ok) back(projectId, `error=${link.error}`);
+  const { data, error } = await (await supabaseServer())
+    .from("projects")
+    .update({ teams_team_id: link.value?.teamId ?? null, teams_channel_id: link.value?.channelId ?? null })
+    .eq("id", projectId)
+    .select("id");
+  if (error || !data?.length) back(projectId, "error=settings.saveError");
+  revalidatePath("/app/settings");
   back(projectId, "saved=1");
 }
 

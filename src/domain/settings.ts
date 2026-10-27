@@ -20,3 +20,16 @@ export function slugFrom(name: string, tail: string): string {
   const base = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 50);
   return `${base || "project"}-${tail}`;
 }
+
+// A Teams "Get link to channel" link holds the channel id in its path and the team id in groupId. An empty box clears the link.
+export function checkTeamsLink(raw: string): Checked<{ teamId: string; channelId: string } | null> {
+  const text = raw.trim();
+  if (!text) return { ok: true, value: null };
+  try {
+    const url = new URL(text);
+    const channelId = decodeURIComponent(url.pathname.match(/\/channel\/([^/]+)/)?.[1] ?? "");
+    const teamId = url.searchParams.get("groupId") ?? "";
+    if (/^19:[^/\s]+@thread\.(tacv2|skype)$/.test(channelId) && /^[0-9a-f-]{36}$/i.test(teamId)) return { ok: true, value: { teamId, channelId } };
+  } catch {}
+  return { ok: false, error: "settings.teamsInvalid" };
+}

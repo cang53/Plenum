@@ -8,7 +8,7 @@ export type TeamsPost = { projectSlug: string; kind: "celebration" | "message"; 
 export type TeamsPoster = { post: (post: TeamsPost) => Promise<void> };
 
 // TEAMS_CHANNELS: {"<project slug>": {"channel": "<channel id>", "webhook": "<Workflows URL>"}}. Only mapped projects are read or posted to.
-export type TeamsChannels = Record<string, { channel: string; webhook?: string }>;
+export type TeamsChannels = Record<string, { channel: string; team?: string; webhook?: string }>;
 
 // The log keeps only the kind of failure, so the HTTP status rides on the error.
 const httpError = (message: string, status: number) => Object.assign(new Error(message), { status });
@@ -84,7 +84,7 @@ export function personMessages(messages: GraphMessage[]) {
     .filter((m) => m.bodyText);
 }
 
-export type TeamsReaderEnv = { teamId: string; tenantId: string; clientId: string; clientSecret: string; supabaseUrl: string; serviceRoleKey: string; channels: TeamsChannels };
+export type TeamsReaderEnv = { teamId?: string; tenantId: string; clientId: string; clientSecret: string; supabaseUrl: string; serviceRoleKey: string; channels: TeamsChannels };
 
 // Reads the latest 50 messages of each mapped channel and stores the new ones (storing is idempotent). Replies to a thread are not read.
 // Returns how many messages were stored or already stored. One channel failing does not stop the others.
@@ -100,7 +100,7 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
   let seen = 0;
   for (const slug of slugs) {
     try {
-      const res = await fetchFn(`https://graph.microsoft.com/v1.0/teams/${env.teamId}/channels/${encodeURIComponent(env.channels[slug].channel)}/messages?$top=50`, { headers: { authorization: `Bearer ${access_token}` } });
+      const res = await fetchFn(`https://graph.microsoft.com/v1.0/teams/${env.channels[slug].team ?? env.teamId}/channels/${encodeURIComponent(env.channels[slug].channel)}/messages?$top=50`, { headers: { authorization: `Bearer ${access_token}` } });
       if (!res.ok) throw httpError(`Graph read of ${slug} failed: ${res.status}`, res.status);
       for (const m of personMessages(((await res.json()) as { value: GraphMessage[] }).value)) {
         const store = await fetchFn(`${env.supabaseUrl}/rest/v1/rpc/ingest_teams`, {
@@ -118,13 +118,24 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
   return seen;
 }
 
-// The reader for the jobs endpoint, or undefined while Teams is not live.
-export function teamsReaderFromEnv(env: Record<string, string | undefined> = process.env): (() => Promise<number>) | undefined {
+// Channels linked in project settings, by project slug. Archived projects are left out.
+async function linkedChannels(url: string, key: string, fetchFn: typeof fetch): Promise<TeamsChannels> {
+  const res = await fetchFn(`${url}/rest/v1/projects?select=email_slug,teams_team_id,teams_channel_id&teams_channel_id=not.is.null&archived_at=is.null`, { headers: { apikey: key, authorization: `Bearer ${key}` } });
+  if (!res.ok) throw httpError(`reading linked channels failed: ${res.status}`, res.status);
+  const rows = (await res.json()) as { email_slug: string; teams_team_id: string | null; teams_channel_id: string }[];
+  return Object.fromEntries(rows.map((r) => [r.email_slug, { channel: r.teams_channel_id, ...(r.teams_team_id ? { team: r.teams_team_id } : {}) }]));
+}
+
+// The reader for the jobs endpoint, or undefined while Teams is not live. A channel linked in settings wins over TEAMS_CHANNELS.
+export function teamsReaderFromEnv(env: Record<string, string | undefined> = process.env, fetchFn: typeof fetch = fetch): (() => Promise<number>) | undefined {
   if (env.TEAMS_PROVIDER !== "live") return undefined;
   const e = {
-    teamId: env.TEAMS_TEAM_ID, tenantId: env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID, clientId: env.AUTH_MICROSOFT_ENTRA_ID_ID,
+    tenantId: env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID, clientId: env.AUTH_MICROSOFT_ENTRA_ID_ID,
     clientSecret: env.AUTH_MICROSOFT_ENTRA_ID_SECRET, supabaseUrl: env.SUPABASE_URL, serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY,
   };
   if (!Object.values(e).every(Boolean)) return undefined;
-  return () => readTeamsChannels({ ...(e as Omit<TeamsReaderEnv, "channels">), channels: teamsChannels(env.TEAMS_CHANNELS) }, fetch, (e) => logError("teams read failed", e));
+  return async () => {
+    const channels = { ...teamsChannels(env.TEAMS_CHANNELS), ...(await linkedChannels(e.supabaseUrl!, e.serviceRoleKey!, fetchFn)) };
+    return readTeamsChannels({ ...(e as Omit<TeamsReaderEnv, "channels" | "teamId">), teamId: env.TEAMS_TEAM_ID, channels }, fetchFn, (err) => logError("teams read failed", err));
+  };
 }
