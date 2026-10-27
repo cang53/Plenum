@@ -3,7 +3,7 @@
    bar on phones. Tokens only; icons are open line icons drawn as CSS masks, keyed by link target. */
 body:has(.shell) { background: var(--frame); }
 .shell { display: grid; grid-template-columns: 11rem minmax(0, 1fr); grid-template-rows: auto 1fr; min-height: 100vh; margin: 0; border: 0; border-radius: 0; background: var(--ambient-background); color: var(--text); font-family: var(--font); overflow: clip; }
-.shell-top { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s6); height: 4.75rem; padding: 0 var(--s6); border-bottom: 1px solid var(--glass-border); }
+.shell-top { position: sticky; top: 0; z-index: 6; background: var(--ambient-background); grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s6); height: 4.75rem; padding: 0 var(--s6); border-bottom: 1px solid var(--glass-border); }
 .shell-brand { display: flex; align-items: center; gap: 0.625rem; flex: none; font-size: var(--text-lg); font-weight: var(--weight-semibold); line-height: 1.5625rem; letter-spacing: -0.45px; color: var(--text); text-decoration: none; }
 .shell-logo { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 0.5625rem; background: var(--primary); color: var(--on-primary); font-size: var(--text-lg); font-weight: 700; line-height: 1.5rem; }
 .shell-crumb { color: var(--text-secondary); font-weight: var(--weight-normal); }
@@ -27,7 +27,7 @@ body:has(.shell) { background: var(--frame); }
 .shell-account { display: flex; align-items: center; gap: var(--s2); margin: 0; font-size: var(--text-base); color: var(--text-secondary); }
 .shell-avatar { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-full); background: var(--text); color: var(--on-primary); font-size: var(--text-lg); line-height: 1.2; }
 
-.shell-side { position: sticky; top: 4.75rem; align-self: start; height: calc(100vh - 4.75rem); overflow-y: auto; padding: 1.375rem 0.625rem 1.25rem; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 5px; }
+.shell-side { position: sticky; top: 4.75rem; align-self: start; height: calc(100vh - 4.75rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 1.375rem 0.625rem 1.25rem; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 5px; }
 .shell-side nav { display: flex; flex-direction: column; gap: 5px; }
 .shell-group { margin: var(--s3) 0 0; padding: 0 0 var(--s2) 0.875rem; font-size: var(--text-xs); line-height: 1rem; font-weight: var(--weight-normal); color: var(--text-secondary); }
 .shell-side nav > :first-child .shell-group { margin-top: 0; }

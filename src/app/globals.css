@@ -253,3 +253,7 @@ td {
     animation: none !important;
   }
 }
+
+/* One slim scrollbar everywhere (Chrome, Edge, Safari, Firefox): the thumb shows while hovering a scroll area. */
+* { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+*:hover { scrollbar-color: var(--border-strong) transparent; }
