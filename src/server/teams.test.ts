@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fakeTeamsPoster, personMessages, readTeamsChannels, teamsChannels, teamsPoster, teamsReaderFromEnv, webhookTeamsPoster, type TeamsPoster } from "./teams";
+import { describeError } from "@/lib/log";
+import { fakeTeamsPoster, personMessages, readTeamsChannels, graphMessagesUrl, teamsChannels, teamsPoster, teamsReaderFromEnv, webhookTeamsPoster, type TeamsPoster } from "./teams";
 
 // Any poster (fake now, live later) must pass this.
 function posterContract(name: string, make: () => TeamsPoster) {
@@ -50,6 +51,8 @@ describe("teamsChannels", () => {
   it("reads the map, and refuses bad JSON", () => {
     expect(teamsChannels('{"a":{"channel":"c"}}')).toEqual({ a: { channel: "c" } });
     expect(teamsChannels(undefined)).toEqual({});
+    expect(teamsChannels("\u201c{\"a\":{\"channel\":\"c\"}}\u201d".replace(/\u201c|\u201d/g, "'"))).toEqual({ a: { channel: "c" } });
+    expect(teamsChannels('{\u201ca\u201d:{\u201cchannel\u201d:\u201cc\u201d}}')).toEqual({ a: { channel: "c" } });
     expect(() => teamsChannels("[1]")).toThrow("TEAMS_CHANNELS");
     expect(() => teamsChannels("nope")).toThrow("TEAMS_CHANNELS");
   });
@@ -129,5 +132,26 @@ describe("channels linked in settings", () => {
     expect(calls.some((u) => u.includes("/teams/T2/channels/19%3Anew%40thread.tacv2/"))).toBe(true);
     expect(calls.some((u) => u.includes("/teams/T1/channels/19%3Ab%40thread.tacv2/"))).toBe(true);
     expect(calls.some((u) => u.includes("channels/old"))).toBe(false);
+  });
+});
+
+describe("SS's configuration", () => {
+  const raw = '{"demo-f1478410":{"channel":"19:9febd999b5694e839b28dfc5b44dd811@thread.tacv2"}}';
+  it("parses and builds the Graph request Microsoft documents", () => {
+    const channels = teamsChannels(raw);
+    expect(channels["demo-f1478410"]!.channel).toBe("19:9febd999b5694e839b28dfc5b44dd811@thread.tacv2");
+    expect(graphMessagesUrl("d89f9576-d43e-447b-817a-babe3f58b79d", channels["demo-f1478410"]!.channel))
+      .toBe("https://graph.microsoft.com/v1.0/teams/d89f9576-d43e-447b-817a-babe3f58b79d/channels/19%3A9febd999b5694e839b28dfc5b44dd811%40thread.tacv2/messages?$top=50");
+  });
+
+  it("names the failing call and Graph's error code in the log", async () => {
+    const f = vi.fn(async (url: string | URL | Request) => String(url).includes("oauth2")
+      ? Response.json({ access_token: "t" })
+      : Response.json({ error: { code: "BadRequest", message: "secret text" } }, { status: 400 })) as unknown as typeof fetch;
+    const errors: unknown[] = [];
+    await readTeamsChannels({ teamId: "T", tenantId: "X", clientId: "a", clientSecret: "b", supabaseUrl: "u", serviceRoleKey: "k", channels: teamsChannels(raw) }, f, (e) => errors.push(e));
+    expect(describeError(errors[0])).toBe("GraphMessagesError code=BadRequest status=400");
+    const bad = vi.fn(async () => Response.json({ error: "invalid_client" }, { status: 401 })) as unknown as typeof fetch;
+    await expect(readTeamsChannels({ teamId: "T", tenantId: "X", clientId: "a", clientSecret: "b", supabaseUrl: "u", serviceRoleKey: "k", channels: teamsChannels(raw) }, bad)).rejects.toMatchObject({ name: "GraphTokenError", code: "invalid_client", status: 401 });
   });
 });

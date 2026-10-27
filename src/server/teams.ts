@@ -11,15 +11,26 @@ export type TeamsPoster = { post: (post: TeamsPost) => Promise<void> };
 export type TeamsChannels = Record<string, { channel: string; team?: string; webhook?: string }>;
 
 // The log keeps only the kind of failure, so the HTTP status rides on the error.
-const httpError = (message: string, status: number) => Object.assign(new Error(message), { status });
+// The name says which call failed and the code is Graph's own error code (a fixed word such as Forbidden), never message text.
+const httpError = (name: string, message: string, status: number, code?: string) => Object.assign(new Error(message), { name, status, ...(code ? { code } : {}) });
+// Microsoft answers errors as {"error":{"code":"Forbidden",...}} (the token endpoint as {"error":"invalid_client",...}).
+async function errorCode(res: Response): Promise<string | undefined> {
+  const body = (await res.json().catch(() => null)) as { error?: unknown } | null;
+  const e = body?.error ?? body; // Supabase answers {"code":"42703",...} without an error wrapper
+  const code = typeof e === "string" ? e : (e as { code?: unknown } | null | undefined)?.code;
+  return typeof code === "string" && /^\w{1,60}$/.test(code) ? code : undefined;
+}
+
+export const graphMessagesUrl = (teamId: string, channelId: string) => `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${encodeURIComponent(channelId)}/messages?$top=50`;
 
 export function teamsChannels(raw = process.env.TEAMS_CHANNELS): TeamsChannels {
   if (!raw) return {};
   try {
-    const parsed = JSON.parse(raw);
+    // Pasting into a settings box often adds curly quotes or wrapping quotes; accept those.
+    const parsed = JSON.parse(raw.trim().replace(/[\u201c\u201d]/g, '"').replace(/^'([\s\S]*)'$/, "$1"));
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
   } catch {}
-  throw new Error("TEAMS_CHANNELS must be a JSON object of project slug to {channel, webhook}");
+  throw Object.assign(new Error("TEAMS_CHANNELS must be a JSON object of project slug to {channel, webhook}"), { name: "TeamsChannelsJsonError" });
 }
 
 export function fakeTeamsPoster(): TeamsPoster & { posted: TeamsPost[] } {
@@ -47,7 +58,7 @@ export function webhookTeamsPoster(channels: TeamsChannels, fetchFn: typeof fetc
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ type: "message", attachments: [{ contentType: "application/vnd.microsoft.card.adaptive", content: card }] }),
       });
-      if (!res.ok) throw httpError(`Teams webhook failed: ${res.status}`, res.status);
+      if (!res.ok) throw httpError("TeamsWebhookError", `Teams webhook failed: ${res.status}`, res.status);
     },
   };
 }
@@ -95,20 +106,20 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
     method: "POST",
     body: new URLSearchParams({ client_id: env.clientId, client_secret: env.clientSecret, scope: "https://graph.microsoft.com/.default", grant_type: "client_credentials" }),
   });
-  if (!tokenRes.ok) throw httpError(`Graph sign-in failed: ${tokenRes.status}`, tokenRes.status);
+  if (!tokenRes.ok) throw httpError("GraphTokenError", `Graph sign-in failed: ${tokenRes.status}`, tokenRes.status, await errorCode(tokenRes));
   const { access_token } = (await tokenRes.json()) as { access_token: string };
   let seen = 0;
   for (const slug of slugs) {
     try {
-      const res = await fetchFn(`https://graph.microsoft.com/v1.0/teams/${env.channels[slug].team ?? env.teamId}/channels/${encodeURIComponent(env.channels[slug].channel)}/messages?$top=50`, { headers: { authorization: `Bearer ${access_token}` } });
-      if (!res.ok) throw httpError(`Graph read of ${slug} failed: ${res.status}`, res.status);
+      const res = await fetchFn(graphMessagesUrl(String(env.channels[slug].team ?? env.teamId), env.channels[slug].channel), { headers: { authorization: `Bearer ${access_token}` } });
+      if (!res.ok) throw httpError("GraphMessagesError", `Graph read of ${slug} failed: ${res.status}`, res.status, await errorCode(res));
       for (const m of personMessages(((await res.json()) as { value: GraphMessage[] }).value)) {
         const store = await fetchFn(`${env.supabaseUrl}/rest/v1/rpc/ingest_teams`, {
           method: "POST",
           headers: { apikey: env.serviceRoleKey, authorization: `Bearer ${env.serviceRoleKey}`, "content-type": "application/json" },
           body: JSON.stringify({ p_slug: slug, p_external_id: m.externalId, p_from_name: m.fromName, p_from_id: m.fromId, p_subject: m.subject, p_body_text: m.bodyText, p_sent_at: m.sentAt }),
         });
-        if (!store.ok) throw httpError(`ingest_teams failed: ${store.status}`, store.status);
+        if (!store.ok) throw httpError("IngestTeamsError", `ingest_teams failed: ${store.status}`, store.status, await errorCode(store));
         if ((await store.json()) !== null) seen++; // null: no open project has that slug
       }
     } catch (e) {
@@ -121,7 +132,7 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
 // Channels linked in project settings, by project slug. Archived projects are left out.
 async function linkedChannels(url: string, key: string, fetchFn: typeof fetch): Promise<TeamsChannels> {
   const res = await fetchFn(`${url}/rest/v1/projects?select=email_slug,teams_team_id,teams_channel_id&teams_channel_id=not.is.null&archived_at=is.null`, { headers: { apikey: key, authorization: `Bearer ${key}` } });
-  if (!res.ok) throw httpError(`reading linked channels failed: ${res.status}`, res.status);
+  if (!res.ok) throw httpError("LinkedChannelsError", `reading linked channels failed: ${res.status}`, res.status, await errorCode(res));
   const rows = (await res.json()) as { email_slug: string; teams_team_id: string | null; teams_channel_id: string }[];
   return Object.fromEntries(rows.map((r) => [r.email_slug, { channel: r.teams_channel_id, ...(r.teams_team_id ? { team: r.teams_team_id } : {}) }]));
 }
