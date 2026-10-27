@@ -9,8 +9,7 @@ function block(selector: string): Record<string, string> {
   return Object.fromEntries([...body.matchAll(/^\s*(--[\w-]+):\s*(#[0-9a-f]{6})\s*;/gim)].map((m) => [m[1], m[2]]));
 }
 
-const light = block(":root");
-const dark = { ...light, ...block('[data-theme="dark"]') };
+const tokens = block(":root");
 
 const lum = (hex: string) => {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -46,7 +45,7 @@ const pairs: [string, string, number][] = [
   ["--status-done", "--surface", 3],
 ];
 
-describe.each([["light", light], ["dark", dark]])("%s token contrast", (_name, tokens) => {
+describe("token contrast", () => {
   it.each(pairs)("%s on %s is at least %s:1", (fg, bg, min) => {
     expect(tokens[fg], fg).toBeDefined();
     expect(tokens[bg], bg).toBeDefined();
@@ -54,16 +53,16 @@ describe.each([["light", light], ["dark", dark]])("%s token contrast", (_name, t
   });
 });
 
-describe("flat look", () => {
-  it("keeps high-contrast and reduced-motion blocks and no glass, blur or gradients", () => {
+describe("dark-green glass look", () => {
+  it("keeps high-contrast, reduced-transparency and reduced-motion fallbacks", () => {
     expect(css).toContain("prefers-contrast: more");
+    expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
-    expect(css).not.toMatch(/gradient\(|rgba?\(/i);
-    expect(css).not.toMatch(/--glass|blur/);
+    expect(css).not.toMatch(/data-theme/);
   });
-  it("uses the target palette", () => {
-    expect(light["--primary"]).toBe("#2b4fd0");
-    expect(dark["--primary"]).toBe("#8fa8ff");
-    expect(dark["--surface-subtle"]).toBe("#0e1116");
+  it("uses the Figma palette and the system (SF Pro) font", () => {
+    expect(tokens["--primary"]).toBe("#cfe6c2");
+    expect(tokens["--surface-subtle"]).toBe("#1a342b");
+    expect(css).toMatch(/--font: -apple-system/);
   });
 });

@@ -1,64 +1,72 @@
-/* Design tokens: flat slate and cobalt, light and dark. Components read these, never raw values.
-   Light is the default; dark applies with data-theme="dark". The glass, ambient and shadow
-   names below are flat aliases kept until S14-24 removes them with their last users. */
+/* Design tokens: one dark-green theme from the Figma "Plenum · Messages" frame, with Apple-style
+   glass (translucent fill, hairline border, backdrop blur). Components read these, never raw values. */
 :root {
-  /* Color */
-  --surface: #ffffff;
-  --surface-subtle: #f4f5f7;
-  --surface-muted: #eceef2;
-  --surface-hover: #eceef2;
-  --text: #12161c;
-  --text-secondary: #454e5b;
-  --text-muted: #586272;
-  --border: #d8dce3;
-  --border-strong: #7a8494;
-  --primary: #2b4fd0;
-  --primary-hover: #213fa8;
-  --on-primary: #ffffff;
-  --focus-ring: #2b4fd0;
-  --danger: #b3261e;
-  --danger-surface: #fbeae8;
-  --success: #17694a;
-  --success-surface: #e3f2ea;
-  --warning: #8a4b00;
-  --warning-surface: #f7ecdc;
-  --info: #2b4fd0;
-  --info-surface: #eef1fc;
-  --accent-soft: #e1e7fa;
-  --accent-text: #2b4fd0;
-  --status-todo: #586272;
-  --status-progress: #2b4fd0;
-  --status-blocked: #8a4b00;
-  --status-done: #17694a;
+  color-scheme: dark;
 
-  --ambient-background: var(--surface-subtle);
+  /* Color */
+  --surface: #22433a;
+  --surface-subtle: #1a342b;
+  --surface-muted: #2b5045;
+  --surface-hover: #2b5045;
+  --text: #ffffff;
+  --text-secondary: #d3e0d7;
+  --text-muted: #adc2b5;
+  --border: #3b5d51;
+  --border-strong: #87a495;
+  --primary: #cfe6c2;
+  --primary-hover: #e1f1d8;
+  --on-primary: #13261c;
+  --focus-ring: #cfe6c2;
+  --danger: #ffb8ad;
+  --danger-surface: #4a2b27;
+  --success: #b2e5bf;
+  --success-surface: #1f3f2d;
+  --warning: #f2cd8f;
+  --warning-surface: #45391f;
+  --info: #bcdcf2;
+  --info-surface: #23394a;
+  --accent-soft: #35594c;
+  --accent-text: #e1f1d8;
+  --status-todo: #adc2b5;
+  --status-progress: #bcdcf2;
+  --status-blocked: #f2cd8f;
+  --status-done: #b2e5bf;
+
+  /* Glass: translucent white over the green ground */
+  --glass: #ffffff14;
+  --glass-strong: #ffffff24;
+  --glass-border: #ffffff26;
+  --glass-blur: blur(20px) saturate(140%);
+  --ambient-background: radial-gradient(120% 80% at 50% 0%, #2c5242 0%, #1a342b 55%, #12241d 100%);
+  --frame: #101a15;
 
   /* Shadow: only menus and dialogs lift */
   --elevation: none;
-  --elevation-dialog: 0 24px 60px #00000040;
+  --elevation-dialog: 0 24px 60px #00000099;
 
   /* Radius */
-  --radius-sm: 0.25rem;
-  --radius: 0.375rem;
-  --radius-lg: 0.625rem;
+  --radius-sm: 0.375rem;
+  --radius: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.75rem;
   --radius-full: 999rem;
 
-  /* Type */
-  --font: var(--font-plex), -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+  /* Type: SF Pro on Apple devices, the system UI font elsewhere */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
-  --text-base: 0.875rem;
-  --text-md: 0.9375rem;
-  --text-lg: 1.0625rem;
-  --text-xl: 1.25rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.375rem;
   --text-2xl: 1.75rem;
   --text-3xl: 2.25rem;
   --weight-normal: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
-  --line-tight: 1.3;
-  --line-normal: 1.6;
-  --tracking-tight: -0.03em;
+  --line-tight: 1.25;
+  --line-normal: 1.35;
+  --tracking-tight: -0.02em;
 
   /* Spacing */
   --s1: 0.25rem;
@@ -88,42 +96,21 @@
   --accent: var(--primary);
 }
 
-[data-theme="dark"] {
-  --surface: #151921;
-  --surface-subtle: #0e1116;
-  --surface-muted: #1c212b;
-  --surface-hover: #1c212b;
-  --text: #eceff4;
-  --text-secondary: #b8c1ce;
-  --text-muted: #9aa5b6;
-  --border: #2b323e;
-  --border-strong: #6b7686;
-  --primary: #8fa8ff;
-  --primary-hover: #aebfff;
-  --on-primary: #0e1116;
-  --focus-ring: #8fa8ff;
-  --danger: #f5a8a2;
-  --danger-surface: #3a2224;
-  --success: #8fd3b0;
-  --success-surface: #17332a;
-  --warning: #e8b878;
-  --warning-surface: #3a2d18;
-  --info: #8fa8ff;
-  --info-surface: #1b2440;
-  --accent-soft: #222d4f;
-  --accent-text: #8fa8ff;
-  --status-todo: #9aa5b6;
-  --status-progress: #8fa8ff;
-  --status-blocked: #e8b878;
-  --status-done: #8fd3b0;
-  --elevation-dialog: 0 24px 60px #00000099;
-}
-
 @media (prefers-contrast: more) {
-  :root, [data-theme="dark"] {
+  :root {
     --border: var(--border-strong);
     --text-secondary: var(--text);
     --text-muted: var(--text);
+    --glass-border: var(--border-strong);
+  }
+}
+
+/* Solid fills where translucency hurts legibility. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass: var(--surface);
+    --glass-strong: var(--surface-muted);
+    --glass-blur: none;
   }
 }
 

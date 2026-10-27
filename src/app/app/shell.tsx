@@ -49,11 +49,11 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
   );
   return (
     <div className="shell">
-      <aside className="shell-side">
-        <a className="shell-brand" href={href("/app")}>{labels.brand}</a>
+      <header className="shell-top">
+        <a className="shell-brand" href={href("/app")}><span className="shell-logo" aria-hidden="true">p</span>{labels.brand}</a>
         {projects.length > 1 && (
           <details className="shell-projects">
-            <summary>{project?.name}</summary>
+            <summary><span className="shell-crumb">{labels.projects} /</span> {project?.name}</summary>
             <ul aria-label={labels.projects}>
               {projects.map((p) => (
                 <li key={p.id}><a href={`${pathname}?project=${p.id}`} aria-current={p.id === project?.id ? "true" : undefined}>{p.name}</a></li>
@@ -61,7 +61,16 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
             </ul>
           </details>
         )}
-        {projects.length === 1 && <p className="shell-project">{project?.name}</p>}
+        {projects.length === 1 && <p className="shell-project"><span className="shell-crumb">{labels.projects} /</span> {project?.name}</p>}
+        <CommandMenu project={project?.id} labels={labels.menu} />
+        <a className="btn btn-primary" href={href("/app/items")}>{labels.newTask} <kbd className="kbd" aria-hidden="true">C</kbd></a>
+        <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
+          <span className="shell-avatar" aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
+          <span>{email}</span>
+          <button type="submit" className="btn btn-plain">{labels.signOut}</button>
+        </form>
+      </header>
+      <aside className="shell-side">
         {inbox}
         {quickLink("mine", labels.mywork)}
         <nav aria-label={labels.main}>
@@ -82,17 +91,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
           )}
         </nav>
       </aside>
-      <div className="shell-body">
-        <header className="shell-top">
-          <CommandMenu project={project?.id} labels={labels.menu} />
-          <a className="btn btn-primary" href={href("/app/items")}>{labels.newTask} <kbd className="kbd" aria-hidden="true">C</kbd></a>
-          <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
-            <span>{email}</span>
-            <button type="submit" className="btn btn-plain">{labels.signOut}</button>
-          </form>
-        </header>
-        {children}
-      </div>
+      <div className="shell-body">{children}</div>
       <nav className="shell-bar" aria-label={labels.mobile}>
         {items.filter((i) => i.group === "project").slice(0, 4).map(link)}
       </nav>
