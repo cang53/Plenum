@@ -1,9 +1,9 @@
 export const QUICK_FILTERS = ["all", "mine", "at_risk", "blocked", "week"] as const;
 export type QuickFilter = (typeof QUICK_FILTERS)[number];
 
-export const COLUMNS = ["owner", "priority", "due", "site", "costCode"] as const;
+export const COLUMNS = ["phase", "owner", "priority", "due", "site", "costCode"] as const;
 export type Column = (typeof COLUMNS)[number];
-export const DEFAULT_COLUMNS: readonly Column[] = ["owner", "due"];
+export const DEFAULT_COLUMNS: readonly Column[] = ["phase", "owner", "priority", "due"];
 
 type Row = { status: string; dueDate: string | null; ownerId: string | null };
 

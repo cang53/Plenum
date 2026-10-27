@@ -31,7 +31,7 @@ describe("matchesQuick", () => {
 describe("params", () => {
   it("falls back to all on unknown filters", () => expect(parseQuick("x")).toBe("all"));
   it("columns default, then follow the list and ignore unknown names", () => {
-    expect(parseColumns(undefined)).toEqual(["owner", "due"]);
+    expect(parseColumns(undefined)).toEqual(["phase", "owner", "priority", "due"]);
     expect(parseColumns(["site", "bogus", "priority"])).toEqual(["priority", "site"]);
     expect(parseColumns("-")).toEqual([]);
   });
