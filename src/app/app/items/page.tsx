@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listManualItems, listPendingSuggestions, listPlanChoices, type ManualItem } from "@/data/live";
+import { listManualItems, listSourceMessages, listPendingSuggestions, listPlanChoices, type ManualItem } from "@/data/live";
 import { currentProject, listMembers, listProjects } from "@/data/projects";
 import { MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
@@ -36,6 +36,9 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const keep = `${new URLSearchParams([...Object.entries(query).filter(([, v]) => v), ...cols])}`.replace(/^(?=.)/, "&");
   const href = (q: string) => `/app/items?project=${project.id}${q === "all" ? "" : `&quick=${q}`}${keep}`;
   const plan = { members, ...choices };
+  const editing = items.find((i) => i.id === edit);
+  const sourceOf = editing?.sourceMessageId ? (await listSourceMessages(supabase, [editing.sourceMessageId]))[editing.sourceMessageId] : undefined;
+  const source = editing?.sourceMessageId && sourceOf ? { ...sourceOf, href: `/app/stream#msg-${editing.sourceMessageId}`, review: suggestions.filter((x) => x.messageId === editing.sourceMessageId).map((x) => ({ title: x.title, href: `/app/notifications?project=${project.id}` }))[0] } : undefined;
   // Risks have no site, so only the "off everywhere" switch hides the badge.
   const [{ data: switches }, { data: risks }, { data: taskRows }] = await Promise.all([
     supabase.from("reward_switches").select("site"),
@@ -57,7 +60,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           <CreateOption key={k} kind={k} t={t} href={`${href(quick)}&create=${k}`} />
         ))} />
       {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} t={t} />)}
-      {items.filter((i) => i.id === edit).map((i) => <Fields key={i.id} item={i} kind={i.kind} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} t={t} />)}
+      {editing && <Fields item={editing} kind={editing.kind} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} source={source} t={t} />}
       <div className="items-bar">
         <WorkSwitch current="items" projectId={project.id} t={t} />
         <span className="grow" />

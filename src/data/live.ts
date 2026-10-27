@@ -162,20 +162,20 @@ export async function dismissSuggestion(client: SupabaseClient, id: string): Pro
   if (!data?.length) throw new Error("suggestion not found or not allowed");
 }
 
-export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; riskKind: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; site: string; isMilestone: boolean; ownerId: string | null; phaseId: string | null; parentId: string | null; predecessorIds: string[]; number: number | null; createdAt: string };
+export type ManualItem = { id: string; kind: ManualKind; title: string; details: string; status: string; riskKind: string; priority: string; startDate: string | null; dueDate: string | null; costCode: string; site: string; isMilestone: boolean; ownerId: string | null; phaseId: string | null; parentId: string | null; predecessorIds: string[]; number: number | null; createdAt: string; sourceMessageId: string | null };
 
 // Tasks, decisions and risks of a project for the edit screen, newest first.
 export async function listManualItems(client: SupabaseClient, projectId: string, after?: string): Promise<Page<ManualItem>> {
   const cursor = decodeCursor(after);
   const found = await Promise.all(
     MANUAL_KINDS.map(async (kind) => {
-      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, site, is_milestone, owner_id, phase_id, parent_id, number, created_at" : kind === "risk" ? "id, title, details, status, kind, due_date, owner_id, created_at" : "id, title, details, created_at";
+      const cols = kind === "task" ? "id, title, details, status, priority, start_date, due_date, cost_code, site, is_milestone, owner_id, phase_id, parent_id, number, source_message_id, created_at" : kind === "risk" ? "id, title, details, status, kind, due_date, owner_id, source_message_id, created_at" : "id, title, details, source_message_id, created_at";
       let q = client.from(TABLE[kind]).select(cols).eq("project_id", projectId);
       if (cursor) q = q.or(afterFilter("created_at", cursor));
       const { data, error } = await q.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
       if (error) throw error;
       return ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({
-        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", riskKind: kind === "risk" ? r.kind ?? "risk" : "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", site: r.site ?? "", isMilestone: (r.is_milestone as unknown) === true, ownerId: r.owner_id ?? null, phaseId: r.phase_id ?? null, parentId: r.parent_id ?? null, predecessorIds: [] as string[], number: (r.number as unknown as number | null) ?? null, createdAt: r.created_at as string,
+        id: r.id as string, kind, title: r.title as string, details: r.details ?? "", status: r.status ?? "", riskKind: kind === "risk" ? r.kind ?? "risk" : "", priority: r.priority ?? "", startDate: r.start_date ?? null, dueDate: r.due_date ?? null, costCode: r.cost_code ?? "", site: r.site ?? "", isMilestone: (r.is_milestone as unknown) === true, ownerId: r.owner_id ?? null, phaseId: r.phase_id ?? null, parentId: r.parent_id ?? null, predecessorIds: [] as string[], number: (r.number as unknown as number | null) ?? null, createdAt: r.created_at as string, sourceMessageId: r.source_message_id ?? null,
       }));
     }),
   );
@@ -188,6 +188,14 @@ export async function listManualItems(client: SupabaseClient, projectId: string,
     for (const d of data ?? []) page.rows.find((i) => i.id === d.successor_id)?.predecessorIds.push(d.predecessor_id);
   }
   return page;
+}
+
+// Subject and sender line of the messages the items came from, for the "Message source" card.
+export async function listSourceMessages(client: SupabaseClient, ids: string[]): Promise<Record<string, { subject: string; from: string; receivedAt: string }>> {
+  if (!ids.length) return {};
+  const { data, error } = await client.from("messages").select("id, subject, from_name, from_address, received_at").in("id", ids);
+  if (error) throw error;
+  return Object.fromEntries((data ?? []).map((m) => [m.id as string, { subject: (m.subject as string) ?? "", from: ((m.from_name || m.from_address) as string) ?? "", receivedAt: m.received_at as string }]));
 }
 
 // Phases and subtask parents to choose from on the items screen.

@@ -22,7 +22,9 @@ const Select = ({ name, value, options, none }: { name: string; value: string; o
 );
 
 // The create/edit inspector: heading with close, scrolling body, footer with Cancel and the save button. One component for task, decision and risk.
-export function Fields({ item, kind, projectId, project = "", closeHref = "#", plan, t }: { item?: ManualItem; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
+export type Source = { subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string } };
+
+export function Fields({ item, kind, projectId, project = "", closeHref = "#", plan, source, t }: { item?: ManualItem; source?: Source; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
   const people: Opt[] = plan.members.map((m) => [m.userId, m.name || m.email]);
   const none = t("items.none");
   const others: Opt[] = plan.tasks.filter((o) => o.id !== item?.id).map((o) => [o.id, o.title]);
@@ -37,7 +39,7 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", p
         <a className="insp-close" href={closeHref} aria-label={t("items.close")}>✕</a>
       </header>
       <div className="insp-body">
-        <Field label={t("items.kindLabel")} wide><output className="insp-kind">{t(`kind.${kind}` as MessageKey)}</output></Field>
+        {!item && <Field label={t("items.kindLabel")} wide><output className="insp-kind">{t(`kind.${kind}` as MessageKey)}</output></Field>}
         <Field label={`${t("link.title")} *`} wide><input name="title" required defaultValue={item?.title} /></Field>
         {kind === "task" && (
           <>
@@ -75,6 +77,21 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", p
               <select name="predecessorIds" multiple defaultValue={item?.predecessorIds ?? []}>{others.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
             </Field>
           </details>
+        )}
+        {source && (
+          <section className="wide insp-card" aria-label={t("items.source")}>
+            <p className="insp-card-label">{t("items.source")}</p>
+            <p><a href={source.href}>{source.subject || t("taskDetail.sourceMessage")}</a></p>
+            <p className="insp-card-note">{[source.from, source.receivedAt.slice(0, 10)].filter(Boolean).join(" · ")}</p>
+          </section>
+        )}
+        {source?.review && (
+          <section className="wide insp-card insp-review" aria-label={t("items.reviewTitle")}>
+            <p className="insp-card-label">{t("items.reviewTitle")}</p>
+            <p>{source.review.title}</p>
+            <p className="insp-card-note">{t("items.pendingHelp")}</p>
+            <a className="btn btn-secondary" href={source.review.href}>{t("items.reviewLink")} ↗</a>
+          </section>
         )}
       </div>
       <footer className="insp-foot">

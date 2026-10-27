@@ -200,3 +200,10 @@
 .insp-state label:has(input:checked) { background: var(--control-active); }
 .insp-state label:has(input:focus-visible) { outline: var(--focus-width) solid var(--focus-ring); }
 .insp-state input { position: absolute; opacity: 0; inset: 0; }
+.insp-card { display: grid; gap: var(--s2); padding: 0.875rem; border: 1px solid var(--glass-border); border-radius: 0.875rem; background: var(--surface-subtle); }
+.insp-card p { margin: 0; font-size: var(--text-base); line-height: 1.25rem; color: var(--text); }
+.insp-card a:not(.btn) { color: var(--text); }
+.insp-card .insp-card-label { color: var(--primary); }
+.insp-card .insp-card-note { font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-review { background: var(--accent-soft); gap: 10px; }
+.insp-review .btn { justify-self: start; min-height: 2.75rem; }

@@ -8,6 +8,19 @@ const T = (k: Parameters<typeof tr>[0]) => tr(k, "en");
 const plan = { members: [{ userId: "u1", name: "Ana Kok", email: "a@x.nl", role: "member" }], phases: [{ id: "p1", name: "Site works" }], tasks: [{ id: "t2", title: "Other" }] };
 const item = { id: "t1", kind: "task", title: "Pour slab", details: "", status: "todo", priority: "normal", dueDate: null, startDate: null, costCode: "", site: "", isMilestone: false, ownerId: null, phaseId: null, parentId: null, predecessorIds: [] } as unknown as ManualItem;
 
+describe("Fields edit", () => {
+  it("hides the kind, shows the source message and the pending suggestion link", async () => {
+    const { Fields } = await import("./ItemFields");
+    const source = { subject: "Re: Gearbox", from: "Marta", receivedAt: "2026-10-20T08:00:00Z", href: "/s", review: { title: "Move install", href: "/r" } };
+    const html = renderToStaticMarkup(<Fields item={item} kind="task" projectId="p" plan={plan} source={source} t={T} />);
+    expect(html).not.toContain("insp-kind");
+    expect(html).toContain('href="/s"');
+    expect(html).toContain("Re: Gearbox");
+    expect(html).toContain('href="/r"');
+    expect(renderToStaticMarkup(<Fields item={item} kind="task" projectId="p" plan={plan} t={T} />)).not.toContain("insp-card");
+  });
+});
+
 describe("Fields", () => {
   it("lays the task form out as inspector: heading, labelled body, Cancel and save in the footer", async () => {
     const { Fields } = await import("./ItemFields");
