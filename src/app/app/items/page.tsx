@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listManualItems, listPlanChoices, type ManualItem } from "@/data/live";
+import { listManualItems, listPendingSuggestions, listPlanChoices, type ManualItem } from "@/data/live";
 import { currentProject, listMembers, listProjects } from "@/data/projects";
 import { MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
@@ -15,21 +15,25 @@ import { bulkTasks } from "./actions";
 import { OfflineTasks } from "./OfflineTasks";
 import { ItemsTable } from "./ItemsTable";
 import { Fields } from "./ItemFields";
+import { GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after, kind: only, quick: quickParam, col, task } = await searchParams;
+  const { project: chosen, after, kind: only, quick: quickParam, col, task, q = "", status = "", owner = "", phase = "" } = await searchParams;
+  const query = { q, kind: only ?? "", status, owner, phase };
   const quick = parseQuick(quickParam);
   const columns = parseColumns(col);
   const today = new Date().toISOString().slice(0, 10);
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
-  const [{ rows: items, next }, choices, members, { data: { user } }] = await Promise.all([listManualItems(supabase, project.id, after), listPlanChoices(supabase, project.id), listMembers(supabase, project.id), supabase.auth.getUser()]);
+  const [{ rows: loaded, next }, choices, members, { data: { user } }, suggestions] = await Promise.all([listManualItems(supabase, project.id, after), listPlanChoices(supabase, project.id), listMembers(supabase, project.id), supabase.auth.getUser(), listPendingSuggestions(supabase, project.id)]);
+  const items = loaded.filter((i) => matchesItem(i, query));
   const owners = Object.fromEntries(members.map((m) => [m.userId, m.name || m.email]));
   // Quick filters are about tasks, so the other kinds step aside while one is on.
   const shown = (i: ManualItem) => quick === "all" || (i.kind === "task" && matchesQuick(i, quick, user?.id ?? null, today));
-  const keep = `${only ? `&kind=${only}` : ""}${col === undefined ? "" : [col].flat().map((c) => `&col=${c}`).join("")}`;
+  const cols: [string, string][] = col === undefined ? [] : [col].flat().map((c) => ["col", c]);
+  const keep = `${new URLSearchParams([...Object.entries(query).filter(([, v]) => v), ...cols])}`.replace(/^(?=.)/, "&");
   const href = (q: string) => `/app/items?project=${project.id}${q === "all" ? "" : `&quick=${q}`}${keep}`;
   const plan = { members, ...choices };
   // Risks have no site, so only the "off everywhere" switch hides the badge.
@@ -48,7 +52,13 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const showTasks = !only || only === "task";
   return (
     <main id="main" className="page items-page">
-      <h1 className="sr-only">{t("items.title")}</h1>
+      <ItemsHead t={t} action="/app/items" keep={[["project", project.id], ...(quick !== "all" ? [["quick", quick] as [string, string]] : []), ...cols]} query={query} owners={owners} phases={phaseNames} pending={suggestions.length} reviewHref={`/app/notifications?project=${project.id}`}
+        create={MANUAL_KINDS.map((k) => (
+          <details key={k} name="create-item">
+            <summary>{t(`kind.${k}` as MessageKey)}</summary>
+            <Fields kind={k} projectId={project.id} plan={plan} t={t} />
+          </details>
+        ))} />
       <div className="items-bar">
         <WorkSwitch current="items" projectId={project.id} t={t} />
         <span className="grow" />
@@ -64,23 +74,12 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           </form>
         </details>
         <a className="btn" href={`/app/import?project=${project.id}`}>{t("import.title")}</a>
-        <details className="items-new">
-          <summary className="btn btn-primary">{t("items.newTask")}</summary>
-          <div className="surface"><Fields kind="task" projectId={project.id} plan={plan} t={t} /></div>
-        </details>
       </div>
       <div className="items-tools">
         <nav className="items-quick" aria-label={t("items.quick.label")}>
           {QUICK_FILTERS.map((q) => (
             <a key={q} href={href(q)} aria-current={q === quick ? "page" : undefined}>{t(`items.quick.${q}` as MessageKey)} <span className="items-count">{counts[q]}</span></a>
           ))}
-        </nav>
-        <nav className="items-filter" aria-label={t("items.filter.label")}>
-          <div className="segmented">
-            {[undefined, ...MANUAL_KINDS].map((k) => (
-              <a key={k ?? "all"} href={`/app/items?project=${project.id}${k ? `&kind=${k}` : ""}`} aria-current={k === only || (!k && !MANUAL_KINDS.some((m) => m === only)) ? "page" : undefined}>{k ? t(`items.group.${k}` as MessageKey) : t("items.filter.all")}</a>
-            ))}
-          </div>
         </nav>
       </div>
       {showTasks && items.some((i) => i.kind === "task") && (
@@ -101,7 +100,8 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           <button type="submit" name="op" value="due" className="btn btn-secondary">{t("bulk.setDue")}</button>
         </form>
       )}
-      {showTasks && (quick !== "all" && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} sheetHref={(id) => `${href(quick)}&task=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item, edit: null }))} />)}
+      {showTasks && <GroupHead title={t("items.group.task")} rows={visibleTasks} label={(s) => t(`status.${s}` as MessageKey)} />}
+      {showTasks && ((quick !== "all" || q || status || owner || phase) && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} sheetHref={(id) => `${href(quick)}&task=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item, edit: null }))} />)}
       {showTasks && selectedId && (
         <section className="detail-panel" aria-label={t("taskDetail.sheet")}>
           <TaskDetail id={selectedId} panel={{ edit: selected ? <details className="items-edit"><summary className="btn">{t("items.edit")}</summary><Fields item={selected} kind="task" projectId={project.id} plan={plan} t={t} /></details> : null }} />
@@ -110,11 +110,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
       {showTasks && !selectedId && visibleTasks.length > 0 && <p className="intro">{t("items.panelEmpty")}</p>}
       {MANUAL_KINDS.filter((k) => !MANUAL_KINDS.some((m) => m === only) || k === only).filter((k) => k !== "task" && quick === "all").map((kind) => (
         <section key={kind}>
-          <h2>{t(`items.group.${kind}` as MessageKey)}</h2>
-          <details>
-            <summary>{t("items.new")} {t(`kind.${kind}`).toLowerCase()}</summary>
-            <Fields kind={kind} projectId={project.id} plan={plan} t={t} />
-          </details>
+          <GroupHead title={t(`items.group.${kind}` as MessageKey)} rows={items.filter((i) => i.kind === kind && shown(i))} label={(s) => t(`risk.${s}` as MessageKey)} />
           {kind === "risk" && early > 0 && <p className="badge">{t("rewards.earlyCount").replace("{n}", String(early))}</p>}
           <ItemsTable kind={kind} t={t} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />
         </section>

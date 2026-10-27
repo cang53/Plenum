@@ -128,3 +128,38 @@
 .item-form .check input { width: auto; min-height: 0; }
 .item-form .actions { display: flex; justify-content: flex-end; padding-block-start: var(--s2); border-top: 1px solid var(--border); }
 @media (max-width: 560px) { .item-form { grid-template-columns: 1fr; } }
+
+/* Items, new direction from Figma: heading with Create menu, search and filter chips, pending notice, kind group headings, roomier rows. */
+.items-page { gap: 1.25rem; }
+.items-head { display: flex; align-items: flex-start; gap: var(--s3); }
+.items-head > div { flex: 1; display: grid; gap: 5px; min-width: 0; }
+.items-head h1 { margin: 0; font-size: 1.75rem; line-height: 2.125rem; font-weight: 700; letter-spacing: 0.38px; color: var(--text); }
+.items-head p { margin: 0; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.items-create { position: relative; flex: none; }
+.items-create > summary { list-style: none; cursor: pointer; min-height: 2.75rem; padding: 4px 10px; border-radius: var(--radius-full); }
+.items-create > summary::-webkit-details-marker { display: none; }
+.items-create-menu { position: absolute; inset-inline-end: 0; top: calc(100% + var(--s1)); z-index: 5; display: grid; width: min(30rem, 90vw); max-height: 75vh; overflow-y: auto; padding: var(--s2); border: 1px solid var(--glass-border); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--elevation); }
+.items-create-menu summary { cursor: pointer; padding: var(--s2) var(--s3); border-radius: var(--radius); color: var(--text); }
+.items-create-menu summary:hover, .items-create-menu details[open] > summary { background: var(--accent-soft); }
+.items-create-menu details[open] { padding-block-end: var(--s2); }
+.items-search { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.items-search input[type="search"] { width: 17.8rem; max-width: 100%; height: 2.75rem; padding: 0 0.6875rem; border: 0; border-radius: var(--radius-full); background: var(--control); color: var(--text); font: inherit; font-size: var(--text-base); }
+.items-chip select { height: 2.75rem; padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); background: var(--accent-soft); color: var(--text); font: inherit; font-size: var(--text-base); cursor: pointer; }
+.items-search .btn { min-height: 2.75rem; border-radius: var(--radius-full); }
+.items-pending { display: grid; gap: 6px; padding: 14px; border: 1px solid var(--glass-border); border-radius: 0.875rem; background: var(--accent-soft); }
+.items-pending p { margin: 0; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.items-pending .items-pending-title { font-size: var(--text-base); line-height: 1.25rem; font-weight: var(--weight-semibold); color: var(--primary); }
+.items-pending a { color: var(--primary); }
+.items-group-head { display: flex; align-items: baseline; gap: var(--s3); margin: 0; padding: var(--s3); font-size: var(--text-base); line-height: 1.25rem; font-weight: var(--weight-semibold); color: var(--primary); }
+.items-page > .items-group-head { margin-block-end: -1.25rem; }
+.items-group-counts { font-size: var(--text-xs); line-height: 1rem; font-weight: 400; color: var(--text-secondary); }
+.items-page section { display: grid; gap: 0; }
+.items-table thead th { padding: var(--s2) var(--s3); background: var(--accent-soft); font-size: var(--text-xs); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text-secondary); }
+.items-table td { padding: var(--s2) var(--s3); height: 3.125rem; font-size: var(--text-sm); }
+.items-table td b a, .items-table summary[data-row] { font-size: var(--text-base); line-height: 1.25rem; }
+.items-table tr.sel td { background: var(--accent-soft); box-shadow: inset 0 1px 0 var(--primary), inset 0 -1px 0 var(--primary); }
+.items-table tr.sel td:first-child { box-shadow: inset 1px 1px 0 var(--primary), inset 0 -1px 0 var(--primary); }
+.items-table tr.sel td:last-child { box-shadow: inset -1px 1px 0 var(--primary), inset 0 -1px 0 var(--primary); }
+.items-table tr.grp td { height: auto; }
+.items-chip select { max-width: 13rem; }
+@media (max-width: 720px) { .items-head { flex-wrap: wrap; } .items-search input[type="search"] { width: 100%; } }
