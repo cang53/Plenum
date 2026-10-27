@@ -149,6 +149,14 @@ describe("SS's configuration", () => {
       .toBe("https://graph.microsoft.com/v1.0/teams/d89f9576-d43e-447b-817a-babe3f58b79d/channels/19:9febd999b5694e839b28dfc5b44dd811@thread.tacv2/messages?$top=50");
   });
 
+  it("reports a missing team id instead of calling Graph", async () => {
+    const errors: unknown[] = [];
+    const f = vi.fn(async () => Response.json({ access_token: "t" })) as unknown as typeof fetch;
+    await readTeamsChannels({ tenantId: "X", clientId: "a", clientSecret: "b", supabaseUrl: "u", serviceRoleKey: "k", channels: { a: { channel: "19:c@thread.tacv2" } } }, f, (e) => errors.push(e));
+    expect(describeError(errors[0])).toBe("TeamsTeamIdMissing");
+    expect(f).toHaveBeenCalledTimes(1);
+  });
+
   it("names the failing call and Graph's error code in the log", async () => {
     const f = vi.fn(async (url: string | URL | Request) => String(url).includes("oauth2")
       ? Response.json({ access_token: "t" })

@@ -120,7 +120,9 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
   let seen = 0;
   for (const slug of slugs) {
     try {
-      const res = await fetchFn(graphMessagesUrl(String(env.channels[slug].team ?? env.teamId), env.channels[slug].channel), { headers: { authorization: `Bearer ${access_token}` } });
+      const team = env.channels[slug].team ?? env.teamId;
+      if (!team) throw Object.assign(new Error("No Teams team id for this project"), { name: "TeamsTeamIdMissing" });
+      const res = await fetchFn(graphMessagesUrl(team, env.channels[slug].channel), { headers: { authorization: `Bearer ${access_token}` } });
       if (!res.ok) throw httpError("GraphMessagesError", `Graph read of ${slug} failed: ${res.status}`, res.status, await errorCode(res, true));
       for (const m of personMessages(((await res.json()) as { value: GraphMessage[] }).value)) {
         const store = await fetchFn(`${env.supabaseUrl}/rest/v1/rpc/ingest_teams`, {
