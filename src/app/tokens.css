@@ -4,41 +4,41 @@
   color-scheme: dark;
 
   /* Color */
-  --surface: #22433a;
-  --surface-subtle: #1a342b;
-  --surface-muted: #2b5045;
-  --surface-hover: #2b5045;
-  --text: #f3f6ef;
-  --text-secondary: #bbcdbf;
-  --text-muted: #9fb4a5;
-  --border: #3b5d51;
-  --border-strong: #87a495;
-  --primary: #c9ddb4;
-  --primary-hover: #e1f1d8;
-  --on-primary: #13261c;
-  --focus-ring: #cfe6c2;
-  --danger: #ffb8ad;
-  --danger-surface: #4d3d39;
-  --success: #b2e5bf;
-  --success-surface: #2f5245;
-  --warning: #eed1a0;
-  --warning-surface: #3f4a36;
-  --info: #bcdcf2;
-  --info-surface: #2f5245;
-  --accent-soft: #35594c;
-  --accent-text: #e1f1d8;
-  --status-todo: #adc2b5;
-  --status-progress: #bcdcf2;
-  --status-blocked: #f2cd8f;
-  --status-done: #b2e5bf;
+  --surface: #151921;
+  --surface-subtle: #0e1116;
+  --surface-muted: #1c212b;
+  --surface-hover: #1c212b;
+  --text: #eceff4;
+  --text-secondary: #b8c1ce;
+  --text-muted: #9aa5b6;
+  --border: #2b323e;
+  --border-strong: #7d8aa0;
+  --primary: #8fa8ff;
+  --primary-hover: #b0c2ff;
+  --on-primary: #0e1116;
+  --focus-ring: #b0c2ff;
+  --danger: #f5a8a2;
+  --danger-surface: #3a2527;
+  --success: #8fd3b0;
+  --success-surface: #16312a;
+  --warning: #e8b878;
+  --warning-surface: #35291a;
+  --info: #8fa8ff;
+  --info-surface: #1b2440;
+  --accent-soft: #222d4f;
+  --accent-text: #dbe4ff;
+  --status-todo: #9aa5b6;
+  --status-progress: #8fa8ff;
+  --status-blocked: #e8b878;
+  --status-done: #8fd3b0;
 
   /* Glass: translucent white over the green ground */
-  --glass: #bddbb71a;
-  --glass-strong: #ffffff24;
-  --glass-border: #d9ead52e;
-  --glass-blur: blur(20px) saturate(140%);
-  --ambient-background: radial-gradient(120% 80% at 50% 0%, #2c5242 0%, #1a342b 55%, #12241d 100%);
-  --frame: #101a15;
+  --glass: #ffffff0a;
+  --glass-strong: #ffffff14;
+  --glass-border: #2b323e;
+  --glass-blur: none;
+  --ambient-background: #0e1116;
+  --frame: #0e1116;
 
   /* Shadow: only menus and dialogs lift */
   --elevation: none;
@@ -47,9 +47,9 @@
   /* Radius */
   --radius-sm: 0.375rem;
   --radius: 0.625rem;
-  --radius-card: 1.375rem;
+  --radius-card: 0.625rem;
   --radius-lg: 1rem;
-  --radius-xl: 1.75rem;
+  --radius-xl: 0.625rem;
   --radius-full: 999rem;
 
   /* Type: SF Pro on Apple devices, the system UI font elsewhere */

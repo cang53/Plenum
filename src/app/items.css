@@ -44,3 +44,23 @@
 .items-cols form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding-block-start: var(--s2); }
 .items-group > summary { padding-block: var(--s2); font-weight: var(--weight-semibold); }
 .items-count { margin-inline-start: var(--s1); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+/* Items, rebuilt after the design artifact: one flat table, status groups as divider bars, dot priorities. */
+.items-filter { margin-block: 0 var(--s3); }
+.items-tools { align-items: center; padding-block-end: var(--s2); border-bottom: 1px solid var(--border); }
+.items-quick { gap: var(--s4); }
+.items-quick a { padding-block: 2px; }
+.items-count { padding: 0 6px; border-radius: var(--radius-full); background: var(--glass-strong); font-size: var(--text-xs); }
+.items-table { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.items-table > .surface, .items-table.surface { border: 0; background: none; border-radius: 0; }
+.items-table table { table-layout: auto; }
+.items-table thead th { background: var(--surface); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); padding: 6px 10px; white-space: nowrap; }
+.items-table td { padding: 7px 10px; font-size: var(--text-sm); vertical-align: middle; }
+.items-table tbody tr:hover { background: var(--surface-hover); }
+.items-table tbody tr:has(input:checked) { background: var(--accent-soft); }
+.items-table summary[data-row] { font-weight: 600; list-style: none; }
+.items-group > summary { display: flex; align-items: center; gap: var(--s2); padding: 5px 10px; background: var(--surface-hover); border-top: 1px solid var(--border); font-size: var(--text-xs); color: var(--text-secondary); list-style: none; }
+.items-group:first-child > summary { border-top: 0; }
+.items-group > summary::before { content: "\25B8"; }
+.items-group[open] > summary::before { content: "\25BE"; }
+.items-group > .surface { border: 0; background: none; border-radius: 0; }

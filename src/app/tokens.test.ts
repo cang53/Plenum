@@ -53,16 +53,16 @@ describe("token contrast", () => {
   });
 });
 
-describe("dark-green glass look", () => {
+describe("slate and cobalt look", () => {
   it("keeps high-contrast, reduced-transparency and reduced-motion fallbacks", () => {
     expect(css).toContain("prefers-contrast: more");
     expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
     expect(css).not.toMatch(/data-theme/);
   });
-  it("uses the Figma palette and the system (SF Pro) font", () => {
-    expect(tokens["--primary"]).toBe("#c9ddb4");
-    expect(tokens["--surface-subtle"]).toBe("#1a342b");
+  it("uses the design artifact palette and the system (SF Pro) font", () => {
+    expect(tokens["--primary"]).toBe("#8fa8ff");
+    expect(tokens["--surface-subtle"]).toBe("#0e1116");
     expect(css).toMatch(/--font: -apple-system/);
   });
 });

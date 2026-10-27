@@ -2,7 +2,7 @@
    bar (brand, project crumb, search pill, account), an icon sidebar with pill highlights, and a tab
    bar on phones. Tokens only; icons are open line icons drawn as CSS masks, keyed by link target. */
 body:has(.shell) { background: var(--frame); }
-.shell { display: grid; grid-template-columns: 11rem minmax(0, 1fr); grid-template-rows: auto 1fr; min-height: calc(100vh - 2 * var(--s4)); margin: var(--s4); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--ambient-background); color: var(--text); font-family: var(--font); overflow: clip; }
+.shell { display: grid; grid-template-columns: 11rem minmax(0, 1fr); grid-template-rows: auto 1fr; min-height: 100vh; margin: 0; border: 0; border-radius: 0; background: var(--ambient-background); color: var(--text); font-family: var(--font); overflow: clip; }
 .shell-top { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s3); min-height: 4.25rem; padding: var(--s3) var(--s5); border-bottom: 1px solid var(--glass-border); }
 .shell-brand { display: flex; align-items: center; gap: var(--s2); width: calc(11rem - var(--s5)); flex: none; font-size: var(--text-lg); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); color: var(--text); text-decoration: none; }
 .shell-logo { display: grid; place-items: center; width: 1.875rem; height: 1.875rem; border-radius: var(--radius); background: var(--primary); color: var(--on-primary); font-size: var(--text-md); }
@@ -24,7 +24,7 @@ body:has(.shell) { background: var(--frame); }
 .shell-avatar { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-full); background: var(--text); color: var(--on-primary); font-size: var(--text-lg); }
 .shell-account span:not(.shell-avatar) { max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.shell-side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: var(--s4) var(--s2); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 2px; }
+.shell-side { position: sticky; top: 4.25rem; align-self: start; max-height: calc(100vh - 4.25rem); overflow-y: auto; padding: var(--s4) var(--s2); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 2px; }
 .shell-side nav { display: flex; flex-direction: column; gap: 2px; }
 .shell-group { margin: var(--s4) var(--s3) var(--s1); font-size: var(--text-xs); font-weight: var(--weight-normal); letter-spacing: 0.02em; text-transform: uppercase; color: var(--text-secondary); }
 .shell-link { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3' fill='black'/></svg>"); display: flex; align-items: center; gap: var(--s3); min-height: 2.5rem; padding: 0 var(--s3); border-radius: var(--radius-full); color: var(--text); font-size: var(--text-md); text-decoration: none; }
@@ -35,7 +35,7 @@ body:has(.shell) { background: var(--frame); }
 .shell-unread { font-weight: var(--weight-semibold); }
 .shell-badge { min-width: 1.25rem; padding: 0 6px; border-radius: var(--radius-full); background: var(--glass-strong); color: var(--text-secondary); font-size: var(--text-xs); font-variant-numeric: tabular-nums; line-height: 1.25rem; text-align: center; }
 .shell-body { min-width: 0; }
-.shell .page, .shell .home { margin: 0 auto; }
+.shell .page, .shell .home { max-width: none; margin: 0; padding: var(--s5) var(--s6); }
 .shell-bar { display: none; }
 
 /* Open line icons (Lucide-style strokes), one per page. */
