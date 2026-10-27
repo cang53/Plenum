@@ -7,7 +7,7 @@ import type { MessageKey } from "@/lib/messages";
 
 type T = (key: MessageKey) => string;
 
-type Row = { item: ManualItem; edit: ReactNode };
+type Row = { item: ManualItem };
 
 const HEAD: Record<Column, MessageKey> = { phase: "items.phase", owner: "items.owner", priority: "items.priority", due: "board.due", site: "items.site", costCode: "items.costCode" };
 // Groups run from what needs attention to what is finished; Done starts collapsed.
@@ -83,9 +83,9 @@ export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_C
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ item, edit }) => (
-            <tr key={item.id}>
-              <td><details><summary data-row>{item.title}{kind === "risk" && item.riskKind === "issue" ? ` (${t("kind.issue")})` : ""}</summary>{rewards && kind === "risk" && item.riskKind !== "issue" && isEarlyWarning(item.createdAt, item.dueDate) && <span className="badge">{t("rewards.early")}</span>}{edit}</details></td>
+          {rows.map(({ item }) => (
+            <tr key={item.id} className={item.id === selected ? "sel" : undefined} aria-selected={item.id === selected}>
+              <td><b>{sheetHref ? <a href={sheetHref(item.id)} data-row>{item.title}</a> : item.title}</b>{kind === "risk" && item.riskKind === "issue" ? ` (${t("kind.issue")})` : ""}{rewards && kind === "risk" && item.riskKind !== "issue" && isEarlyWarning(item.createdAt, item.dueDate) && <> <span className="badge">{t("rewards.early")}</span></>}</td>
               {kind === "risk" && <td>{status(item)}</td>}
               {cols.map((c) => <td key={c} className={align(c)}>{cell(item, c)}</td>)}
             </tr>

@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listManualItems, listSourceMessages, listPendingSuggestions, listPlanChoices, type ManualItem } from "@/data/live";
+import { listManualItems, listSourceMessages, taskActivity, listPendingSuggestions, listPlanChoices, type ManualItem } from "@/data/live";
 import { currentProject, listMembers, listProjects } from "@/data/projects";
 import { MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
@@ -10,17 +10,19 @@ import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
 import { WorkSwitch } from "@/app/WorkSwitch";
-import { TaskDetail } from "../tasks/[id]/TaskDetail";
 import { bulkTasks } from "./actions";
 import { OfflineTasks } from "./OfflineTasks";
 import { ItemsTable } from "./ItemsTable";
 import { Fields } from "./ItemFields";
+import { ItemDetail } from "./ItemDetail";
+import { activityKey } from "@/domain/taskDetail";
+import { taskKey, projectPrefix } from "@/domain/board";
 import { CreateOption, GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; create?: string; edit?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; detail?: string; create?: string; edit?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after, kind: only, quick: quickParam, col, task, create, edit, q = "", status = "", owner = "", phase = "" } = await searchParams;
+  const { project: chosen, after, kind: only, quick: quickParam, col, task, detail, create, edit, q = "", status = "", owner = "", phase = "" } = await searchParams;
   const query = { q, kind: only ?? "", status, owner, phase };
   const quick = parseQuick(quickParam);
   const columns = parseColumns(col);
@@ -37,8 +39,12 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const href = (q: string) => `/app/items?project=${project.id}${q === "all" ? "" : `&quick=${q}`}${keep}`;
   const plan = { members, ...choices };
   const editing = items.find((i) => i.id === edit);
-  const sourceOf = editing?.sourceMessageId ? (await listSourceMessages(supabase, [editing.sourceMessageId]))[editing.sourceMessageId] : undefined;
-  const source = editing?.sourceMessageId && sourceOf ? { ...sourceOf, href: `/app/stream#msg-${editing.sourceMessageId}`, review: suggestions.filter((x) => x.messageId === editing.sourceMessageId).map((x) => ({ title: x.title, href: `/app/notifications?project=${project.id}` }))[0] } : undefined;
+  const opened = editing ?? items.find((i) => i.id === (detail ?? task));
+  const sourceOf = opened?.sourceMessageId ? (await listSourceMessages(supabase, [opened.sourceMessageId]))[opened.sourceMessageId] : undefined;
+  const source = opened?.sourceMessageId && sourceOf ? { ...sourceOf, href: `/app/stream#msg-${opened.sourceMessageId}`, review: suggestions.filter((x) => x.messageId === opened.sourceMessageId).map((x) => ({ title: x.title, href: `/app/notifications?project=${project.id}` }))[0] } : undefined;
+  const dateLocale = intlLocale[await getLocale()];
+  const activity = !editing && opened?.kind === "task" ? (await taskActivity(supabase, opened.id)).map((a) => ({ at: a.at, text: `${a.who ?? t("taskDetail.someone")} ${t(activityKey(a.action))}`, href: a.messageId ? `/app/stream#msg-${a.messageId}` : undefined })) : [];
+  const canManage = (await supabase.rpc("can_manage_project", { p: project.id })).data === true;
   // Risks have no site, so only the "off everywhere" switch hides the badge.
   const [{ data: switches }, { data: risks }, { data: taskRows }] = await Promise.all([
     supabase.from("reward_switches").select("site"),
@@ -50,8 +56,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const early = rewards ? (risks ?? []).filter((r) => isEarlyWarning(r.created_at as string, r.due_date as string | null)).length : 0;
   const phaseNames = Object.fromEntries(choices.phases.map((p) => [p.id, p.name]));
   const visibleTasks = items.filter((i) => i.kind === "task" && shown(i));
-  const selected = visibleTasks.find((i) => i.id === task) ?? (task ? undefined : visibleTasks.find((i) => i.status !== "done") ?? visibleTasks[0]);
-  const selectedId = task ?? selected?.id;
+  const selectedId = detail ?? task;
   const showTasks = !only || only === "task";
   return (
     <main id="main" className="page items-page">
@@ -103,18 +108,13 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         </form>
       )}
       {showTasks && <GroupHead title={t("items.group.task")} rows={visibleTasks} label={(s) => t(`status.${s}` as MessageKey)} />}
-      {showTasks && ((quick !== "all" || q || status || owner || phase) && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} sheetHref={(id) => `${href(quick)}&task=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item, edit: null }))} />)}
-      {showTasks && selectedId && (
-        <section className="detail-panel" aria-label={t("taskDetail.sheet")}>
-          <TaskDetail id={selectedId} panel={{ edit: selected ? <a className="btn items-edit" href={`${href(quick)}&edit=${selected.id}`}>{t("items.edit")}</a> : null }} />
-        </section>
-      )}
-      {showTasks && !selectedId && visibleTasks.length > 0 && <p className="intro">{t("items.panelEmpty")}</p>}
+      {showTasks && ((quick !== "all" || q || status || owner || phase) && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} sheetHref={(id) => `${href(quick)}&detail=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item }))} />)}
+      {opened && !editing && <ItemDetail t={t} locale={dateLocale} item={opened} key_={opened.number ? taskKey(projectPrefix(project.name), opened.number) : ""} shareHref={`${href("all")}&detail=${opened.id}`} owner={opened.ownerId ? owners[opened.ownerId] : undefined} phase={opened.phaseId ? phaseNames[opened.phaseId] : undefined} source={source} activity={activity} canManage={canManage} closeHref={href(quick)} editHref={`${href(quick)}&edit=${opened.id}`} hoursHref={`/app/timesheet?project=${project.id}`} />}
       {MANUAL_KINDS.filter((k) => !MANUAL_KINDS.some((m) => m === only) || k === only).filter((k) => k !== "task" && quick === "all").map((kind) => (
         <section key={kind}>
           <GroupHead title={t(`items.group.${kind}` as MessageKey)} rows={items.filter((i) => i.kind === kind && shown(i))} label={(s) => t(`risk.${s}` as MessageKey)} />
           {kind === "risk" && early > 0 && <p className="badge">{t("rewards.earlyCount").replace("{n}", String(early))}</p>}
-          <ItemsTable kind={kind} t={t} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <a className="btn items-edit" href={`${href(quick)}&edit=${item.id}`}>{t(`items.edit.${kind}` as MessageKey)}</a> }))} />
+          <ItemsTable kind={kind} t={t} selected={selectedId} sheetHref={(id) => `${href(quick)}&detail=${id}`} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <a className="btn items-edit" href={`${href(quick)}&edit=${item.id}`}>{t(`items.edit.${kind}` as MessageKey)}</a> }))} />
         </section>
       ))}
       <OfflineTasks

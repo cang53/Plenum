@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { bulkUpdateTasks, createManualItem, updateManualItem } from "@/data/live";
+import { appendItemNote, bulkUpdateTasks, createManualItem, deleteManualItem, setRiskStatus, updateManualItem } from "@/data/live";
 import { bulkFromForm } from "@/domain/bulk";
-import { itemFromForm } from "@/domain/items";
+import { itemFromForm, MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
 import { planChange, type Change, type SendResult } from "@/lib/offline-queue";
 
@@ -16,6 +17,28 @@ export async function saveItem(form: FormData): Promise<void> {
   if (id) await updateManualItem(supabase, id, item);
   else await createManualItem(supabase, String(form.get("projectId")), item);
   revalidatePath("/app/items");
+}
+
+const kindOf = (form: FormData) => {
+  const kind = MANUAL_KINDS.find((k) => k === form.get("kind"));
+  if (!kind) throw new Error("unknown kind");
+  return kind;
+};
+
+export async function addItemNote(form: FormData): Promise<void> {
+  await appendItemNote(await supabaseServer(), kindOf(form), String(form.get("id")), String(form.get("note") ?? ""), new Date().toISOString().slice(0, 10));
+  revalidatePath("/app/items");
+}
+
+export async function toggleRisk(form: FormData): Promise<void> {
+  await setRiskStatus(await supabaseServer(), String(form.get("id")), form.get("to") === "closed" ? "closed" : "open");
+  revalidatePath("/app/items");
+}
+
+export async function deleteItem(form: FormData): Promise<void> {
+  await deleteManualItem(await supabaseServer(), kindOf(form), String(form.get("id")));
+  revalidatePath("/app/items");
+  redirect(String(form.get("back") ?? "/app/items").startsWith("/app/") ? String(form.get("back")) : "/app/items");
 }
 
 export async function bulkTasks(form: FormData): Promise<void> {

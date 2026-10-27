@@ -190,6 +190,28 @@ export async function listManualItems(client: SupabaseClient, projectId: string,
   return page;
 }
 
+// Adds a dated line to the item's details. Row-level security decides who may.
+export async function appendItemNote(client: SupabaseClient, kind: ManualItem["kind"], id: string, note: string, today: string): Promise<void> {
+  const text = note.trim();
+  if (!text || text.length > 2000) throw new Error("note must be 1 to 2000 characters");
+  const { data, error } = await client.from(TABLE[kind]).select("details").eq("id", id).maybeSingle();
+  if (error || !data) throw error ?? new Error("item not found or not allowed");
+  const { error: e } = await client.from(TABLE[kind]).update({ details: `${data.details ?? ""}\n\n${today}: ${text}`.trim() }).eq("id", id);
+  if (e) throw e;
+}
+
+export async function setRiskStatus(client: SupabaseClient, id: string, status: "open" | "closed"): Promise<void> {
+  const { data, error } = await client.from("risks").update({ status }).eq("id", id).select("id");
+  if (error) throw error;
+  if (!data?.length) throw new Error("risk not found or not allowed");
+}
+
+export async function deleteManualItem(client: SupabaseClient, kind: ManualItem["kind"], id: string): Promise<void> {
+  const { data, error } = await client.from(TABLE[kind]).delete().eq("id", id).select("id");
+  if (error) throw error;
+  if (!data?.length) throw new Error("item not found or not allowed");
+}
+
 // Subject and sender line of the messages the items came from, for the "Message source" card.
 export async function listSourceMessages(client: SupabaseClient, ids: string[]): Promise<Record<string, { subject: string; from: string; receivedAt: string }>> {
   if (!ids.length) return {};

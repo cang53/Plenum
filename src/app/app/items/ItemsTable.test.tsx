@@ -9,7 +9,7 @@ const T = (k: Parameters<typeof t>[0]) => t(k, "en");
 
 describe("ItemsTable", () => {
   it("renders one labelled task table with an ID column, column headers, and the task's link", () => {
-    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} project="Pump skid P-204" sheetHref={(id) => `/app/items?task=${id}`} rows={[{ item: { ...item, number: 14 }, edit: null }]} />);
+    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} project="Pump skid P-204" sheetHref={(id) => `/app/items?task=${id}`} rows={[{ item: { ...item, number: 14 } }]} />);
     expect(html).toContain('scope="col"');
     expect(html).toContain("<caption");
     expect(html).toContain("P-204-14");
@@ -17,7 +17,7 @@ describe("ItemsTable", () => {
     expect(html).toContain("1 Nov");
   });
   it("marks the selected row", () => {
-    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} selected="1" rows={[{ item, edit: null }]} />);
+    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} selected="1" rows={[{ item }]} />);
     expect(html).toContain('class="sel"');
   });
   it("shows the plain-English empty state without a table", () => {
@@ -26,7 +26,7 @@ describe("ItemsTable", () => {
     expect(html).not.toContain("<table");
   });
   it("groups tasks under divider rows with counts, blocked first, Done collapsed, skipping empty groups", () => {
-    const rows = [item, { ...item, id: "2", title: "Frame wall" }, { ...item, id: "3", title: "Order glass", status: "blocked" }, { ...item, id: "4", title: "Old", status: "done" }].map((i) => ({ item: i, edit: null }));
+    const rows = [item, { ...item, id: "2", title: "Frame wall" }, { ...item, id: "3", title: "Order glass", status: "blocked" }, { ...item, id: "4", title: "Old", status: "done" }].map((i) => ({ item: i }));
     const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} rows={rows} />);
     expect(html.match(/<tbody class="items-group"/g)).toHaveLength(3);
     expect(html.indexOf("Order glass")).toBeLessThan(html.indexOf("Pour slab"));
@@ -36,7 +36,7 @@ describe("ItemsTable", () => {
   });
   it("shows the chosen columns: owner initials, priority dot and word, phase name", () => {
     const owned = { ...item, ownerId: "u1", site: "North", priority: "high", phaseId: "p1" } as ManualItem;
-    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} columns={["owner", "priority", "phase", "site"]} owners={{ u1: "Ana Kok" }} phases={{ p1: "Site works" }} rows={[{ item: owned, edit: null }]} />);
+    const html = renderToStaticMarkup(<ItemsTable kind="task" t={T} columns={["owner", "priority", "phase", "site"]} owners={{ u1: "Ana Kok" }} phases={{ p1: "Site works" }} rows={[{ item: owned }]} />);
     expect(html).toContain(">AK<");
     expect(html).toContain("st-warn");
     expect(html).toContain("High");
@@ -44,8 +44,9 @@ describe("ItemsTable", () => {
     expect(html).toContain("North");
     expect(html).not.toContain("1 Nov");
   });
-  it("keeps the edit form inside the row for decisions and risks", () => {
-    const html = renderToStaticMarkup(<ItemsTable kind="decision" t={T} rows={[{ item: { ...item, kind: "decision" }, edit: <form>edit</form> }]} />);
-    expect(html).toContain("<form>edit</form>");
+  it("links decision and risk rows to their detail view and marks the open one", () => {
+    const html = renderToStaticMarkup(<ItemsTable kind="decision" t={T} selected="1" sheetHref={(id) => `/x?detail=${id}`} rows={[{ item: { ...item, kind: "decision" } }]} />);
+    expect(html).toContain('href="/x?detail=1"');
+    expect(html).toContain('class="sel"');
   });
 });
