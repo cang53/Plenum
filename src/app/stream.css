@@ -123,3 +123,10 @@
 .comp .replying a { color: var(--primary); }
 .comp select { border: 0; background: var(--control); color: var(--text); border-radius: 100px; padding: 2px 8px; font-size: var(--text-xs); }
 @media (max-width: 720px) { .agent-card { margin-inline-start: 0; } .msgs-search input { width: 8rem; } }
+
+.mail-create { position: relative; }
+.mail-create > summary { list-style: none; cursor: pointer; }
+.mail-create > summary::-webkit-details-marker { display: none; }
+.mail-create > div { position: absolute; z-index: 3; display: grid; min-width: 9rem; padding: var(--s1); border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--elevation-dialog); }
+.mail-create a { padding: var(--s2) var(--s3); border-radius: var(--radius-sm); color: var(--text); text-decoration: none; }
+.mail-create a:hover { background: var(--accent-soft); }

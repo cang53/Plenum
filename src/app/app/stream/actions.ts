@@ -6,18 +6,6 @@ import { acceptSuggestion, dismissSuggestion } from "@/data/live";
 import type { ItemKind } from "@/domain/linking";
 
 // Row-level security decides who may write; the database checks the message belongs to the project.
-export async function createTaskFromMessage(form: FormData): Promise<void> {
-  const title = String(form.get("title") ?? "").trim();
-  if (!title) throw new Error("title is required");
-  const { error } = await (await supabaseServer()).from("tasks").insert({
-    project_id: String(form.get("projectId")),
-    source_message_id: String(form.get("messageId")),
-    title,
-  });
-  if (error) throw error;
-  revalidatePath("/app/stream");
-}
-
 // Only a task without a source can take one, so an existing source is never replaced.
 export async function linkMessageToTask(form: FormData): Promise<void> {
   const { data, error } = await (await supabaseServer()).from("tasks")

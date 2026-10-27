@@ -249,7 +249,12 @@ async function setPredecessors(client: SupabaseClient, taskId: string, ids: stri
 }
 
 export async function createManualItem(client: SupabaseClient, projectId: string, item: ItemInput): Promise<void> {
-  const { data, error } = await client.from(TABLE[item.kind]).insert({ project_id: projectId, ...toColumns(item) }).select("id");
+  // A source must be a message of this project; an item created from a message links to it for good.
+  if (item.sourceMessageId) {
+    const { data: m, error: e } = await client.from("messages").select("id").eq("id", item.sourceMessageId).eq("project_id", projectId).maybeSingle();
+    if (e || !m) throw e ?? new Error("source message not found in this project");
+  }
+  const { data, error } = await client.from(TABLE[item.kind]).insert({ project_id: projectId, ...toColumns(item), ...(item.sourceMessageId ? { source_message_id: item.sourceMessageId } : {}) }).select("id");
   if (error) throw error;
   if (item.kind === "task" && data?.[0]) await setPredecessors(client, data[0].id, item.predecessorIds);
 }

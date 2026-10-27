@@ -25,6 +25,7 @@ export type ItemInput = {
   phaseId: string | null;
   parentId: string | null;
   predecessorIds: string[];
+  sourceMessageId?: string | null;
 };
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -48,7 +49,9 @@ export function itemFromForm(form: FormData): ItemInput {
     phaseId: text(form, "phaseId") || null,
     parentId: text(form, "parentId") || null,
     predecessorIds: [...new Set(form.getAll("predecessorIds").map(String).filter(Boolean))],
+    sourceMessageId: text(form, "sourceMessageId") || null,
   };
+  if (item.sourceMessageId && !/^[0-9a-f-]{36}$/i.test(item.sourceMessageId)) throw new Error("unknown source message");
   if (!item.title) throw new Error("title is required");
   if (kind === "task" && !STATUSES.includes(item.status as TaskStatus)) item.status = "todo";
   if (kind === "task" && !PRIORITIES.includes(item.priority as (typeof PRIORITIES)[number])) throw new Error("unknown priority");

@@ -21,10 +21,10 @@ const items: ManualItem[] = [
 
 const plan = { members: [{ userId: "Jonas Peeters", name: "Jonas Peeters", email: "", role: "member" }, { userId: "Marta Silva", name: "Marta Silva", email: "", role: "member" }], phases: [{ id: "Install", name: "Install" }], tasks: demoTasks.map((x) => ({ id: x.id, title: x.title })) };
 
-export default async function DemoItemsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string; status?: string; owner?: string; phase?: string; task?: string; create?: string; edit?: string; detail?: string }> }) {
+export default async function DemoItemsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string; status?: string; owner?: string; phase?: string; task?: string; create?: string; edit?: string; detail?: string; from?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
-  const { q = "", kind = "", status = "", owner = "", phase = "", task, detail, create, edit } = await searchParams;
+  const { q = "", kind = "", status = "", owner = "", phase = "", task, detail, create, edit, from } = await searchParams;
   const query = { q, kind, status, owner, phase };
   const shown = items.filter((i) => matchesItem(i, query));
   const names = (k: "ownerId" | "phaseId") => Object.fromEntries(items.flatMap((i) => (i[k] ? [[i[k], i[k]]] : [])));
@@ -40,7 +40,7 @@ export default async function DemoItemsPage({ searchParams }: { searchParams: Pr
         create={MANUAL_KINDS.map((k) => <CreateOption key={k} kind={k} t={t} href={`/demo/items?create=${k}`} />)} />
       {opened && <ItemDetail t={t} locale={locale} item={opened} key_={opened.number ? `L4-${opened.number}` : ""} shareHref={`/demo/items?detail=${opened.id}`} owner={opened.ownerId ?? undefined} phase={opened.phaseId ?? undefined} source={source} activity={[{ at: "2026-10-20T09:30:00Z", text: "Marta Silva created this from a message" }, { at: "2026-10-21T14:05:00Z", text: "Jonas Peeters changed the due date" }]} canManage closeHref="/demo/items" editHref={`/demo/items?edit=${opened.id}`} hoursHref="/demo/timesheet" />}
       {items.filter((i) => i.id === edit).map((i) => <Fields key={i.id} item={i} kind={i.kind} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} source={source} t={t} />)}
-      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} t={t} />)}
+      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} source={from ? { ...source, id: from } : undefined} t={t} />)}
       {(!kind || kind === "task") && (
         <>
           <GroupHead title={t("items.group.task")} rows={tasks} label={(s) => t(`status.${s}` as MessageKey)} />

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
 import { StreamKeys } from "./StreamKeys";
-import { applySuggestion, createTaskFromMessage, dismissSuggestionForm, linkMessageToTask, postMessage, togglePin } from "./actions";
+import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
@@ -127,12 +127,10 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                       ))}
                       <div className="mail-acts" role="group" aria-label={t("stream.actions")}>
                         <a className="btn btn-plain" href={`${href({ reply: m.id })}#composer`}>{t("stream.c.reply")}</a>
-                        <form action={createTaskFromMessage}>
-                          <input type="hidden" name="projectId" value={project.id} />
-                          <input type="hidden" name="messageId" value={m.id} />
-                          <input type="hidden" name="title" value={m.subject || m.bodyText.slice(0, 80) || t("timeline.noSubject")} />
-                          <button type="submit" data-act="task" disabled={readOnly} className="btn btn-plain">{t("stream.createTask")}</button>
-                        </form>
+<details className="mail-create">
+                          <summary className="btn btn-plain">{t("stream.createItem")}</summary>
+                          <div>{(["task", "decision", "risk"] as const).map((k) => <a key={k} href={`/app/items?project=${project.id}&create=${k}&from=${m.id}`}>{t(`kind.${k}`)}</a>)}</div>
+                        </details>
                         {canPin && (
                           <form action={togglePin}>
                             <input type="hidden" name="projectId" value={project.id} />

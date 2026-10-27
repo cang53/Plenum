@@ -142,6 +142,7 @@ export const en = {
   "stream.new": "New",
   "stream.actions": "Message actions",
   "stream.createTask": "Create task",
+  "stream.createItem": "Create from message",
   "stream.linkTask": "Link to task",
   "stream.pickTask": "Task to link",
   "stream.link": "Link",

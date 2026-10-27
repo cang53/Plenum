@@ -144,6 +144,7 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.new": "Nieuw",
   "stream.actions": "Berichtacties",
   "stream.createTask": "Taak maken",
+  "stream.createItem": "Maken van bericht",
   "stream.linkTask": "Aan taak koppelen",
   "stream.pickTask": "Taak om te koppelen",
   "stream.link": "Koppel",

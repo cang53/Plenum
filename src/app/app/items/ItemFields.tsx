@@ -21,8 +21,19 @@ const Select = ({ name, value, options, none }: { name: string; value: string; o
   </select>
 );
 
+// The message an item came from, kept in view while it is written or edited.
+function SourceCard({ source, t }: { source: Source; t: Labels }) {
+  return (
+    <section className="wide insp-card" aria-label={t("items.source")}>
+      <p className="insp-card-label">{t("items.source")}</p>
+      <p><a href={source.href}>{source.subject || t("taskDetail.sourceMessage")}</a></p>
+      <p className="insp-card-note">{[source.from, source.receivedAt.slice(0, 10)].filter(Boolean).join(" · ")}</p>
+    </section>
+  );
+}
+
 // The create/edit inspector: heading with close, scrolling body, footer with Cancel and the save button. One component for task, decision and risk.
-export type Source = { subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string } };
+export type Source = { id?: string; subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string } };
 
 export function Fields({ item, kind, projectId, project = "", closeHref = "#", plan, source, t }: { item?: ManualItem; source?: Source; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
   const people: Opt[] = plan.members.map((m) => [m.userId, m.name || m.email]);
@@ -34,13 +45,15 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", p
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="projectId" value={projectId} />
       {item && <input type="hidden" name="id" value={item.id} />}
+      {!item && source?.id && <input type="hidden" name="sourceMessageId" value={source.id} />}
       <header className="insp-head">
         <div><h2>{heading}</h2><p>{project}</p></div>
         <a className="insp-close" href={closeHref} aria-label={t("items.close")}>✕</a>
       </header>
       <div className="insp-body">
         {!item && <Field label={t("items.kindLabel")} wide><output className="insp-kind">{t(`kind.${kind}` as MessageKey)}</output></Field>}
-        <Field label={`${t("link.title")} *`} wide><input name="title" required defaultValue={item?.title} /></Field>
+        {!item && source && <SourceCard source={source} t={t} />}
+        <Field label={`${t("link.title")} *`} wide><input name="title" required defaultValue={item?.title ?? source?.subject} /></Field>
         {kind === "task" && (
           <>
             <Field label={t("items.phase")}><Select name="phaseId" value={item?.phaseId ?? ""} options={plan.phases.map((p): Opt => [p.id, p.name])} none={none} /></Field>
@@ -78,13 +91,7 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", p
             </Field>
           </details>
         )}
-        {source && (
-          <section className="wide insp-card" aria-label={t("items.source")}>
-            <p className="insp-card-label">{t("items.source")}</p>
-            <p><a href={source.href}>{source.subject || t("taskDetail.sourceMessage")}</a></p>
-            <p className="insp-card-note">{[source.from, source.receivedAt.slice(0, 10)].filter(Boolean).join(" · ")}</p>
-          </section>
-        )}
+        {item && source && <SourceCard source={source} t={t} />}
         {source?.review && (
           <section className="wide insp-card insp-review" aria-label={t("items.reviewTitle")}>
             <p className="insp-card-label">{t("items.reviewTitle")}</p>

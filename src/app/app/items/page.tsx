@@ -19,10 +19,10 @@ import { activityKey } from "@/domain/taskDetail";
 import { taskKey, projectPrefix } from "@/domain/board";
 import { CreateOption, GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; detail?: string; create?: string; edit?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; detail?: string; create?: string; from?: string; edit?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after, kind: only, quick: quickParam, col, task, detail, create, edit, q = "", status = "", owner = "", phase = "" } = await searchParams;
+  const { project: chosen, after, kind: only, quick: quickParam, col, task, detail, create, from, edit, q = "", status = "", owner = "", phase = "" } = await searchParams;
   const query = { q, kind: only ?? "", status, owner, phase };
   const quick = parseQuick(quickParam);
   const columns = parseColumns(col);
@@ -42,6 +42,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const opened = editing ?? items.find((i) => i.id === (detail ?? task));
   const sourceOf = opened?.sourceMessageId ? (await listSourceMessages(supabase, [opened.sourceMessageId]))[opened.sourceMessageId] : undefined;
   const source = opened?.sourceMessageId && sourceOf ? { ...sourceOf, href: `/app/stream#msg-${opened.sourceMessageId}`, review: suggestions.filter((x) => x.messageId === opened.sourceMessageId).map((x) => ({ title: x.title, href: `/app/notifications?project=${project.id}` }))[0] } : undefined;
+  const origin = create && from && /^[0-9a-f-]{36}$/i.test(from) ? (await listSourceMessages(supabase, [from]))[from] : undefined;
   const dateLocale = intlLocale[await getLocale()];
   const activity = !editing && opened?.kind === "task" ? (await taskActivity(supabase, opened.id)).map((a) => ({ at: a.at, text: `${a.who ?? t("taskDetail.someone")} ${t(activityKey(a.action))}`, href: a.messageId ? `/app/stream#msg-${a.messageId}` : undefined })) : [];
   const canManage = (await supabase.rpc("can_manage_project", { p: project.id })).data === true;
@@ -64,7 +65,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         create={MANUAL_KINDS.map((k) => (
           <CreateOption key={k} kind={k} t={t} href={`${href(quick)}&create=${k}`} />
         ))} />
-      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} t={t} />)}
+      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} source={origin && from ? { ...origin, id: from, href: `/app/stream#msg-${from}` } : undefined} t={t} />)}
       {editing && <Fields item={editing} kind={editing.kind} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} source={source} t={t} />}
       <div className="items-bar">
         <WorkSwitch current="items" projectId={project.id} t={t} />

@@ -58,3 +58,18 @@ describe("toColumns", () => {
     expect(toColumns({ ...base, kind: "risk", status: "closed", dueDate: "2026-12-01", ownerId: "u1" })).toEqual({ title: "t", details: "d", status: "closed", kind: "issue", due_date: "2026-12-01", owner_id: "u1" });
   });
 });
+
+describe("itemFromForm source message", () => {
+  const form = (src?: string) => {
+    const f = new FormData();
+    f.set("kind", "decision");
+    f.set("title", "Move install");
+    if (src !== undefined) f.set("sourceMessageId", src);
+    return f;
+  };
+  it("keeps a message id and rejects anything that is not one", () => {
+    expect(itemFromForm(form("0f8fad5b-d9cb-469f-a165-70867728950e")).sourceMessageId).toBe("0f8fad5b-d9cb-469f-a165-70867728950e");
+    expect(itemFromForm(form()).sourceMessageId).toBeNull();
+    expect(() => itemFromForm(form("x; drop table"))).toThrow("unknown source message");
+  });
+});
