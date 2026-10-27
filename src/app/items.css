@@ -1,5 +1,5 @@
 /* Items list: one flat table per kind (tasks per status group); the header stays visible while scrolling. */
-.items-table, .data-table { margin-block-end: var(--s4); overflow: clip; }
+.items-table, .data-table { margin-block-end: var(--s4); overflow: clip; border-radius: var(--radius-card); }
 .items-table table, .data-table table { display: table; width: 100%; }
 .items-table thead th, .data-table thead th {
   position: sticky;
