@@ -1,18 +1,18 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { getBaselineDates, latestHealthUpdate, listBaselines, listBoardTasks, listGanttPlan, listMilestones, listPendingSuggestions, listStreakTasks, suggestionAccuracy } from "@/data/live";
+import { latestHealthUpdate, listBoardTasks, listMilestones, listPendingSuggestions, listStreakTasks } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
-import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
-import { slipDays } from "@/domain/gantt";
-import { byPhase, dueThisWeek, summarize } from "@/domain/overview";
+import { needsInviteStep, ONBOARDED_COOKIE, projectAddress } from "@/domain/onboarding";
+import { summarize } from "@/domain/overview";
 import { celebratedMilestones, challengeMet, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
 import { postHealthUpdate, setTeamGoal } from "./actions";
+import { OverviewView, type OverviewData } from "./OverviewView";
 
 const HEALTH = ["on_track", "at_risk", "off_track"] as const;
-const HEALTH_CLASS = { on_track: "st-ok", at_risk: "st-warn", off_track: "st-bad" } as const;
+const HEALTH_TONE = { on_track: "ok", at_risk: "warn", off_track: "bad" } as const;
 
 // Project overview: one card per project, what needs attention, and the way into AI review. Aggregate only.
 export default async function AppHome({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
@@ -37,22 +37,13 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const tasks = await listBoardTasks(supabase, current.id);
   const pulse = summarize(tasks, today);
   const attention = pulse.attention;
-  const week = dueThisWeek(tasks, today);
-  const [update, plan, baselines, { data: role }] = await Promise.all([
+  const [update, { data: role }] = await Promise.all([
     latestHealthUpdate(supabase, current.id),
-    listGanttPlan(supabase, current.id),
-    listBaselines(supabase, current.id),
     supabase.rpc("can_manage_project", { p: current.id }),
   ]);
-  const baseline = baselines[0] ? await getBaselineDates(supabase, baselines[0].id) : null;
-  const slip = baseline ? Math.max(0, ...slipDays(plan.tasks, baseline).values()) : null;
-  const blocked = pulse.counts.blocked;
   const milestones = (await listMilestones(supabase, current.id)).sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"));
   const long = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" });
-  // The last milestone date stands in for handover.
-  const handover = milestones.map((m) => m.dueDate).filter((d): d is string => !!d).at(-1);
-  const suggestions = (await listPendingSuggestions(supabase, current.id)).length;
-  const accuracy = await suggestionAccuracy(supabase, current.id);
+  const firstSuggestion = (await listPendingSuggestions(supabase, current.id))[0];
   const [{ tasks: streakTasks, sites }, { data: switches }] = await Promise.all([
     listStreakTasks(supabase, current.id),
     supabase.from("reward_switches").select("site"),
@@ -73,175 +64,102 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const { data: history } = rewardsShown ? await supabase.rpc("team_goal_history", { p: current.id }) : { data: null };
   const goal = (goalRows as { weeks_done: number; weeks_total: number }[] | null)?.[0];
   const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? (streakTasks.length ? streakWeeks(streakTasks, today) : 0) : null;
+  const sorted = tasks.filter((x) => x.status !== "done" && x.dueDate && x.dueDate >= today).sort((x, y) => x.dueDate!.localeCompare(y.dueDate!)).slice(0, 5);
+  const weekEnd = new Date(Date.parse(today) + 6 * 864e5).toISOString().slice(0, 10);
+  const meta = (x: { ownerName: string | null; dueDate: string | null }) => [x.ownerName, x.dueDate && fmt(x.dueDate)].filter(Boolean).join(" · ");
+  const data: OverviewData = {
+    projectName: current.name,
+    dateLabel: long.format(new Date()),
+    timelineHref: `/app/gantt?project=${current.id}`,
+    reviewHref: `/app/notifications?project=${current.id}`,
+    health: update ? { label: t(`overview.health.${update.health}`), tone: HEALTH_TONE[update.health], note: update.note, author: update.author, dateLabel: fmt(update.createdAt) } : null,
+    attention: attention.map((x) => ({ id: x.id, title: x.title, href: `/app/board?project=${current.id}`, chip: x.status === "blocked" ? t("overview.blocked") : t("overview.overdue"), tone: x.status === "blocked" ? "bad" : "warn", meta: meta(x) })),
+    suggestion: firstSuggestion ? { title: firstSuggestion.title, details: firstSuggestion.details, reason: firstSuggestion.reason, href: `/app/notifications?project=${current.id}` } : null,
+    percent: pulse.percentDone,
+    counts: { done: pulse.counts.done, in_progress: pulse.counts.in_progress, blocked: pulse.counts.blocked, todo: pulse.counts.todo },
+    overdue: tasks.filter((x) => x.status !== "done" && x.dueDate && x.dueDate < today).length,
+    upcoming: sorted.map((x) => ({ id: x.id, title: x.title, href: `/app/board?project=${current.id}`, day: fmt(x.dueDate!), soon: x.dueDate! <= weekEnd, meta: [t(`status.${x.status}`), x.ownerName].filter(Boolean).join(" · ") })),
+    events: milestones.filter((m) => m.status === "done").sort((x, y) => y.updatedAt.localeCompare(x.updatedAt)).slice(0, 3).map((m) => ({ text: m.title, dateLabel: fmt(m.updatedAt) })),
+    address: current.email_slug ? projectAddress(current.email_slug, process.env.INBOUND_EMAIL_DOMAIN) : null,
+  };
   return (
     <main id="main" className="page overview">
-      <header className="ov-head">
-        <div>
-          <h1>{t("overview.title")}</h1>
-          <p className="sub">{[current.name, long.format(new Date()), ...(handover ? [t("overview.handover").replace("{date}", fmt(handover)), t("overview.daysLeft").replace("{n}", String(Math.max(0, Math.round((Date.parse(handover) - Date.parse(today)) / 864e5))))] : [])].join(" · ")}</p>
-        </div>
-        <span className={`st ${update ? HEALTH_CLASS[update.health] : "st-todo"}`}>{update ? t(`overview.health.${update.health}`) : t("overview.health.none")}</span>
-        {suggestions > 0 && <a className="btn btn-primary" href={`/app/notifications?project=${current.id}`}>{t("overview.review").replace("{n}", String(suggestions))}</a>}
-      </header>
-      {update && (
-        <p className="ov-update">
-          <strong>{t("overview.update.by").replace("{name}", update.author).replace("{date}", fmt(update.createdAt))}</strong> · {update.note}
-        </p>
-      )}
-      {role && (
-        <details className="ov-write">
-          <summary className="btn">{t("overview.update.write")}</summary>
-          <form action={postHealthUpdate}>
-            <input type="hidden" name="projectId" value={current.id} />
-            <label><span className="field-label">{t("overview.update.health")}</span>
-              <select className="field" name="health" defaultValue={update?.health ?? "on_track"}>
-                {HEALTH.map((h) => <option key={h} value={h}>{t(`overview.health.${h}`)}</option>)}
-              </select>
-            </label>
-            <label><span className="field-label">{t("overview.update.note")}</span>
-              <textarea className="field" name="note" required maxLength={1000} rows={3} />
-            </label>
-            <button className="btn btn-primary" type="submit">{t("overview.update.post")}</button>
-          </form>
-        </details>
-      )}
-      <div className="ov-figs">
-        <div>
-          <span className="sub">{t("overview.progress")}</span>
-          <span className="v">{pulse.percentDone}%</span>
-          <progress value={pulse.percentDone} max={100} aria-label={t("overview.progress")} />
-          <span className="sub">{t("overview.progressOf").replace("{done}", String(pulse.counts.done)).replace("{total}", String(pulse.total))}</span>
-        </div>
-        <div>
-          <span className="sub">{t("overview.dueWeek")}</span>
-          <span className="v">{week.due}</span>
-          {week.atRisk > 0 && <span className="st st-warn">{t("overview.atRisk").replace("{n}", String(week.atRisk))}</span>}
-        </div>
-        <div>
-          <span className="sub">{t("overview.blockedFig")}</span>
-          <span className="v">{blocked}</span>
-        </div>
-        <div>
-          <span className="sub">{t("overview.scheduleFig")}</span>
-          <span className="v">{slip ? `+${slip} d` : slip === 0 ? t("overview.onPlan") : "–"}</span>
-          <span className="sub">{baselines[0] ? t("overview.vsBaseline").replace("{date}", fmt(baselines[0].savedAt)) : t("overview.noBaseline")}</span>
-        </div>
-      </div>
-      <div className="ov-two">
-        <section aria-labelledby="phases">
-          <h2 id="phases" className="k">{t("overview.phases")}</h2>
-          <ul className="ov-list">
-            {byPhase(tasks).map((p) => (
-              <li key={p.phase ?? ""}>
-                <span>{p.phase ?? t("overview.noPhase")}</span>
-                <span className="sub">{t("overview.phaseOf").replace("{done}", String(p.done)).replace("{total}", String(p.total))}</span>
-                <div className="stack" role="img" aria-label={t("overview.phaseOf").replace("{done}", String(p.done)).replace("{total}", String(p.total))}>
-                  <i style={{ width: `${(p.done / p.total) * 100}%`, background: "var(--primary)" }} />
-                  <i style={{ width: `${(p.blocked / p.total) * 100}%`, background: "var(--warning)" }} />
-                  <i style={{ width: `${(p.active / p.total) * 100}%`, background: "var(--text-muted)" }} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-        <section aria-labelledby="miles">
-          <h2 id="miles" className="k">{t("overview.milestones")}</h2>
-          {milestones.length === 0 ? <p className="meta">{t("overview.milestonesNone")}</p> : (
-            <ul className="ov-list">
-              {milestones.map((m, i) => (
-                <li key={i}>
-                  <span>{m.title}</span>
-                  <span className={`st ${m.status === "done" ? "st-ok" : "st-todo"}`}>
-                    {m.status === "done" ? t("overview.doneOn").replace("{date}", fmt(m.updatedAt)) : m.dueDate ? fmt(m.dueDate) : "–"}
-                  </span>
+      <div className="ov-extra">
+        <OverviewView t={t} data={data} write={role && (
+          <details className="ov-write">
+            <summary className="act">{t("overview.update.write")}</summary>
+            <form action={postHealthUpdate}>
+              <input type="hidden" name="projectId" value={current.id} />
+              <label><span className="field-label">{t("overview.update.health")}</span>
+                <select className="field" name="health" defaultValue={update?.health ?? "on_track"}>
+                  {HEALTH.map((h) => <option key={h} value={h}>{t(`overview.health.${h}`)}</option>)}
+                </select>
+              </label>
+              <label><span className="field-label">{t("overview.update.note")}</span>
+                <textarea className="field" name="note" required maxLength={1000} rows={3} />
+              </label>
+              <button className="btn btn-primary" type="submit">{t("overview.update.post")}</button>
+            </form>
+          </details>
+        )} />
+        {cheers.length > 0 && (
+          <section className="surface overview-panel" aria-labelledby="cheer">
+            <h2 id="cheer"><span aria-hidden="true">🎉</span> {t("cheer.title")}</h2>
+            <p>{cheers.join(", ")}</p>
+            <p className="meta">{t("cheer.note")}</p>
+          </section>
+        )}
+        {streak !== null && (
+          <section className="surface overview-panel" aria-labelledby="streak">
+            <h2 id="streak"><span aria-hidden="true">🔥</span> {t("streak.title")}</h2>
+            <p><strong>{streak}</strong> {t("streak.weeks")}</p>
+            <p className="meta">{t("streak.note")}</p>
+          </section>
+        )}
+        {rewardsShown && knowledge > 0 && (
+          <section className="surface overview-panel" aria-labelledby="knowledge">
+            <h2 id="knowledge"><span aria-hidden="true">📚</span> {t("knowledge.title")}</h2>
+            <p><strong>{knowledge}</strong> {t("knowledge.count")}</p>
+            <p className="meta">{t("knowledge.note")}</p>
+          </section>
+        )}
+        {rewardsShown && (goal || canManage) && (
+          <section className="surface overview-panel" aria-labelledby="goal">
+            <h2 id="goal"><span aria-hidden="true">🎯</span> {t("goal.title")}</h2>
+            {goal ? (
+              <>
+                <p>{t("goal.text")}</p>
+                <progress value={goalPercent(goal.weeks_done, goal.weeks_total)} max={100} aria-label={t("goal.title")} />
+                <p className="meta">{t("goal.progress").replace("{done}", String(goal.weeks_done)).replace("{total}", String(goal.weeks_total))}</p>
+              </>
+            ) : (
+              <p className="meta">{t("goal.none")}</p>
+            )}
+            <p className="meta">{t("goal.note")}</p>
+            {canManage && (
+              <form action={setTeamGoal}>
+                <input type="hidden" name="projectId" value={current.id} />
+                <input type="hidden" name="on" value={goal ? "0" : "1"} />
+                <button className="btn btn-secondary" type="submit">{goal ? t("goal.clear") : t("goal.set")}</button>
+              </form>
+            )}
+          </section>
+        )}
+        {rewardsShown && history && history.length > 0 && (
+          <section className="surface overview-panel" aria-labelledby="history">
+            <h2 id="history">{t("history.title")}</h2>
+            <ul>
+              {(history as { month: string; weeks_done: number; weeks_total: number }[]).map((h) => (
+                <li key={h.month}>
+                  {h.month.slice(0, 7)}: {t("goal.progress").replace("{done}", String(h.weeks_done)).replace("{total}", String(h.weeks_total))}
+                  {challengeMet(h.weeks_done, h.weeks_total) && <span className="badge badge-success"> {t("history.met")}</span>}
                 </li>
               ))}
             </ul>
-          )}
-        </section>
-      </div>
-      {cheers.length > 0 && (
-        <section className="surface overview-panel" aria-labelledby="cheer">
-          <h2 id="cheer"><span aria-hidden="true">🎉</span> {t("cheer.title")}</h2>
-          <p>{cheers.join(", ")}</p>
-          <p className="meta">{t("cheer.note")}</p>
-        </section>
-      )}
-      {streak !== null && (
-        <section className="surface overview-panel" aria-labelledby="streak">
-          <h2 id="streak"><span aria-hidden="true">🔥</span> {t("streak.title")}</h2>
-          <p><strong>{streak}</strong> {t("streak.weeks")}</p>
-          <p className="meta">{t("streak.note")}</p>
-        </section>
-      )}
-      {rewardsShown && knowledge > 0 && (
-        <section className="surface overview-panel" aria-labelledby="knowledge">
-          <h2 id="knowledge"><span aria-hidden="true">📚</span> {t("knowledge.title")}</h2>
-          <p><strong>{knowledge}</strong> {t("knowledge.count")}</p>
-          <p className="meta">{t("knowledge.note")}</p>
-        </section>
-      )}
-      {rewardsShown && (goal || canManage) && (
-        <section className="surface overview-panel" aria-labelledby="goal">
-          <h2 id="goal"><span aria-hidden="true">🎯</span> {t("goal.title")}</h2>
-          {goal ? (
-            <>
-              <p>{t("goal.text")}</p>
-              <progress value={goalPercent(goal.weeks_done, goal.weeks_total)} max={100} aria-label={t("goal.title")} />
-              <p className="meta">{t("goal.progress").replace("{done}", String(goal.weeks_done)).replace("{total}", String(goal.weeks_total))}</p>
-            </>
-          ) : (
-            <p className="meta">{t("goal.none")}</p>
-          )}
-          <p className="meta">{t("goal.note")}</p>
-          {canManage && (
-            <form action={setTeamGoal}>
-              <input type="hidden" name="projectId" value={current.id} />
-              <input type="hidden" name="on" value={goal ? "0" : "1"} />
-              <button className="btn btn-secondary" type="submit">{goal ? t("goal.clear") : t("goal.set")}</button>
-            </form>
-          )}
-        </section>
-      )}
-      {rewardsShown && history && history.length > 0 && (
-        <section className="surface overview-panel" aria-labelledby="history">
-          <h2 id="history">{t("history.title")}</h2>
-          <ul>
-            {(history as { month: string; weeks_done: number; weeks_total: number }[]).map((h) => (
-              <li key={h.month}>
-                {h.month.slice(0, 7)}: {t("goal.progress").replace("{done}", String(h.weeks_done)).replace("{total}", String(h.weeks_total))}
-                {challengeMet(h.weeks_done, h.weeks_total) && <span className="badge badge-success"> {t("history.met")}</span>}
-              </li>
-            ))}
-          </ul>
-          <p className="meta">{t("goal.note")}</p>
-        </section>
-      )}
-      <section className="surface overview-panel" aria-labelledby="attention">
-        <h2 id="attention">{t("overview.attention")}</h2>
-        {attention.length === 0 ? (
-          <p className="meta">{t("overview.attentionNone")}</p>
-        ) : (
-          <ul>
-            {attention.map((task) => (
-              <li key={task.id}>
-                <a href={`/app/board?project=${current.id}`}>{task.title}</a>
-                <span className={`badge ${task.status === "blocked" ? "badge-danger" : "badge-warning"}`}>
-                  {task.status === "blocked" ? t("overview.blocked") : t("overview.overdue")}
-                </span>
-                {task.dueDate && <time className="meta" dateTime={task.dueDate}>{task.dueDate}</time>}
-              </li>
-            ))}
-          </ul>
+            <p className="meta">{t("goal.note")}</p>
+          </section>
         )}
-      </section>
-      {suggestions > 0 && (
-        <section className="surface overview-panel" aria-labelledby="ai">
-          <h2 id="ai">{t("overview.ai")} ({suggestions})</h2>
-          <p className="meta">{t("overview.aiBody")}</p>
-          <p className="meta">{t("overview.aiCounts").replace("{accepted}", String(accuracy.accepted)).replace("{dismissed}", String(accuracy.dismissed))}</p>
-        </section>
-      )}
+      </div>
     </main>
   );
 }
