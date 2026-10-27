@@ -41,7 +41,7 @@ export const saveText = (t: Labels, submit: string): SaveText => ({ cancel: t("l
 export const discardText = (t: Labels) => ({ title: t("items.unsaved"), body: t("items.discard"), keep: t("items.keepEditing"), discard: t("items.discardGo") });
 
 // The create/edit inspector: heading with close, scrolling body, footer with Cancel and the save button. One component for task, decision and risk.
-export type Source = { id?: string; subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string } };
+export type Source = { id?: string; subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string; quote?: string; meta?: string } };
 
 export function Fields({ item, kind, projectId, project = "", closeHref = "#", reloadHref, demo = false, plan, source, draft, kindHref, t }: { item?: ManualItem; reloadHref?: string; demo?: boolean; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
   const people: Opt[] = plan.members.map((m) => [m.userId, m.name || m.email]);

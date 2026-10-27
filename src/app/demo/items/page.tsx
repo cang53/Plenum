@@ -33,7 +33,7 @@ export default async function DemoItemsPage({ searchParams }: { searchParams: Pr
   const tasks = shown.filter((i) => i.kind === "task");
   const selected = detail ?? task;
   const opened = !edit ? items.find((i) => i.id === selected) : undefined;
-  const source = { subject: "Re: Gearbox delivery date", from: "Marta Silva", receivedAt: "2026-10-20T08:00:00Z", href: "/demo/messages", review: { title: "Move install to 7 Dec", href: "/demo/messages" } };
+  const source = { subject: "Re: Gearbox delivery date", from: "Marta Silva", receivedAt: "2026-10-20T08:00:00Z", href: "/demo/messages", review: { title: "Move install to 7 Dec", quote: "The gearbox will ship on 7 December after the balance check.", meta: "Email · Marta Silva · 09:05", href: "/demo/messages" } };
   const menu = (i: ManualItem) => <RowOptions t={t} title={i.title} openHref={`/demo/items?detail=${i.id}`} editHref={`/demo/items?edit=${i.id}`} />;
   const keep = new URLSearchParams(queryPairs(query));
   return (
@@ -41,7 +41,7 @@ export default async function DemoItemsPage({ searchParams }: { searchParams: Pr
       <p className="notice">{t("gantt.demoNotice")}</p>
       <ItemsHead t={t} action="/demo/items" keep={[]} query={query} owners={names("ownerId")} phases={names("phaseId")} pending={demoSuggestions.length} reviewHref="/demo/messages"
         create={MANUAL_KINDS.map((k) => <CreateOption key={k} kind={k} t={t} href={`/demo/items?create=${k}`} />)} />
-      {opened && <ItemDetail t={t} locale={locale} projectId="demo" item={opened} shareHref={`/demo/items?detail=${opened.id}`} owner={opened.ownerId ?? undefined} phase={opened.phaseId ?? undefined} source={source} activity={[{ at: "2026-10-20T09:30:00Z", text: "Marta Silva created this from a message" }, { at: "2026-10-21T14:05:00Z", text: "Jonas Peeters changed the due date" }]} canManage closeHref="/demo/items" editHref={`/demo/items?edit=${opened.id}`} hoursHref="/demo/timesheet" />}
+      {opened && <ItemDetail t={t} locale={locale} projectId="demo" item={opened} shareHref={`/demo/items?detail=${opened.id}`} owner={opened.ownerId ?? undefined} phase={opened.phaseId ?? undefined} source={source} activity={[{ at: "2026-10-20T09:30:00Z", who: "Marta Silva", text: "created this from a message" }, { at: "2026-10-21T14:05:00Z", who: "Jonas Peeters", text: "changed the due date" }]} canManage closeHref="/demo/items" editHref={`/demo/items?edit=${opened.id}`} hoursHref="/demo/timesheet" />}
       {items.filter((i) => i.id === edit).map((i) => <Fields key={i.id} demo item={i} kind={i.kind} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} source={source} t={t} />)}
       {MANUAL_KINDS.map((k) => k === create && <Fields key={k} demo kind={k} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} draft={{ title: draftTitle, details: draftDetails }} kindHref={(other) => `/demo/items?create=${other}${from ? `&from=${from}` : ""}`} source={from ? { ...source, id: from } : undefined} t={t} />)}
       {(!kinds.length || kinds.includes("task")) && (

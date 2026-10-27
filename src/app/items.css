@@ -345,7 +345,7 @@ dialog.pop:not([open]) { display: none; }
 .insp-activity-block .insp-sub { margin: 0; font-size: var(--text-lg); line-height: 1.5625rem; font-weight: var(--weight-semibold); letter-spacing: -0.45px; color: var(--text); }
 .item-act { display: grid; gap: 5px; }
 .item-act p { margin: 0; }
-.act-text { font-size: var(--text-base); line-height: 1.25rem; color: var(--text); }
+.item-act-text { font-size: var(--text-base); line-height: 1.25rem; color: var(--text); }
 .insp-note label { display: grid; gap: 6px; font-size: var(--text-sm); color: var(--text-secondary); }
 .insp-note textarea { min-height: 6.25rem; padding: var(--s3); border: 1px solid var(--border-strong); border-radius: 0.75rem; background: var(--accent-soft); color: var(--text); font: inherit; font-size: var(--text-base); }
 .insp-actions { flex-wrap: wrap; align-items: flex-start; gap: 10px; }
@@ -372,3 +372,25 @@ dialog.pop:not([open]) { display: none; }
 .items-flat td { padding-inline: 0.75rem; }
 .insp-activity-block .item-act + .item-act { padding-block-start: var(--s3); }
 .insp-foot .btn, .pop-actions .btn, .notice-actions .btn { text-decoration: none; }
+
+/* Activity entries and the AI review card, spaced as in Figma (5px entry gap, 14px card padding, 10px card gap). */
+.item-act { gap: 5px; }
+.item-act-who { font-size: var(--text-base); line-height: 1.25rem; font-weight: var(--weight-semibold); color: var(--text); }
+.item-act-text { font-size: var(--text-base); line-height: 1.25rem; font-weight: 400; color: var(--text); }
+.item-act .insp-card-note { font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-activity-block { gap: 1rem; }
+.insp-activity-block .insp-sub { margin: 0; }
+.insp-review { gap: 10px; padding: 0.875rem; background: var(--accent-soft); }
+.insp-review p { font-size: var(--text-base); line-height: 1.25rem; font-weight: 400; color: var(--text); margin: 0; }
+.insp-review .insp-card-label { font-weight: var(--weight-semibold); color: var(--primary); }
+.insp-review .strong { font-weight: var(--weight-semibold); }
+.insp-review .meta { font-size: var(--text-sm); line-height: 1.125rem; color: var(--primary); }
+.insp-review .insp-card-note { font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-review .btn { align-self: flex-start; min-width: 10.25rem; min-height: 2.75rem; justify-content: center; }
+/* .items-page section resets gap to 0, so the inspector sections set theirs with the same weight. */
+.items-page .item-detail .insp-card { gap: 6px; }
+.items-page .item-detail .insp-review { gap: 10px; }
+.items-page .item-detail .insp-activity-block { gap: 1rem; }
+.items-page .item-detail .insp-identity { gap: 8px; }
+.items-page .item-detail .insp-read { gap: 1.125rem; }
+.insp-actions .insp-card-note { font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }

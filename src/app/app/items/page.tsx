@@ -44,10 +44,10 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   const editing = items.find((i) => i.id === edit);
   const opened = editing ?? items.find((i) => i.id === (detail ?? task));
   const sourceOf = opened?.sourceMessageId ? (await listSourceMessages(supabase, [opened.sourceMessageId]))[opened.sourceMessageId] : undefined;
-  const source = opened?.sourceMessageId && sourceOf ? { ...sourceOf, href: `/app/stream#msg-${opened.sourceMessageId}`, review: suggestions.filter((x) => x.messageId === opened.sourceMessageId).map((x) => ({ title: x.title, href: `/app/notifications?project=${project.id}` }))[0] } : undefined;
+  const source = opened?.sourceMessageId && sourceOf ? { ...sourceOf, href: `/app/stream#msg-${opened.sourceMessageId}`, review: suggestions.filter((x) => x.messageId === opened.sourceMessageId).map((x) => ({ title: x.title, quote: x.details || x.reason || undefined, meta: [sourceOf.from, sourceOf.receivedAt.slice(11, 16)].filter(Boolean).join(" · "), href: `/app/notifications?project=${project.id}` }))[0] } : undefined;
   const origin = create && from && /^[0-9a-f-]{36}$/i.test(from) ? (await listSourceMessages(supabase, [from]))[from] : undefined;
   const dateLocale = intlLocale[await getLocale()];
-  const activity = opened?.kind === "task" ? (await taskActivity(supabase, opened.id)).map((a) => ({ at: a.at, text: `${a.who ?? t("taskDetail.someone")} ${t(activityKey(a.action))}`, href: a.messageId ? `/app/stream#msg-${a.messageId}` : undefined })) : [];
+  const activity = opened?.kind === "task" ? (await taskActivity(supabase, opened.id)).map((a) => ({ at: a.at, who: a.who ?? t("taskDetail.someone"), text: t(activityKey(a.action)), href: a.messageId ? `/app/stream#msg-${a.messageId}` : undefined })) : [];
   const canManage = (await supabase.rpc("can_manage_project", { p: project.id })).data === true;
   // Risks have no site, so only the "off everywhere" switch hides the badge.
   const [{ data: switches }, { data: risks }, { data: taskRows }] = await Promise.all([

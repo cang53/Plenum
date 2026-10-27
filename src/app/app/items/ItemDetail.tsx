@@ -12,7 +12,7 @@ import type { Source } from "./ItemFields";
 const KIND_ICON = { task: "⊘", decision: "◇", risk: "△" } as const;
 
 type T = (key: MessageKey) => string;
-export type Activity = { at: string; text: string; href?: string };
+export type Activity = { at: string; who: string; text: string; href?: string };
 type Rel = { title: string; href: string };
 type Props = {
   t: T;
@@ -95,6 +95,8 @@ export function ItemDetail({ t, locale, item, projectId, shareHref, owner, phase
           <section className="wide insp-card insp-review" aria-label={t("items.reviewTitle")}>
             <p className="insp-card-label">✧ {t("items.reviewTitle")}</p>
             <p className="strong">{source.review.title}</p>
+            {source.review.quote && <p className="quote">“{source.review.quote}”</p>}
+            {source.review.meta && <p className="meta">{source.review.meta} ↗</p>}
             <a className="btn btn-secondary" href={source.review.href}>{t("items.reviewLink")} ↗</a>
             <p className="insp-card-note">{t("items.reviewNote")}</p>
           </section>
@@ -116,7 +118,8 @@ export function ItemDetail({ t, locale, item, projectId, shareHref, owner, phase
           <h3 className="insp-sub">{t("items.activityReplies")}</h3>
           {activity.map((a, i) => (
             <div key={i} className="item-act">
-              <p className="act-text">{a.text}</p>
+              <p className="item-act-who">{a.who}</p>
+              <p className="item-act-text">{a.text}</p>
               <p className="insp-card-note">{stamp(a.at)}{a.href && <> · <a href={a.href}>{t("taskDetail.sourceMessage")}</a></>}</p>
             </div>
           ))}
