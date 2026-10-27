@@ -52,3 +52,13 @@ Conversations (grouped by subject across sources), list with search and filters,
 
 ## Not built
 Teams and email outbound, assignment and done states, model-written summaries, notifications, mentions.
+
+## Later ideas, not now
+**Topic channels (SS, 27 Oct).** Each project keeps its default **General** chat, mapped to one Teams channel. Anyone can open a **topic channel** for a specific issue (for example "Gearbox delay"), also mapped to its own Teams channel, like the Topics rail in the Figma Messages frame. The Stream would show General by default, with topics one click away, and email could be filed into a topic.
+
+Risks to weigh first:
+- It can fragment the single chat that SS asked for. A rule is needed so topics stay the exception, for example an "All" view that mixes every channel in time order.
+- Each topic needs a Teams channel and a mapping to keep in sync.
+- Where an email goes (General or a topic) needs a rule or a person's click.
+
+The database already has a `topics` table with `messages.topic_id` (migration 149), which could be the base. Not built, not scheduled.
