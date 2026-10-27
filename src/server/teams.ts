@@ -10,6 +10,9 @@ export type TeamsPoster = { post: (post: TeamsPost) => Promise<void> };
 // TEAMS_CHANNELS: {"<project slug>": {"channel": "<channel id>", "webhook": "<Workflows URL>"}}. Only mapped projects are read or posted to.
 export type TeamsChannels = Record<string, { channel: string; webhook?: string }>;
 
+// The log keeps only the kind of failure, so the HTTP status rides on the error.
+const httpError = (message: string, status: number) => Object.assign(new Error(message), { status });
+
 export function teamsChannels(raw = process.env.TEAMS_CHANNELS): TeamsChannels {
   if (!raw) return {};
   try {
@@ -44,7 +47,7 @@ export function webhookTeamsPoster(channels: TeamsChannels, fetchFn: typeof fetc
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ type: "message", attachments: [{ contentType: "application/vnd.microsoft.card.adaptive", content: card }] }),
       });
-      if (!res.ok) throw new Error(`Teams webhook failed: ${res.status}`);
+      if (!res.ok) throw httpError(`Teams webhook failed: ${res.status}`, res.status);
     },
   };
 }
@@ -92,20 +95,20 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
     method: "POST",
     body: new URLSearchParams({ client_id: env.clientId, client_secret: env.clientSecret, scope: "https://graph.microsoft.com/.default", grant_type: "client_credentials" }),
   });
-  if (!tokenRes.ok) throw new Error(`Graph sign-in failed: ${tokenRes.status}`);
+  if (!tokenRes.ok) throw httpError(`Graph sign-in failed: ${tokenRes.status}`, tokenRes.status);
   const { access_token } = (await tokenRes.json()) as { access_token: string };
   let seen = 0;
   for (const slug of slugs) {
     try {
       const res = await fetchFn(`https://graph.microsoft.com/v1.0/teams/${env.teamId}/channels/${encodeURIComponent(env.channels[slug].channel)}/messages?$top=50`, { headers: { authorization: `Bearer ${access_token}` } });
-      if (!res.ok) throw new Error(`Graph read of ${slug} failed: ${res.status}`);
+      if (!res.ok) throw httpError(`Graph read of ${slug} failed: ${res.status}`, res.status);
       for (const m of personMessages(((await res.json()) as { value: GraphMessage[] }).value)) {
         const store = await fetchFn(`${env.supabaseUrl}/rest/v1/rpc/ingest_teams`, {
           method: "POST",
           headers: { apikey: env.serviceRoleKey, authorization: `Bearer ${env.serviceRoleKey}`, "content-type": "application/json" },
           body: JSON.stringify({ p_slug: slug, p_external_id: m.externalId, p_from_name: m.fromName, p_from_id: m.fromId, p_subject: m.subject, p_body_text: m.bodyText, p_sent_at: m.sentAt }),
         });
-        if (!store.ok) throw new Error(`ingest_teams failed: ${store.status}`);
+        if (!store.ok) throw httpError(`ingest_teams failed: ${store.status}`, store.status);
         seen++;
       }
     } catch (e) {
