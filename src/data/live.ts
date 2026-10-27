@@ -260,13 +260,13 @@ export async function listAuditPage(client: SupabaseClient, projectId: string, a
 // Dated tasks and their dependencies for the Gantt view.
 export async function listGanttPlan(client: SupabaseClient, projectId: string) {
   const [tasks, deps] = await Promise.all([
-    client.from("tasks").select("id, title, start_date, due_date, is_milestone, phases(name)").eq("project_id", projectId).order("start_date", { nullsFirst: false }),
+    client.from("tasks").select("id, title, start_date, due_date, is_milestone, status, priority, number, phases(name), profiles:owner_id(display_name)").eq("project_id", projectId).order("start_date", { nullsFirst: false }),
     client.from("task_dependencies").select("predecessor_id, successor_id, kind, lag_days, tasks:successor_id!inner(project_id)").eq("tasks.project_id", projectId),
   ]);
   if (tasks.error) throw tasks.error;
   if (deps.error) throw deps.error;
   return {
-    tasks: ((tasks.data ?? []) as unknown as { id: string; title: string; start_date: string | null; due_date: string | null; is_milestone: boolean; phases: { name: string } | null }[]).map((r) => ({ id: r.id, title: r.title, startDate: r.start_date, dueDate: r.due_date, isMilestone: r.is_milestone, phase: r.phases?.name ?? null })),
+    tasks: ((tasks.data ?? []) as unknown as { id: string; title: string; start_date: string | null; due_date: string | null; is_milestone: boolean; status: TaskStatus; priority: "low" | "normal" | "high"; number: number; phases: { name: string } | null; profiles: { display_name: string } | null }[]).map((r) => ({ id: r.id, title: r.title, startDate: r.start_date, dueDate: r.due_date, isMilestone: r.is_milestone, phase: r.phases?.name ?? null, status: r.status, priority: r.priority, number: r.number, ownerName: r.profiles?.display_name ?? null })),
     dependencies: (deps.data ?? []).map((d) => ({ predecessorId: d.predecessor_id as string, successorId: d.successor_id as string, kind: d.kind as "FS" | "SS" | "FF" | "SF", lagDays: d.lag_days as number })),
   };
 }

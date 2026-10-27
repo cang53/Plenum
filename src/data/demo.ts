@@ -1,5 +1,7 @@
 // Demo project used until the hosted database is set up (backlog task 2), and for demos after.
-import type { BoardTask } from "@/domain/board";
+import type { BoardTask, TaskStatus } from "@/domain/board";
+import type { GanttTask } from "@/domain/gantt";
+import type { Dependency } from "@/domain/schedule";
 import type { TimelineMessage } from "@/domain/timeline";
 
 import type { StoredSuggestion } from "@/domain/triage";
@@ -49,3 +51,37 @@ export const demoSuggestions: StoredSuggestion[] = [
   { id: "s1", messageId: "m1", status: "pending", kind: "change_request", title: "Resequence install after gearbox delay", details: "Delivery moves from 14 Nov to 28 Nov, so the install needs a new slot.", reason: "The supplier's email moves the gearbox delivery by two weeks." },
   { id: "s2", messageId: "m3", status: "pending", kind: "task", title: "Send updated cabinet drawings to Aylin", details: "Needed before Thursday to finish the wiring plans.", reason: "Aylin asks for the drawings before Thursday." },
 ];
+
+// Demo plan for the Timeline: dates are offsets from the Monday on or before eight days ago, so Today always sits in the first weeks.
+export function demoGantt(now: Date): { tasks: GanttTask[]; dependencies: Dependency[]; start: string } {
+  const day = Math.floor(now.getTime() / 86_400_000) - 8;
+  const monday = day - ((day + 3) % 7); // day 0 of the epoch was a Thursday
+  const iso = (offset: number) => new Date((monday + offset) * 86_400_000).toISOString().slice(0, 10);
+  const task = (n: number, title: string, phase: string, from: number, to: number, ownerName: string, status: TaskStatus, priority: "low" | "normal" | "high", extra: Partial<GanttTask> = {}): GanttTask =>
+    ({ id: `g${n}`, number: n, title, phase, startDate: iso(from), dueDate: iso(to), ownerName, status, priority, ...extra });
+  const forecast = iso(22);
+  return {
+    start: iso(0),
+    tasks: [
+      task(3, "Cabinet drawings", "Engineering", 0, 3, "Aylin Kaya", "done", "normal"),
+      task(7, "Load chart check", "Engineering", 0, 4, "Jonas Peeters", "in_progress", "high"),
+      task(4, "Order gearbox", "Procurement", 1, 7, "Marta Silva", "done", "normal"),
+      task(5, "Gearbox delivery", "Procurement", 8, 16, "Marta Silva", "blocked", "high", { forecast: { date: forecast, label: `Supplier forecast ${new Intl.DateTimeFormat("en", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${forecast}T00:00:00Z`))}, not accepted` } }),
+      task(1, "Lifting permit", "Permits", 0, 2, "Jonas Peeters", "done", "low"),
+      task(8, "Foundation check", "Site prep", 8, 11, "Jonas Peeters", "in_progress", "normal"),
+      task(2, "Lifting works", "Site works", 3, 24, "Jonas Peeters", "in_progress", "high"),
+      task(9, "Crane inspection", "Site works", 25, 32, "Jonas Peeters", "todo", "normal"),
+      task(10, "Install gearbox", "Site works", 25, 30, "Marta Silva", "todo", "normal"),
+      task(6, "Electrical tests", "Commissioning", 33, 36, "Aylin Kaya", "todo", "low"),
+    ],
+    dependencies: [
+      { predecessorId: "g4", successorId: "g5" },
+      { predecessorId: "g1", successorId: "g2" },
+      { predecessorId: "g7", successorId: "g2" },
+      { predecessorId: "g2", successorId: "g9" },
+      { predecessorId: "g5", successorId: "g10" },
+      { predecessorId: "g9", successorId: "g6" },
+      { predecessorId: "g10", successorId: "g6" },
+    ],
+  };
+}

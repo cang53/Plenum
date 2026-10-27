@@ -1,8 +1,11 @@
 // Gantt layout and critical path. Dates are ISO strings (YYYY-MM-DD); only dated tasks get a bar.
+import type { TaskStatus } from "./board";
 import type { Dependency, PlanTask } from "./schedule";
 
-export type GanttTask = PlanTask & { phase: string | null; isMilestone?: boolean };
-export type GanttBar = { id: string; title: string; phase: string | null; startDay: number; length: number; start: string; due: string; isMilestone: boolean };
+// Owner, status, priority and number are for the task column; a task without them still draws.
+// forecast is a supplier's date nobody has accepted yet; the chart marks it with a dashed outline.
+export type GanttTask = PlanTask & { phase: string | null; isMilestone?: boolean; ownerName?: string | null; status?: TaskStatus; priority?: "low" | "normal" | "high"; number?: number; forecast?: { date: string; label: string } };
+export type GanttBar = { id: string; title: string; phase: string | null; startDay: number; length: number; start: string; due: string; isMilestone: boolean; ownerName?: string | null; status?: TaskStatus; priority?: "low" | "normal" | "high"; number?: number; forecast?: { date: string; label: string } };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -25,12 +28,15 @@ export function buildBars(tasks: GanttTask[]): { bars: GanttBar[]; firstDay: num
   const dated = tasks.filter((t): t is GanttTask & { startDate: string; dueDate: string } => !!t.startDate && !!t.dueDate);
   if (!dated.length) return { bars: [], firstDay: 0, totalDays: 0 };
   const firstDay = Math.min(...dated.map((t) => dayOf(t.startDate)));
-  const lastDay = Math.max(...dated.map((t) => dayOf(t.dueDate)));
+  const lastDay = Math.max(...dated.map((t) => Math.max(dayOf(t.dueDate), t.forecast ? dayOf(t.forecast.date) : 0)));
   const bars = dated
     // a milestone is a point in time: one day wide, on its due date
-    .map((t) => (t.isMilestone
-      ? { id: t.id, title: t.title, phase: t.phase, startDay: dayOf(t.dueDate) - firstDay, length: 1, start: t.startDate, due: t.dueDate, isMilestone: true }
-      : { id: t.id, title: t.title, phase: t.phase, startDay: dayOf(t.startDate) - firstDay, length: dayOf(t.dueDate) - dayOf(t.startDate) + 1, start: t.startDate, due: t.dueDate, isMilestone: false }))
+    .map((t) => {
+      const info = { id: t.id, title: t.title, phase: t.phase, start: t.startDate, due: t.dueDate, ownerName: t.ownerName, status: t.status, priority: t.priority, number: t.number, forecast: t.forecast };
+      return t.isMilestone
+        ? { ...info, startDay: dayOf(t.dueDate) - firstDay, length: 1, isMilestone: true }
+        : { ...info, startDay: dayOf(t.startDate) - firstDay, length: dayOf(t.dueDate) - dayOf(t.startDate) + 1, isMilestone: false };
+    })
     .sort((a, b) => a.startDay - b.startDay || a.title.localeCompare(b.title));
   return { bars, firstDay, totalDays: lastDay - firstDay + 1 };
 }
@@ -81,7 +87,7 @@ export function slipDays(tasks: PlanTask[], baseline: BaselineDates): Map<string
 }
 
 export type Zoom = "week" | "month" | "quarter";
-export const DAY_PX: Record<Zoom, number> = { week: 28, month: 10, quarter: 4 };
+export const DAY_PX: Record<Zoom, number> = { week: 21, month: 10, quarter: 4 };
 
 export type PhaseGroup = { phase: string | null; startDay: number; endDay: number; bars: GanttBar[] };
 
