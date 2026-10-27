@@ -40,7 +40,7 @@ export type StreamViewProps = {
   readOnly?: boolean;
 };
 
-export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, fileUrls, open, pins, pinned, canPin, decisions, time, date, now, readOnly }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, fileUrls, open, pins, pinned, canPin, decisions, time, date, readOnly }: StreamViewProps): ReactNode {
   const href = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams({ project: project.id });
     for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
@@ -52,10 +52,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
     <main id="main" className="page msgs chat">
       {!readOnly && <MarkRead projectId={project.id} />}
       <header className="chat-head">
-        <div>
-          <h1>{project.name}</h1>
-          <p className="sub">{t("stream.title")} · {date.format(now)}</p>
-        </div>
+        <h1 className="sr-only">{project.name} · {t("stream.title")}</h1>
         <nav className="chips" aria-label={t("stream.views")}>
           <a className="chip" href={href({ source: undefined, view: undefined })} aria-current={!query.source && !decisions ? "page" : undefined}>{t("stream.tab.all")}</a>
           {SOURCES.map((k) => <a key={k} className="chip" data-src={k} href={href({ source: k, view: undefined })} aria-current={query.source === k ? "page" : undefined}>{t(`stream.source.${k}`)}</a>)}

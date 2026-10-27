@@ -17,9 +17,17 @@ export function StreamKeys({ label, hint }: { label: string; hint: string }) {
       cur.current = el;
       el.scrollIntoView({ block: "center", behavior: "smooth" });
     };
-    const divider = document.querySelector<HTMLElement>(".newline");
-    if (divider) divider.scrollIntoView({ block: "center" });
-    else window.scrollTo(0, document.documentElement.scrollHeight);
+    // Opens on the newest messages like a chat app, and keeps following the bottom while pictures and fonts load, until the person scrolls.
+    let follow = true;
+    const toEnd = () => window.scrollTo(0, document.documentElement.scrollHeight);
+    toEnd();
+    const watch = new ResizeObserver(() => follow && toEnd());
+    watch.observe(document.body);
+    const stop = () => { follow = false; };
+    const done = setTimeout(() => { watch.disconnect(); }, 2500);
+    window.addEventListener("wheel", stop, { passive: true, once: true });
+    window.addEventListener("touchmove", stop, { passive: true, once: true });
+    window.addEventListener("keydown", stop, { once: true });
     const onScroll = () => setAway(document.documentElement.scrollHeight - window.scrollY - window.innerHeight > 240);
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
@@ -43,7 +51,7 @@ export function StreamKeys({ label, hint }: { label: string; hint: string }) {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("keydown", onKey); };
+    return () => { clearTimeout(done); watch.disconnect(); window.removeEventListener("wheel", stop); window.removeEventListener("touchmove", stop); window.removeEventListener("keydown", stop); window.removeEventListener("scroll", onScroll); window.removeEventListener("keydown", onKey); };
   }, []);
 
   return away ? (

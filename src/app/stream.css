@@ -72,8 +72,7 @@
 
 /* One project chat: Plenum, email and Teams messages in time order */
 .msgs.chat { max-width: 820px; margin-inline: auto; width: 100%; }
-.chat-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--s3); }
-.chat-head h1 { margin: 0; }
+.chat-head { position: sticky; top: 0; z-index: 4; padding-block: var(--s2); background: var(--ambient-background); }
 .chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .chip { padding: 4px 12px; border-radius: 100px; background: var(--control); color: var(--text-muted); font-size: var(--text-sm); line-height: 18px; text-decoration: none; }
 .chip[aria-current="page"] { background: var(--primary); color: var(--surface); }
@@ -139,3 +138,4 @@
 /* Hover actions sit on the card's top edge, so they never cover the text */
 .msg .mail-acts { inset-block-start: -14px; padding: 2px; }
 .msg .mail-acts .btn { min-height: 26px; padding: 2px 10px; font-size: var(--text-sm); }
+.shell .chat-head { top: 4.75rem; }
