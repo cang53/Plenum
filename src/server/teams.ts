@@ -87,7 +87,7 @@ export function personMessages(messages: GraphMessage[]) {
 export type TeamsReaderEnv = { teamId: string; tenantId: string; clientId: string; clientSecret: string; supabaseUrl: string; serviceRoleKey: string; channels: TeamsChannels };
 
 // Reads the latest 50 messages of each mapped channel and stores the new ones (storing is idempotent). Replies to a thread are not read.
-// Returns how many messages were seen. One channel failing does not stop the others.
+// Returns how many messages were stored or already stored. One channel failing does not stop the others.
 export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fetch = fetch, onError: (e: unknown) => void = () => {}): Promise<number> {
   const slugs = Object.keys(env.channels);
   if (slugs.length === 0) return 0;
@@ -109,7 +109,7 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
           body: JSON.stringify({ p_slug: slug, p_external_id: m.externalId, p_from_name: m.fromName, p_from_id: m.fromId, p_subject: m.subject, p_body_text: m.bodyText, p_sent_at: m.sentAt }),
         });
         if (!store.ok) throw httpError(`ingest_teams failed: ${store.status}`, store.status);
-        seen++;
+        if ((await store.json()) !== null) seen++; // null: no open project has that slug
       }
     } catch (e) {
       onError(e);
