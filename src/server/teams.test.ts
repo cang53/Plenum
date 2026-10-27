@@ -97,7 +97,7 @@ describe("reading Teams", () => {
     }) as unknown as typeof fetch;
     const env = { teamId: "T", tenantId: "X", clientId: "a", clientSecret: "b", supabaseUrl: "https://db.example", serviceRoleKey: "k", channels: { line4: { channel: "19:c@thread.tacv2" } } };
     expect(await readTeamsChannels(env, f)).toBe(1);
-    expect(calls.some((u) => u.includes("/teams/T/channels/19%3Ac%40thread.tacv2/messages"))).toBe(true);
+    expect(calls.some((u) => u.includes("/teams/T/channels/19:c@thread.tacv2/messages"))).toBe(true);
     expect(calls.at(-1)).toBe("https://db.example/rest/v1/rpc/ingest_teams");
   });
 
@@ -129,8 +129,8 @@ describe("channels linked in settings", () => {
     }) as unknown as typeof fetch;
     const env = { TEAMS_PROVIDER: "live", AUTH_MICROSOFT_ENTRA_ID_TENANT_ID: "X", AUTH_MICROSOFT_ENTRA_ID_ID: "a", AUTH_MICROSOFT_ENTRA_ID_SECRET: "b", SUPABASE_URL: "https://db.example", SUPABASE_SERVICE_ROLE_KEY: "k", TEAMS_CHANNELS: '{"a":{"channel":"old"},"b":{"channel":"19:b@thread.tacv2"}}', TEAMS_TEAM_ID: "T1" };
     await teamsReaderFromEnv(env, f)!();
-    expect(calls.some((u) => u.includes("/teams/T2/channels/19%3Anew%40thread.tacv2/"))).toBe(true);
-    expect(calls.some((u) => u.includes("/teams/T1/channels/19%3Ab%40thread.tacv2/"))).toBe(true);
+    expect(calls.some((u) => u.includes("/teams/T2/channels/19:new@thread.tacv2/"))).toBe(true);
+    expect(calls.some((u) => u.includes("/teams/T1/channels/19:b@thread.tacv2/"))).toBe(true);
     expect(calls.some((u) => u.includes("channels/old"))).toBe(false);
   });
 });
@@ -141,7 +141,7 @@ describe("SS's configuration", () => {
     const channels = teamsChannels(raw);
     expect(channels["demo-f1478410"]!.channel).toBe("19:9febd999b5694e839b28dfc5b44dd811@thread.tacv2");
     expect(graphMessagesUrl("d89f9576-d43e-447b-817a-babe3f58b79d", channels["demo-f1478410"]!.channel))
-      .toBe("https://graph.microsoft.com/v1.0/teams/d89f9576-d43e-447b-817a-babe3f58b79d/channels/19%3A9febd999b5694e839b28dfc5b44dd811%40thread.tacv2/messages?$top=50");
+      .toBe("https://graph.microsoft.com/v1.0/teams/d89f9576-d43e-447b-817a-babe3f58b79d/channels/19:9febd999b5694e839b28dfc5b44dd811@thread.tacv2/messages?$top=50");
   });
 
   it("names the failing call and Graph's error code in the log", async () => {

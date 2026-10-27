@@ -21,7 +21,10 @@ async function errorCode(res: Response): Promise<string | undefined> {
   return typeof code === "string" && /^\w{1,60}$/.test(code) ? code : undefined;
 }
 
-export const graphMessagesUrl = (teamId: string, channelId: string) => `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${encodeURIComponent(channelId)}/messages?$top=50`;
+// Graph documents channel ids with their ":" and "@" as they are; the encoded forms are not accepted everywhere.
+const graphId = (id: string) => encodeURIComponent(id).replace(/%3A/gi, ":").replace(/%40/g, "@");
+
+export const graphMessagesUrl = (teamId: string, channelId: string) => `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${graphId(channelId)}/messages?$top=50`;
 
 export function teamsChannels(raw = process.env.TEAMS_CHANNELS): TeamsChannels {
   if (!raw) return {};
