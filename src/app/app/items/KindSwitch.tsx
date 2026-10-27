@@ -1,14 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { softGo } from "./softNav";
 
 type Opt = { kind: string; label: string; href: string };
 type Text = { field: string; title: string; body: string; keep: string; switch: string; open: string };
 
 // The create form's kind field. Changing kind asks first, then reopens the form for the new kind with the title and details carried over.
 export function KindSwitch({ current, options, text }: { current: string; options: Opt[]; text: Text }) {
-  const router = useRouter();
   const ref = useRef<HTMLDialogElement>(null);
   const [picked, setPicked] = useState(current);
   const now = options.find((o) => o.kind === current)!;
@@ -20,7 +19,7 @@ export function KindSwitch({ current, options, text }: { current: string; option
       const v = (form?.elements.namedItem(n) as HTMLInputElement | null)?.value;
       if (v) carry.set(n, v);
     }
-    router.push(`${next.href}${carry.size ? `&${carry}` : ""}`);
+    softGo(`${next.href}${carry.size ? `&${carry}` : ""}`);
   };
   return (
     <>

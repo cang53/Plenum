@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { ManualItem } from "@/data/live";
 import { t as tr } from "@/lib/messages";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
 vi.mock("@/app/app/stream/actions", () => ({ postMessage: () => {} }));
 vi.mock("./actions", () => ({ deleteItem: () => {}, toggleRisk: () => {}, quickUpdate: () => {} }));
 const T = (k: Parameters<typeof tr>[0]) => tr(k, "en");

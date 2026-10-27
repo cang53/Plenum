@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { ManualItem } from "@/data/live";
 import { t as tr } from "@/lib/messages";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
 vi.mock("./actions", () => ({ saveItem: () => {} }));
 const T = (k: Parameters<typeof tr>[0]) => tr(k, "en");
 const plan = { members: [{ userId: "u1", name: "Ana Kok", email: "a@x.nl", role: "member" }], phases: [{ id: "p1", name: "Site works" }], tasks: [{ id: "t2", title: "Other" }] };

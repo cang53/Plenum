@@ -2,8 +2,7 @@ import type { ManualItem } from "@/data/live";
 import { demoProject, demoSuggestions, demoTasks } from "@/data/demo";
 import { MANUAL_KINDS } from "@/domain/items";
 import { CreateOption, GroupHead, ItemsHead, listParam, matchesItem, queryPairs } from "@/app/app/items/ItemsHead";
-import { Fields } from "@/app/app/items/ItemFields";
-import { ItemDetail } from "@/app/app/items/ItemDetail";
+import { InspectorHost } from "@/app/app/items/InspectorHost";
 import { RowOptions } from "@/app/app/items/RowOptions";
 import { ItemsTable } from "@/app/app/items/ItemsTable";
 import { getLocale, getT } from "@/lib/locale";
@@ -25,14 +24,13 @@ const plan = { members: [{ userId: "Jonas Peeters", name: "Jonas Peeters", email
 export default async function DemoItemsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string | string[]; status?: string | string[]; owner?: string; phase?: string; task?: string; create?: string; edit?: string; detail?: string; from?: string; title?: string; details?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
-  const { q = "", kind, status, owner = "", phase = "", task, detail, create, edit, from, title: draftTitle, details: draftDetails } = await searchParams;
+  const { q = "", kind, status, owner = "", phase = "", task, detail, from } = await searchParams;
   const kinds = listParam(kind);
   const query = { q, kind: kinds, status: listParam(status), owner, phase };
   const shown = items.filter((i) => matchesItem(i, query));
   const names = (k: "ownerId" | "phaseId") => Object.fromEntries(items.flatMap((i) => (i[k] ? [[i[k], i[k]]] : [])));
   const tasks = shown.filter((i) => i.kind === "task");
   const selected = detail ?? task;
-  const opened = !edit ? items.find((i) => i.id === selected) : undefined;
   const source = { subject: "Re: Gearbox delivery date", from: "Marta Silva", receivedAt: "2026-10-20T08:00:00Z", href: "/demo/messages", review: { title: "Move install to 7 Dec", quote: "The gearbox will ship on 7 December after the balance check.", meta: "Email · Marta Silva · 09:05", href: "/demo/messages" } };
   const menu = (i: ManualItem) => <RowOptions t={t} title={i.title} openHref={`/demo/items?detail=${i.id}`} editHref={`/demo/items?edit=${i.id}`} />;
   const keep = new URLSearchParams(queryPairs(query));
@@ -41,9 +39,7 @@ export default async function DemoItemsPage({ searchParams }: { searchParams: Pr
       <p className="notice">{t("gantt.demoNotice")}</p>
       <ItemsHead t={t} action="/demo/items" keep={[]} query={query} owners={names("ownerId")} phases={names("phaseId")} pending={demoSuggestions.length} reviewHref="/demo/messages"
         create={MANUAL_KINDS.map((k) => <CreateOption key={k} kind={k} t={t} href={`/demo/items?create=${k}`} />)} />
-      {opened && <ItemDetail t={t} locale={locale} projectId="demo" item={opened} shareHref={`/demo/items?detail=${opened.id}`} owner={opened.ownerId ?? undefined} phase={opened.phaseId ?? undefined} source={source} activity={[{ at: "2026-10-20T09:30:00Z", who: "Marta Silva", text: "created this from a message" }, { at: "2026-10-21T14:05:00Z", who: "Jonas Peeters", text: "changed the due date" }]} canManage closeHref="/demo/items" editHref={`/demo/items?edit=${opened.id}`} hoursHref="/demo/timesheet" />}
-      {items.filter((i) => i.id === edit).map((i) => <Fields key={i.id} demo item={i} kind={i.kind} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} source={source} t={t} />)}
-      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} demo kind={k} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} draft={{ title: draftTitle, details: draftDetails }} kindHref={(other) => `/demo/items?create=${other}${from ? `&from=${from}` : ""}`} source={from ? { ...source, id: from } : undefined} t={t} />)}
+      <InspectorHost locale={await getLocale()} items={items} plan={plan} projectId="demo" projectName={demoProject.name} canManage userId={null} demo sources={{ s1: { subject: source.subject, from: source.from, receivedAt: source.receivedAt } }} suggestions={[]} fromSource={from ? { id: from, subject: source.subject, from: source.from, receivedAt: source.receivedAt } : null} today="2026-10-27" hoursHref="/demo/timesheet" reviewHref="/demo/messages" streamHref="/demo/messages" />
       {(!kinds.length || kinds.includes("task")) && (
         <>
           <GroupHead title={t("items.group.task")} rows={tasks} label={(s) => t(`status.${s}` as MessageKey)} />

@@ -54,7 +54,7 @@ export function ItemsTable({ kind, rows, t, rewards = false, columns = DEFAULT_C
         </thead>
         <tbody>
           {ordered.map(({ item }) => (
-            <tr key={item.id} className={item.id === selected ? "sel" : undefined} aria-selected={item.id === selected}>
+            <tr key={item.id} data-id={item.id} className={item.id === selected ? "sel" : undefined} aria-selected={item.id === selected}>
               <td className="ident">
                 <b>{sheetHref ? <a href={sheetHref(item.id)} data-row>{item.title}</a> : item.title}</b>{kind === "risk" && item.riskKind === "issue" && ` (${t("kind.issue")})`}
                 {rewards && kind === "risk" && item.riskKind !== "issue" && isEarlyWarning(item.createdAt, item.dueDate) && <> <span className="badge">{t("rewards.early")}</span></>}

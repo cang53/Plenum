@@ -43,13 +43,13 @@ export const discardText = (t: Labels) => ({ title: t("items.unsaved"), body: t(
 // The create/edit inspector: heading with close, scrolling body, footer with Cancel and the save button. One component for task, decision and risk.
 export type Source = { id?: string; subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string; quote?: string; meta?: string } };
 
-export function Fields({ item, kind, projectId, project = "", closeHref = "#", reloadHref, demo = false, plan, source, draft, kindHref, t }: { item?: ManualItem; reloadHref?: string; demo?: boolean; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
+export function Fields({ item, kind, projectId, project = "", closeHref = "#", reloadHref, demo = false, onSaved, plan, source, draft, kindHref, t }: { item?: ManualItem; reloadHref?: string; demo?: boolean; onSaved?: (r: { kind: string; id: string }) => void; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
   const people: Opt[] = plan.members.map((m) => [m.userId, m.name || m.email]);
   const none = t("items.none");
   const others: Opt[] = plan.tasks.filter((o) => o.id !== item?.id).map((o) => [o.id, o.title]);
   const heading = t(`items.${item ? "edit" : "new"}.${kind}` as MessageKey);
   return (
-    <SaveForm action={saveItem} text={saveText(t, t(item ? "items.save" : `items.new.${kind}` as MessageKey))} cancelHref={closeHref} reloadHref={reloadHref ?? closeHref} demo={demo} label={heading}>
+    <SaveForm action={saveItem} text={saveText(t, t(item ? "items.save" : `items.new.${kind}` as MessageKey))} cancelHref={closeHref} reloadHref={reloadHref ?? closeHref} demo={demo} label={heading} onSaved={onSaved}>
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="back" value={closeHref} />

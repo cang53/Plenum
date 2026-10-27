@@ -5,6 +5,7 @@ export type SaveResult =
   | { status: "idle" }
   | { status: "invalid"; message: Extract<MessageKey, `items.err.${string}`> }
   | { status: "error" }
+  | { status: "saved"; kind: string; id: string }
   | { status: "conflict"; latest: { title: string; details: string } };
 
 // A cheap fingerprint of what a person was looking at; if it differs when they save, someone else saved first.

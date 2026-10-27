@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import { t as tr } from "@/lib/messages";
 import { EmptyState, ItemsSkeleton, Notice, SaveToast } from "./Notice";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
 vi.mock("./actions", () => ({ saveItem: async () => ({ status: "idle" }) }));
 
 describe("notices", () => {

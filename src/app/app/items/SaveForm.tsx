@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useActionState, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { ConfirmDialog } from "@/app/app/ConfirmDialog";
 import type { SaveResult } from "@/domain/saveState";
 import { Notice } from "./Notice";
@@ -14,12 +14,13 @@ const subscribe = (cb: () => void) => {
 };
 
 // The inspector's form: while it saves the button says so and cannot be pressed twice; a failed save keeps everything typed and says what to do next.
-export function SaveForm({ action, children, text, cancelHref, reloadHref, demo = false, label }: { action: (prev: SaveResult, form: FormData) => Promise<SaveResult>; children: ReactNode; text: SaveText; cancelHref: string; reloadHref: string; demo?: boolean; label: string }) {
+export function SaveForm({ action, children, text, cancelHref, reloadHref, demo = false, label, onSaved }: { onSaved?: (r: { kind: string; id: string }) => void; action: (prev: SaveResult, form: FormData) => Promise<SaveResult>; children: ReactNode; text: SaveText; cancelHref: string; reloadHref: string; demo?: boolean; label: string }) {
   const [state, run, pending] = useActionState(action, { status: "idle" } as SaveResult);
   const online = useSyncExternalStore(subscribe, () => navigator.onLine, () => true);
   const [seen, setSeen] = useState<SaveResult | null>(null);
   const [probe, setProbe] = useState(false);
   const form = useRef<HTMLFormElement>(null);
+  useEffect(() => { if (state.status === "saved") onSaved?.(state); }, [state, onSaved]);
   const shown = state === seen ? ({ status: "idle" } as SaveResult) : state;
   // "Try reconnecting" asks the server once; a real answer means the browser flag was stale.
   const reconnect = async () => { setProbe(true); await fetch("/manifest.webmanifest", { method: "HEAD", cache: "no-store" }).then(() => dispatchEvent(new Event("online")), () => {}); setProbe(false); };
