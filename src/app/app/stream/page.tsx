@@ -3,25 +3,26 @@ import { supabaseServer } from "@/auth/supabase";
 import { listLinkedItems, listPendingSuggestions, listPins, listTimelineMessages } from "@/data/live";
 import { currentProject, listProjects } from "@/data/projects";
 import { demoProject } from "@/data/demo";
-import { newSince, streamModel, suggestionsByMessage, type StreamQuery } from "@/domain/stream";
+import { buildStream, filterFeed, newSince, suggestionsByMessage, type StreamQuery } from "@/domain/stream";
 import { StreamView } from "./StreamView";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
 
 export const dynamic = "force-dynamic";
 
-export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string; thread?: string; q?: string; filter?: string }> }) {
+export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string; q?: string; reply?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
   const supabase = await supabaseServer();
-  const { project: chosen, after, view, source, thread, q, filter } = await searchParams;
+  const { project: chosen, after, view, source, q, reply } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const tz = demoProject.timeZone;
   const { rows, next } = await listTimelineMessages(supabase, project.id, after);
   const readAt = (await cookies()).get(`stream-read-${project.id}`)?.value;
-  const query: StreamQuery = { thread, q, filter: filter === "unread" || filter === "reply" ? filter : undefined, source: source === "email" || source === "app" || source === "teams" ? source : undefined };
-  const { threads, current, days } = streamModel(rows, query, readAt, new Date().toISOString(), tz);
+  const query: StreamQuery = { q, source: source === "email" || source === "app" || source === "teams" ? source : undefined };
+  const days = buildStream(filterFeed(rows, query), new Date().toISOString(), tz);
+  const replyTo = rows.find((m) => m.id === reply) ?? null;
   const fresh = newSince(rows, readAt);
   const linked = await listLinkedItems(supabase, project.id, rows.map((m) => m.id));
   const proposed = suggestionsByMessage(await listPendingSuggestions(supabase, project.id));
@@ -32,5 +33,5 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
-  return <StreamView {...{ t, base: "/app/stream", chosen: !!thread, threads, current, query, days, project, rows, next, fresh, linked, proposed, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date() }} />;
+  return <StreamView {...{ t, base: "/app/stream", query, days, reply: replyTo, project, rows, next, fresh, linked, proposed, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date() }} />;
 }

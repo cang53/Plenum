@@ -11,7 +11,7 @@ export type TimelineAttachment = {
 
 export type TimelineMessage = {
   id: string;
-  source: "email" | "app";
+  source: "email" | "app" | "teams";
   fromName: string | null;
   fromAddress: string;
   subject: string;

@@ -39,39 +39,12 @@ export function suggestionsByMessage(list: StoredSuggestion[]): Map<string, Stor
   return by;
 }
 
-// ---- Conversations: messages on one subject form a thread, whichever platform they came from. ----
-export type StreamSource = TimelineMessage["source"];
-export type Thread = { key: string; subject: string; messages: TimelineMessage[]; last: TimelineMessage; sources: StreamSource[]; unread: number; needsReply: boolean };
-export type StreamQuery = { thread?: string; q?: string; filter?: "unread" | "reply"; source?: StreamSource | "teams" };
+// One chat for the project: email, Plenum and Teams messages in time order. A source and a search narrow it.
+export type StreamQuery = { q?: string; source?: TimelineMessage["source"] };
 
-// "Re: Fwd: Gearbox" and "gearbox" are the same subject.
-export const threadKey = (subject: string): string => subject.replace(/^(\s*(re|fw|fwd|aw|antw|doorst)\s*:)+/i, "").trim().toLowerCase();
-
-export function buildThreads(messages: TimelineMessage[], readAt?: string): Thread[] {
-  const since = Date.parse(readAt ?? "");
-  const by = new Map<string, TimelineMessage[]>();
-  for (const m of messages) by.set(threadKey(m.subject), [...(by.get(threadKey(m.subject)) ?? []), m]);
-  return [...by].map(([key, list]) => {
-    const sorted = list.sort((a, b) => Date.parse(a.receivedAt) - Date.parse(b.receivedAt) || a.id.localeCompare(b.id));
-    const last = sorted[sorted.length - 1];
-    return {
-      key, last, messages: sorted,
-      subject: sorted[0].subject.replace(/^(\s*(re|fw|fwd|aw|antw|doorst)\s*:)+/i, "").trim(),
-      sources: [...new Set(sorted.map((m) => m.source))],
-      unread: Number.isNaN(since) ? 0 : sorted.filter((m) => Date.parse(m.receivedAt) > since).length,
-      needsReply: last.source !== "app",
-    };
-  }).sort((a, b) => Date.parse(b.last.receivedAt) - Date.parse(a.last.receivedAt) || a.key.localeCompare(b.key));
-}
-
-// What the page shows for a query: the filtered conversation list, the open conversation (the newest if none is chosen) and its days.
-export function streamModel(messages: TimelineMessage[], query: StreamQuery, readAt: string | undefined, now: string, timeZone: string) {
+export function filterFeed(messages: TimelineMessage[], query: StreamQuery): TimelineMessage[] {
   const needle = query.q?.trim().toLowerCase();
-  const threads = buildThreads(messages, readAt).filter((t) =>
-    (!query.source || (t.sources as string[]).includes(query.source)) &&
-    (query.filter !== "unread" || t.unread > 0) &&
-    (query.filter !== "reply" || t.needsReply) &&
-    (!needle || t.messages.some((m) => `${m.subject} ${m.fromName ?? ""} ${m.fromAddress} ${m.bodyText}`.toLowerCase().includes(needle))));
-  const current = threads.find((t) => t.key === query.thread) ?? threads[0] ?? null;
-  return { threads, current, days: current ? buildStream(current.messages, now, timeZone) : [] };
+  return messages.filter((m) =>
+    (!query.source || m.source === query.source) &&
+    (!needle || `${m.subject} ${m.fromName ?? ""} ${m.fromAddress} ${m.bodyText}`.toLowerCase().includes(needle)));
 }
