@@ -144,6 +144,11 @@ describe("SS's configuration", () => {
       .toBe("https://graph.microsoft.com/v1.0/teams/d89f9576-d43e-447b-817a-babe3f58b79d/channels/19:9febd999b5694e839b28dfc5b44dd811@thread.tacv2/messages?$top=50");
   });
 
+  it("also accepts the ids as copied from a Teams link", () => {
+    expect(graphMessagesUrl("d89f9576-d43e-447b-817a-babe3f58b79d&tenantId=2df60cd0", "19%3A9febd999b5694e839b28dfc5b44dd811%40thread.tacv2"))
+      .toBe("https://graph.microsoft.com/v1.0/teams/d89f9576-d43e-447b-817a-babe3f58b79d/channels/19:9febd999b5694e839b28dfc5b44dd811@thread.tacv2/messages?$top=50");
+  });
+
   it("names the failing call and Graph's error code in the log", async () => {
     const f = vi.fn(async (url: string | URL | Request) => String(url).includes("oauth2")
       ? Response.json({ access_token: "t" })

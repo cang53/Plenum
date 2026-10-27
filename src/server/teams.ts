@@ -1,4 +1,4 @@
-import { logError } from "@/lib/log";
+import { logError, logEvent } from "@/lib/log";
 
 // Teams behind one small interface, like email. Fake keeps posts in memory. Live (TEAMS_PROVIDER=live) reads each mapped
 // channel through Microsoft Graph (app permission ChannelMessage.Read.All) and posts through a Teams Workflows webhook,
@@ -13,18 +13,24 @@ export type TeamsChannels = Record<string, { channel: string; team?: string; web
 // The log keeps only the kind of failure, so the HTTP status rides on the error.
 // The name says which call failed and the code is Graph's own error code (a fixed word such as Forbidden), never message text.
 const httpError = (name: string, message: string, status: number, code?: string) => Object.assign(new Error(message), { name, status, ...(code ? { code } : {}) });
+export let lastGraphDetail = "";
 // Microsoft answers errors as {"error":{"code":"Forbidden",...}} (the token endpoint as {"error":"invalid_client",...}).
-async function errorCode(res: Response): Promise<string | undefined> {
+async function errorCode(res: Response, keepMessage = false): Promise<string | undefined> {
   const body = (await res.json().catch(() => null)) as { error?: unknown } | null;
   const e = body?.error ?? body; // Supabase answers {"code":"42703",...} without an error wrapper
   const code = typeof e === "string" ? e : (e as { code?: unknown } | null | undefined)?.code;
+  // Graph's text for a rejected id or request names no message content; kept only for the messages call, short.
+  const text = (e as { message?: unknown } | null | undefined)?.message;
+  if (keepMessage && typeof text === "string") lastGraphDetail = text.slice(0, 200);
   return typeof code === "string" && /^\w{1,60}$/.test(code) ? code : undefined;
 }
 
 // Graph documents channel ids with their ":" and "@" as they are; the encoded forms are not accepted everywhere.
-const graphId = (id: string) => encodeURIComponent(id).replace(/%3A/gi, ":").replace(/%40/g, "@");
+// People paste the id as copied from a Teams link, still percent-encoded; a team id may carry "&tenantId=..." after it.
+const decoded = (id: string) => { try { return decodeURIComponent(id); } catch { return id; } };
+const graphId = (id: string) => encodeURIComponent(decoded(id.trim())).replace(/%3A/gi, ":").replace(/%40/g, "@");
 
-export const graphMessagesUrl = (teamId: string, channelId: string) => `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${graphId(channelId)}/messages?$top=50`;
+export const graphMessagesUrl = (teamId: string, channelId: string) => `https://graph.microsoft.com/v1.0/teams/${teamId.match(/[0-9a-f]{8}-[0-9a-f-]{27}/i)?.[0] ?? teamId.trim()}/channels/${graphId(channelId)}/messages?$top=50`;
 
 export function teamsChannels(raw = process.env.TEAMS_CHANNELS): TeamsChannels {
   if (!raw) return {};
@@ -115,7 +121,7 @@ export async function readTeamsChannels(env: TeamsReaderEnv, fetchFn: typeof fet
   for (const slug of slugs) {
     try {
       const res = await fetchFn(graphMessagesUrl(String(env.channels[slug].team ?? env.teamId), env.channels[slug].channel), { headers: { authorization: `Bearer ${access_token}` } });
-      if (!res.ok) throw httpError("GraphMessagesError", `Graph read of ${slug} failed: ${res.status}`, res.status, await errorCode(res));
+      if (!res.ok) throw httpError("GraphMessagesError", `Graph read of ${slug} failed: ${res.status}`, res.status, await errorCode(res, true));
       for (const m of personMessages(((await res.json()) as { value: GraphMessage[] }).value)) {
         const store = await fetchFn(`${env.supabaseUrl}/rest/v1/rpc/ingest_teams`, {
           method: "POST",
@@ -149,7 +155,10 @@ export function teamsReaderFromEnv(env: Record<string, string | undefined> = pro
   };
   if (!Object.values(e).every(Boolean)) return undefined;
   return async () => {
-    const onError = (err: unknown) => logError("teams read failed", err);
+    const onError = (err: unknown) => {
+      logError("teams read failed", err);
+      if (lastGraphDetail) logEvent("teams_graph_detail", { detail: lastGraphDetail });
+    };
     // Before the settings column exists the lookup fails; the env map still works.
     const linked = await linkedChannels(e.supabaseUrl!, e.serviceRoleKey!, fetchFn).catch((err) => (onError(err), {}));
     return readTeamsChannels({ ...(e as Omit<TeamsReaderEnv, "channels" | "teamId">), teamId: env.TEAMS_TEAM_ID, channels: { ...teamsChannels(env.TEAMS_CHANNELS), ...linked } }, fetchFn, onError);
