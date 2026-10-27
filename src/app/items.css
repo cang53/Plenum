@@ -296,3 +296,25 @@ dialog.pop select { min-height: 2.75rem; padding: 0 var(--s4); border: 1px solid
 .item-inspector label:has(:user-invalid) input { border-color: var(--danger); }
 .item-inspector :user-invalid { border-color: var(--danger); }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+/* Bug fix: a closed dialog must stay hidden even though .pop sets display. */
+dialog.pop:not([open]) { display: none; }
+
+/* Items table, from Figma: flat rows of 66px, title with a supporting line, status with icon, names in full, outlined open row, round options button. */
+.items-flat { border: 0; background: none; border-radius: 0; overflow: visible; }
+.items-flat table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: auto; min-width: 0; }
+.items-flat thead th { padding: var(--s2) 0.75rem; background: var(--accent-soft); font-size: var(--text-xs); line-height: 1rem; font-weight: 400; color: var(--text-secondary); text-align: start; white-space: nowrap; }
+.items-flat thead th:first-child { border-start-start-radius: var(--radius-sm); }
+.items-flat td { height: 4.125rem; padding: var(--s2) 0.75rem; border-block-end: 1px solid var(--glass-border); font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); vertical-align: middle; white-space: nowrap; }
+.items-flat td.ident { width: 100%; max-width: 0; white-space: normal; }
+.items-flat td.ident b { display: block; font-size: var(--text-base); line-height: 1.25rem; font-weight: var(--weight-semibold); }
+.items-flat td.ident b a { color: var(--text); text-decoration: none; }
+.items-flat td.ident .meta { display: block; margin-block-start: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-xs); line-height: 1rem; color: var(--text-secondary); }
+.items-flat td.state, .items-flat td.col-owner { color: var(--text); }
+.items-flat td.state-blocked { color: var(--warning); }
+.items-flat .due-late { color: var(--danger); white-space: normal; display: inline-block; max-width: 7.5rem; }
+.items-flat tbody tr:hover td { background: var(--accent-soft); }
+.items-flat tbody tr.sel td { background: var(--accent-soft); border-block: 1px solid var(--primary); box-shadow: none; }
+.items-flat tbody tr.sel td:first-child { border-inline-start: 1px solid var(--primary); border-start-start-radius: 0.625rem; border-end-start-radius: 0.625rem; }
+.items-flat tbody tr.sel td:last-child { border-inline-end: 1px solid var(--primary); border-start-end-radius: 0.625rem; border-end-end-radius: 0.625rem; }
+.items-flat .row-opts > summary { width: 2.75rem; height: 2.75rem; background: var(--control); color: var(--text); font-size: 1.1875rem; font-weight: var(--weight-semibold); }

@@ -112,7 +112,7 @@ export function GroupHead({ title, rows, label }: { title: string; rows: { statu
   return (
     <h2 className="items-group-head">
       <span>{title} · {rows.length}</span>
-      <span className="items-group-counts">{counts.filter(([s]) => s).map(([s, n]) => `${n} ${label(s).toLowerCase()}`).join(" · ")}</span>
+      <span className="items-group-counts">{counts.filter(([s]) => s).map(([s, n]) => `${n} ${label(s).toLowerCase()}`).join(" / ")}</span>
     </h2>
   );
 }

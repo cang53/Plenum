@@ -40,7 +40,7 @@ describe("ItemsHead", () => {
   it("counts rows per status and skips empty statuses", () => {
     const html = renderToStaticMarkup(<GroupHead title="Tasks" rows={[{ status: "todo" }, { status: "todo" }, { status: "done" }]} label={(s) => s.toUpperCase()} />);
     expect(html).toContain("Tasks · 3");
-    expect(html).toContain("2 todo · 1 done");
+    expect(html).toContain("2 todo / 1 done");
     expect(renderToStaticMarkup(<GroupHead title="Decisions" rows={[{ status: "" }]} label={(s) => s} />)).not.toContain("1 ");
   });
 });
