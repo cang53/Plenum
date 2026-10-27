@@ -54,11 +54,11 @@ export async function dismissSuggestionForm(form: FormData): Promise<void> {
   revalidatePath("/app/stream");
 }
 
-// A task typed straight into the composer has no source message; row-level rules decide who may add it.
-export async function createTaskFromNote(form: FormData): Promise<void> {
-  const title = String(form.get("title") ?? "").trim();
-  if (!title) return;
-  const { error } = await (await supabaseServer()).from("tasks").insert({ project_id: String(form.get("projectId")), title });
+// Writes into the project's stream as the signed-in person; the subject is the conversation. The database function checks access.
+export async function postMessage(form: FormData): Promise<void> {
+  const body = String(form.get("body") ?? "").trim();
+  if (!body) return;
+  const { error } = await (await supabaseServer()).rpc("post_message", { p_project: String(form.get("projectId")), p_body: body, p_subject: String(form.get("subject") ?? "") });
   if (error) throw error;
   revalidatePath("/app/stream");
 }

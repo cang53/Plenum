@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildStream, newSince, suggestionsByMessage } from "./stream";
+import { buildStream, buildThreads, newSince, streamModel, suggestionsByMessage, threadKey } from "./stream";
 import type { TimelineMessage } from "./timeline";
 
 const msg = (id: string, from: string, at: string): TimelineMessage => ({ id, source: "email", fromName: null, fromAddress: from, subject: id, bodyText: "", receivedAt: at, attachments: [] });
@@ -42,5 +42,24 @@ describe("suggestionsByMessage", () => {
     const by = suggestionsByMessage([s("1", "m1", "pending"), s("2", "m1", "pending"), s("3", "m2", "accepted")]);
     expect(by.get("m1")?.map((x) => x.id)).toEqual(["1", "2"]);
     expect(by.has("m2")).toBe(false);
+  });
+});
+
+describe("conversations", () => {
+  const at = (id: string, subject: string, receivedAt: string, source: "email" | "app" = "email") => ({ ...msg(id, "a@x.test", receivedAt), subject, source });
+  const list = [at("1", "Gearbox", "2026-10-22T09:00:00Z"), at("2", "RE: gearbox", "2026-10-22T10:00:00Z", "app"), at("3", "Permit", "2026-10-23T08:00:00Z")];
+  it("groups across sources by subject, ignoring Re: and case", () => {
+    expect(threadKey("Re: Fwd: Gearbox ")).toBe("gearbox");
+    const t = buildThreads(list, "2026-10-22T09:30:00Z");
+    expect(t.map((x) => [x.subject, x.messages.length, x.unread, x.needsReply, x.sources])).toEqual([["Permit", 1, 1, true, ["email"]], ["Gearbox", 2, 1, false, ["email", "app"]]]);
+  });
+  it("filters by search, source and state and opens the newest conversation by default", () => {
+    const q = (query: object) => streamModel(list, query, "2026-10-22T09:30:00Z", now, "Europe/Amsterdam");
+    expect(q({}).current?.key).toBe("permit");
+    expect(q({ thread: "gearbox" }).days.length).toBe(1);
+    expect(q({ q: "GEARBOX" }).threads.map((x) => x.key)).toEqual(["gearbox"]);
+    expect(q({ source: "app" }).threads.map((x) => x.key)).toEqual(["gearbox"]);
+    expect(q({ filter: "reply" }).threads.map((x) => x.key)).toEqual(["permit"]);
+    expect(q({ q: "nothing" }).current).toBeNull();
   });
 });

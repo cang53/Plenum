@@ -69,3 +69,30 @@ end $$;
 
 reset role;
 \echo 'message rules: all checks passed'
+
+-- A person on the project can post an app message; a stranger and an empty body cannot.
+-- (Runs as the people set up in access_rules.sql.)
+do $$
+declare v_project uuid := (select id from public.projects where email_slug = 'line4-ghent');
+declare v_member uuid; v_stranger uuid;
+begin
+  select user_id into v_member from public.project_members where project_id = v_project limit 1;
+  select id into v_stranger from public.profiles where id not in (select user_id from public.project_members where project_id = v_project)
+    and not public.is_workspace_admin((select workspace_id from public.projects where id = v_project)) limit 1;
+
+  perform set_config('request.jwt.claims', json_build_object('sub', v_member, 'email', 'm@example.com')::text, true);
+  set local role authenticated;
+  perform public.post_message(v_project, '  Crane booked for Monday.  ', 'Re: Crane');
+  begin perform public.post_message(v_project, '   '); raise exception 'empty message was stored';
+  exception when sqlstate '22023' then null; end;
+
+  if v_stranger is not null then
+    perform set_config('request.jwt.claims', json_build_object('sub', v_stranger)::text, true);
+    begin perform public.post_message(v_project, 'hi'); raise exception 'stranger posted';
+    exception when sqlstate '42501' then null; end;
+  end if;
+  reset role;
+  if (select body_text || subject from public.messages where source = 'app') <> 'Crane booked for Monday.Re: Crane' then
+    raise exception 'app message was not stored trimmed';
+  end if;
+end $$;

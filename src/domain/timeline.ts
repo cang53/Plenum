@@ -11,7 +11,7 @@ export type TimelineAttachment = {
 
 export type TimelineMessage = {
   id: string;
-  source: "email";
+  source: "email" | "app";
   fromName: string | null;
   fromAddress: string;
   subject: string;
@@ -23,7 +23,7 @@ export type TimelineMessage = {
 // A row of public.messages with its message_attachments, as Supabase returns it.
 export type MessageRow = {
   id: string;
-  source: "email";
+  source: "email" | "app";
   from_name: string | null;
   from_address: string;
   subject: string;

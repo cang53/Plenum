@@ -1,23 +1,26 @@
 import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
 import { StreamKeys } from "./StreamKeys";
-import { applySuggestion, createTaskFromMessage, createTaskFromNote, dismissSuggestionForm, linkMessageToTask, togglePin } from "./actions";
+import { applySuggestion, createTaskFromMessage, dismissSuggestionForm, linkMessageToTask, postMessage, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
-import type { StreamDay } from "@/domain/stream";
+import type { StreamDay, StreamQuery, Thread } from "@/domain/stream";
 import type { StoredSuggestion } from "@/domain/triage";
-import type { TimelineMessage } from "@/domain/timeline";
 
 // A body longer than this folds behind its first lines.
 const LONG_BODY = 280;
 
 export type StreamViewProps = {
   t: (key: MessageKey) => string;
+  base: string; // "/app/stream" or "/demo/messages"
   project: { id: string; name: string };
-  rows: TimelineMessage[];
+  threads: Thread[];
+  current: Thread | null;
   days: StreamDay[];
+  query: StreamQuery;
+  chosen: boolean; // a conversation was picked, so a phone shows it instead of the list
   next: string | null;
   fresh: { id: string; count: number } | null;
   linked: LinkedItem[];
@@ -27,7 +30,6 @@ export type StreamViewProps = {
   pinned: Set<string>;
   canPin: boolean;
   decisions: boolean;
-  only: "email" | "teams" | undefined;
   time: Intl.DateTimeFormat;
   date: Intl.DateTimeFormat;
   now: Date;
@@ -35,17 +37,24 @@ export type StreamViewProps = {
   readOnly?: boolean;
 };
 
-export function StreamView({ t, project, rows, days, next, fresh, linked, proposed, open, pins, pinned, canPin, decisions, only, time, date, now, readOnly }: StreamViewProps): ReactNode {
-  const count = rows.length;
-  const countOf = (k: "teams" | "email") => rows.filter((m) => m.source === k).length;
-  const rail = [
-    { k: undefined, href: `/app/stream?project=${project.id}`, label: t("stream.tab.all"), note: String(count), on: !decisions && !only },
-    { k: "teams", href: `/app/stream?project=${project.id}&source=teams`, label: t("stream.source.teams"), note: String(countOf("teams")), on: only === "teams" },
-    { k: "email", href: `/app/stream?project=${project.id}&source=email`, label: t("stream.source.email"), note: String(countOf("email")), on: only === "email" },
-    { k: "decisions", href: `/app/stream?project=${project.id}&view=decisions`, label: t("stream.tab.decisions"), note: String(pins.length), on: decisions },
+export function StreamView({ t, base, project, threads, current, days, query, chosen, next, fresh, linked, proposed, open, pins, pinned, canPin, decisions, time, date, now, readOnly }: StreamViewProps): ReactNode {
+  const href = (over: Record<string, string | undefined>) => {
+    const p = new URLSearchParams({ project: project.id });
+    const all: Record<string, string | undefined> = { q: query.q, filter: query.filter, source: query.source, ...over };
+    for (const [k, v] of Object.entries(all)) if (v) p.set(k, v);
+    return `${base}?${p}`;
+  };
+  const chips = [
+    { label: t("stream.tab.all"), over: { filter: undefined, view: undefined }, on: !decisions && !query.filter },
+    { label: t("stream.c.unread"), over: { filter: "unread", view: undefined }, on: query.filter === "unread" },
+    { label: t("stream.c.reply"), over: { filter: "reply", view: undefined }, on: query.filter === "reply" },
+    { label: t("stream.tab.decisions"), over: { view: "decisions" }, on: decisions },
   ];
-  const shown = days.reduce((n, d) => n + d.groups.reduce((m, g) => m + g.messages.length, 0), 0);
-  const side = linked.filter((l, i, all) => all.findIndex((x) => x.title === l.title) === i);
+  const sources = (["email", "app", "teams"] as const).map((k) => ({ k, label: t(`stream.source.${k}`), on: query.source === k }));
+  const threadIds = new Set(current?.messages.map((m) => m.id));
+  const side = linked.filter((l) => threadIds.has(l.messageId)).filter((l, i, all) => all.findIndex((x) => x.title === l.title) === i);
+  const waiting = current ? current.messages.reduce((n, m) => n + (proposed.get(m.id)?.length ?? 0), 0) : 0;
+  const newHere = current ? current.unread : 0;
   return (
     <main id="main" className="page msgs">
       {!readOnly && <MarkRead projectId={project.id} />}
@@ -53,30 +62,50 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
         <h1>{t("stream.title")}</h1>
         <p className="sub">{project.name} · {date.format(now)}</p>
       </header>
-      <div className="msgs-grid">
+      <div className="msgs-grid" data-open={chosen ? "" : undefined}>
         <nav className="msgs-rail" aria-label={t("stream.views")}>
-          <h2>{t("stream.rail")}</h2>
-          {rail.map((r) => (
-            <a key={r.k ?? "all"} className="topic" href={r.href} aria-current={r.on ? "page" : undefined}>
-              <b>{r.label}</b>
-              <span>{r.note}</span>
+          <form action={base} role="search" className="msgs-search">
+            <input type="hidden" name="project" value={project.id} />
+            {query.filter && <input type="hidden" name="filter" value={query.filter} />}
+            {query.source && <input type="hidden" name="source" value={query.source} />}
+            <input type="search" name="q" defaultValue={query.q} placeholder={t("stream.c.search")} aria-label={t("stream.c.search")} />
+          </form>
+          <div className="chips" role="group" aria-label={t("stream.c.state")}>
+            {chips.map((c) => <a key={c.label} className="chip" href={href(c.over)} aria-current={c.on ? "page" : undefined}>{c.label}</a>)}
+          </div>
+          <div className="chips" role="group" aria-label={t("stream.filter")}>
+            {sources.map((c) => <a key={c.k} className="chip" href={href({ source: c.on ? undefined : c.k, view: undefined })} aria-current={c.on ? "page" : undefined}>{c.label}</a>)}
+          </div>
+          <h2 className="sr">{t("stream.c.conv")}</h2>
+          {!decisions && threads.length === 0 && <p className="sub">{t("stream.c.none")}</p>}
+          {!decisions && threads.map((th) => (
+            <a key={th.key} className="topic thread" href={href({ thread: th.key })} aria-current={th.key === current?.key ? "page" : undefined}>
+              <b>{th.unread > 0 && <i className="dot" aria-label={t("stream.new")} />}{th.subject || t("timeline.noSubject")}</b>
+              <span className="snip">{th.last.fromName || th.last.fromAddress}: {th.last.bodyText}</span>
+              <span className="meta">
+                {th.sources.map((k) => <em key={k} className="pill">{t(`stream.source.${k}`)}</em>)}
+                <time dateTime={th.last.receivedAt}>{time.format(new Date(th.last.receivedAt))}</time>
+                {th.unread > 0 && <strong>{th.unread}</strong>}
+                {th.needsReply && <small>{t("stream.c.nowait")}</small>}
+              </span>
             </a>
           ))}
-          <div className="msgs-note">
-            <b>{t("stream.projectEmail")}</b>
-            <p>{t("stream.projectEmailNote")}</p>
-          </div>
+          {!decisions && <MoreLink path={base} params={{ project: project.id }} next={next} label={t("stream.earlier")} />}
         </nav>
-        <div className="msgs-main">
-          <div className="msgs-title">
-            <h2>{decisions ? t("stream.tab.decisions") : t(only ? `stream.source.${only}` : "stream.tab.all")}</h2>
-            <p className="sub">{t("stream.shown").replace("{n}", String(decisions ? pins.length : shown))}</p>
-          </div>
-              {(decisions || pins.length > 0) && (
+        <div className="msgs-main conv">
+          {current && !decisions && (
+            <div className="msgs-title">
+              <a className="back" href={href({ thread: undefined })}>← {t("stream.c.back")}</a>
+              <h2>{current.subject || t("timeline.noSubject")}</h2>
+              <p className="sub">{t("stream.c.msgs").replace("{n}", String(current.messages.length))} · {current.sources.map((k) => t(`stream.source.${k}`)).join(", ")}</p>
+              {(newHere > 0 || waiting > 0) && <p className="catchup">{t("stream.c.catch").replace("{n}", String(newHere)).replace("{s}", String(waiting))}</p>}
+            </div>
+          )}
+              {(decisions || pins.some((p) => threadIds.has(p.messageId))) && (
                 <section className="pins" aria-labelledby="pins-h">
                   <h2 id="pins-h" className="sr">{t("stream.pinned")}</h2>
                   {pins.length === 0 && <p className="sub">{t("stream.noPins")}</p>}
-                  {pins.map((p) => (
+                  {pins.filter((p) => decisions || threadIds.has(p.messageId)).map((p) => (
                     <article key={p.messageId} className="pin">
                       <p className={decisions ? "text" : "text clamp"}><b>{t("stream.pinned")}</b> · {p.message.subject || t("timeline.noSubject")}. {p.message.bodyText}</p>
                       <p className="sm">
@@ -94,8 +123,6 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
                   ))}
                 </section>
               )}
-          {!decisions && <MoreLink path="/app/stream" params={{ project: project.id }} next={next} label={t("stream.earlier")} />}
-          {!decisions && days.length === 0 && <p>{t("timeline.empty")}</p>}
           {!decisions && days.map((d) => (
             <section key={d.day} className="msgs-main" aria-labelledby={`day-${d.day}`}>
               <h2 id={`day-${d.day}`} className="dayrule">
@@ -115,8 +142,8 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
                         </p>
                       </div>
                       <div className="envelope">
-                        <p className="subject">{m.subject || t("timeline.noSubject")}</p>
-                        <p className="line" title={m.fromAddress}>{t("stream.from")} {m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress}</p>
+                        {(m.subject || m.source === "email") && <p className="subject">{m.subject || t("timeline.noSubject")}</p>}
+                        {m.source === "email" && <p className="line" title={m.fromAddress}>{t("stream.from")} {m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress}</p>}
                       </div>
                       {m.bodyText.length > LONG_BODY ? (
                         <details>
@@ -148,7 +175,7 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
                         <form action={createTaskFromMessage}>
                           <input type="hidden" name="projectId" value={project.id} />
                           <input type="hidden" name="messageId" value={m.id} />
-                          <input type="hidden" name="title" value={m.subject || t("timeline.noSubject")} />
+                          <input type="hidden" name="title" value={m.subject || m.bodyText.slice(0, 80) || t("timeline.noSubject")} />
                           <button type="submit" data-act="task" disabled={readOnly} className="btn btn-plain">{t("stream.createTask")}</button>
                         </form>
                         {open && open.length > 0 && (
@@ -202,11 +229,19 @@ export function StreamView({ t, project, rows, days, next, fresh, linked, propos
             </section>
           ))}
           {!decisions && (
-            <form className="comp" action={createTaskFromNote}>
+            <form className="comp" action={postMessage}>
               <input type="hidden" name="projectId" value={project.id} />
-              <textarea name="title" rows={1} required disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
+              {current ? <input type="hidden" name="subject" value={current.subject} /> : <input name="subject" required disabled={readOnly} placeholder={t("stream.c.subject")} aria-label={t("stream.c.subject")} />}
+              <textarea name="body" rows={1} required disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
               <p className="comp-foot">
-                <span>🔒 {t("stream.projectOnly")} · {t("stream.composerHint")}</span>
+                <span>
+                  <select name="channel" aria-label={t("stream.channel")} defaultValue="app">
+                    <option value="app">{t("stream.source.app")}</option>
+                    <option value="email" disabled>{t("stream.source.email")} · {t("stream.notConnected")}</option>
+                    <option value="teams" disabled>{t("stream.source.teams")} · {t("stream.notConnected")}</option>
+                  </select>{" "}
+                  {t("stream.composerHint")}
+                </span>
                 <button type="submit" className="btn btn-primary" disabled={readOnly}>{t("stream.send")}</button>
               </p>
             </form>

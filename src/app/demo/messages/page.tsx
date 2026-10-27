@@ -1,6 +1,6 @@
 import { StreamView } from "@/app/app/stream/StreamView";
 import { demoMessages, demoProject, demoSuggestions } from "@/data/demo";
-import { buildStream, suggestionsByMessage } from "@/domain/stream";
+import { streamModel, suggestionsByMessage, type StreamQuery } from "@/domain/stream";
 import type { StoredSuggestion } from "@/domain/triage";
 import type { TimelineMessage } from "@/domain/timeline";
 import { getLocale, getT } from "@/lib/locale";
@@ -14,31 +14,38 @@ const extraSuggestions: StoredSuggestion[] = [
   { id: "s4", messageId: "m4", status: "pending", kind: "risk", title: "Load chart may not match the final gearbox weight", details: "The crane load chart on page 4 has not been checked against the supplier's final weight. A mismatch could stop the lift on the day.", reason: "Jonas asks for the check before Friday." },
 ];
 
-export default async function DemoMessagesPage() {
+export default async function DemoMessagesPage({ searchParams }: { searchParams: Promise<{ thread?: string; q?: string; filter?: string; source?: string; view?: string }> }) {
+  const { thread, q, filter, source, view } = await searchParams;
   const t = await getT();
   const locale = intlLocale[await getLocale()];
   const now = new Date();
   const tz = demoProject.timeZone;
   const rows: TimelineMessage[] = demoMessages(now);
   const pinnedMessage = rows.find((m) => m.id === "m2")!;
+  const readAt = new Date(now.getTime() - 2.5 * 3_600_000).toISOString();
+  const query: StreamQuery = { thread, q, filter: filter === "unread" || filter === "reply" ? filter : undefined, source: source === "email" || source === "app" || source === "teams" ? source : undefined };
+  const { threads, current, days } = streamModel(rows, query, readAt, now.toISOString(), tz);
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
   return (
     <StreamView
       t={t}
       project={{ id: "demo", name: demoProject.name }}
-      rows={rows}
-      days={buildStream(rows, now.toISOString(), tz)}
+      base="/demo/messages"
+      threads={threads}
+      current={current}
+      days={days}
+      query={query}
+      chosen={!!thread}
       next={null}
-      fresh={{ id: "m2", count: 2 }}
+      fresh={{ id: "m1", count: 2 }}
       linked={[{ id: "l1", messageId: "m3", kind: "task", title: "Send updated cabinet drawings to Aylin" }]}
       proposed={suggestionsByMessage([...demoSuggestions, ...extraSuggestions])}
       open={null}
       pins={[{ messageId: "m2", pinnedAt: now.toISOString(), pinnedBy: "Maya de Vries", message: pinnedMessage }]}
       pinned={new Set(["m2"])}
       canPin={false}
-      decisions={false}
-      only={undefined}
+      decisions={view === "decisions"}
       time={time}
       date={date}
       now={now}

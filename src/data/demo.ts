@@ -25,6 +25,7 @@ export function demoMessages(now: Date): TimelineMessage[] {
   return [
     email("m1", 1, "Marta Silva", "marta.silva@supplier.example", "Gearbox delivery date",
       "The supplier confirms the gearbox delivery slips from 14 Nov to 28 Nov. Can we resequence the install?"),
+    { id: "m5", source: "app" as const, fromName: "Maya de Vries", fromAddress: "maya@plenum.example", subject: "Re: Gearbox delivery date", bodyText: "Thanks Marta. Let's resequence: electrical tests first, gearbox install after 28 Nov.", receivedAt: ago(0.5), attachments: [] },
     email("m2", 3, "Jonas Peeters", "jonas.peeters@plant.example", "Vergunning hijswerk",
       "Vergunning voor hijswerk is goedgekeurd, we kunnen maandag starten."),
     {
