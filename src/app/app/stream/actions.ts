@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/auth/supabase";
 import { acceptSuggestion, dismissSuggestion } from "@/data/live";
+import { teamsPoster } from "@/server/teams";
+import { logError } from "@/lib/log";
 import { checkFiles, safeName } from "@/domain/attachments";
 import type { ItemKind } from "@/domain/linking";
 
@@ -55,6 +57,11 @@ export async function postMessage(form: FormData): Promise<void> {
   const projectId = String(form.get("projectId"));
   const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}) });
   if (error) throw error;
+  // Best effort: a Teams outage must not lose a message that is already saved.
+  if (process.env.TEAMS_PROVIDER === "live") {
+    const { data: p } = await supabase.from("projects").select("email_slug").eq("id", projectId).single();
+    if (p && body) await teamsPoster().post({ projectSlug: p.email_slug, kind: "message", text: body }).catch((e) => logError("teams post failed", e));
+  }
   for (const f of files) {
     const path = `${projectId}/${id}/${crypto.randomUUID()}-${safeName(f.name)}`;
     const up = await supabase.storage.from("message-files").upload(path, f, { contentType: f.type });

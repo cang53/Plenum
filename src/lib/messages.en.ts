@@ -323,7 +323,7 @@ export const en = {
   "integrations.reads.auth": "Sign-in details of people who log in",
   "integrations.reads.email": "Emails sent to this project's address",
   "integrations.reads.triage": "The text of incoming messages, to suggest items",
-  "integrations.reads.teams": "Nothing; it only posts to Teams",
+  "integrations.reads.teams": "Messages in the Teams channels linked to projects",
   "settings.danger": "Delete",
   "settings.deleteProject": "Type the project name to confirm:",
   "settings.deleteProjectHelp": "This deletes the project with all its tasks, messages and suggestions. It cannot be undone. The deletion is kept in the audit log.",

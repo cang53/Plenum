@@ -325,7 +325,7 @@ export const nl: Record<keyof typeof en, string> = {
   "integrations.reads.auth": "Inloggegevens van mensen die inloggen",
   "integrations.reads.email": "E-mails naar het adres van dit project",
   "integrations.reads.triage": "De tekst van binnenkomende berichten, om items voor te stellen",
-  "integrations.reads.teams": "Niets; het plaatst alleen berichten in Teams",
+  "integrations.reads.teams": "Berichten in de Teams-kanalen die aan projecten zijn gekoppeld",
   "settings.danger": "Verwijderen",
   "settings.deleteProject": "Typ de projectnaam ter bevestiging:",
   "settings.deleteProjectHelp": "Dit verwijdert het project met alle taken, berichten en suggesties. Dit kan niet ongedaan worden gemaakt. De verwijdering blijft in het auditlogboek staan.",

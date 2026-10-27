@@ -36,7 +36,7 @@ export function checkSwitches(env: Env = process.env): Switch[] {
     {
       name: "Live Teams posts", flag: "TEAMS_PROVIDER", value: teams, live: teams === "live",
       problems: [...unknown("TEAMS_PROVIDER", teams, ["fake", "live"]),
-        ...(teams === "live" ? need(env, ["TEAMS_TEAM_ID", "AUTH_MICROSOFT_ENTRA_ID_ID", "AUTH_MICROSOFT_ENTRA_ID_SECRET", "AUTH_MICROSOFT_ENTRA_ID_TENANT_ID"]) : [])],
+        ...(teams === "live" ? need(env, ["TEAMS_TEAM_ID", "TEAMS_CHANNELS", "AUTH_MICROSOFT_ENTRA_ID_ID", "AUTH_MICROSOFT_ENTRA_ID_SECRET", "AUTH_MICROSOFT_ENTRA_ID_TENANT_ID"]) : [])],
     },
   ];
 }

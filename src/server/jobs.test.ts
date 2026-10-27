@@ -51,3 +51,12 @@ describe("runJobs", () => {
     expect(out["retry-send"].ran).toBe(true);
   });
 });
+
+describe("teams-read job", () => {
+  it("runs only when the store has a Teams reader", async () => {
+    const send = vi.fn();
+    expect(Object.keys(await runJobs(store(["teams-read"]), { send }))).not.toContain("teams-read");
+    const out = await runJobs(store(["teams-read"], { readTeams: async () => 4 }), { send });
+    expect(out["teams-read"]).toEqual({ ran: true, detail: "4 read" });
+  });
+});

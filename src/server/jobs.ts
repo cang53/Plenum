@@ -10,6 +10,8 @@ export type JobStore = {
   purge: () => Promise<number>;
   draftReports: () => Promise<number>;
   digestRows: Parameters<typeof sendDigests>[0];
+  // Present only while TEAMS_PROVIDER=live.
+  readTeams?: () => Promise<number>;
 };
 
 export async function runJobs(store: JobStore, sender: EmailSender, onError: (e: unknown) => void = () => {}): Promise<Record<string, JobResult>> {
@@ -25,6 +27,8 @@ export async function runJobs(store: JobStore, sender: EmailSender, onError: (e:
       return `${sent} resent`;
     }],
   };
+  const readTeams = store.readTeams;
+  if (readTeams) jobs["teams-read"] = [0, async () => `${await readTeams()} read`];
   const out: Record<string, JobResult> = {};
   for (const [name, [minHours, run]] of Object.entries(jobs)) {
     if (!(await store.claim(name, minHours))) { out[name] = { ran: false }; continue; }

@@ -25,8 +25,8 @@ describe("checkSwitches", () => {
   });
 
   it("lists what live Teams still needs", () => {
-    expect(problems({ TEAMS_PROVIDER: "live" })).toHaveLength(4);
-    expect(problems({ TEAMS_PROVIDER: "live", TEAMS_TEAM_ID: "t", AUTH_MICROSOFT_ENTRA_ID_ID: "b", AUTH_MICROSOFT_ENTRA_ID_SECRET: "c", AUTH_MICROSOFT_ENTRA_ID_TENANT_ID: "d" })).toEqual([]);
+    expect(problems({ TEAMS_PROVIDER: "live" })).toHaveLength(5);
+    expect(problems({ TEAMS_PROVIDER: "live", TEAMS_TEAM_ID: "t", TEAMS_CHANNELS: "{}", AUTH_MICROSOFT_ENTRA_ID_ID: "b", AUTH_MICROSOFT_ENTRA_ID_SECRET: "c", AUTH_MICROSOFT_ENTRA_ID_TENANT_ID: "d" })).toEqual([]);
   });
 
   it("flags a mistyped flag value", () => {
