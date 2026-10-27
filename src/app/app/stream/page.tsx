@@ -27,11 +27,15 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const linked = await listLinkedItems(supabase, project.id, rows.map((m) => m.id));
   const proposed = suggestionsByMessage(await listPendingSuggestions(supabase, project.id));
   const { data: open } = await supabase.from("tasks").select("id, title").eq("project_id", project.id).is("source_message_id", null).neq("status", "done").order("title").limit(50);
+  // Files written in Plenum are in a private bucket; each gets a link that works for an hour. Quietly none until the storage migration is applied.
+  const { data: stored } = await supabase.from("message_attachments").select("id, storage_path").in("message_id", rows.map((m) => m.id)).not("storage_path", "is", null);
+  const signed = stored?.length ? (await supabase.storage.from("message-files").createSignedUrls(stored.map((r) => r.storage_path as string), 3600)).data ?? [] : [];
+  const fileUrls = new Map((stored ?? []).flatMap((r) => { const u = signed.find((x) => x.path === r.storage_path)?.signedUrl; return u ? [[r.id as string, u] as const] : []; }));
   const pins = await listPins(supabase, project.id);
   const pinned = new Set(pins.map((p) => p.messageId));
   const { data: canPin } = await supabase.rpc("can_manage_project", { p: project.id });
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
-  return <StreamView {...{ t, base: "/app/stream", query, days, reply: replyTo, project, rows, next, fresh, linked, proposed, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date() }} />;
+  return <StreamView {...{ t, base: "/app/stream", query, days, reply: replyTo, project, rows, next, fresh, linked, proposed, fileUrls, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date() }} />;
 }

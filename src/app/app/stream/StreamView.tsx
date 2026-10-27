@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
+import { Attach } from "./Attach";
 import { StreamKeys } from "./StreamKeys";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
+import { isImage, sizeLabel } from "@/domain/attachments";
 import type { StreamDay, StreamQuery } from "@/domain/stream";
 import type { StoredSuggestion } from "@/domain/triage";
 import type { TimelineMessage } from "@/domain/timeline";
@@ -25,6 +27,7 @@ export type StreamViewProps = {
   fresh: { id: string; count: number } | null;
   linked: LinkedItem[];
   proposed: Map<string, StoredSuggestion[]>;
+  fileUrls?: Map<string, string>; // attachment id to a link, for files written in Plenum
   open: { id: string; title: string }[] | null;
   pins: Pin[];
   pinned: Set<string>;
@@ -37,7 +40,7 @@ export type StreamViewProps = {
   readOnly?: boolean;
 };
 
-export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, open, pins, pinned, canPin, decisions, time, date, now, readOnly }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, fileUrls, open, pins, pinned, canPin, decisions, time, date, now, readOnly }: StreamViewProps): ReactNode {
   const href = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams({ project: project.id });
     for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
@@ -119,12 +122,19 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                       ) : (
                         <p className="body">{m.bodyText}</p>
                       )}
-                      {m.attachments.map((a) => (
-                        <div key={a.id} className="attach">
-                          <span className="clip" aria-hidden="true">📎</span>
-                          <span className="info">{a.filename}<small>{a.contentType}</small></span>
-                        </div>
-                      ))}
+                      {m.attachments.map((a) => {
+                        const url = fileUrls?.get(a.id);
+                        if (url && isImage(a.contentType)) {
+                          // eslint-disable-next-line @next/next/no-img-element
+                          return <a key={a.id} className="pic" href={url} target="_blank" rel="noreferrer"><img src={url} alt={a.filename} loading="lazy" /></a>;
+                        }
+                        return (
+                          <div key={a.id} className="attach">
+                            <span className="clip" aria-hidden="true">📎</span>
+                            <span className="info">{url ? <a href={url} download={a.filename}>{a.filename}</a> : a.filename}<small>{a.contentType} · {sizeLabel(a.sizeBytes)}</small></span>
+                          </div>
+                        );
+                      })}
                       <div className="mail-acts" role="group" aria-label={t("stream.actions")}>
                         <a className="btn btn-plain" href={`${href({ reply: m.id })}#composer`}>{t("stream.c.reply")}</a>
 <details className="mail-create">
@@ -196,19 +206,13 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             <input type="hidden" name="subject" value={replySubject} />
             {reply && <p className="replying">{t("stream.c.replyingTo")} <b>{who(reply)}</b> · <a href={href({})}>{t("stream.c.cancel")}</a></p>}
             <div className="comp-row">
-              <textarea name="body" rows={1} required disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
+              <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />
+              <textarea name="body" rows={1} disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
               <button type="submit" className="send" disabled={readOnly} aria-label={t("stream.send")} title={t("stream.send")}>
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </div>
-            <p className="comp-foot">
-              <select name="channel" aria-label={t("stream.channel")} defaultValue="app">
-                <option value="app">{t("stream.source.app")}</option>
-                <option value="email" disabled>{t("stream.source.email")} · {t("stream.notConnected")}</option>
-                <option value="teams" disabled>{t("stream.source.teams")} · {t("stream.notConnected")}</option>
-              </select>
-              <span className="hint">{t("stream.composerHint")}</span>
-            </p>
+            <p className="hint">{t("stream.composerHint")}</p>
           </form>
         )}
         {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} />}

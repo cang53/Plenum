@@ -62,3 +62,6 @@ Risks to weigh first:
 - Where an email goes (General or a topic) needs a rule or a person's click.
 
 The database already has a `topics` table with `messages.topic_id` (migration 149), which could be the base. Not built, not scheduled.
+
+## Files and pictures (built)
+The paperclip, paste and drag-and-drop add up to 5 files (10 MB in total; pictures, PDF, text, Office, zip) to a message. Pictures show inline, other files as a link. Files sit in the private `message-files` bucket under `<project>/<message>/`; `add_message_file` records them on the sender's own new message. Needs migration 151 (`/mnt/project-files/db/apply-151.sql`).

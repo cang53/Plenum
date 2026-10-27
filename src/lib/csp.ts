@@ -7,7 +7,7 @@ export function buildCsp(nonce: string, dev = false): string {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob:${supabase ? ` ${supabase}` : ""}`,
     "font-src 'self'",
     `connect-src ${connect.join(" ")}`,
     "worker-src 'self'",

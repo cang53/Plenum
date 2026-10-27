@@ -25,7 +25,7 @@ export function demoMessages(now: Date): TimelineMessage[] {
   return [
     email("m1", 1, "Marta Silva", "marta.silva@supplier.example", "Gearbox delivery date",
       "The supplier confirms the gearbox delivery slips from 14 Nov to 28 Nov. Can we resequence the install?"),
-    { id: "m5", source: "app" as const, fromName: "Maya de Vries", fromAddress: "maya@plenum.example", subject: "Re: Gearbox delivery date", bodyText: "Thanks Marta. Let's resequence: electrical tests first, gearbox install after 28 Nov.", receivedAt: ago(0.5), attachments: [] },
+    { id: "m5", source: "app" as const, fromName: "Maya de Vries", fromAddress: "maya@plenum.example", subject: "Re: Gearbox delivery date", bodyText: "Thanks Marta. Let's resequence: electrical tests first, gearbox install after 28 Nov.", receivedAt: ago(0.5), attachments: [{ id: "a4", filename: "site-photo-crane.svg", contentType: "image/png", sizeBytes: 182_000 }, { id: "a5", filename: "install-sequence-v2.pdf", contentType: "application/pdf", sizeBytes: 640_000 }] },
     { id: "m6", source: "teams" as const, fromName: "Aylin Kaya", fromAddress: "aylin.kaya@electrical.example", subject: "", bodyText: "Cabinet drawings are on the share. Can someone confirm revision B is the one we build from?", receivedAt: ago(0.8), attachments: [] },
     email("m2", 3, "Jonas Peeters", "jonas.peeters@plant.example", "Vergunning hijswerk",
       "Vergunning voor hijswerk is goedgekeurd, we kunnen maandag starten."),

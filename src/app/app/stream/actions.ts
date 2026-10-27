@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/auth/supabase";
 import { acceptSuggestion, dismissSuggestion } from "@/data/live";
+import { checkFiles, safeName } from "@/domain/attachments";
 import type { ItemKind } from "@/domain/linking";
 
 // Row-level security decides who may write; the database checks the message belongs to the project.
@@ -43,10 +44,22 @@ export async function dismissSuggestionForm(form: FormData): Promise<void> {
 }
 
 // Writes into the project's stream as the signed-in person; the subject is the conversation. The database function checks access.
+// Files go to the private bucket under <project>/<message>/ and are recorded on the message by a second database function.
 export async function postMessage(form: FormData): Promise<void> {
   const body = String(form.get("body") ?? "").trim();
-  if (!body) return;
-  const { error } = await (await supabaseServer()).rpc("post_message", { p_project: String(form.get("projectId")), p_body: body, p_subject: String(form.get("subject") ?? "") });
+  const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
+  if (!body && files.length === 0) return;
+  if (checkFiles(files)) throw new Error(checkFiles(files)!);
+  const supabase = await supabaseServer();
+  const projectId = String(form.get("projectId"));
+  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), p_allow_empty: files.length > 0 });
   if (error) throw error;
+  for (const f of files) {
+    const path = `${projectId}/${id}/${crypto.randomUUID()}-${safeName(f.name)}`;
+    const up = await supabase.storage.from("message-files").upload(path, f, { contentType: f.type });
+    if (up.error) throw up.error;
+    const { error: e } = await supabase.rpc("add_message_file", { p_message: id, p_path: path, p_filename: f.name, p_type: f.type, p_size: f.size });
+    if (e) throw e;
+  }
   revalidatePath("/app/stream");
 }

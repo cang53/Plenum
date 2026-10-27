@@ -5,6 +5,10 @@ create or replace function auth.uid() returns uuid
 language sql stable as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
 $$;
+create or replace function auth.jwt() returns jsonb
+language sql stable as $$
+  select jsonb_build_object('sub', current_setting('request.jwt.claim.sub', true), 'email', nullif(current_setting('request.jwt.claim.email', true), ''));
+$$;
 do $$ begin
   if not exists (select 1 from pg_roles where rolname = 'authenticated') then
     create role authenticated nologin;

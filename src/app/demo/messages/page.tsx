@@ -14,6 +14,9 @@ const extraSuggestions: StoredSuggestion[] = [
   { id: "s4", messageId: "m4", status: "pending", kind: "risk", title: "Load chart may not match the final gearbox weight", details: "The crane load chart on page 4 has not been checked against the supplier's final weight. A mismatch could stop the lift on the day.", reason: "Jonas asks for the check before Friday." },
 ];
 
+// Sample pictures drawn in place, so the demo needs no files.
+const pic = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="480" height="300"><rect width="480" height="300" fill="#dbe4f5"/><rect y="200" width="480" height="100" fill="#8fa3c4"/><path d="M90 200V70h14v130zM90 70h210v12H90zM285 82v70" stroke="#3b5bdb" stroke-width="8" fill="none"/><rect x="262" y="150" width="46" height="34" fill="#3b5bdb"/></svg>');
+
 export default async function DemoMessagesPage({ searchParams }: { searchParams: Promise<{ q?: string; source?: string; view?: string; reply?: string }> }) {
   const { q, source, view, reply } = await searchParams;
   const t = await getT();
@@ -37,6 +40,7 @@ export default async function DemoMessagesPage({ searchParams }: { searchParams:
       next={null}
       fresh={{ id: "m1", count: 3 }}
       linked={[{ id: "l1", messageId: "m3", kind: "task", title: "Send updated cabinet drawings to Aylin" }]}
+      fileUrls={new Map([["a4", pic], ["a5", "#"]])}
       proposed={suggestionsByMessage([...demoSuggestions, ...extraSuggestions])}
       open={null}
       pins={[{ messageId: "m2", pinnedAt: now.toISOString(), pinnedBy: "Maya de Vries", message: pinnedMessage }]}
