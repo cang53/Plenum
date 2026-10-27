@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/auth/supabase";
-import { listManualItems, listPlanChoices } from "@/data/live";
+import { listManualItems, listPlanChoices, type ManualItem } from "@/data/live";
 import { currentProject, listMembers, listProjects } from "@/data/projects";
 import { MANUAL_KINDS } from "@/domain/items";
 import { STATUSES } from "@/domain/board";

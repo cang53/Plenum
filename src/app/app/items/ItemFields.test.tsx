@@ -5,7 +5,7 @@ import { t as tr } from "@/lib/messages";
 
 vi.mock("./actions", () => ({ saveItem: () => {} }));
 const T = (k: Parameters<typeof tr>[0]) => tr(k, "en");
-const plan = { members: [{ userId: "u1", name: "Ana Kok", email: "a@x.nl" }], phases: [{ id: "p1", name: "Site works" }], tasks: [{ id: "t2", title: "Other" }] };
+const plan = { members: [{ userId: "u1", name: "Ana Kok", email: "a@x.nl", role: "member" }], phases: [{ id: "p1", name: "Site works" }], tasks: [{ id: "t2", title: "Other" }] };
 const item = { id: "t1", kind: "task", title: "Pour slab", details: "", status: "todo", priority: "normal", dueDate: null, startDate: null, costCode: "", site: "", isMilestone: false, ownerId: null, phaseId: null, parentId: null, predecessorIds: [] } as unknown as ManualItem;
 
 describe("Fields", () => {
