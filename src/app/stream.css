@@ -66,11 +66,8 @@
 .pin { padding: 8px 12px; border-inline-start: 2px solid var(--primary); border-radius: 0 var(--radius) var(--radius) 0; background: var(--glass); font-size: var(--text-sm); color: var(--text-secondary); }
 .pin b { color: var(--text); }
 .pin .sm { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); color: var(--text-muted); font-size: var(--text-xs); }
-.comp { position: sticky; inset-block-end: var(--s3); z-index: 2; display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: 0 -6px 16px rgb(0 0 0 / 0.06); color: var(--text-muted); font-size: var(--text-base); }
-.comp textarea { width: 100%; min-height: 40px; max-height: 8rem; resize: vertical; border: 0; background: transparent; color: var(--text); font: inherit; outline: none; field-sizing: content; }
-.jump { position: fixed; inset-block-end: 112px; inset-inline-end: var(--s5); z-index: 3; box-shadow: 0 4px 12px rgb(0 0 0 / 0.18); }
+.jump { position: fixed; inset-block-end: 136px; inset-inline-end: var(--s5); z-index: 3; box-shadow: 0 4px 12px rgb(0 0 0 / 0.18); }
 .mail.on { outline: 2px solid var(--primary); outline-offset: 2px; }
-.comp-foot { display: flex; align-items: center; justify-content: space-between; font-size: var(--text-xs); }
 .side-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; font-size: var(--text-sm); line-height: 18px; color: var(--text-muted); }
 .side-card a { color: var(--primary); text-decoration: none; }
 
@@ -119,9 +116,6 @@
 .pins { border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass); padding: 8px 12px; }
 .pins summary { cursor: pointer; font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .agent-card { margin-inline-start: 52px; }
-.comp .replying { font-size: var(--text-xs); color: var(--text-muted); }
-.comp .replying a { color: var(--primary); }
-.comp select { border: 0; background: var(--control); color: var(--text); border-radius: 100px; padding: 2px 8px; font-size: var(--text-xs); }
 @media (max-width: 720px) { .agent-card { margin-inline-start: 0; } .msgs-search input { width: 8rem; } }
 
 .mail-create { position: relative; }
@@ -130,3 +124,20 @@
 .mail-create > div { position: absolute; z-index: 3; display: grid; min-width: 9rem; padding: var(--s1); border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--elevation-dialog); }
 .mail-create a { padding: var(--s2) var(--s3); border-radius: var(--radius-sm); color: var(--text); text-decoration: none; }
 .mail-create a:hover { background: var(--accent-soft); }
+
+/* Composer: one rounded box, input and round send button on one row, channel and hint below */
+.comp { position: sticky; inset-block-end: var(--s3); z-index: 2; display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 6px 16px; border: 1px solid var(--glass-border); border-radius: 22px; background: var(--surface); box-shadow: 0 -6px 16px rgb(0 0 0 / 0.08); }
+.comp:focus-within { border-color: var(--primary); }
+.comp-row { display: flex; align-items: flex-end; gap: 8px; }
+.comp textarea { flex: 1; min-width: 0; min-height: 36px; max-height: 9rem; padding: 8px 0; border: 0; background: transparent; color: var(--text); font: inherit; font-size: var(--text-base); line-height: 20px; resize: none; outline: none; field-sizing: content; }
+.comp textarea::placeholder { color: var(--text-muted); }
+.comp .send { display: grid; place-items: center; flex: none; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: var(--primary); color: var(--surface); cursor: pointer; }
+.comp .send:disabled { opacity: 0.4; cursor: default; }
+.comp .send:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.comp-foot { display: flex; align-items: center; gap: 8px; padding-inline-end: 8px; font-size: var(--text-xs); color: var(--text-muted); }
+.comp-foot select { border: 0; background: transparent; color: var(--text-secondary); border-radius: 100px; padding: 2px 4px; font: inherit; cursor: pointer; }
+.comp-foot .hint { opacity: 0; transition: opacity .12s; }
+.comp:focus-within .hint { opacity: 1; }
+.comp .replying { display: flex; gap: 6px; padding: 4px 10px; border-inline-start: 2px solid var(--primary); background: var(--glass); border-radius: 4px; font-size: var(--text-xs); color: var(--text-muted); }
+.comp .replying a { color: var(--primary); margin-inline-start: auto; }
+@media (max-width: 720px) { .comp-foot .hint { display: none; } }

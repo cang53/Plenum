@@ -195,17 +195,19 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             <input type="hidden" name="projectId" value={project.id} />
             <input type="hidden" name="subject" value={replySubject} />
             {reply && <p className="replying">{t("stream.c.replyingTo")} <b>{who(reply)}</b> · <a href={href({})}>{t("stream.c.cancel")}</a></p>}
-            <textarea name="body" rows={1} required disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
+            <div className="comp-row">
+              <textarea name="body" rows={1} required disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
+              <button type="submit" className="send" disabled={readOnly} aria-label={t("stream.send")} title={t("stream.send")}>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+            </div>
             <p className="comp-foot">
-              <span>
-                <select name="channel" aria-label={t("stream.channel")} defaultValue="app">
-                  <option value="app">{t("stream.source.app")}</option>
-                  <option value="email" disabled>{t("stream.source.email")} · {t("stream.notConnected")}</option>
-                  <option value="teams" disabled>{t("stream.source.teams")} · {t("stream.notConnected")}</option>
-                </select>{" "}
-                {t("stream.composerHint")}
-              </span>
-              <button type="submit" className="btn btn-primary" disabled={readOnly}>{t("stream.send")}</button>
+              <select name="channel" aria-label={t("stream.channel")} defaultValue="app">
+                <option value="app">{t("stream.source.app")}</option>
+                <option value="email" disabled>{t("stream.source.email")} · {t("stream.notConnected")}</option>
+                <option value="teams" disabled>{t("stream.source.teams")} · {t("stream.notConnected")}</option>
+              </select>
+              <span className="hint">{t("stream.composerHint")}</span>
             </p>
           </form>
         )}
