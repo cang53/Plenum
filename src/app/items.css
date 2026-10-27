@@ -91,7 +91,7 @@
 .dp-cols .td-props { background: var(--surface-subtle); padding: var(--s3) var(--s4); margin: calc(var(--s4) * -1) calc(var(--s4) * -1) calc(var(--s4) * -1) 0; }
 .td-props .av { width: 1.25rem; height: 1.25rem; font-size: 0.625rem; vertical-align: middle; }
 .items-edit { margin-block-start: var(--s4); }
-.items-edit summary { cursor: pointer; list-style: none; display: inline-flex; }
+.items-edit summary { cursor: pointer; list-style: none; display: inline-flex; margin-block-end: var(--s1); }
 @media (max-width: 720px) { .dp-cols { grid-template-columns: 1fr; } .dp-cols .td-props { margin: var(--s4) 0 0; } }
 .items-table table { border-collapse: collapse; border-spacing: 0; width: 100%; }
 .items-table td, .items-table th { border: 0; border-radius: 0; background: none; box-shadow: none; }
@@ -117,3 +117,16 @@
 .dp-cols .td-props dl { grid-template-columns: 4.5rem 1fr; row-gap: var(--s2); }
 .dp-cols .td-props .sub, .dp-cols .td-props li { font-size: var(--text-xs); color: var(--text-secondary); margin: 0; }
 .dp-cols .td-props ul { margin: 0; padding: 0; }
+
+/* Item form: two even columns, labels above their fields, one field height, actions at the end. */
+.item-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3) var(--s4); margin-block-start: var(--s3); }
+.item-form label { display: grid; align-content: start; gap: var(--s1); margin: 0; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); min-width: 0; }
+.item-form .wide, .item-form .actions { grid-column: 1 / -1; }
+.item-form input:not([type="checkbox"]), .item-form select, .item-form textarea { width: 100%; box-sizing: border-box; min-height: 2.25rem; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-subtle); color: var(--text); font: inherit; font-size: var(--text-sm); letter-spacing: 0; text-transform: none; font-weight: 400; }
+.item-form textarea { min-height: 5rem; resize: vertical; }
+.item-form select[multiple] { min-height: 6rem; }
+.item-form input:focus-visible, .item-form select:focus-visible, .item-form textarea:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: 1px; }
+.item-form .check { display: flex; align-items: center; gap: var(--s2); align-self: end; min-height: 2.25rem; letter-spacing: 0; text-transform: none; font-size: var(--text-sm); font-weight: 500; color: var(--text); }
+.item-form .check input { width: auto; min-height: 0; }
+.item-form .actions { display: flex; justify-content: flex-end; padding-block-start: var(--s2); border-top: 1px solid var(--border); }
+@media (max-width: 560px) { .item-form { grid-template-columns: 1fr; } }
