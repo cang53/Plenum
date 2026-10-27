@@ -343,8 +343,8 @@ dialog.pop:not([open]) { display: none; }
 .insp-attrib p { margin: 0 0 5px; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
 .insp-activity-block { display: grid; gap: var(--s3); padding-block-start: var(--s4); border-block-start: 1px solid var(--glass-border); }
 .insp-activity-block .insp-sub { margin: 0; font-size: var(--text-lg); line-height: 1.5625rem; font-weight: var(--weight-semibold); letter-spacing: -0.45px; color: var(--text); }
-.act { display: grid; gap: 5px; }
-.act p { margin: 0; }
+.item-act { display: grid; gap: 5px; }
+.item-act p { margin: 0; }
 .act-text { font-size: var(--text-base); line-height: 1.25rem; color: var(--text); }
 .insp-note label { display: grid; gap: 6px; font-size: var(--text-sm); color: var(--text-secondary); }
 .insp-note textarea { min-height: 6.25rem; padding: var(--s3); border: 1px solid var(--border-strong); border-radius: 0.75rem; background: var(--accent-soft); color: var(--text); font: inherit; font-size: var(--text-base); }
@@ -364,3 +364,11 @@ dialog.pop:not([open]) { display: none; }
 .item-detail .insp-bar .btn, .item-detail .insp-actions .btn, .item-detail .insp-card .btn, .item-detail .insp-manage .btn, .insp-close { text-decoration: none; }
 .item-detail .insp-foot, .item-detail .insp-bar { flex: none; }
 .insp-read .insp-identity .insp-text { white-space: pre-line; }
+/* On wide screens the open inspector sits beside the list instead of covering it. */
+@media (min-width: 1200px) { .items-page:has(.item-inspector) { padding-inline-end: calc(min(37.5rem, 100vw - 2rem) + 1.5rem); } }
+.items-flat { overflow-x: auto; }
+.items-flat td.ident { width: auto; max-width: none; min-width: 14rem; }
+.items-flat td.state { min-width: 7.5rem; }
+.items-flat td { padding-inline: 0.75rem; }
+.insp-activity-block .item-act + .item-act { padding-block-start: var(--s3); }
+.insp-foot .btn, .pop-actions .btn, .notice-actions .btn { text-decoration: none; }

@@ -115,7 +115,7 @@ export function ItemDetail({ t, locale, item, projectId, shareHref, owner, phase
         <section className="wide insp-activity-block" aria-label={t("items.activityReplies")}>
           <h3 className="insp-sub">{t("items.activityReplies")}</h3>
           {activity.map((a, i) => (
-            <div key={i} className="act">
+            <div key={i} className="item-act">
               <p className="act-text">{a.text}</p>
               <p className="insp-card-note">{stamp(a.at)}{a.href && <> · <a href={a.href}>{t("taskDetail.sourceMessage")}</a></>}</p>
             </div>
