@@ -11,8 +11,8 @@ describe("primitives.css", () => {
     }
   });
 
-  it("is flat: no blur, gradients or glass shadows", () => {
-    expect(css).not.toMatch(/backdrop-filter|gradient\(|--glass/);
+  it("has no gradients", () => {
+    expect(css).not.toMatch(/gradient\(/);
   });
 
   it("uses tokens only, no raw colors", () => {

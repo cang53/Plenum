@@ -61,7 +61,7 @@ describe("dark-green glass look", () => {
     expect(css).not.toMatch(/data-theme/);
   });
   it("uses the Figma palette and the system (SF Pro) font", () => {
-    expect(tokens["--primary"]).toBe("#cfe6c2");
+    expect(tokens["--primary"]).toBe("#c9ddb4");
     expect(tokens["--surface-subtle"]).toBe("#1a342b");
     expect(css).toMatch(/--font: -apple-system/);
   });

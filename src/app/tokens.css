@@ -18,13 +18,13 @@
   --on-primary: #13261c;
   --focus-ring: #cfe6c2;
   --danger: #ffb8ad;
-  --danger-surface: #ffb8ad1f;
+  --danger-surface: #4d3d39;
   --success: #b2e5bf;
-  --success-surface: #c9ddb421;
+  --success-surface: #2f5245;
   --warning: #eed1a0;
-  --warning-surface: #eed1a017;
+  --warning-surface: #3f4a36;
   --info: #bcdcf2;
-  --info-surface: #c9ddb421;
+  --info-surface: #2f5245;
   --accent-soft: #35594c;
   --accent-text: #e1f1d8;
   --status-todo: #adc2b5;
