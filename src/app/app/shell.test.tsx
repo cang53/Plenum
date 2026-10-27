@@ -7,7 +7,7 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/app/stream", useSearchP
 const menu = { open: "Search or jump to…", title: "t", placeholder: "p", actions: "a", results: "r", empty: "e", newTask: "New task", search: "s", task: "Task", message: "Message", decision: "Decision" };
 const labels = {
   brand: "Plenum", main: "Main", projects: "Projects", account: "Account", signOut: "Sign out", mobile: "Mobile", bell: "Inbox", newTask: "New task", mywork: "My work", streamNew: "{n} new in stream",
-  views: { title: "Views", at_risk: "At risk", blocked: "Blocked", week: "Due this week" }, menu, group: { project: "Project", site: "Site", admin: "Admin" },
+  privacy: { title: "Project privacy", body: "b", link: "l" }, views: { title: "Views", at_risk: "At risk", blocked: "Blocked", week: "Due this week" }, menu, group: { project: "Project", site: "Site", admin: "Admin" },
 };
 const items = [{ path: "/app/stream", label: "Stream", group: "project" as const }];
 const render = (projects: { id: string; name: string }[], streamNew: Record<string, number>) =>

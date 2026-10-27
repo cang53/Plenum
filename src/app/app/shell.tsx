@@ -14,7 +14,7 @@ type Props = {
   email: string;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "newTask" | "mywork" | "streamNew", string> & { views: Record<"title" | "at_risk" | "blocked" | "week", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; views: Record<"title" | "at_risk" | "blocked" | "week", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -45,12 +45,12 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
   );
   const quickNow = useSearchParams().get("quick");
   const inbox = (
-    <Bell href={href("/app/notifications")} initial={unread} label={labels.bell} current={pathname.startsWith("/app/notifications")} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
+    <Bell icon href={href("/app/notifications")} initial={unread} label={labels.bell} current={pathname.startsWith("/app/notifications")} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
   );
   return (
     <div className="shell">
       <header className="shell-top">
-        <a className="shell-brand" href={href("/app")}><span className="shell-logo" aria-hidden="true">p</span>{labels.brand}</a>
+        <a className="shell-brand" href={href("/app")}><span className="shell-logo" aria-hidden="true">{labels.brand.charAt(0).toUpperCase()}</span>{labels.brand}</a>
         {projects.length > 1 && (
           <details className="shell-projects">
             <summary><span className="shell-crumb">{labels.projects} /</span> {project?.name}</summary>
@@ -62,16 +62,16 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
           </details>
         )}
         {projects.length === 1 && <p className="shell-project"><span className="shell-crumb">{labels.projects} /</span> {project?.name}</p>}
-        <CommandMenu project={project?.id} labels={labels.menu} />
-        <a className="btn btn-primary" href={href("/app/items")}>{labels.newTask} <kbd className="kbd" aria-hidden="true">C</kbd></a>
-        <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
-          <span className="shell-avatar" aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
-          <span>{email}</span>
-          <button type="submit" className="btn btn-plain">{labels.signOut}</button>
-        </form>
+        <div className="shell-actions">
+          <CommandMenu project={project?.id} labels={labels.menu} />
+          {inbox}
+          <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
+            <span className="shell-avatar" title={email} aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
+            <button type="submit" className="btn btn-plain">{labels.signOut}</button>
+          </form>
+        </div>
       </header>
       <aside className="shell-side">
-        {inbox}
         {quickLink("mine", labels.mywork)}
         <nav aria-label={labels.main}>
           {GROUPS.map((g) => {
@@ -90,6 +90,11 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
             </div>
           )}
         </nav>
+        <section className="shell-privacy" aria-label={labels.privacy.title}>
+          <strong>{labels.privacy.title}</strong>
+          <p>{labels.privacy.body}</p>
+          <a href={href("/app/privacy")}>{labels.privacy.link}</a>
+        </section>
       </aside>
       <div className="shell-body">{children}</div>
       <nav className="shell-bar" aria-label={labels.mobile}>

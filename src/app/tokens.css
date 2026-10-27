@@ -35,6 +35,8 @@
   /* Glass: translucent white over the green ground */
   --glass: #ffffff0a;
   --glass-strong: #ffffff14;
+  --control: #ffffff1f;
+  --control-active: #ffffff45;
   --glass-border: #2b323e;
   --glass-blur: none;
   --ambient-background: #0e1116;
@@ -111,6 +113,8 @@
   :root {
     --glass: var(--surface);
     --glass-strong: var(--surface-muted);
+    --control: var(--surface-muted);
+    --control-active: var(--border);
     --glass-blur: none;
   }
 }

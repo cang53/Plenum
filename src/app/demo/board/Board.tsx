@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { buildColumns, distinct, groupTasks, initials, moveTask, STATUSES, taskKey, WIP_LIMIT, type BoardTask, type DueFilter, type GroupBy, type TaskStatus } from "@/domain/board";
 import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
@@ -17,6 +17,11 @@ type Props = {
   openBase?: string;
   // Start of every card ID, such as "P-204"; the task number follows.
   prefix?: string;
+  // The Board / Timeline / Items switch; the page renders it because it is a server component.
+  scope?: ReactNode;
+  // Suggestions waiting for a person to accept or dismiss, and where to do that; the notice is hidden at zero.
+  pending?: number;
+  reviewHref?: string;
 };
 
 const PRIORITY_DOT = { low: "st-todo", normal: "st-todo", high: "st-warn" } as const;
@@ -26,7 +31,7 @@ type Field = (typeof FIELDS)[number];
 const DUE_FILTERS: readonly DueFilter[] = ["overdue", "week", "none"];
 const GROUPS: readonly GroupBy[] = ["status", "phase", "owner", "week"];
 
-export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, prefix = "T" }: Props) {
+export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, prefix = "T", scope, pending = 0, reviewHref }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [owner, setOwner] = useState("");
@@ -36,9 +41,12 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
   const [hidden, setHidden] = useState<Field[]>([]);
   const shows = (field: Field) => !hidden.includes(field);
   const [dragging, setDragging] = useState<string | null>(null);
+  const [menu, setMenu] = useState<string | null>(null);
 
+  const today = new Date().toISOString().slice(0, 10);
+  const soonDate = new Date(Date.parse(today) + 2 * 86_400_000).toISOString().slice(0, 10);
   const due = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
-  const statusColumns = buildColumns(tasks, { owner: owner || undefined, due: dueFilter || undefined, today: new Date().toISOString().slice(0, 10) });
+  const statusColumns = buildColumns(tasks, { owner: owner || undefined, due: dueFilter || undefined, today });
   const byStatus = groupBy === "status";
   const label = (key: string) =>
     key === ""
@@ -82,6 +90,8 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
   return (
     <>
       <div className="board-filters" role="group" aria-label={t("board.filters")}>
+        <div className="board-view-filters">
+        {scope}
         <select className="chip-select" aria-label={t("board.groupBy")} value={groupBy} onChange={(e) => { setGroupBy(e.target.value as GroupBy); setAdding(null); }}>
           {GROUPS.map((g) => (
             <option key={g} value={g}>{t("board.groupBy")}: {t(`board.group.${g}` as MessageKey)}</option>
@@ -110,7 +120,15 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
             ))}
           </div>
         </details>
+        </div>
+        <span className="board-count">{t("board.count").replace("{n}", String(columns.reduce((n, c) => n + c.tasks.length, 0)))}</span>
       </div>
+      {pending > 0 && reviewHref && (
+        <div className="board-notice" role="status">
+          <span className="board-notice-text"><span aria-hidden="true">✦</span>{t("board.pending").replace("{n}", String(pending))}</span>
+          <a className="act" href={reviewHref}>{t("overview.review").replace("{n}", String(pending))}</a>
+        </div>
+      )}
       {failed && (
         <p role="alert" className="notice">
           {t("board.saveError")}{" "}
@@ -127,6 +145,7 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
             <section
               key={column.key}
               className={`board-column${dragging ? " drop-ready" : ""}`}
+              data-status={byStatus ? column.key : undefined}
               aria-label={column.name}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
@@ -135,13 +154,61 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
               }}
             >
               <h2>
-                <span>
-                  {column.name}{" "}
+                <span className="column-title">
+                  <span className="column-name">{column.name}</span>
                   <span className={`count${wip && column.tasks.length > WIP_LIMIT ? " over" : ""}`}>{wip ? t("board.wip").replace("{n}", String(column.tasks.length)).replace("{max}", String(WIP_LIMIT)) : column.tasks.length}</span>
                 </span>
-                {byStatus && !isDone && <button type="button" className="btn btn-plain" aria-label={`${t("board.add")}: ${column.name}`} onClick={() => setAdding(column.key as TaskStatus)}>+</button>}
-                {byStatus && isDone && <button type="button" className="btn btn-plain" aria-expanded={!doneCollapsed} onClick={() => setDoneCollapsed(!doneCollapsed)}>{t(doneCollapsed ? "board.expand" : "board.collapse")}</button>}
+                {byStatus && isDone && <button type="button" className="act" aria-expanded={!doneCollapsed} onClick={() => setDoneCollapsed(!doneCollapsed)}>{t(doneCollapsed ? "board.expand" : "board.collapse")}</button>}
               </h2>
+              {cards.length === 0 && adding !== column.key && !(isDone && doneCollapsed) && <p className="empty">{t("board.empty")}</p>}
+              {cards.map((task) => {
+                const open = menu === task.id;
+                const overdue = Boolean(task.dueDate) && task.status !== "done" && (task.dueDate as string) < today;
+                const soon = Boolean(task.dueDate) && !overdue && task.status !== "done" && (task.dueDate as string) <= soonDate;
+                return (
+                <article
+                  key={task.id}
+                  className={`card${overdue ? " overdue" : ""}`}
+                  data-dragging={dragging === task.id}
+                  draggable={byStatus}
+                  onDragStart={() => setDragging(task.id)}
+                  onDragEnd={() => setDragging(null)}
+                  onKeyDown={(e) => e.key === "Escape" && setMenu(null)}
+                >
+                  <div className="card-top">
+                    <span className="card-id">
+                      <span>{taskKey(prefix, task.number)}</span>
+                      {task.phase && shows("phase") && <span>{task.phase}</span>}
+                      {shows("priority") && task.priority !== "normal" && <span className={`st ${PRIORITY_DOT[task.priority]}`}>{t(`priority.${task.priority}`)}</span>}
+                    </span>
+                    <button type="button" className="act" aria-label={`${t("board.menu")}: ${task.title}`} aria-expanded={open} aria-controls={`menu-${task.id}`} onClick={() => setMenu(open ? null : task.id)}>···</button>
+                  </div>
+                  <h3>{openBase ? <a href={`${openBase}${task.id}`}>{task.title}</a> : task.title}</h3>
+                  {task.status === "blocked" && task.waitingOn ? <p className="card-note waiting-on">{t("board.waitingOn")}: {task.waitingOn}</p> : task.site && <p className="card-note">{task.site}</p>}
+                  {task.ownerName && shows("owner") && (
+                    <span className="card-owner">
+                      <span className="av" role="img" aria-label={task.ownerName}>{initials(task.ownerName)}</span>
+                      <span>{task.ownerName}</span>
+                    </span>
+                  )}
+                  {task.dueDate && shows("due") && (
+                    <span className={`card-due${overdue ? " overdue" : soon ? " soon" : ""}`}>
+                      <span>{overdue ? t("board.due.overdue") : t("board.due")}</span>
+                      <span>{due(task.dueDate)}</span>
+                    </span>
+                  )}
+                  {/* The non-drag way to move a card, for keyboard and touch. */}
+                  {open && (
+                    <div className="card-menu" id={`menu-${task.id}`} role="group" aria-label={t("board.statusLabel")}>
+                      {STATUSES.map((s) => (
+                        <button key={s} type="button" className="act" aria-pressed={task.status === s} onClick={() => { move(task.id, s); setMenu(null); }}>{t(`status.${s}`)}</button>
+                      ))}
+                      <p>{t("board.menuHint")}</p>
+                    </div>
+                  )}
+                </article>
+                );
+              })}
               {adding === column.key && (
                 <form className="board-add" action={(form) => add(form, column.key as TaskStatus)} onKeyDown={(e) => e.key === "Escape" && setAdding(null)}>
                   <input className="field" name="title" required autoFocus aria-label={t("board.addTitle")} placeholder={t("board.addTitle")} />
@@ -152,46 +219,15 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
                   </span>
                 </form>
               )}
-              {cards.length === 0 && adding !== column.key && !(isDone && doneCollapsed) && <p className="empty">{t("board.empty")}</p>}
-              {cards.map((task) => (
-                <article
-                  key={task.id}
-                  className="card"
-                  data-dragging={dragging === task.id}
-                  draggable={byStatus}
-                  onDragStart={() => setDragging(task.id)}
-                  onDragEnd={() => setDragging(null)}
-                >
-                  <span className="card-id">
-                    <span>{taskKey(prefix, task.number)}</span>
-                    {shows("priority") && <span className={`st ${PRIORITY_DOT[task.priority]}`}>{t(`priority.${task.priority}`)}</span>}
-                  </span>
-                  <h3>{openBase ? <a href={`${openBase}${task.id}`}>{task.title}</a> : task.title}</h3>
-                  <span className="card-meta">
-                    {task.phase && shows("phase") ? <span className="chip">{task.phase}</span> : <span />}
-                    <span className="card-owner">
-                      {task.dueDate && shows("due") && <span className="n">{due(task.dueDate)}</span>}
-                      {task.ownerName && shows("owner") && <span className="av" role="img" aria-label={task.ownerName}>{initials(task.ownerName)}</span>}
-                    </span>
-                  </span>
-                  {task.status === "blocked" && task.waitingOn && <span className="waiting-on">{t("board.waitingOn")}: {task.waitingOn}</span>}
-                  {/* Kept for keyboard and touch, where dragging is not possible; shown only on hover or focus so the card stays as designed. */}
-                  <label className="status-select">
-                    {t("board.statusLabel")}
-                    <select value={task.status} onChange={(e) => move(task.id, e.target.value as TaskStatus)}>
-                      {STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {t(`status.${s}`)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </article>
-              ))}
+              {byStatus && !isDone && adding !== column.key && <button type="button" className="add-task" onClick={() => setAdding(column.key as TaskStatus)}>{t("board.add")}</button>}
             </section>
             );
           })}
         </div>
+      </div>
+      <div className="board-footer">
+        <span>{t("board.footerDrag")}</span>
+        <span className="board-saved">{t("board.footer")}</span>
       </div>
     </>
   );
