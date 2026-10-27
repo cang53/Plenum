@@ -31,8 +31,6 @@
 .td-props { border-inline-start: 1px solid var(--border); padding-inline-start: var(--s4); }
 .td-props dl { display: grid; grid-template-columns: auto 1fr; gap: var(--s1) var(--s3); margin: 0; font-size: var(--text-sm); }
 .td-props dt { color: var(--text-muted); } .td-props dd { margin: 0; }
-.sheet { position: fixed; inset-block: 0; inset-inline-end: 0; width: min(32rem, 100%); overflow-y: auto; padding: var(--s4); background: var(--surface); border-inline-start: 1px solid var(--border); z-index: 20; }
-.sheet .td-cols, .sheet .td-title { margin: 0; } .sheet .td-cols { grid-template-columns: 1fr; gap: 0; } .sheet .td-props { border: 0; padding: 0; }
 @media (max-width: 720px) { .td-cols { grid-template-columns: 1fr; } .td-props { border: 0; padding: 0; } }
 .items-tools { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s3); margin-block-end: var(--s4); }
 .items-quick { display: flex; flex-wrap: wrap; gap: var(--s4); font-size: var(--text-sm); }

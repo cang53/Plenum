@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
+import { updateManualItem } from "@/data/live";
+import { itemFromForm } from "@/domain/items";
 import { checklistText } from "@/domain/taskDetail";
 
 // The sheet shows this on Board and Items too, so the whole app is refreshed.
@@ -26,4 +29,13 @@ export async function removeCheck(form: FormData): Promise<void> {
   const { error } = await (await supabaseServer()).from("task_checklist").delete().eq("id", String(form.get("id")));
   if (error) throw error;
   revalidatePath("/app", "layout");
+}
+
+// Saves the inspector's fields, then returns to the page it opened from. Row-level security decides who may write.
+export async function saveInspector(form: FormData): Promise<void> {
+  const item = itemFromForm(form);
+  await updateManualItem(await supabaseServer(), String(form.get("id")), item);
+  revalidatePath("/app", "layout");
+  const back = String(form.get("closeHref") ?? "");
+  redirect(/^\/app\/[\w/-]*(\?[\w=&-]*)?$/.test(back) ? back : "/app");
 }

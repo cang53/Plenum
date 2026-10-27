@@ -3,6 +3,7 @@
 @import "./shell.css";
 @import "./overview.css";
 @import "./board.css";
+@import "./inspector.css";
 @import "./timeline.css";
 @import "./stream.css";
 @import "./gantt.css";
