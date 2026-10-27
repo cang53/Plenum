@@ -35,10 +35,10 @@ describe("ItemsHead", () => {
 });
 
 describe("CreateOption", () => {
-  it("shows the kind name, its help line and the form inside", () => {
-    const html = renderToStaticMarkup(<CreateOption kind="risk" t={(k) => k}><p>FORM</p></CreateOption>);
+  it("links to the create inspector with the kind name and its help line", () => {
+    const html = renderToStaticMarkup(<CreateOption kind="risk" t={(k) => k} href="/x?create=risk" />);
+    expect(html).toContain('href="/x?create=risk"');
     expect(html).toContain("kind.risk");
     expect(html).toContain("items.create.risk");
-    expect(html).toContain("<p>FORM</p>");
   });
 });

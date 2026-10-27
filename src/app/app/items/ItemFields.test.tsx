@@ -9,12 +9,23 @@ const plan = { members: [{ userId: "u1", name: "Ana Kok", email: "a@x.nl", role:
 const item = { id: "t1", kind: "task", title: "Pour slab", details: "", status: "todo", priority: "normal", dueDate: null, startDate: null, costCode: "", site: "", isMilestone: false, ownerId: null, phaseId: null, parentId: null, predecessorIds: [] } as unknown as ManualItem;
 
 describe("Fields", () => {
-  it("lays the task form out as a grid with full-width title, details and actions", async () => {
+  it("lays the task form out as inspector: heading, labelled body, Cancel and save in the footer", async () => {
     const { Fields } = await import("./ItemFields");
-    const html = renderToStaticMarkup(<Fields item={item} kind="task" projectId="p" plan={plan} t={T} />);
-    expect(html).toContain('class="item-form"');
-    expect(html.match(/class="wide"/g)!.length).toBeGreaterThanOrEqual(3);
-    expect(html).toContain('class="wide actions"');
+    const html = renderToStaticMarkup(<Fields item={item} kind="task" projectId="p" project="Gearbox" closeHref="/back" plan={plan} t={T} />);
+    expect(html).toContain("item-inspector");
+    expect(html).toContain("Edit task");
+    expect(html).toContain("Gearbox");
+    expect(html).toContain('href="/back"');
+    expect(html).toContain('name="id" value="t1"');
     expect(html).toContain("Save changes");
+    expect(html).toContain("Parent");
+  });
+  it("names the save button after the kind when creating", async () => {
+    const { Fields } = await import("./ItemFields");
+    const html = renderToStaticMarkup(<Fields kind="risk" projectId="p" plan={plan} t={T} />);
+    expect(html).toContain("Create risk");
+    expect(html).not.toContain('name="id"');
+    expect(html).toContain('checked="" value="open"');
+    expect(html).not.toContain('name="priority"');
   });
 });

@@ -2,6 +2,7 @@ import type { ManualItem } from "@/data/live";
 import { demoProject, demoSuggestions, demoTasks } from "@/data/demo";
 import { MANUAL_KINDS } from "@/domain/items";
 import { CreateOption, GroupHead, ItemsHead, matchesItem } from "@/app/app/items/ItemsHead";
+import { Fields } from "@/app/app/items/ItemFields";
 import { ItemsTable } from "@/app/app/items/ItemsTable";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale, type MessageKey } from "@/lib/messages";
@@ -17,10 +18,12 @@ const items: ManualItem[] = [
   { ...base, id: "d1", kind: "decision", title: "Install moves to 7 Dec; handover stays 18 Dec" },
 ];
 
-export default async function DemoItemsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string; status?: string; owner?: string; phase?: string; task?: string }> }) {
+const plan = { members: [{ userId: "Jonas Peeters", name: "Jonas Peeters", email: "", role: "member" }, { userId: "Marta Silva", name: "Marta Silva", email: "", role: "member" }], phases: [{ id: "Install", name: "Install" }], tasks: demoTasks.map((x) => ({ id: x.id, title: x.title })) };
+
+export default async function DemoItemsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string; status?: string; owner?: string; phase?: string; task?: string; create?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
-  const { q = "", kind = "", status = "", owner = "", phase = "", task } = await searchParams;
+  const { q = "", kind = "", status = "", owner = "", phase = "", task, create } = await searchParams;
   const query = { q, kind, status, owner, phase };
   const shown = items.filter((i) => matchesItem(i, query));
   const names = (k: "ownerId" | "phaseId") => Object.fromEntries(items.flatMap((i) => (i[k] ? [[i[k], i[k]]] : [])));
@@ -31,7 +34,8 @@ export default async function DemoItemsPage({ searchParams }: { searchParams: Pr
     <main id="main" className="page items-page">
       <p className="notice">{t("gantt.demoNotice")}</p>
       <ItemsHead t={t} action="/demo/items" keep={[]} query={query} owners={names("ownerId")} phases={names("phaseId")} pending={demoSuggestions.length} reviewHref="/demo/messages"
-        create={MANUAL_KINDS.map((k) => <CreateOption key={k} kind={k} t={t}><p className="notice">{t("gantt.demoNotice")}</p></CreateOption>)} />
+        create={MANUAL_KINDS.map((k) => <CreateOption key={k} kind={k} t={t} href={`/demo/items?create=${k}`} />)} />
+      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId="demo" project={demoProject.name} closeHref="/demo/items" plan={plan} t={t} />)}
       {(!kind || kind === "task") && (
         <>
           <GroupHead title={t("items.group.task")} rows={tasks} label={(s) => t(`status.${s}` as MessageKey)} />

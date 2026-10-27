@@ -168,11 +168,35 @@
 .items-create-menu { gap: var(--s2); width: 20rem; padding: var(--s4); border-radius: 1.375rem; background: var(--surface-subtle); }
 .items-create-menu h2 { margin: 0; font-size: var(--text-lg); line-height: 1.5625rem; font-weight: var(--weight-semibold); letter-spacing: -0.45px; color: var(--text); }
 .items-create-menu > p { margin: 0 0 var(--s1); font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
-.create-option > summary { display: flex; align-items: center; gap: var(--s3); min-height: 4.125rem; padding: 10px; border-radius: 0.75rem; list-style: none; }
-.create-option > summary::-webkit-details-marker { display: none; }
+.create-option { display: flex; align-items: center; gap: var(--s3); min-height: 4.125rem; padding: 10px; border-radius: 0.75rem; color: var(--text); text-decoration: none; }
+.create-option:hover { background: var(--accent-soft); }
 .create-sym { flex: none; width: 1.875rem; font-size: 1.5rem; line-height: 1.8125rem; text-align: center; color: var(--primary); }
 .create-text { flex: 1; display: grid; gap: 3px; min-width: 0; }
 .create-text b { font-size: var(--text-base); line-height: 1.25rem; font-weight: var(--weight-semibold); }
 .create-text span { font-size: var(--text-sm); line-height: 1.125rem; font-weight: 400; color: var(--text-secondary); }
 .create-arrow { flex: none; font-size: var(--text-xs); color: var(--text-secondary); }
-.create-option[open] .create-arrow { transform: rotate(90deg); }
+
+/* Create and edit inspector, from Figma: 600px panel, 96px header with close, scrolling body of 16px-gap fields in two columns, 120px footer with two even buttons. */
+.item-inspector { position: fixed; inset-block: var(--s4); inset-inline-end: var(--s4); z-index: 20; display: flex; flex-direction: column; gap: 0; width: min(37.5rem, calc(100vw - 2rem)); margin: 0; overflow: hidden; border: 1px solid var(--glass-border); border-radius: 1.75rem; background: var(--surface); box-shadow: var(--elevation-dialog); }
+.insp-head { display: flex; align-items: center; gap: 0.75rem; min-height: 6rem; padding: var(--s5) 1.5rem; border-block-end: 1px solid var(--glass-border); }
+.insp-head > div { flex: 1; display: grid; gap: 5px; min-width: 0; }
+.insp-head h2 { margin: 0; font-size: var(--text-lg); line-height: 1.5625rem; font-weight: var(--weight-semibold); letter-spacing: -0.45px; color: var(--text); }
+.insp-head p { margin: 0; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-close { display: grid; place-items: center; flex: none; width: 2.75rem; height: 2.75rem; border-radius: var(--radius-full); background: var(--control); color: var(--text); text-decoration: none; }
+.insp-body { flex: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: var(--s4); padding: 1.5rem; overflow-y: auto; }
+.item-inspector label { gap: 6px; font-size: var(--text-sm); line-height: 1.125rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text-secondary); }
+.item-inspector input:not([type="checkbox"]), .item-inspector select, .item-inspector textarea, .insp-kind { min-height: 2.75rem; padding: 0 var(--s4); border: 1px solid var(--border-strong); border-radius: 0.75rem; background: var(--accent-soft); color: var(--text); font-size: var(--text-base); }
+.item-inspector textarea { min-height: 6.25rem; padding-block: var(--s3); }
+.insp-kind { display: flex; align-items: center; font-weight: var(--weight-medium); }
+.insp-more { display: grid; gap: var(--s3); color: var(--text-secondary); }
+.insp-more summary { cursor: pointer; }
+.insp-foot { display: flex; gap: 0.75rem; padding: 1.5rem; background: var(--surface-subtle); border-block-start: 1px solid var(--glass-border); }
+.insp-foot .btn { flex: 1; min-height: 2.75rem; border-radius: var(--radius-full); justify-content: center; text-align: center; }
+@media (max-width: 560px) { .insp-body { grid-template-columns: 1fr; } .item-inspector { inset: var(--s2); width: auto; } }
+.insp-state { margin: 0; padding: 0; border: 0; display: grid; gap: var(--s2); }
+.insp-state legend { padding: 0; margin-block-end: var(--s2); font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.insp-state > div { display: flex; gap: 4px; padding: 2px; border-radius: var(--radius-full); background: var(--control); }
+.insp-state label { flex: 1; position: relative; display: grid; place-items: center; min-height: 2.5rem; border-radius: var(--radius-full); color: var(--text); cursor: pointer; }
+.insp-state label:has(input:checked) { background: var(--control-active); }
+.insp-state label:has(input:focus-visible) { outline: var(--focus-width) solid var(--focus-ring); }
+.insp-state input { position: absolute; opacity: 0; inset: 0; }

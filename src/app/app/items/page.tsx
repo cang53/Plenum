@@ -17,10 +17,10 @@ import { ItemsTable } from "./ItemsTable";
 import { Fields } from "./ItemFields";
 import { CreateOption, GroupHead, ItemsHead, matchesItem } from "./ItemsHead";
 
-export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
+export default async function ItemsPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; kind?: string; quick?: string; col?: string | string[]; task?: string; create?: string; edit?: string; q?: string; status?: string; owner?: string; phase?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
-  const { project: chosen, after, kind: only, quick: quickParam, col, task, q = "", status = "", owner = "", phase = "" } = await searchParams;
+  const { project: chosen, after, kind: only, quick: quickParam, col, task, create, edit, q = "", status = "", owner = "", phase = "" } = await searchParams;
   const query = { q, kind: only ?? "", status, owner, phase };
   const quick = parseQuick(quickParam);
   const columns = parseColumns(col);
@@ -54,8 +54,10 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
     <main id="main" className="page items-page">
       <ItemsHead t={t} action="/app/items" keep={[["project", project.id], ...(quick !== "all" ? [["quick", quick] as [string, string]] : []), ...cols]} query={query} owners={owners} phases={phaseNames} pending={suggestions.length} reviewHref={`/app/notifications?project=${project.id}`}
         create={MANUAL_KINDS.map((k) => (
-          <CreateOption key={k} kind={k} t={t}><Fields kind={k} projectId={project.id} plan={plan} t={t} /></CreateOption>
+          <CreateOption key={k} kind={k} t={t} href={`${href(quick)}&create=${k}`} />
         ))} />
+      {MANUAL_KINDS.map((k) => k === create && <Fields key={k} kind={k} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} t={t} />)}
+      {items.filter((i) => i.id === edit).map((i) => <Fields key={i.id} item={i} kind={i.kind} projectId={project.id} project={project.name} closeHref={href(quick)} plan={plan} t={t} />)}
       <div className="items-bar">
         <WorkSwitch current="items" projectId={project.id} t={t} />
         <span className="grow" />
@@ -101,7 +103,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
       {showTasks && ((quick !== "all" || q || status || owner || phase) && !visibleTasks.length ? <p className="intro">{t("items.noMatch")}</p> : <ItemsTable kind="task" t={t} sheetHref={(id) => `${href(quick)}&task=${id}`} columns={columns} owners={owners} phases={phaseNames} project={project.name} locale={intlLocale[await getLocale()]} selected={selectedId} rewards={rewards} rows={visibleTasks.map((item) => ({ item, edit: null }))} />)}
       {showTasks && selectedId && (
         <section className="detail-panel" aria-label={t("taskDetail.sheet")}>
-          <TaskDetail id={selectedId} panel={{ edit: selected ? <details className="items-edit"><summary className="btn">{t("items.edit")}</summary><Fields item={selected} kind="task" projectId={project.id} plan={plan} t={t} /></details> : null }} />
+          <TaskDetail id={selectedId} panel={{ edit: selected ? <a className="btn items-edit" href={`${href(quick)}&edit=${selected.id}`}>{t("items.edit")}</a> : null }} />
         </section>
       )}
       {showTasks && !selectedId && visibleTasks.length > 0 && <p className="intro">{t("items.panelEmpty")}</p>}
@@ -109,7 +111,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         <section key={kind}>
           <GroupHead title={t(`items.group.${kind}` as MessageKey)} rows={items.filter((i) => i.kind === kind && shown(i))} label={(s) => t(`risk.${s}` as MessageKey)} />
           {kind === "risk" && early > 0 && <p className="badge">{t("rewards.earlyCount").replace("{n}", String(early))}</p>}
-          <ItemsTable kind={kind} t={t} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <Fields item={item} kind={kind} projectId={project.id} plan={plan} t={t} /> }))} />
+          <ItemsTable kind={kind} t={t} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <a className="btn items-edit" href={`${href(quick)}&edit=${item.id}`}>{t(`items.edit.${kind}` as MessageKey)}</a> }))} />
         </section>
       ))}
       <OfflineTasks
