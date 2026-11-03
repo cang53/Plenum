@@ -8,6 +8,8 @@ export type GanttTask = PlanTask & { phase: string | null; isMilestone?: boolean
 export type GanttBar = { id: string; title: string; phase: string | null; startDay: number; length: number; start: string; due: string; isMilestone: boolean; ownerName?: string | null; status?: TaskStatus; priority?: "low" | "normal" | "high"; number?: number; forecast?: { date: string; label: string } };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+// Empty days after the last task so the last bars and their labels stay inside the grid.
+const TRAILING_DAYS = 21;
 
 export function dayOf(iso: string): number {
   return Math.round(Date.parse(iso) / DAY_MS);
@@ -38,7 +40,7 @@ export function buildBars(tasks: GanttTask[]): { bars: GanttBar[]; firstDay: num
         : { ...info, startDay: dayOf(t.startDate) - firstDay, length: dayOf(t.dueDate) - dayOf(t.startDate) + 1, isMilestone: false };
     })
     .sort((a, b) => a.startDay - b.startDay || a.title.localeCompare(b.title));
-  return { bars, firstDay, totalDays: lastDay - firstDay + 1 };
+  return { bars, firstDay, totalDays: lastDay - firstDay + 1 + TRAILING_DAYS };
 }
 
 // Tasks on the longest chain of dependent dated tasks. Loops are ignored (the database refuses them).
