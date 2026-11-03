@@ -112,11 +112,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
           <ItemsTable kind={kind} t={t} menu={menu} selected={selectedId} sheetHref={(id) => `${href(quick)}&detail=${id}`} rewards={rewards} columns={columns} owners={owners} rows={items.filter((i) => i.kind === kind && shown(i)).map((item) => ({ item, edit: <a className="btn items-edit" href={`${href(quick)}&edit=${item.id}`}>{t(`items.edit.${kind}` as MessageKey)}</a> }))} />
         </section>
       ))}
-      <OfflineTasks
-        project={project.name}
-        tasks={items.filter((i) => i.kind === "task").map((i) => ({ id: i.id, title: i.title, status: i.status }))}
-        labels={{ title: t("offline.quick"), hint: t("offline.hint"), status: t("board.statusLabel"), note: t("offline.note"), add: t("offline.add"), pending: t("offline.pending"), synced: t("offline.synced"), conflicts: t("offline.conflicts"), statuses: Object.fromEntries(STATUSES.map((s) => [s, t(`status.${s}` as MessageKey)])) }}
-      />
+      <OfflineTasks project={project.name} tasks={items.filter((i) => i.kind === "task").map((i) => ({ id: i.id, title: i.title, status: i.status }))} />
       <MoreLink path="/app/items" params={{ project: project.id, ...(kinds.length ? { kind: kinds.join(",") } : {}), ...(quick !== "all" ? { quick } : {}) }} next={next} label={t("paging.more")} />
     </main>
   );
