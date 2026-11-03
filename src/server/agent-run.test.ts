@@ -66,6 +66,11 @@ describe("tags and answers", () => {
     expect(isAgentTagged("@Plenum what is late?")).toBe(true);
     expect(isAgentTagged("mail me@agentless.example")).toBe(false);
   });
+  it("keeps the task's length whatever dates the model sends", () => {
+    const ans = (a: object) => JSON.stringify({ reply: "ok", actions: [{ kind: "update_task", task_id: "t1", title: "Pour slab", reason: "note", ...a }] });
+    expect(parseAgentAnswer(ans({ due_date: "2026-11-13", start_date: "2026-11-13" }), tasks)?.actions[0]).toMatchObject({ startDate: "2026-11-09", dueDate: "2026-11-13" });
+    expect(parseAgentAnswer(ans({ start_date: "2026-11-09" }), tasks)?.actions[0]).toMatchObject({ startDate: "2026-11-09", dueDate: "2026-11-13" });
+  });
   it("rejects an answer that is not JSON", () => {
     expect(parseAgentAnswer("sorry", tasks)).toBeNull();
   });
