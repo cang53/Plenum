@@ -3,6 +3,7 @@ import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
 import { SendButton } from "./SendButton";
 import { AgentWait } from "./AgentWait";
+import { PendingPoll } from "./PendingPoll";
 import { StreamKeys } from "./StreamKeys";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
@@ -11,7 +12,7 @@ import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
 import { isImage, sizeLabel } from "@/domain/attachments";
 import type { StreamDay, StreamQuery } from "@/domain/stream";
-import { proposalHosts, type AgentProposal } from "@/domain/agent";
+import { proposalHosts, waitingForAgent, type AgentProposal } from "@/domain/agent";
 import type { StoredSuggestion } from "@/domain/triage";
 import type { TimelineMessage } from "@/domain/timeline";
 
@@ -45,7 +46,7 @@ export type StreamViewProps = {
   me?: string; // the signed-in person's address; their own messages get an accent bar
 };
 
-export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, readOnly, me }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
   const href = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams({ project: project.id });
     for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
@@ -54,6 +55,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
   const replySubject = reply ? `Re: ${reply.subject.replace(/^(\s*re:)+\s*/i, "") || reply.bodyText.slice(0, 60)}` : "";
   const all = days.flatMap((d) => d.groups.flatMap((g) => g.messages));
   const host = proposalHosts(all);
+  const waiting = readOnly ? new Set<string>() : waitingForAgent(all, now);
   const src = (a: AgentProposal) => all.find((x) => x.id === a.messageId) ?? all[0];
   const who = (m: TimelineMessage) => m.fromName || m.fromAddress;
   return (
@@ -172,6 +174,12 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                       ))}
                     </div>
                   </article>
+                  {waiting.has(m.id) && (
+                    <div className="mail msg msg-pending" data-src="app" role="status">
+                      <span className="avatar" aria-hidden="true">P</span>
+                      <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b></p><p className="body">{t("stream.agentWriting")}…</p><PendingPoll /></div>
+                    </div>
+                  )}
                   {(proposed.get(m.id) ?? []).map((sg) => (
                     <section key={sg.id} className="agent-card" aria-label={t("stream.agent")}>
                       <p className="agent-tag">{t("stream.agent")} · {t(`stream.linked.${sg.kind}`)}</p>
@@ -236,7 +244,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </SendButton>
             </div>
-            {!readOnly && <AgentWait label={t("stream.agentWriting")} />}
+            {!readOnly && <AgentWait />}
             <p className="hint">{t("stream.composerHint")}</p>
           </form>
         )}

@@ -127,6 +127,7 @@ export const en = {
   "stream.composer": "Message the project",
   "stream.projectOnly": "Project only",
   "stream.composerHint": "Enter sends · Shift+Enter for a new line · C focuses here · Tag @agent to ask the AI agent",
+  "stream.agent.name": "Plenum agent",
   "stream.agentWriting": "Agent is writing",
   "stream.agent.create_task": "New task",
   "stream.agent.update_task": "Change dates",

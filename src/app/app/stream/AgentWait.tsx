@@ -8,8 +8,8 @@ const EVERY = 2000;
 const GIVE_UP = 90000;
 
 // The AI works after the send has answered, so after each send this refreshes the page until its reply or card shows up.
-// "Agent is writing…" shows only when the agent was tagged.
-export function AgentWait({ label }: { label: string }) {
+// The "Agent is writing…" bubble in the feed is drawn from the stream itself (see StreamView).
+export function AgentWait() {
   const router = useRouter();
   const mark = useRef<HTMLSpanElement>(null);
   const [round, setRound] = useState<{ tagged: boolean; msgs: number; cards: number } | null>(null);
@@ -44,5 +44,5 @@ export function AgentWait({ label }: { label: string }) {
     return () => clearInterval(timer);
   }, [round, router]);
 
-  return <span ref={mark} className="agent-writing" role="status" aria-live="polite">{round?.tagged ? `${label}…` : ""}</span>;
+  return <span ref={mark} hidden />;
 }

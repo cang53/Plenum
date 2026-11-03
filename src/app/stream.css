@@ -143,5 +143,6 @@
 .msg .mail-acts { inset-block-start: -14px; padding: 2px; }
 .msg .mail-acts .btn { min-height: 26px; padding: 2px 10px; font-size: var(--text-sm); }
 .shell .chat-head { top: 4.75rem; }
-.comp .agent-writing { font-size: var(--text-sm); color: var(--text-muted); }
-.comp .agent-writing:empty { display: none; }
+.msg-pending .body { color: var(--text-muted); animation: agent-pulse 1.4s ease-in-out infinite; }
+@keyframes agent-pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .msg-pending .body { animation: none; } }

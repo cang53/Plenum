@@ -85,3 +85,14 @@ export function proposalHosts(messages: { id: string; fromAddress: string; bodyT
   });
   return host;
 }
+
+export const AGENT_WAIT_MS = 90000;
+
+// Ids of tagged messages the agent has not answered yet and that are recent enough to still be answered. Every viewer can work this out from the stream alone.
+export function waitingForAgent(messages: { id: string; fromAddress: string; bodyText: string; receivedAt: string }[], now: Date): Set<string> {
+  const waiting = new Set<string>();
+  messages.forEach((m, i) => {
+    if (isAgentTagged(m.bodyText) && now.getTime() - Date.parse(m.receivedAt) < AGENT_WAIT_MS && !messages.slice(i + 1).some((x) => x.fromAddress === AGENT_ADDRESS)) waiting.add(m.id);
+  });
+  return waiting;
+}
