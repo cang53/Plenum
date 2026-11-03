@@ -170,6 +170,8 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.before": "Voor",
   "stream.after": "Na",
   "stream.basedOn": "Gebaseerd op",
+  "stream.acceptedBy": "Geaccepteerd door",
+  "stream.undo": "Annuleren",
   "stream.apply": "Accepteren",
   "stream.pending": "In afwachting",
   "stream.decisionNote": "Jouw beslissing is nodig. Er verandert niets totdat je accepteert.",

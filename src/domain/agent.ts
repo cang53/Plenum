@@ -6,7 +6,7 @@ export type TaskRef = { id: string; title: string; startDate: string | null; due
 export type AgentAction = { kind: "create_task" | "update_task"; taskId: string | null; title: string; details: string; startDate: string | null; dueDate: string | null; reason: string };
 export type AgentAnswer = { reply: string; actions: AgentAction[] };
 // A saved proposal as the stream shows it under its message; before holds the task's dates now (updates only).
-export type AgentProposal = Omit<AgentAction, "taskId"> & { id: string; messageId: string; before: { startDate: string | null; dueDate: string | null } | null };
+export type AgentProposal = Omit<AgentAction, "taskId"> & { id: string; messageId: string; before: { startDate: string | null; dueDate: string | null } | null; accepted?: { by: string; at: string } | null };
 export type AgentInput = { today: string; tasks: TaskRef[]; history: string[]; message: string; documents: string };
 
 const MAX_ACTIONS = 10;

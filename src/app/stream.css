@@ -145,3 +145,5 @@
 .shell .chat-head { top: 4.75rem; }
 .comp .agent-writing { font-size: var(--text-sm); color: var(--text-muted); }
 .comp .agent-writing:empty { display: none; }
+.agent-acts .btn-danger { background: var(--danger); color: #fff; border: 0; }
+.agent-done { font-size: var(--text-sm); color: var(--text-muted); align-self: center; }

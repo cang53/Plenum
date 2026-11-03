@@ -102,3 +102,10 @@ export async function resolveAgentAction(form: FormData): Promise<void> {
   if (error) throw error;
   for (const path of ["/app/stream", "/app/gantt", "/app/board", "/app/items"]) revalidatePath(path);
 }
+
+// Undo of an accepted proposal: the database restores the dates or removes the created task.
+export async function undoAgentAction(form: FormData): Promise<void> {
+  const { error } = await (await supabaseServer()).rpc("undo_agent_action", { p_id: String(form.get("id")) });
+  if (error) throw error;
+  for (const path of ["/app/stream", "/app/gantt", "/app/board", "/app/items"]) revalidatePath(path);
+}
