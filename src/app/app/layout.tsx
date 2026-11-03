@@ -54,7 +54,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           newTask: t("shell.newTask"), search: t("menu.search"), task: t("search.task"), message: t("search.message"), decision: t("search.decision"),
         },
         privacy: { title: t("shell.privacy.title"), body: t("shell.privacy.body"), link: t("shell.privacy.link") },
-        views: { title: t("shell.group.views"), at_risk: t("shell.view.at_risk"), blocked: t("shell.view.blocked"), week: t("shell.view.week") },
         group: { project: t("shell.group.project"), site: t("shell.group.site"), admin: t("shell.group.admin") },
       }}
     >
