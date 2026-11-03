@@ -62,5 +62,5 @@ export async function pickRole(formData: FormData) {
   const hash = data?.properties?.hashed_token;
   if (!hash) redirect("/login?error=1");
   const { error } = await (await supabaseServer()).auth.verifyOtp({ token_hash: hash, type: "magiclink" });
-  redirect(error ? "/login?error=1" : "/app");
+  redirect(error ? "/login?error=1" : "/app/projects");
 }
