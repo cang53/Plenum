@@ -129,6 +129,7 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.composer": "Bericht aan het project",
   "stream.projectOnly": "Alleen project",
   "stream.composerHint": "Enter verstuurt · Shift+Enter voor een nieuwe regel · C zet de cursor hier · Tag @agent om de AI-agent te vragen",
+  "stream.agentWriting": "Agent is aan het schrijven",
   "stream.agent.create_task": "Nieuwe taak",
   "stream.agent.update_task": "Datums wijzigen",
   "stream.source.app": "Plenum",

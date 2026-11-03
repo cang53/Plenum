@@ -143,3 +143,5 @@
 .msg .mail-acts { inset-block-start: -14px; padding: 2px; }
 .msg .mail-acts .btn { min-height: 26px; padding: 2px 10px; font-size: var(--text-sm); }
 .shell .chat-head { top: 4.75rem; }
+.comp .agent-writing { font-size: var(--text-sm); color: var(--text-muted); }
+.comp .agent-writing:empty { display: none; }

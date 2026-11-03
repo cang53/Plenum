@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
 import { SendButton } from "./SendButton";
+import { AgentWait } from "./AgentWait";
 import { StreamKeys } from "./StreamKeys";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
@@ -232,6 +233,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </SendButton>
             </div>
+            {!readOnly && <AgentWait label={t("stream.agentWriting")} />}
             <p className="hint">{t("stream.composerHint")}</p>
           </form>
         )}
