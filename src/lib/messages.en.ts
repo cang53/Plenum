@@ -179,6 +179,8 @@ export const en = {
   "stream.before": "Before",
   "stream.after": "After",
   "stream.basedOn": "Based on",
+  "stream.acceptedBy": "Accepted by",
+  "stream.undo": "Cancel",
   "stream.apply": "Accept",
   "stream.pending": "Pending",
   "stream.decisionNote": "Your decision is needed. Nothing changes until you accept.",
