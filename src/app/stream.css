@@ -85,6 +85,7 @@
 .mail.msg[data-src="email"] { border-color: var(--glass-border); background: var(--glass); }
 .mail.msg[data-src="app"] .avatar { background: var(--primary); color: var(--surface); }
 .mail.msg[data-src="teams"] .avatar { background: var(--info-surface); color: var(--text); }
+.mail.msg[data-mine] { box-shadow: inset 3px 0 0 var(--primary); }
 .msg-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
 .msg .who { display: flex; align-items: center; gap: 8px; font-size: var(--text-sm); color: var(--text-muted); }
 .msg .who b { color: var(--text); font-weight: var(--weight-semibold); }

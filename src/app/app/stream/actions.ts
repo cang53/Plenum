@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { supabaseServer } from "@/auth/supabase";
 import { acceptSuggestion, dismissSuggestion } from "@/data/live";
 import { teamsPoster } from "@/server/teams";
@@ -76,19 +77,21 @@ export async function postMessage(form: FormData): Promise<void> {
     const { error: e } = await supabase.rpc("add_message_file", { p_message: id, p_path: path, p_filename: f.name, p_type: f.type, p_size: f.size });
     if (e) throw e;
   }
-  // The message is saved; whatever the AI does next must never lose it.
-  try {
-    const documents = files.length ? await attachmentText(await Promise.all(files.map(async (f) => ({ filename: f.name, contentType: f.type, content: Buffer.from(await f.arrayBuffer()) }))), { limit: 20000, keepLines: true }) : "";
-    if (isAgentTagged(body)) {
-      await agentRespond({ message: body, documents, today: new Date().toISOString().slice(0, 10) }, supabaseAgentIo(supabase, projectId, String(id)), aiAsk(process.env, agentRuleAsk));
-    } else if (serviceConfig()) {
-      // Ordinary chat: the AI may suggest one item, shown as a card under the message. A person still decides.
-      const c = serviceConfig()!;
-      await triageMessage(String(id), supabaseTriageIo(c.supabaseUrl, c.serviceRoleKey), aiAsk(), documents);
+  // The message is saved and the reply goes out now; the AI works after it, and must never lose the message.
+  after(async () => {
+    try {
+      const documents = files.length ? await attachmentText(await Promise.all(files.map(async (f) => ({ filename: f.name, contentType: f.type, content: Buffer.from(await f.arrayBuffer()) }))), { limit: 20000, keepLines: true }) : "";
+      if (isAgentTagged(body)) {
+        await agentRespond({ message: body, documents, today: new Date().toISOString().slice(0, 10) }, supabaseAgentIo(supabase, projectId, String(id)), aiAsk(process.env, agentRuleAsk));
+      } else if (serviceConfig()) {
+        // Ordinary chat: the AI may suggest one item, shown as a card under the message. A person still decides.
+        const c = serviceConfig()!;
+        await triageMessage(String(id), supabaseTriageIo(c.supabaseUrl, c.serviceRoleKey), aiAsk(), documents);
+      }
+    } catch (e) {
+      logError("agent step failed", e);
     }
-  } catch (e) {
-    logError("agent step failed", e);
-  }
+  });
   revalidatePath("/app/stream");
 }
 

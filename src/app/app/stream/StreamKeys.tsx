@@ -33,7 +33,8 @@ export function StreamKeys({ label, hint }: { label: string; hint: string }) {
       const el = e.target as HTMLElement;
       if (e.key === "Enter" && !e.shiftKey && !e.isComposing && el.matches(".comp textarea")) {
         e.preventDefault();
-        (el as HTMLTextAreaElement).form?.requestSubmit();
+        const form = (el as HTMLTextAreaElement).form;
+        if (!form?.querySelector(".send:disabled")) form?.requestSubmit();
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey || el.closest("input, textarea, select, summary, [contenteditable]")) return;

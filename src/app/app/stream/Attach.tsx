@@ -32,6 +32,8 @@ export function Attach({ label, remove, errors, disabled }: { label: string; rem
         if (!form || form.dataset.attach) return;
         form.dataset.attach = "1";
         form.addEventListener("paste", (e) => { const f = e.clipboardData?.files; if (f?.length) { e.preventDefault(); add(f); } });
+        // React resets the form once the send finishes; the chips go with it.
+        form.addEventListener("reset", () => { setFiles([]); setError(""); });
         form.addEventListener("dragover", (e) => e.preventDefault());
         form.addEventListener("drop", (e) => { e.preventDefault(); add(e.dataTransfer?.files ?? null); });
       }} />

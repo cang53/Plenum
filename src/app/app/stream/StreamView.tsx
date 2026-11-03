@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
+import { SendButton } from "./SendButton";
 import { StreamKeys } from "./StreamKeys";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
@@ -40,9 +41,10 @@ export type StreamViewProps = {
   now: Date;
   // The demo page shows the same markup with every button disabled and nothing stored.
   readOnly?: boolean;
+  me?: string; // the signed-in person's address; their own messages get an accent bar
 };
 
-export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, readOnly }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, readOnly, me }: StreamViewProps): ReactNode {
   const href = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams({ project: project.id });
     for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
@@ -100,7 +102,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
               return (
                 <div key={m.id} className="msgs-main">
                   {fresh?.id === m.id && <p className="newline" role="separator"><span>{t("stream.new")} · {fresh.count}</span></p>}
-                  <article className="mail msg" data-src={m.source} id={`msg-${m.id}`}>
+                  <article className="mail msg" data-src={m.source} data-mine={me && m.source === "app" && m.fromAddress === me ? "" : undefined} id={`msg-${m.id}`}>
                     <span className="avatar" aria-hidden="true">{who(m).charAt(0).toUpperCase()}</span>
                     <div className="msg-body">
                       <p className="who">
@@ -226,9 +228,9 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             <div className="comp-row">
               <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />
               <textarea name="body" rows={1} disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
-              <button type="submit" className="send" disabled={readOnly} aria-label={t("stream.send")} title={t("stream.send")}>
+              <SendButton label={t("stream.send")} disabled={readOnly}>
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </button>
+              </SendButton>
             </div>
             <p className="hint">{t("stream.composerHint")}</p>
           </form>
