@@ -32,6 +32,12 @@ export const en = {
   "app.retry": "Try again",
   "app.tagline":
     "One project timeline for industrial teams. Teams messages and emails become tasks, decisions and reports, and a person approves every AI suggestion.",
+  "login.pickTitle": "Select a role",
+  "login.pickIntro": "Demo only: choose who you want to be. No password needed.",
+  "login.pickError": "We could not sign you in as that role. Try again.",
+  "login.role.project_manager": "Project manager",
+  "login.role.member": "Team member",
+  "login.role.contributor": "Viewer (outside contributor)",
   "login.title": "Sign in",
   "login.intro": "Enter your work email. We send you a link that signs you in; there is no password.",
   "login.email": "Work email",

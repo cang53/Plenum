@@ -3,7 +3,9 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authProvider, passwordLoginEnabled, safeNext } from "@/auth/provider";
+import { demoRoleEmail, demoRolePickerEnabled } from "@/auth/demo-roles";
 import { supabaseServer } from "@/auth/supabase";
+import { createClient } from "@supabase/supabase-js";
 import { clientKey, createPersistentLimiter, restRateLimitHit } from "@/lib/rate-limit";
 
 export async function sendLink(formData: FormData) {
@@ -49,4 +51,16 @@ export async function signInWithPassword(formData: FormData) {
   if (error) redirect("/login?error=1");
   await supabase.rpc("accept_my_invitations");
   redirect(next);
+}
+
+// MVP demo: enter as a seeded dummy person. A one-time link is made and used on the server; no password exists.
+export async function pickRole(formData: FormData) {
+  const email = demoRoleEmail(String(formData.get("role") ?? ""));
+  if (!demoRolePickerEnabled() || !email) redirect("/login?error=1");
+  const admin = createClient(process.env.SUPABASE_URL ?? "", process.env.SUPABASE_SERVICE_ROLE_KEY ?? "", { auth: { persistSession: false } });
+  const { data } = await admin.auth.admin.generateLink({ type: "magiclink", email });
+  const hash = data?.properties?.hashed_token;
+  if (!hash) redirect("/login?error=1");
+  const { error } = await (await supabaseServer()).auth.verifyOtp({ token_hash: hash, type: "magiclink" });
+  redirect(error ? "/login?error=1" : "/app");
 }

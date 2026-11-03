@@ -34,6 +34,12 @@ export const nl: Record<keyof typeof en, string> = {
   "app.retry": "Probeer opnieuw",
   "app.tagline":
     "Eén projecttijdlijn voor industriële teams. Berichten uit Teams en e-mails worden taken, besluiten en rapporten, en een persoon keurt elke AI-suggestie goed.",
+  "login.pickTitle": "Kies een rol",
+  "login.pickIntro": "Alleen demo: kies wie u wilt zijn. Geen wachtwoord nodig.",
+  "login.pickError": "Inloggen met die rol is niet gelukt. Probeer het opnieuw.",
+  "login.role.project_manager": "Projectmanager",
+  "login.role.member": "Teamlid",
+  "login.role.contributor": "Kijker (externe bijdrager)",
   "login.title": "Inloggen",
   "login.intro": "Vul uw werk-e-mailadres in. Wij sturen een link waarmee u inlogt; er is geen wachtwoord.",
   "login.email": "Werk-e-mail",

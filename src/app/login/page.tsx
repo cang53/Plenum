@@ -1,6 +1,7 @@
 import { authProvider, passwordLoginEnabled } from "@/auth/provider";
 import { getT } from "@/lib/locale";
-import { sendLink, signInWithEntra, signInWithPassword } from "./actions";
+import { DEMO_ROLES, demoRolePickerEnabled } from "@/auth/demo-roles";
+import { pickRole, sendLink, signInWithEntra, signInWithPassword } from "./actions";
 
 export default async function Login({
   searchParams,
@@ -12,7 +13,19 @@ export default async function Login({
   return (
     <main id="main" className="center-stage">
       <div className="surface state-card">
-      <h1>{t("login.title")}</h1>
+      <h1>{t(demoRolePickerEnabled() ? "login.pickTitle" : "login.title")}</h1>
+      {demoRolePickerEnabled() ? (
+        <form action={pickRole}>
+          <p className="intro">{t("login.pickIntro")}</p>
+          {error && <p role="alert">{t("login.pickError")}</p>}
+          {DEMO_ROLES.map((r) => (
+            <button key={r.key} type="submit" name="role" value={r.key} className="btn btn-primary">
+              {t(`login.role.${r.key}`)}
+            </button>
+          ))}
+        </form>
+      ) : (
+      <>
       {authProvider() === "entra" ? (
         <form action={signInWithEntra}>
           {error && <p role="alert">{t("login.entraError")}</p>}
@@ -46,6 +59,8 @@ export default async function Login({
           </label>
           <button type="submit" className="btn btn-primary">{t("login.passwordSubmit")}</button>
         </form>
+      )}
+      </>
       )}
       </div>
     </main>
