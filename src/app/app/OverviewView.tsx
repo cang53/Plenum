@@ -82,13 +82,15 @@ export function OverviewView({ t, data, write }: { t: (key: MessageKey) => strin
         <div className="ov-side">
           <section className="ov-card" aria-labelledby="ov-work">
             <h2 id="ov-work">{t("overview.workTitle")}</h2>
-            <div className="ov-row"><strong>{t("overview.completion")}</strong><span className="ov-accent">{data.percent}%</span></div>
+            <div className="ov-row ov-baseline"><strong>{t("overview.completion")}</strong><span className="ov-accent">{data.percent}%</span></div>
             <progress value={data.percent} max={100} aria-label={t("overview.completion")} />
+            <p className="ov-meta">{t("overview.basis").replace("{done}", String(data.counts.done)).replace("{total}", String(data.counts.done + data.counts.in_progress + data.counts.blocked + data.counts.todo))}</p>
             <div className="ov-counts">
               {(["done", "in_progress", "blocked", "todo"] as const).map((s) => (
                 <p key={s}>{t(`overview.count.${s}`).replace("{n}", String(data.counts[s]))}</p>
               ))}
             </div>
+            {data.overdue > 0 && <hr className="ov-rule" />}
             {data.overdue > 0 && <p className="ov-late">{t("overview.overdueCount").replace("{n}", String(data.overdue))}</p>}
           </section>
           <section className="ov-card" aria-labelledby="ov-up">
