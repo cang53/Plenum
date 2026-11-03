@@ -22,11 +22,12 @@ async function readText(a: RawAttachment): Promise<string> {
   return "";
 }
 
-export async function attachmentText(attachments: RawAttachment[]): Promise<string> {
+// keepLines keeps the line breaks (a meeting note is read line by line); limit is the most text read from each file.
+export async function attachmentText(attachments: RawAttachment[], opts: { limit?: number; keepLines?: boolean } = {}): Promise<string> {
   const parts: string[] = [];
   for (const a of attachments.filter((x) => x.content.length <= MAX_ATTACHMENT_BYTES).slice(0, MAX_ATTACHMENTS)) {
     const text = await readText(a).catch(() => "");
-    const clean = text.replace(/\s+/g, " ").trim().slice(0, MAX_TEXT_PER_ATTACHMENT);
+    const clean = (opts.keepLines ? text.replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n") : text.replace(/\s+/g, " ")).trim().slice(0, opts.limit ?? MAX_TEXT_PER_ATTACHMENT);
     if (clean) parts.push(`[Attachment ${a.filename}]\n${clean}`);
   }
   return parts.join("\n\n");

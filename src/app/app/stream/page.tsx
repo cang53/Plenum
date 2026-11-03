@@ -4,11 +4,14 @@ import { listLinkedItems, listPendingSuggestions, listPins, listTimelineMessages
 import { currentProject, listProjects } from "@/data/projects";
 import { demoProject } from "@/data/demo";
 import { buildStream, filterFeed, newSince, suggestionsByMessage, type StreamQuery } from "@/domain/stream";
+import type { AgentProposal } from "@/domain/agent";
 import { StreamView } from "./StreamView";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
 
 export const dynamic = "force-dynamic";
+// The agent answers inside the send, so a model call may take a while.
+export const maxDuration = 60;
 
 export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string; q?: string; reply?: string }> }) {
   const t = await getT();
@@ -31,11 +34,17 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const { data: stored } = await supabase.from("message_attachments").select("id, storage_path").in("message_id", rows.map((m) => m.id)).not("storage_path", "is", null);
   const signed = stored?.length ? (await supabase.storage.from("message-files").createSignedUrls(stored.map((r) => r.storage_path as string), 3600)).data ?? [] : [];
   const fileUrls = new Map((stored ?? []).flatMap((r) => { const u = signed.find((x) => x.path === r.storage_path)?.signedUrl; return u ? [[r.id as string, u] as const] : []; }));
+  // Quietly none until the agent migration is applied.
+  const { data: pending } = await supabase.from("agent_actions").select("id, message_id, kind, title, details, start_date, due_date, reason, tasks(start_date, due_date)").eq("project_id", project.id).eq("status", "pending").order("created_at");
+  const actions: AgentProposal[] = (pending ?? []).map((a) => {
+    const task = a.tasks as unknown as { start_date: string | null; due_date: string | null } | null;
+    return { id: a.id, messageId: a.message_id, kind: a.kind, title: a.title, details: a.details, startDate: a.start_date, dueDate: a.due_date, reason: a.reason, before: task ? { startDate: task.start_date, dueDate: task.due_date } : null };
+  });
   const pins = await listPins(supabase, project.id);
   const pinned = new Set(pins.map((p) => p.messageId));
   const { data: canPin } = await supabase.rpc("can_manage_project", { p: project.id });
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
-  return <StreamView {...{ t, base: "/app/stream", query, days, reply: replyTo, project, rows, next, fresh, linked, proposed, fileUrls, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date() }} />;
+  return <StreamView {...{ t, base: "/app/stream", query, days, reply: replyTo, project, rows, next, fresh, linked, proposed, actions, fileUrls, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date() }} />;
 }

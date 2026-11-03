@@ -54,3 +54,10 @@ export function inboundDeps(config: NonNullable<ReturnType<typeof inboundConfig>
     },
   };
 }
+
+// Only what the server-side AI steps need: the database address and the service key. Null when either is missing.
+export function serviceConfig(): { supabaseUrl: string; serviceRoleKey: string } | null {
+  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return supabaseUrl && serviceRoleKey ? { supabaseUrl, serviceRoleKey } : null;
+}

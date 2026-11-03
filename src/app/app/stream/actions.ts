@@ -7,6 +7,13 @@ import { teamsPoster } from "@/server/teams";
 import { logError } from "@/lib/log";
 import { checkFiles, safeName } from "@/domain/attachments";
 import type { ItemKind } from "@/domain/linking";
+import { isAgentTagged } from "@/domain/agent";
+import { attachmentText } from "@/server/attachment-text";
+import { agentRespond } from "@/server/agent-run";
+import { agentRuleAsk } from "@/server/agent-fake";
+import { supabaseAgentIo } from "@/server/agent-io";
+import { serviceConfig } from "@/server/inbound-config";
+import { aiAsk, supabaseTriageIo, triageMessage } from "@/server/triage-run";
 
 // Row-level security decides who may write; the database checks the message belongs to the project.
 // Only a task without a source can take one, so an existing source is never replaced.
@@ -69,5 +76,25 @@ export async function postMessage(form: FormData): Promise<void> {
     const { error: e } = await supabase.rpc("add_message_file", { p_message: id, p_path: path, p_filename: f.name, p_type: f.type, p_size: f.size });
     if (e) throw e;
   }
+  // The message is saved; whatever the AI does next must never lose it.
+  try {
+    const documents = files.length ? await attachmentText(await Promise.all(files.map(async (f) => ({ filename: f.name, contentType: f.type, content: Buffer.from(await f.arrayBuffer()) }))), { limit: 20000, keepLines: true }) : "";
+    if (isAgentTagged(body)) {
+      await agentRespond({ message: body, documents, today: new Date().toISOString().slice(0, 10) }, supabaseAgentIo(supabase, projectId, String(id)), aiAsk(process.env, agentRuleAsk));
+    } else if (serviceConfig()) {
+      // Ordinary chat: the AI may suggest one item, shown as a card under the message. A person still decides.
+      const c = serviceConfig()!;
+      await triageMessage(String(id), supabaseTriageIo(c.supabaseUrl, c.serviceRoleKey), aiAsk(), documents);
+    }
+  } catch (e) {
+    logError("agent step failed", e);
+  }
   revalidatePath("/app/stream");
+}
+
+// The person's click on a proposal from the agent. The database makes the change; the plan and the board show it next load.
+export async function resolveAgentAction(form: FormData): Promise<void> {
+  const { error } = await (await supabaseServer()).rpc("resolve_agent_action", { p_id: String(form.get("id")), p_accept: form.get("accept") === "1" });
+  if (error) throw error;
+  for (const path of ["/app/stream", "/app/gantt", "/app/board", "/app/items"]) revalidatePath(path);
 }

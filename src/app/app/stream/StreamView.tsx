@@ -2,13 +2,14 @@ import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
 import { StreamKeys } from "./StreamKeys";
-import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, togglePin } from "./actions";
+import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
 import { isImage, sizeLabel } from "@/domain/attachments";
 import type { StreamDay, StreamQuery } from "@/domain/stream";
+import type { AgentProposal } from "@/domain/agent";
 import type { StoredSuggestion } from "@/domain/triage";
 import type { TimelineMessage } from "@/domain/timeline";
 
@@ -27,6 +28,7 @@ export type StreamViewProps = {
   fresh: { id: string; count: number } | null;
   linked: LinkedItem[];
   proposed: Map<string, StoredSuggestion[]>;
+  actions?: AgentProposal[]; // pending proposals from the project agent, shown under the message they came from
   fileUrls?: Map<string, string>; // attachment id to a link, for files written in Plenum
   open: { id: string; title: string }[] | null;
   pins: Pin[];
@@ -40,7 +42,7 @@ export type StreamViewProps = {
   readOnly?: boolean;
 };
 
-export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, fileUrls, open, pins, pinned, canPin, decisions, time, date, readOnly }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, readOnly }: StreamViewProps): ReactNode {
   const href = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams({ project: project.id });
     for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
@@ -189,6 +191,25 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                           <input type="hidden" name="id" value={sg.id} />
                           <button type="submit" disabled={readOnly} className="btn btn-secondary">{t("stream.dismiss")}</button>
                         </form>
+                      </div>
+                    </section>
+                  ))}
+                  {actions.filter((a) => a.messageId === m.id).map((a) => (
+                    <section key={a.id} className="agent-card" aria-label={t("stream.agent")}>
+                      <p className="agent-tag">{t("stream.agent")} · {t(`stream.agent.${a.kind}`)}</p>
+                      <p className="agent-title">{a.title}</p>
+                      {a.details && <p className="agent-details">{a.details}</p>}
+                      {a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
+                      <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>
+                      <p className="from">{t("stream.basedOn")} <a href={`#msg-${m.id}`}>{who(m)}, {time.format(new Date(m.receivedAt))}</a> · {a.reason}</p>
+                      <div className="agent-acts">
+                        {[["1", "stream.apply", "btn btn-primary"], ["0", "stream.dismiss", "btn btn-secondary"]].map(([accept, label, cls]) => (
+                          <form key={accept} action={resolveAgentAction}>
+                            <input type="hidden" name="id" value={a.id} />
+                            <input type="hidden" name="accept" value={accept} />
+                            <button type="submit" disabled={readOnly} className={cls}>{t(label as MessageKey)}</button>
+                          </form>
+                        ))}
                       </div>
                     </section>
                   ))}

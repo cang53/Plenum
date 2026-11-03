@@ -6,13 +6,13 @@ import { ruleBasedAsk } from "./triage-fake";
 import type { TimelineMessage } from "@/domain/timeline";
 import type { Suggestion } from "@/domain/triage";
 
-export function aiAsk(env: Record<string, string | undefined> = process.env): Ask {
-  if (env.AI_PROVIDER !== "bedrock") return ruleBasedAsk;
+export function aiAsk(env: Record<string, string | undefined> = process.env, offline: Ask = ruleBasedAsk): Ask {
+  if (env.AI_PROVIDER !== "bedrock") return offline;
   try {
     return bedrockAsk(env);
   } catch (error) {
     logError("Bedrock not usable, using rules", error);
-    return ruleBasedAsk;
+    return offline;
   }
 }
 
@@ -61,7 +61,7 @@ export function supabaseTriageIo(url: string, serviceRoleKey: string): TriageIo 
         projectId: row.project_id,
         message: {
           id: row.id, source: "email", fromName: row.from_name, fromAddress: row.from_address,
-          subject: row.subject, bodyText: row.body_text, receivedAt: row.received_at, attachments: [],
+          subject: row.subject || row.body_text.slice(0, 80), bodyText: row.body_text, receivedAt: row.received_at, attachments: [],
         },
       };
     },

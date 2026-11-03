@@ -4,7 +4,8 @@ import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-r
 import type { TimelineMessage } from "@/domain/timeline";
 import { buildUserPrompt, parseSuggestion, SYSTEM_PROMPT, type Suggestion } from "@/domain/triage";
 
-export type Ask = (system: string, user: string) => Promise<string>;
+// maxTokens is for answers longer than a triage suggestion (the project agent).
+export type Ask = (system: string, user: string, maxTokens?: number) => Promise<string>;
 
 export const BEDROCK_TIMEOUT_MS = 15_000;
 export const BEDROCK_ATTEMPTS = 3;
@@ -32,23 +33,26 @@ export function bedrockAsk(env: Record<string, string | undefined> = process.env
   if (!region.startsWith("eu-")) throw new Error(`Bedrock region ${region} is outside the EU`);
   if (/^(us|us-gov|apac|ap|global)\./.test(modelId)) throw new Error(`Bedrock model ${modelId} is not an EU model or profile`);
   const sender = client ?? new BedrockRuntimeClient({ region });
-  return async (system, user) => {
+  return async (system, user, maxTokens = 400) => {
     let failure: unknown;
-    for (let attempt = 1; attempt <= BEDROCK_ATTEMPTS; attempt++) {
+    // A long answer takes longer to write, so it gets a longer timeout and fewer attempts.
+    const long = maxTokens > 400;
+    const attempts = long ? 2 : BEDROCK_ATTEMPTS;
+    for (let attempt = 1; attempt <= attempts; attempt++) {
       try {
         const out = await sender.send(
           new ConverseCommand({
             modelId,
             system: [{ text: system }],
             messages: [{ role: "user", content: [{ text: user }] }],
-            inferenceConfig: { maxTokens: 400, temperature: 0 },
+            inferenceConfig: { maxTokens, temperature: 0 },
           }),
-          { abortSignal: AbortSignal.timeout(BEDROCK_TIMEOUT_MS) },
+          { abortSignal: AbortSignal.timeout(long ? 25_000 : BEDROCK_TIMEOUT_MS) },
         );
         return checkAnswer(out.output?.message?.content?.map((part) => part.text ?? "").join("") ?? "");
       } catch (error) {
         failure = error;
-        if (attempt < BEDROCK_ATTEMPTS) await wait(pauseMs * attempt);
+        if (attempt < attempts) await wait(pauseMs * attempt);
       }
     }
     throw failure;

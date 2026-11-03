@@ -42,6 +42,10 @@ export default async function DemoMessagesPage({ searchParams }: { searchParams:
       linked={[{ id: "l1", messageId: "m3", kind: "task", title: "Send updated cabinet drawings to Aylin" }]}
       fileUrls={new Map([["a4", pic], ["a5", "#"]])}
       proposed={suggestionsByMessage([...demoSuggestions, ...extraSuggestions])}
+      actions={[
+        { id: "a1", messageId: "m4", kind: "update_task", title: "Pour slab", details: "New finish date 2026-11-13.", startDate: "2026-11-09", dueDate: "2026-11-13", reason: 'The note says "Move pour slab to 13 November".', before: { startDate: "2026-11-02", dueDate: "2026-11-06" } },
+        { id: "a2", messageId: "m4", kind: "create_task", title: "Order rebar", details: "", startDate: "2026-11-12", dueDate: "2026-11-12", reason: 'The note says "Action: Order rebar by 12 Nov".', before: null },
+      ]}
       open={null}
       pins={[{ messageId: "m2", pinnedAt: now.toISOString(), pinnedBy: "Maya de Vries", message: pinnedMessage }]}
       pinned={new Set(["m2"])}
