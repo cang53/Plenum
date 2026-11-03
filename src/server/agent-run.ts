@@ -28,7 +28,7 @@ export async function agentRespond(input: { message: string; documents: string; 
     }
   }
   const out = answer ?? (await offline());
-  const reply = out.reply || (out.actions.length ? `I found ${out.actions.length} change(s) to the plan. Review them below.` : "I have nothing to change.");
+  const reply = out.reply || (out.actions.length ? `I found ${out.actions.length} change(s) to the plan. Review the cards under your message.` : "I have nothing to change.");
   await io.reply(reply);
   if (out.actions.length) await io.propose(out.actions);
   return { reply, actions: out.actions };

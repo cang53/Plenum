@@ -53,7 +53,7 @@ export const agentRuleAsk: Ask = async (_system, user) => {
     }
   }
   const reply = actions.length
-    ? `I found ${actions.length} change${actions.length === 1 ? "" : "s"} to the plan. Review each one below. Nothing changes until you accept.`
+    ? `I found ${actions.length} change${actions.length === 1 ? "" : "s"} to the plan. Review each card under your message. Nothing changes until you accept.`
     : documents.trim()
       ? 'I read the note but found nothing to change. I look for lines like "Action: book the crane by 12 Nov" or "Move pouring to 20 Nov".'
       : "I am here. Tag me and attach a meeting note (docx or PDF) and I will propose changes to the plan for you to accept.";
