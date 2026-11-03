@@ -16,6 +16,7 @@ export type TimelineMessage = {
   fromAddress: string;
   subject: string;
   bodyText: string;
+  bodyHtml?: string | null; // formatting of a message written in Plenum; bodyText stays the plain words
   receivedAt: string;
   attachments: TimelineAttachment[];
 };
@@ -28,6 +29,7 @@ export type MessageRow = {
   from_address: string;
   subject: string;
   body_text: string;
+  body_html?: string | null;
   received_at: string;
   message_attachments: {
     id: string; part_index: number; filename: string; content_type: string; size_bytes: number;
@@ -43,6 +45,7 @@ export function fromRow(row: MessageRow): TimelineMessage {
     fromAddress: row.from_address,
     subject: row.subject,
     bodyText: row.body_text,
+    bodyHtml: row.body_html ?? null,
     receivedAt: row.received_at,
     attachments: [...row.message_attachments]
       .sort((a, b) => a.part_index - b.part_index)

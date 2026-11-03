@@ -9,6 +9,7 @@ import { logError } from "@/lib/log";
 import { checkFiles, safeName } from "@/domain/attachments";
 import type { ItemKind } from "@/domain/linking";
 import { isAgentTagged } from "@/domain/agent";
+import { hasFormatting, htmlToText, sanitizeHtml } from "@/domain/richtext";
 import { attachmentText } from "@/server/attachment-text";
 import { agentRespond } from "@/server/agent-run";
 import { agentRuleAsk } from "@/server/agent-fake";
@@ -54,16 +55,19 @@ export async function dismissSuggestionForm(form: FormData): Promise<void> {
 }
 
 // Writes into the project's stream as the signed-in person; the subject is the conversation. The database function checks access.
-// p_allow_empty is sent only with files, so plain messages still work before migration 151 is applied.
+// p_allow_empty is sent only with files, and p_html only with formatting, so plain messages still work before migrations 151 and 157 are applied.
 // Files go to the private bucket under <project>/<message>/ and are recorded on the message by a second database function.
 export async function postMessage(form: FormData): Promise<void> {
-  const body = String(form.get("body") ?? "").trim();
+  // The editor sends its markup too. It is cleaned here, and the plain words (what the agent, Teams and search read) come from the cleaned markup.
+  const clean = sanitizeHtml(String(form.get("html") ?? ""));
+  const html = hasFormatting(clean) ? clean : "";
+  const body = html ? htmlToText(html) : String(form.get("body") ?? "").trim();
   const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
   if (!body && files.length === 0) return;
   if (checkFiles(files)) throw new Error(checkFiles(files)!);
   const supabase = await supabaseServer();
   const projectId = String(form.get("projectId"));
-  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}) });
+  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}), ...(html ? { p_html: html } : {}) });
   if (error) throw error;
   // Files upload side by side, not one after another.
   await Promise.all(files.map(async (f) => {

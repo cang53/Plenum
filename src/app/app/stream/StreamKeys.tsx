@@ -31,9 +31,9 @@ export function StreamKeys({ label, hint }: { label: string; hint: string }) {
     const onScroll = () => setAway(document.documentElement.scrollHeight - window.scrollY - window.innerHeight > 240);
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
-      if (e.key === "Enter" && !e.shiftKey && !e.isComposing && el.matches(".comp textarea")) {
+      if (e.key === "Enter" && !e.shiftKey && !e.isComposing && el.matches(".comp [contenteditable]")) {
         e.preventDefault();
-        const form = (el as HTMLTextAreaElement).form;
+        const form = el.closest("form");
         if (!form?.querySelector(".send:disabled")) form?.requestSubmit();
         return;
       }
@@ -45,7 +45,7 @@ export function StreamKeys({ label, hint }: { label: string; hint: string }) {
       else if (k === "k") focusCard(list[Math.max(at - 1, 0)]);
       else if (k === "t") cur.current?.querySelector<HTMLButtonElement>("[data-act=task]")?.click();
       else if (k === "d") cur.current?.querySelector<HTMLButtonElement>("[data-act=pin]")?.click();
-      else if (k === "c") { e.preventDefault(); document.querySelector<HTMLTextAreaElement>(".comp textarea")?.focus(); }
+      else if (k === "c") { e.preventDefault(); document.querySelector<HTMLElement>(".comp [contenteditable]")?.focus(); }
       else if (e.key === "End") { e.preventDefault(); latest(); }
       else return;
     };

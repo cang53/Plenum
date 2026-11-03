@@ -12,6 +12,8 @@ import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
 import { isImage, sizeLabel } from "@/domain/attachments";
 import type { StreamDay, StreamQuery } from "@/domain/stream";
+import { Composer } from "./Composer";
+import { sanitizeHtml } from "@/domain/richtext";
 import { proposalHosts, waitingForAgent, type AgentProposal } from "@/domain/agent";
 import type { StoredSuggestion } from "@/domain/triage";
 import type { TimelineMessage } from "@/domain/timeline";
@@ -124,10 +126,10 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                             <span className="open">{t("stream.openEmail")} ⌄</span>
                             <span className="shut">⌃ {t("stream.collapse")}</span>
                           </summary>
-                          <div className="full">{m.bodyText}</div>
+                          {m.bodyHtml ? <div className="full rich" dangerouslySetInnerHTML={{ __html: sanitizeHtml(m.bodyHtml) }} /> : <div className="full">{m.bodyText}</div>}
                         </details>
                       ) : (
-                        <p className="body">{m.bodyText}</p>
+                        m.bodyHtml ? <div className="body rich" dangerouslySetInnerHTML={{ __html: sanitizeHtml(m.bodyHtml) }} /> : <p className="body">{m.bodyText}</p>
                       )}
                       {m.attachments.map((a) => {
                         const url = fileUrls?.get(a.id);
@@ -239,13 +241,12 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             {reply && <p className="replying">{t("stream.c.replyingTo")} <b>{who(reply)}</b> · <a href={href({})}>{t("stream.c.cancel")}</a></p>}
             <div className="comp-row">
               <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />
-              <textarea name="body" rows={1} disabled={readOnly} placeholder={t("stream.composer")} aria-label={t("stream.composer")} />
+              <Composer disabled={!!readOnly} labels={{ placeholder: t("stream.composer"), bold: t("stream.fmt.bold"), italic: t("stream.fmt.italic"), underline: t("stream.fmt.underline"), list: t("stream.fmt.list"), color: t("stream.fmt.color"), colors: [t("stream.fmt.red"), t("stream.fmt.orange"), t("stream.fmt.green"), t("stream.fmt.blue"), t("stream.fmt.purple")], plain: t("stream.fmt.plain") }} />
               <SendButton label={t("stream.send")} disabled={readOnly}>
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </SendButton>
             </div>
             {!readOnly && <AgentWait />}
-            <p className="hint">{t("stream.composerHint")}</p>
           </form>
         )}
         {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} />}
