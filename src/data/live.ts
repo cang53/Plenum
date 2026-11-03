@@ -75,22 +75,28 @@ export async function setTaskStatus(client: SupabaseClient, taskId: string, stat
 
 export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string, f: Filters = {}): Promise<Page<TimelineMessage>> {
   const cursor = decodeCursor(after);
-  let q = client
-    .from("messages")
-    .select("id, source, from_name, from_address, subject, body_text, received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded)")
-    .eq("project_id", projectId);
+  const cols = (html: boolean) => `id, source, from_name, from_address, subject, body_text, ${html ? "body_html, " : ""}received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded)`;
   // Characters that mean something in a PostgREST filter are removed from the typed text.
   const sender = f.sender?.replace(/[%_,()"\\]/g, "");
-  if (sender) q = q.or(`from_address.ilike.%${sender}%,from_name.ilike.%${sender}%`);
-  if (f.from) q = q.gte("received_at", dayStart(f.from));
-  if (f.to) q = q.lt("received_at", dayEnd(f.to));
+  let linked: string[] | undefined;
   if (f.kind) {
     const { data: links, error: e } = await client.from(ITEM_TABLE[f.kind]).select("source_message_id").eq("project_id", projectId).not("source_message_id", "is", null);
     if (e) throw e;
-    q = q.in("id", (links ?? []).map((r) => r.source_message_id));
+    linked = (links ?? []).map((r) => r.source_message_id);
   }
-  if (cursor) q = q.or(afterFilter("received_at", cursor));
-  const { data, error } = await q.order("received_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
+  const build = (html: boolean) => {
+    let q = client.from("messages").select(cols(html)).eq("project_id", projectId);
+    if (sender) q = q.or(`from_address.ilike.%${sender}%,from_name.ilike.%${sender}%`);
+    if (f.from) q = q.gte("received_at", dayStart(f.from));
+    if (f.to) q = q.lt("received_at", dayEnd(f.to));
+    if (linked) q = q.in("id", linked);
+    if (cursor) q = q.or(afterFilter("received_at", cursor));
+    return q.order("received_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
+  };
+  let res = await build(true);
+  // Before migration 157 is applied the column does not exist; plain messages still show.
+  if (res.error?.code === "42703") res = await build(false);
+  const { data, error } = res;
   if (error) throw error;
   return toPage(((data ?? []) as unknown as MessageRow[]).map(fromRow), (m) => ({ at: m.receivedAt, id: m.id }));
 }

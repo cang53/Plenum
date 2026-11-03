@@ -19,7 +19,7 @@ export function AgentWait() {
     if (!form) return;
     const count = (sel: string) => document.querySelectorAll(sel).length;
     const onSubmit = () => {
-      const body = form.querySelector<HTMLTextAreaElement>("textarea[name=body]")?.value ?? "";
+      const body = form.querySelector<HTMLInputElement>("input[name=body]")?.value ?? "";
       if (!body.trim()) return;
       setRound({ tagged: isAgentTagged(body), msgs: count("article.mail"), cards: count(".agent-card") });
     };
