@@ -43,7 +43,7 @@ After Accept: the two bars shift right by 7 days. The three new tasks are one-da
 | Update Conveyor delivery | 14 Dec - 8 Jan |
 | Update Install conveyor modules | 18 Jan - 12 Feb |
 
-The forklift sentence has no date rule the offline reader catches; a model may propose a create card for it (fine, check the reason quotes the note).
+Bedrock may read "move X to date" as a start date (seen once); the prompt now says finish date. The forklift sentence has no date rule the offline reader catches; a model may propose a create card for it (fine, check the reason quotes the note).
 
 After Accept: delivery now ends 8 Jan and install runs 18 Jan to 12 Feb. Accept moves only the task named on the card, so Safety inspection (18 Jan), Site acceptance test (25 Jan) and Go-live (1 Feb) stay put and now start before install finishes: the dependency arrows point backwards. This is the expected "knock-on" the PM must resolve by hand; the agent does not move dependants. It is the main thing to show.
 
