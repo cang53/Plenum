@@ -65,20 +65,21 @@ export async function postMessage(form: FormData): Promise<void> {
   const projectId = String(form.get("projectId"));
   const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}) });
   if (error) throw error;
-  // Best effort: a Teams outage must not lose a message that is already saved.
-  if (process.env.TEAMS_PROVIDER === "live") {
-    const { data: p } = await supabase.from("projects").select("email_slug").eq("id", projectId).single();
-    if (p && body) await teamsPoster().post({ projectSlug: p.email_slug, kind: "message", text: body }).catch((e) => logError("teams post failed", e));
-  }
-  for (const f of files) {
+  // Files upload side by side, not one after another.
+  await Promise.all(files.map(async (f) => {
     const path = `${projectId}/${id}/${crypto.randomUUID()}-${safeName(f.name)}`;
     const up = await supabase.storage.from("message-files").upload(path, f, { contentType: f.type });
     if (up.error) throw up.error;
     const { error: e } = await supabase.rpc("add_message_file", { p_message: id, p_path: path, p_filename: f.name, p_type: f.type, p_size: f.size });
     if (e) throw e;
-  }
+  }));
   // The message is saved and the reply goes out now; the AI works after it, and must never lose the message.
   after(async () => {
+    // Best effort: a Teams outage must not lose a message that is already saved.
+    if (process.env.TEAMS_PROVIDER === "live") {
+      const { data: p } = await supabase.from("projects").select("email_slug").eq("id", projectId).single();
+      if (p && body) await teamsPoster().post({ projectSlug: p.email_slug, kind: "message", text: body }).catch((e) => logError("teams post failed", e));
+    }
     try {
       const documents = files.length ? await attachmentText(await Promise.all(files.map(async (f) => ({ filename: f.name, contentType: f.type, content: Buffer.from(await f.arrayBuffer()) }))), { limit: 20000, keepLines: true }) : "";
       if (isAgentTagged(body)) {
