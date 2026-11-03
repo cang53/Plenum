@@ -25,7 +25,7 @@ begin
     (ph_design, p, 'Design', 1), (ph_proc, p, 'Procurement', 2), (ph_inst, p, 'Installation', 3), (ph_comm, p, 'Commissioning', 4);
 
   insert into tasks (id, project_id, phase_id, title, owner_id, start_date, due_date, status, priority, position, is_milestone) values
-    (t_layout,  p, ph_design, 'Finalise layout drawings',    pm,  '2026-11-02', '2026-11-13', 'done',        'normal', 1, false),
+    (t_layout,  p, ph_design, 'Finalise layout drawings',    pm,  '2026-11-02', '2026-11-06', 'done',        'normal', 1, false),
     (t_order,   p, ph_proc,   'Order conveyor modules',      mem, '2026-11-09', '2026-11-20', 'in_progress', 'high',   1, false),
     (t_deliv,   p, ph_proc,   'Conveyor delivery',           mem, '2026-11-23', '2026-12-18', 'todo',        'high',   2, false),
     (t_floor,   p, ph_inst,   'Prepare floor and anchors',   pm,  '2026-11-30', '2026-12-11', 'todo',        'normal', 1, false),
