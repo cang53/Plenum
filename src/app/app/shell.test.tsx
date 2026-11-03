@@ -16,8 +16,8 @@ const render = (projects: { id: string; name: string }[], streamNew: Record<stri
 describe("Shell", () => {
   it("has My work, a stream badge and a search field for the command menu", () => {
     const html = render([{ id: "p1", name: "Pump" }], { p1: 3 });
+    expect(html).toContain("quick=mine");
     for (const q of ["at_risk", "blocked", "week"]) expect(html).not.toContain(`quick=${q}`);
-    for (const q of ["at_risk", "blocked", "week"]) expect(html).toContain(`quick=${q}`);
     expect(html).toContain("3 new in stream");
     expect(html).toContain("Search or jump to…");
     expect(html).not.toContain("<details");
