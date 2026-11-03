@@ -3,7 +3,7 @@ import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
 import { SendButton } from "./SendButton";
 import { AgentWait } from "./AgentWait";
-import { PendingPoll } from "./PendingPoll";
+import { LiveStream } from "./LiveStream";
 import { StreamKeys } from "./StreamKeys";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
@@ -177,7 +177,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                   {waiting.has(m.id) && (
                     <div className="mail msg msg-pending" data-src="app" role="status">
                       <span className="avatar" aria-hidden="true">P</span>
-                      <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b></p><p className="body">{t("stream.agentWriting")}…</p><PendingPoll /></div>
+                      <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b></p><p className="body">{t("stream.agentWriting")}…</p></div>
                     </div>
                   )}
                   {(proposed.get(m.id) ?? []).map((sg) => (
@@ -232,6 +232,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             })}
           </section>
         ))}
+        <LiveStream projectId={project.id} />
         {!decisions && (
           <form className="comp" id="composer" action={postMessage}>
             <input type="hidden" name="projectId" value={project.id} />
