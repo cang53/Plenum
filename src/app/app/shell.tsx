@@ -14,7 +14,7 @@ type Props = {
   email: string;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; views: Record<"title" | "at_risk" | "blocked" | "week", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -83,12 +83,6 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
               </div>
             );
           })}
-          {items.some((i) => i.group === "project") && (
-            <div role="group" aria-labelledby="shell-group-views">
-              <h2 id="shell-group-views" className="shell-group">{labels.views.title}</h2>
-              {(["at_risk", "blocked", "week"] as const).map((q) => quickLink(q, labels.views[q]))}
-            </div>
-          )}
         </nav>
         <section className="shell-privacy" aria-label={labels.privacy.title}>
           <strong>{labels.privacy.title}</strong>

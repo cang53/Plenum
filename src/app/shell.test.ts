@@ -19,7 +19,7 @@ describe("shell.css", () => {
     expect(css).toContain("backdrop-filter: var(--glass-blur)");
   });
   it("gives every nav page an icon", () => {
-    const pages = ["stream", "board", "gantt", "items", "sitelog", "timesheet", "timesheets", "members", "audit", "reports", "roles", "privacy", "settings", "notifications"];
+    const pages = ["stream", "board", "gantt", "items", "timesheet", "timesheets", "members", "audit", "reports", "roles", "privacy", "settings", "notifications"];
     for (const page of pages) expect(css, page).toContain(`[href^="/app/${page}"]`);
   });
 });

@@ -45,7 +45,6 @@ export default async function TimelinePage({ searchParams }: { searchParams: Pro
         onTranslate={translateMessageAction}
         onDraftReply={draftReplyAction}
         onTagAttachment={role === "project_manager" ? tagAttachmentAction : undefined}
-        siteLogHref={role === "member" || role === "project_manager" ? `/app/sitelog?project=${project.id}&message={id}` : undefined}
         language={locale}
         now={new Date().toISOString()}
         timeZone={demoProject.timeZone}
