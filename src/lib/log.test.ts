@@ -2,6 +2,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { countEvent, describeError, logError, logEvent, requestId } from "@/lib/log";
 
 describe("describeError", () => {
+  it("keeps the wording of a refused AWS call but not of other errors", () => {
+    const denied = Object.assign(new Error("User is not authorized to perform bedrock:InvokeModel"), { name: "AccessDeniedException" });
+    expect(describeError(denied)).toBe("AccessDeniedException - User is not authorized to perform bedrock:InvokeModel");
+    expect(describeError(new TypeError("secret subject line"))).toBe("TypeError");
+  });
+
   it("keeps the kind and codes, never the message", () => {
     const error = Object.assign(new TypeError("secret email body"), { code: "23505", status: 500 });
     expect(describeError(error)).toBe("TypeError code=23505 status=500");

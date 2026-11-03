@@ -4,6 +4,10 @@ export function describeError(error: unknown): string {
   const parts = [typeof e.name === "string" ? e.name : typeof error];
   if (typeof e.code === "string" || typeof e.code === "number") parts.push(`code=${e.code}`);
   if (typeof e.status === "number") parts.push(`status=${e.status}`);
+  // The service's own wording for a refused call (IAM, model, quota) says what to fix and does not quote the request.
+  const aws = /^(AccessDenied|Validation|ResourceNotFound|Throttling|ServiceQuotaExceeded|ModelNotReady|ModelTimeout)/;
+  const m = (error as { message?: unknown } | null)?.message;
+  if (typeof e.name === "string" && aws.test(e.name) && typeof m === "string") parts.push(`- ${m.slice(0, 300)}`);
   return parts.join(" ");
 }
 
