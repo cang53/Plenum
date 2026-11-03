@@ -11,7 +11,7 @@ import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
 import { isImage, sizeLabel } from "@/domain/attachments";
 import type { StreamDay, StreamQuery } from "@/domain/stream";
-import type { AgentProposal } from "@/domain/agent";
+import { proposalHosts, type AgentProposal } from "@/domain/agent";
 import type { StoredSuggestion } from "@/domain/triage";
 import type { TimelineMessage } from "@/domain/timeline";
 
@@ -52,6 +52,9 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
     return `${base}?${p}`;
   };
   const replySubject = reply ? `Re: ${reply.subject.replace(/^(\s*re:)+\s*/i, "") || reply.bodyText.slice(0, 60)}` : "";
+  const all = days.flatMap((d) => d.groups.flatMap((g) => g.messages));
+  const host = proposalHosts(all);
+  const src = (a: AgentProposal) => all.find((x) => x.id === a.messageId) ?? all[0];
   const who = (m: TimelineMessage) => m.fromName || m.fromAddress;
   return (
     <main id="main" className="page msgs chat">
@@ -197,14 +200,14 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                       </div>
                     </section>
                   ))}
-                  {actions.filter((a) => a.messageId === m.id).map((a) => (
+                  {actions.filter((a) => host.get(a.messageId) === m.id).map((a) => (
                     <section key={a.id} className="agent-card" aria-label={t("stream.agent")}>
                       <p className="agent-tag">{t("stream.agent")} · {t(`stream.agent.${a.kind}`)}</p>
                       <p className="agent-title">{a.title}</p>
                       {a.details && <p className="agent-details">{a.details}</p>}
                       {a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
                       <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>
-                      <p className="from">{t("stream.basedOn")} <a href={`#msg-${m.id}`}>{who(m)}, {time.format(new Date(m.receivedAt))}</a> · {a.reason}</p>
+                      <p className="from">{t("stream.basedOn")} <a href={`#msg-${a.messageId}`}>{who(src(a))}, {time.format(new Date(src(a).receivedAt))}</a> · {a.reason}</p>
                       <div className="agent-acts">
                         {[["1", "stream.apply", "btn btn-primary"], ["0", "stream.dismiss", "btn btn-secondary"]].map(([accept, label, cls]) => (
                           <form key={accept} action={resolveAgentAction}>

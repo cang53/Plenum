@@ -72,3 +72,16 @@ export function parseAgentAnswer(answer: string, tasks: TaskRef[]): AgentAnswer 
   const say = text(reply, 4000);
   return say || kept.length ? { reply: say || "", actions: kept } : null;
 }
+
+export const AGENT_ADDRESS = "agent@plenum.app";
+
+// Messages in time order. Proposals show under the agent's reply to the tagged message: the first agent message after it.
+// Until that reply exists they stay under the tagged message itself.
+export function proposalHosts(messages: { id: string; fromAddress: string; bodyText: string }[]): Map<string, string> {
+  const host = new Map<string, string>();
+  messages.forEach((m, i) => {
+    const reply = isAgentTagged(m.bodyText) ? messages.slice(i + 1).find((x) => x.fromAddress === AGENT_ADDRESS) : undefined;
+    host.set(m.id, reply?.id ?? m.id);
+  });
+  return host;
+}
