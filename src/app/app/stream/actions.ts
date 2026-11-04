@@ -67,7 +67,11 @@ export async function postMessage(form: FormData): Promise<void> {
   if (checkFiles(files)) throw new Error(checkFiles(files)!);
   const supabase = await supabaseServer();
   const projectId = String(form.get("projectId"));
-  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}), ...(html ? { p_html: html } : {}), ...(form.get("replyTo") ? { p_reply_to: String(form.get("replyTo")) } : {}) });
+  const args = { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}), ...(html ? { p_html: html } : {}) };
+  const replyTo = String(form.get("replyTo") ?? "");
+  let { data: id, error } = await supabase.rpc("post_message", replyTo ? { ...args, p_reply_to: replyTo } : args);
+  // Before migration 161 is applied the database does not know p_reply_to; the reply still goes out, without its quote link.
+  if (error && replyTo && (error.code === "PGRST202" || error.code === "42883")) ({ data: id, error } = await supabase.rpc("post_message", args));
   if (error) throw error;
   // Files upload side by side, not one after another.
   await Promise.all(files.map(async (f) => {
