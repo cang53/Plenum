@@ -38,3 +38,9 @@ describe("PlanStudio", () => {
     if (process.env.PLAN_STUDIO_HTML) writeFileSync(process.env.PLAN_STUDIO_HTML, html);
   });
 });
+
+describe("remediation snapshot", () => {
+  it("has the labels the saved plan view uses", () => {
+    for (const k of ["risks.remediation.in_remediation", "risks.snapshot", "risks.snapshotChat"] as const) expect(t(k)).toBeTruthy();
+  });
+});

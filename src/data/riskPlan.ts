@@ -40,3 +40,17 @@ export async function insertSteps(client: SupabaseClient, riskId: string, projec
   if (error) throw error;
   return (data ?? []).map((d) => d.id as string);
 }
+
+export type Snapshot = { id: string; createdAt: string; createdBy: string | null; doc: { weekNames: string[]; existing: { title: string; s: number; l: number }[]; steps: { title: string; s: number; l: number; owner: string | null }[]; chat: { who: "me" | "ai"; text: string }[] } };
+
+// The plan as it was when a manager added it to the timeline; shown on the risk after a refresh.
+export async function saveSnapshot(client: SupabaseClient, riskId: string, projectId: string, origin: "ai" | "manual", doc: Snapshot["doc"]): Promise<void> {
+  const { error } = await client.from("risk_plan_snapshots").insert({ risk_id: riskId, project_id: projectId, origin, doc });
+  if (error) throw error;
+}
+
+export async function listSnapshots(client: SupabaseClient, riskId: string): Promise<Snapshot[]> {
+  const { data, error } = await client.from("risk_plan_snapshots").select("id, created_at, created_by, doc").eq("risk_id", riskId).order("created_at", { ascending: false }).limit(5);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ id: r.id, createdAt: r.created_at, createdBy: r.created_by, doc: r.doc }));
+}

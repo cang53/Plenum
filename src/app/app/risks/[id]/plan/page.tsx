@@ -1,7 +1,7 @@
 import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
 import { getRisk, listRisks } from "@/data/risks";
-import { listSteps } from "@/data/riskPlan";
+import { listSnapshots, listSteps } from "@/data/riskPlan";
 import { riskCodes } from "@/domain/risk";
 import { WEEKS } from "@/domain/planStudio";
 import { getT } from "@/lib/locale";
@@ -22,7 +22,7 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
   const risk = await getRisk(supabase, id).catch(() => null);
   if (!risk) return <main id="main" className="page"><p><a className="rk-back" href={back}>{t("risks.back")}</a></p><p>{t("risks.notFound")}</p></main>;
   const ctx = await loadStudio(supabase, id);
-  const [all, steps, projects] = await Promise.all([listRisks(supabase, ctx.projectId), listSteps(supabase, id), listProjects(supabase)]);
+  const [all, steps, projects, snaps] = await Promise.all([listRisks(supabase, ctx.projectId), listSteps(supabase, id), listProjects(supabase), listSnapshots(supabase, id)]);
   const canManage = Boolean((await supabase.rpc("can_manage_project", { p: ctx.projectId })).data);
   void currentProject(projects, ctx.projectId);
   const col = (d: string) => Math.floor((Date.parse(d) - Date.parse(ctx.weekStart)) / (7 * DAY));
@@ -40,6 +40,15 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
       <div className="rk-head"><div><p className="eyebrow"><span className="rk-id">{code}</span> · {t(`risks.kind.${risk.kind}` as MessageKey)}</p><h1>{risk.title}</h1></div></div>
       <RiskTabs t={t} id={id} projectParam={sp.project ?? ""} current="plan" />
       <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} base={ctx.base} labels={labels} canManage={canManage} />
+      {snaps.length > 0 && (
+        <section className="surface rk-card" aria-labelledby="rk-snap">
+          <h2 id="rk-snap">{t("risks.snapshot")}</h2>
+          <p className="meta"><span className="st st-go">{t(`risks.remediation.${risk.remediation}` as MessageKey)}</span> · {snaps[0].createdAt.slice(0, 10)} · {ctx.people.find((p) => p.userId === snaps[0].createdBy)?.name ?? ""}</p>
+          <ul className="rk-steps">{snaps[0].doc.steps.map((s, i) => <li key={i}><strong>{s.title}</strong><p className="meta">{snaps[0].doc.weekNames[s.s]} → {snaps[0].doc.weekNames[s.s + s.l - 1]} · {ctx.people.find((p) => p.userId === s.owner)?.name ?? t("risks.noOwner")}</p></li>)}</ul>
+          <h3>{t("risks.snapshotChat")}</h3>
+          <ul className="rk-steps">{snaps[0].doc.chat.map((m, i) => <li key={i}><p className="meta">{m.who === "me" ? t("risks.snapshotYou") : t("ps.agent")}</p><p>{m.text}</p></li>)}</ul>
+        </section>
+      )}
       {done.length > 0 && (
         <section className="surface rk-card" aria-labelledby="rk-done">
           <h2 id="rk-done">{t("risks.step.accepted")}</h2>

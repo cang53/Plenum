@@ -80,7 +80,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, base, labels: 
 
   async function commit() {
     try {
-      const n = await studioCommit(riskId, mode === "ai" ? "ai" : "manual", steps);
+      const n = await studioCommit(riskId, mode === "ai" ? "ai" : "manual", steps, log.filter((m) => !m.typing && m.text).map(({ who, text }) => ({ who, text })), existing);
       setAdded(true); setToast(L["ps.added"].replace("{n}", String(n))); setTimeout(() => setToast(""), 2600);
       router.refresh();
     } catch { setToast(L["ps.error"]); setTimeout(() => setToast(""), 2600); }

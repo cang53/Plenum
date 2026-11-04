@@ -69,6 +69,7 @@ export function RiskDetailView({ t, risk, code, back, projectParam, members, sim
           <h2 id="rk-side">{t("risks.detailsTitle")}</h2>
           <dl className="rk-dl">
             <dt>{t("risk.state")}</dt><dd><span className={`st st-${risk.status === "open" ? "warn" : "ok"}`}>{t(`risk.${risk.status}` as MessageKey)}</span></dd>
+            <dt>{t("risks.remediation")}</dt><dd><span className={`st st-${risk.remediation === "none" ? "todo" : risk.remediation === "remediated" ? "ok" : "go"}`}>{t(`risks.remediation.${risk.remediation}` as MessageKey)}</span></dd>
             <dt>{t("risks.score")}</dt><dd><span className={`st st-${TONE[band]}`}>{score} · {t(`risks.band.${band}` as MessageKey)}</span></dd>
             <dt className="rk-full"><Choice form="rk-edit" name="kind" label={t("risk.kindLabel")} value={risk.kind} options={[{ value: "risk", label: kind("risk") }, { value: "issue", label: kind("issue") }]} /></dt>
             <dt className="rk-full"><Choice form="rk-edit" name="likelihood" label={t("risks.likelihood")} value={String(risk.likelihood)} options={levels} /></dt>
