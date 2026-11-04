@@ -75,7 +75,7 @@ export async function setTaskStatus(client: SupabaseClient, taskId: string, stat
 
 export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string, f: Filters = {}): Promise<Page<TimelineMessage>> {
   const cursor = decodeCursor(after);
-  const cols = (html: boolean) => `id, source, from_name, from_address, subject, body_text, ${html ? "body_html, " : ""}received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded)`;
+  const cols = (html: boolean) => `id, source, from_name, from_address, subject, body_text, ${html ? "body_html, reply_to, " : ""}received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded)`;
   // Characters that mean something in a PostgREST filter are removed from the typed text.
   const sender = f.sender?.replace(/[%_,()"\\]/g, "");
   let linked: string[] | undefined;

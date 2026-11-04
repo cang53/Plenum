@@ -13,11 +13,11 @@ export const dynamic = "force-dynamic";
 // The agent runs after the send has answered, so it still needs time.
 export const maxDuration = 60;
 
-export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string; q?: string; reply?: string }> }) {
+export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string; q?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
   const supabase = await supabaseServer();
-  const { project: chosen, after, view, source, q, reply } = await searchParams;
+  const { project: chosen, after, view, source, q } = await searchParams;
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const me = (await supabase.auth.getUser()).data.user?.email ?? undefined;
@@ -26,7 +26,6 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const readAt = (await cookies()).get(`stream-read-${project.id}`)?.value;
   const query: StreamQuery = { q, source: source === "email" || source === "app" || source === "teams" ? source : undefined };
   const days = buildStream(filterFeed(rows, query), new Date().toISOString(), tz);
-  const replyTo = rows.find((m) => m.id === reply) ?? null;
   const fresh = newSince(rows, readAt);
   const linked = await listLinkedItems(supabase, project.id, rows.map((m) => m.id));
   const proposed = suggestionsByMessage(await listPendingSuggestions(supabase, project.id));
@@ -47,5 +46,5 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
-  return <StreamView {...{ t, base: "/app/stream", query, days, reply: replyTo, project, rows, next, fresh, linked, proposed, actions, fileUrls, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date(), me }} />;
+  return <StreamView {...{ t, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, fileUrls, open, pins, pinned, canPin: !!canPin, decisions, time, date, now: new Date(), me }} />;
 }

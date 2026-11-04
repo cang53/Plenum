@@ -125,3 +125,11 @@ describe("formatSize", () => {
     expect(formatSize(1_420_000, "en-GB")).toBe("1.4 MB");
   });
 });
+
+describe("fromRow reply_to", () => {
+  it("keeps the id of the message being answered", () => {
+    const base = { id: "b", source: "app" as const, from_name: null, from_address: "a@b.c", subject: "", body_text: "ok", received_at: "2026-11-04T08:00:00Z", message_attachments: [] };
+    expect(fromRow({ ...base, reply_to: "a" }).replyTo).toBe("a");
+    expect(fromRow(base).replyTo).toBeNull();
+  });
+});
