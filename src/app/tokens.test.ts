@@ -60,9 +60,9 @@ describe("slate and cobalt look", () => {
     expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
   });
-  it("uses the design artifact palette and the system (SF Pro) font", () => {
+  it("uses the design artifact palette and Inter with the system font as fallback", () => {
     expect(tokens["--primary"]).toBe("#8fa8ff");
     expect(tokens["--surface-subtle"]).toBe("#0e1116");
-    expect(css).toMatch(/--font: -apple-system/);
+    expect(css).toMatch(/--font: var\(--font-inter\), -apple-system/);
   });
 });

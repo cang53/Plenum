@@ -197,7 +197,6 @@ html { scroll-behavior: smooth; }
   --c-title: var(--text); --c-sub: var(--text-secondary); --c-faint: var(--text-muted);
   --c-avatar: var(--control); --c-avatar-ink: var(--text-secondary); --c-brand: var(--primary); --c-on-brand: var(--surface-subtle); --c-ok: var(--success);
   --c-field-shadow: 0 6px 22px #0004; --c-send-shadow: 0 4px 12px #0004;
-  font-family: Inter, var(--font);
 }
 :root[data-theme="light"] .msgs.chat {
   --c-card: #ffffffa6; --c-card-line: #ffffffe0; --c-shadow: 0 12px 32px #25365c0d;

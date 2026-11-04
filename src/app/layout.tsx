@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/messages";
 import { OfflineBoot } from "./OfflineBoot";
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
   icons: { apple: "/icons/apple-touch-icon.png" },
   appleWebApp: { capable: true, title: t("app.name"), statusBarStyle: "black-translucent" },
 };
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 // Matches the --surface-subtle token.
 export const viewport: Viewport = { themeColor: "#1a342b", colorScheme: "dark" };
@@ -24,7 +27,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <a className="skip" href="#main">{t("app.skip", locale)}</a>
