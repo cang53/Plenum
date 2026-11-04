@@ -28,3 +28,15 @@ export async function resolveStep(client: SupabaseClient, id: string, accept: bo
   if (error) throw error;
   if (!data?.length) throw new Error("step not found or not allowed");
 }
+
+export type StepInsert = { title: string; startDate: string; dueDate: string; ownerId: string | null; reason: string };
+
+// Stores steps as proposals and returns their ids, replacing earlier proposals of the same origin.
+export async function insertSteps(client: SupabaseClient, riskId: string, projectId: string, origin: "ai" | "manual", rows: StepInsert[]): Promise<string[]> {
+  const del = await client.from("risk_plan_steps").delete().eq("risk_id", riskId).eq("status", "proposed").eq("origin", origin);
+  if (del.error) throw del.error;
+  if (!rows.length) return [];
+  const { data, error } = await client.from("risk_plan_steps").insert(rows.map((r) => ({ risk_id: riskId, project_id: projectId, title: r.title, start_date: r.startDate, due_date: r.dueDate, owner_id: r.ownerId, reason: r.reason, origin }))).select("id");
+  if (error) throw error;
+  return (data ?? []).map((d) => d.id as string);
+}

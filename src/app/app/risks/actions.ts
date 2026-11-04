@@ -3,15 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
-import { listMembers } from "@/data/projects";
-import { createRisk, getRisk, listOtherRisks, updateRisk } from "@/data/risks";
-import { resolveStep, saveProposedSteps } from "@/data/riskPlan";
+import { createRisk, updateRisk } from "@/data/risks";
 import { clampLevel } from "@/domain/risk";
-import { buildPlanPrompt, fallbackPlan, parsePlan, placeOwners, PLAN_SYSTEM_PROMPT } from "@/domain/riskPlan";
-import { findSimilar } from "@/domain/riskSimilar";
-import { logError } from "@/lib/log";
-import { serviceConfig } from "@/server/inbound-config";
-import { aiAsk, supabaseTriageIo } from "@/server/triage-run";
 
 const kindOf = (v: unknown) => (v === "issue" ? "issue" : "risk");
 
@@ -41,64 +34,4 @@ export async function saveRisk(form: FormData): Promise<void> {
 export async function toggleRiskStatus(form: FormData): Promise<void> {
   await updateRisk(await supabaseServer(), String(form.get("id")), { status: form.get("to") === "closed" ? "closed" : "open" });
   revalidatePath("/app/risks");
-}
-
-export async function proposePlan(form: FormData): Promise<void> {
-  const riskId = String(form.get("id"));
-  const supabase = await supabaseServer();
-  const risk = await getRisk(supabase, riskId);
-  if (!risk) throw new Error("risk not found");
-  const { data: pr } = await supabase.from("risks").select("project_id").eq("id", riskId).single();
-  const projectId = pr?.project_id as string;
-  const today = new Date().toISOString().slice(0, 10);
-  const [tasksRes, people, others] = await Promise.all([
-    supabase.from("tasks").select("title, start_date, due_date, owner_id").eq("project_id", projectId).neq("status", "done").limit(300),
-    listMembers(supabase, projectId),
-    listOtherRisks(supabase, projectId),
-  ]);
-  if (tasksRes.error) throw tasksRes.error;
-  const tasks = (tasksRes.data ?? []).map((t) => ({ title: t.title as string, startDate: t.start_date as string | null, dueDate: t.due_date as string | null, ownerId: t.owner_id as string | null }));
-  const lessons = findSimilar(risk, others, 3).filter((s) => s.details).map((s) => `- ${s.title} (${s.projectName}): ${s.details.slice(0, 300)}`);
-  let steps = null;
-  const config = serviceConfig();
-  const allowed = config ? await supabaseTriageIo(config.supabaseUrl, config.serviceRoleKey).takeCall(projectId) : true;
-  if (allowed && process.env.AI_PROVIDER === "bedrock") {
-    try {
-      steps = parsePlan(await aiAsk(process.env, async () => "")(PLAN_SYSTEM_PROMPT, buildPlanPrompt({ today, risk, lessons, tasks }), 1500));
-    } catch (error) {
-      logError("Bedrock failed, remediation plan using fallback", error);
-    }
-  }
-  const placed = placeOwners(steps ?? fallbackPlan(risk.title, today), people, tasks);
-  await saveProposedSteps(supabase, riskId, projectId, "ai", placed);
-  redirect(`/app/risks/${riskId}/plan${form.get("project") ? `?project=${form.get("project")}` : ""}`);
-}
-
-export async function decideStep(form: FormData): Promise<void> {
-  await resolveStep(await supabaseServer(), String(form.get("stepId")), form.get("accept") === "1");
-  revalidatePath("/app/risks");
-  revalidatePath("/app/gantt");
-}
-
-// Adds the ticked steps to the timeline. A gap step may get an owner here first; the database still checks who may do it.
-export async function acceptSteps(form: FormData): Promise<void> {
-  const supabase = await supabaseServer();
-  for (const id of form.getAll("stepId").map(String)) {
-    const owner = String(form.get(`owner:${id}`) ?? "");
-    if (owner) {
-      const { error } = await supabase.from("risk_plan_steps").update({ owner_id: owner, gap_note: "" }).eq("id", id).eq("status", "proposed");
-      if (error) throw error;
-    }
-    await resolveStep(supabase, id, true);
-  }
-  revalidatePath("/app/risks");
-  revalidatePath("/app/gantt");
-  redirect(`/app/risks/${String(form.get("id"))}/plan`);
-}
-
-export async function discardPlan(form: FormData): Promise<void> {
-  const supabase = await supabaseServer();
-  const { error } = await supabase.from("risk_plan_steps").update({ status: "dismissed" }).eq("risk_id", String(form.get("id"))).eq("status", "proposed");
-  if (error) throw error;
-  revalidatePath(`/app/risks/${String(form.get("id"))}/plan`);
 }

@@ -1,0 +1,71 @@
+/* Remediation plan studio. Same layout and motion as the approved prototype; colors come from the app tokens. */
+.ps { --ps-mono: ui-monospace, "JetBrains Mono", monospace; display: grid; gap: 14px; }
+.ps *, .ps *::before, .ps *::after { box-sizing: border-box; }
+.ps h2 { font-size: 14px; margin: 0; }
+.ps p { margin: 0; }
+.ps-sub { color: var(--text-muted); font-size: 13px; }
+.ps-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.ps-seg { display: inline-flex; background: var(--surface-muted); border-radius: 99px; padding: 3px; position: relative; }
+.ps-seg button { position: relative; z-index: 1; border: 0; background: none; color: var(--text-secondary); font: inherit; font-size: 13px; padding: 6px 14px; border-radius: 99px; cursor: pointer; transition: color .2s; }
+.ps-seg button[aria-pressed="true"] { color: var(--text); }
+.ps-pill { position: absolute; top: 3px; bottom: 3px; left: 3px; background: var(--accent-soft); border: 1px solid var(--primary); border-radius: 99px; transition: transform .35s cubic-bezier(.3,1.3,.5,1), width .35s; }
+.ps-btn { font: inherit; font-size: 13px; padding: 7px 13px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text); cursor: pointer; transition: transform .15s, background .2s; }
+.ps-btn:hover { transform: translateY(-1px); }
+.ps-btn.p { background: var(--primary); color: var(--on-primary); border-color: var(--primary); font-weight: 700; }
+.ps-btn:disabled { opacity: .45; cursor: default; transform: none; }
+.ps-panes { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 860px) { .ps-panes { grid-template-columns: 1fr; } }
+.ps-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-width: 0; }
+.ps-card + .ps-card { margin-top: 14px; }
+.ps-tag { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.ps-chip { font-size: 11px; padding: 2px 8px; border-radius: 99px; white-space: nowrap; display: inline-block; }
+.ps-ok { background: var(--success-surface); color: var(--success); } .ps-warn { background: var(--warning-surface); color: var(--warning); } .ps-bad { background: var(--danger-surface); color: var(--danger); }
+.ps-tl { overflow-x: auto; margin-top: 10px; }
+.ps-grid { position: relative; min-width: 560px; }
+.ps-weeks { display: grid; grid-template-columns: 150px repeat(8, 1fr); font-size: 10px; color: var(--text-muted); text-align: center; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.ps-lane { display: grid; grid-template-columns: 150px 1fr; align-items: center; min-height: 34px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.ps-lbl { padding-right: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
+.ps-track { position: relative; height: 34px; background: repeating-linear-gradient(90deg, transparent 0 calc(12.5% - 1px), var(--border) calc(12.5% - 1px) 12.5%); }
+.ps-bar { position: absolute; top: 9px; height: 16px; border-radius: 5px; background: var(--text-muted); opacity: .5; transition: left .6s cubic-bezier(.3,1.2,.4,1), width .6s cubic-bezier(.3,1.2,.4,1), opacity .4s, background .4s; }
+.ps-bar.new { opacity: 1; background: repeating-linear-gradient(45deg, var(--primary) 0 6px, color-mix(in srgb, var(--primary) 55%, var(--surface)) 6px 12px); outline: 2px dashed var(--primary); outline-offset: 2px; animation: ps-grow .6s cubic-bezier(.3,1.2,.4,1) backwards; }
+.ps-bar.done { background: var(--success); outline: 0; opacity: 1; }
+.ps-bar.gap { background: repeating-linear-gradient(45deg, var(--warning) 0 6px, transparent 6px 12px); outline-color: var(--warning); }
+@keyframes ps-grow { from { transform: scaleX(0); transform-origin: left; opacity: 0; } }
+.ps-steps { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.ps-step { background: var(--surface-muted); border-radius: 10px; padding: 10px 12px; display: grid; gap: 5px; animation: ps-rise .45s cubic-bezier(.3,1.2,.4,1) backwards; transition: background .5s, box-shadow .5s; }
+.ps-step.flash { background: var(--accent-soft); box-shadow: 0 0 0 2px var(--primary); }
+.ps-step.leaving { animation: ps-out .35s forwards; }
+@keyframes ps-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes ps-out { to { opacity: 0; transform: translateX(30px) scale(.97); } }
+.ps-top { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.ps-step label { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 13px; }
+.ps-step input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--primary); }
+.ps-who { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--text-secondary); }
+.ps-av { width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); display: grid; place-items: center; font-size: 10px; font-weight: 700; color: var(--text); }
+.ps-meta { font-size: 12px; color: var(--text-muted); font-family: var(--ps-mono); }
+.ps-gapmsg { background: var(--warning-surface); color: var(--warning); border-radius: 8px; padding: 6px 10px; font-size: 12px; animation: ps-rise .4s backwards; }
+.ps-gapmsg.ok { background: var(--success-surface); color: var(--success); }
+.ps-people { display: grid; gap: 8px; margin-top: 10px; }
+.ps-pp { display: grid; grid-template-columns: 110px 1fr 38px; gap: 8px; align-items: center; font-size: 12px; }
+.ps-meter { height: 8px; border-radius: 99px; background: var(--surface-muted); overflow: hidden; }
+.ps-meter i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width .7s cubic-bezier(.3,1.2,.4,1), background .4s; }
+.ps-chat { display: grid; grid-template-rows: auto 1fr auto; gap: 10px; height: 520px; }
+.ps-log { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; scroll-behavior: smooth; }
+.ps-msg { max-width: 92%; padding: 8px 11px; border-radius: 12px; font-size: 13px; animation: ps-rise .35s backwards; white-space: pre-wrap; }
+.ps-msg.me { align-self: flex-end; background: var(--primary); color: var(--on-primary); border-bottom-right-radius: 3px; }
+.ps-msg.ai { align-self: flex-start; background: var(--surface-muted); border-bottom-left-radius: 3px; }
+.ps-typing { display: inline-flex; gap: 4px; padding: 2px 4px; }
+.ps-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: ps-blink 1s infinite; }
+.ps-typing i:nth-child(2) { animation-delay: .15s; } .ps-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes ps-blink { 0%, 60%, 100% { opacity: .25; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+.ps-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.ps-chips button { font: inherit; font-size: 12px; padding: 5px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; transition: border-color .2s, color .2s; }
+.ps-chips button:hover { border-color: var(--primary); color: var(--text); }
+.ps-send { display: flex; gap: 6px; }
+.ps-send input, .ps textarea { font: inherit; font-size: 13px; background: var(--surface-muted); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; width: 100%; }
+.ps textarea { min-height: 150px; font-family: var(--ps-mono); font-size: 12px; resize: vertical; }
+.ps-hint { font-size: 12px; color: var(--text-muted); }
+.ps-toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 30px); background: var(--success-surface); color: var(--success); border: 1px solid var(--success); padding: 9px 16px; border-radius: 99px; font-size: 13px; opacity: 0; transition: .4s cubic-bezier(.3,1.2,.4,1); pointer-events: none; z-index: 20; }
+.ps-toast.on { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { .ps *, .ps *::before, .ps *::after { animation: none !important; transition: none !important; } }
+.ps-panes > * { min-width: 0; }
