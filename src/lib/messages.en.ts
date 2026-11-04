@@ -138,6 +138,7 @@ export const en = {
   "stream.agentWriting": "Agent is writing",
   "stream.agent.create_task": "New task",
   "stream.agent.update_task": "Change dates",
+  "stream.agent.add_dependency": "Link tasks",
   "stream.source.app": "Plenum",
   "stream.c.search": "Search messages",
   "stream.c.reply": "Reply",

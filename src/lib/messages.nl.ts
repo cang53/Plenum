@@ -140,6 +140,7 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.agentWriting": "Agent is aan het schrijven",
   "stream.agent.create_task": "Nieuwe taak",
   "stream.agent.update_task": "Datums wijzigen",
+  "stream.agent.add_dependency": "Taken koppelen",
   "stream.source.app": "Plenum",
   "stream.c.search": "Berichten zoeken",
   "stream.c.reply": "Beantwoorden",

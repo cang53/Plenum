@@ -1,6 +1,8 @@
 // Offline stand-in for the agent model: reads "Action: ..." lines and "Move <task> to <date>" lines from the message and
 // documents. No network. Same shape as the Bedrock answer, so the demo works without a model.
 import type { Ask } from "./triage";
+import { dependencyAction } from "@/domain/agent";
+import { findDependencies } from "@/domain/agentDeps";
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const DATE = String.raw`(\d{4}-\d{2}-\d{2}|\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?[A-Za-z]{3,9}(?:\s+\d{4})?|[A-Za-z]{3,9}\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s+\d{4})?)`;
@@ -35,6 +37,11 @@ export const agentRuleAsk: Ask = async (_system, user) => {
   const documents = user.slice(user.indexOf("\nDOCUMENTS:\n") + 12);
   const segments = `${message}\n${documents}`.split(/\n+|(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.replace(/^[\s\-*•\d.)]+/, "").trim()).filter(Boolean);
   const actions: Record<string, string | null>[] = [];
+  const refs = tasks.map((t) => ({ id: t.id, title: t.title, startDate: t.start || null, dueDate: t.due || null, status: "" }));
+  for (const d of findDependencies(`${message}\n${documents}`, refs).found) {
+    const a = dependencyAction(refs.find((t) => t.id === d.predecessorId)!, refs.find((t) => t.id === d.successorId)!, `The message says "${d.sentence}".`);
+    actions.push({ kind: a.kind, task_id: a.taskId, predecessor_id: a.predecessorId ?? null, title: a.title, details: a.details, start_date: null, due_date: null, reason: a.reason });
+  }
   for (const s of segments) {
     const move = new RegExp(String.raw`\b(?:move|postpone|delay|push(?:\s+back)?|reschedule|bring forward)\b.*?\b(?:to|until|till|by)\s+${DATE}`, "i").exec(s);
     const target = move ? parseDate(move[1], today) : null;

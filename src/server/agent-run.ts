@@ -1,7 +1,8 @@
 // One turn of the project agent: read the tagged message (and any attached notes), answer in the stream, and store proposals.
 // Never changes a task: a person accepts each proposal. Offline rules answer when Bedrock is off, over its cap, down or malformed.
 import { logError } from "@/lib/log";
-import { AGENT_SYSTEM_PROMPT, buildAgentPrompt, parseAgentAnswer, type AgentAction, type AgentAnswer, type TaskRef } from "@/domain/agent";
+import { AGENT_SYSTEM_PROMPT, buildAgentPrompt, dependencyAction, parseAgentAnswer, type AgentAction, type AgentAnswer, type TaskRef } from "@/domain/agent";
+import { findDependencies, matchTask } from "@/domain/agentDeps";
 import { agentRuleAsk } from "./agent-fake";
 import type { Ask } from "./triage";
 
@@ -14,6 +15,7 @@ export type AgentIo = {
 };
 
 const AGENT_TOKENS = 2000;
+const CLAIM = /\b(I'll|I will|I have|I've|I made|I updated|I added|I linked|done|updated|linked|added)\b/i;
 
 export async function agentRespond(input: { message: string; documents: string; today: string }, io: AgentIo, ask: Ask): Promise<AgentAnswer> {
   const tasks = await io.tasks();
@@ -28,6 +30,19 @@ export async function agentRespond(input: { message: string; documents: string; 
     }
   }
   const out = answer ?? (await offline());
+  // Dependencies are also read by code, so a model that missed one or made a new task for it is corrected.
+  const deps = findDependencies(`${input.message}\n${input.documents}`, tasks);
+  if (deps.found.length) {
+    out.actions = out.actions.filter((a) => a.kind !== "create_task" || !matchTask(a.title, tasks));
+    for (const d of deps.found) {
+      if (out.actions.some((a) => a.kind === "add_dependency" && a.taskId === d.successorId && a.predecessorId === d.predecessorId)) continue;
+      out.actions.push(dependencyAction(tasks.find((t) => t.id === d.predecessorId)!, tasks.find((t) => t.id === d.successorId)!, `The message says "${d.sentence}".`));
+    }
+  }
+  // Never say a change is made or coming when no card was proposed.
+  if (!out.actions.length && (deps.unresolved.length || CLAIM.test(out.reply))) {
+    out.reply = deps.unresolved.length ? "I could not match both tasks to your plan, so I proposed nothing. Use the task names as they appear in the task list." : "I did not propose any change, so nothing was updated.";
+  }
   const reply = out.reply || (out.actions.length ? `I found ${out.actions.length} change(s) to the plan. Review the cards under your message.` : "I have nothing to change.");
   await io.reply(reply);
   if (out.actions.length) await io.propose(out.actions);

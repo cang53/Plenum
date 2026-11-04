@@ -26,7 +26,7 @@ export function supabaseAgentIo(supabase: SupabaseClient, projectId: string, mes
     async propose(actions) {
       check(await supabase.rpc("propose_agent_actions", {
         p_message: messageId,
-        p_actions: actions.map((a) => ({ kind: a.kind, task_id: a.taskId, title: a.title, details: a.details, start_date: a.startDate, due_date: a.dueDate, reason: a.reason })),
+        p_actions: actions.map((a) => ({ kind: a.kind, task_id: a.taskId, predecessor_id: a.predecessorId ?? null, title: a.title, details: a.details, start_date: a.startDate, due_date: a.dueDate, reason: a.reason })),
       }));
     },
   };

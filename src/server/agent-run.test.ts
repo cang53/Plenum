@@ -75,3 +75,38 @@ describe("tags and answers", () => {
     expect(parseAgentAnswer("sorry", tasks)).toBeNull();
   });
 });
+
+describe("dependencies", () => {
+  const deps = [{ id: "cab", title: "Install control cabinet", startDate: null, dueDate: null, status: "todo" }, { id: "conv", title: "Install conveyer modules", startDate: null, dueDate: null, status: "todo" }];
+  const run = (message: string, ask: Parameters<typeof agentRespond>[2]) => {
+    const fake = io({ tasks: async () => deps });
+    return agentRespond({ today: "2026-11-04", message, documents: "" }, fake, ask).then((out) => ({ out, fake }));
+  };
+  const said = "@agent we cannot start installing the control cabinet until the convoyer modules are completely installed";
+  const card = { kind: "add_dependency", taskId: "cab", predecessorId: "conv" };
+
+  it("offline rules propose one dependency card", async () => {
+    const { out } = await run(said, agentRuleAsk);
+    expect(out.actions).toMatchObject([card]);
+  });
+  it("replaces a model's new task with the dependency card", async () => {
+    const ask = async () => JSON.stringify({ reply: "Got it. I'll make sure it depends.", actions: [{ kind: "create_task", title: "Wait for conveyor modules", reason: "said so", due_date: "2026-11-10" }] });
+    const { out } = await run(said, ask);
+    expect(out.actions).toMatchObject([card]);
+  });
+  it("keeps the model's own dependency without doubling it", async () => {
+    const ask = async () => JSON.stringify({ reply: "Linked.", actions: [{ kind: "add_dependency", task_id: "cab", predecessor_id: "conv", title: "x", reason: "said so" }] });
+    expect((await run(said, ask)).out.actions).toHaveLength(1);
+  });
+  it("does not claim a change when nothing was proposed", async () => {
+    const ask = async () => JSON.stringify({ reply: "I'll update the task.", actions: [] });
+    const { out, fake } = await run("@agent the roof cannot start until the control cabinet is finished", ask);
+    expect(out.actions).toEqual([]);
+    expect(fake.reply).toHaveBeenCalledWith(expect.stringContaining("could not match"));
+    expect((await run("@agent thanks", ask)).out.reply).toContain("did not propose");
+  });
+  it("drops model dependencies on unknown tasks", () => {
+    const out = parseAgentAnswer(JSON.stringify({ reply: "ok", actions: [{ kind: "add_dependency", task_id: "cab", predecessor_id: "nope", title: "x", reason: "r" }, { kind: "add_dependency", task_id: "cab", predecessor_id: "cab", title: "x", reason: "r" }] }), deps);
+    expect(out?.actions).toEqual([]);
+  });
+});

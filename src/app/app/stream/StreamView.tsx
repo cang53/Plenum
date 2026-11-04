@@ -218,8 +218,8 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                       <p className="agent-tag">{t("stream.agent")} · {t(`stream.agent.${a.kind}`)}</p>
                       <p className="agent-title">{a.title}</p>
                       {a.details && <p className="agent-details">{a.details}</p>}
-                      {a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
-                      <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>
+                      {a.kind !== "add_dependency" && a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
+                      {a.kind !== "add_dependency" && <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>}
                       <p className="from">{t("stream.basedOn")} <a href={`#msg-${a.messageId}`}>{who(src(a))}, {time.format(new Date(src(a).receivedAt))}</a> · {a.reason}</p>
                       {a.accepted ? (
                         <div className="agent-acts">
