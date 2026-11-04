@@ -9,10 +9,10 @@ const KINDS: Kind[] = ["all", "risk", "issue"];
 const LEVELS = [1, 2, 3, 4, 5];
 const TONE = { low: "ok", medium: "warn", high: "bad" } as const;
 
-type Props = { t: (key: MessageKey) => string; project: { id: string; name: string }; items: RiskRow[]; codes: Map<string, string>; owner: (id: string | null) => string; kind: Kind; cell: string | null; href: (kind: Kind, cell: string | null) => string; add: (form: FormData) => void | Promise<void> };
+type Props = { t: (key: MessageKey) => string; project: { id: string; name: string }; items: RiskRow[]; codes: Map<string, string>; owner: (id: string | null) => string; kind: Kind; cell: string | null; href: (kind: Kind, cell: string | null) => string; add: (form: FormData) => void | Promise<void>; analysis?: React.ReactNode };
 
 // The register screen: matrix on the left, list on the right. Pure markup so it can be rendered without a database.
-export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, href, add }: Props) {
+export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, href, add, analysis }: Props) {
   const levels = LEVELS.map((n) => ({ value: String(n), label: String(n) }));
   const shown = items.filter((i) => (kind === "all" || i.kind === kind) && (!cell || cellKey(i) === cell));
   const forMatrix = items.filter((i) => i.status === "open" && (kind === "all" || i.kind === kind));
@@ -34,6 +34,7 @@ export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, 
           </details>
         </div>
       </div>
+      {analysis}
       <nav className="rk-seg" aria-label={t("risks.filter")}>
         {KINDS.map((k) => (
           <a key={k} href={href(k, null)} aria-current={kind === k ? "page" : undefined}>{t(`risks.filter.${k}` as MessageKey)} <span className="rk-count">{k === "all" ? items.length : items.filter((i) => i.kind === k).length}</span></a>

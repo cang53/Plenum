@@ -1,5 +1,6 @@
 import { emailSender } from "@/server/email-config";
 import { runJobs, supabaseJobStore } from "@/server/jobs";
+import { weeklyAnalyses } from "@/server/risk-analysis";
 import { teamsReaderFromEnv } from "@/server/teams";
 import { logError } from "@/lib/log";
 
@@ -12,5 +13,5 @@ export async function POST(request: Request): Promise<Response> {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return new Response("Not configured", { status: 503 });
-  return Response.json(await runJobs({ ...supabaseJobStore(url, key), readTeams: teamsReaderFromEnv() }, emailSender(), (e) => logError("background job failed", e)));
+  return Response.json(await runJobs({ ...supabaseJobStore(url, key), readTeams: teamsReaderFromEnv(), analyzeRisks: weeklyAnalyses(url, key) }, emailSender(), (e) => logError("background job failed", e)));
 }

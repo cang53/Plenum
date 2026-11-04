@@ -12,6 +12,8 @@ export type JobStore = {
   digestRows: Parameters<typeof sendDigests>[0];
   // Present only while TEAMS_PROVIDER=live.
   readTeams?: () => Promise<number>;
+  // Weekly AI analysis of open risks and issues, per project.
+  analyzeRisks?: () => Promise<number>;
 };
 
 export async function runJobs(store: JobStore, sender: EmailSender, onError: (e: unknown) => void = () => {}): Promise<Record<string, JobResult>> {
@@ -29,6 +31,8 @@ export async function runJobs(store: JobStore, sender: EmailSender, onError: (e:
   };
   const readTeams = store.readTeams;
   if (readTeams) jobs["teams-read"] = [0, async () => `${await readTeams()} read`];
+  const analyzeRisks = store.analyzeRisks;
+  if (analyzeRisks) jobs["risk-analysis"] = [160, async () => `${await analyzeRisks()} analysed`];
   const out: Record<string, JobResult> = {};
   for (const [name, [minHours, run]] of Object.entries(jobs)) {
     if (!(await store.claim(name, minHours))) { out[name] = { ran: false }; continue; }

@@ -77,3 +77,9 @@ textarea.rk-in { resize: vertical; line-height: 1.5; }
 .rk-who { display: inline-flex; flex-wrap: wrap; gap: var(--s2); align-items: center; font-size: var(--text-sm); }
 .rk-av { width: 1.5rem; height: 1.5rem; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); font-size: 0.7rem; font-weight: 700; }
 .page > .rk-card { margin-block-start: var(--s4); }
+.ra { gap: var(--s3); }
+.ra-log { display: flex; flex-direction: column; gap: var(--s2); max-height: 26rem; overflow-y: auto; }
+.ra-log .ps-msg { max-width: 100%; }
+.ra-list { margin: var(--s2) 0 0; padding-inline-start: 1.1rem; display: grid; gap: var(--s2); }
+.ra .ps-send input { min-height: 2.25rem; }
+.ra .rk-aitag::after { content: none; }

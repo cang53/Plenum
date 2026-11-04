@@ -60,3 +60,12 @@ describe("teams-read job", () => {
     expect(out["teams-read"]).toEqual({ ran: true, detail: "4 read" });
   });
 });
+
+describe("runJobs risk analysis", () => {
+  it("runs the weekly risk analysis when the store has one, and not otherwise", async () => {
+    const analyzeRisks = vi.fn(async () => 4);
+    const out = await runJobs(store(["risk-analysis"], { analyzeRisks }), { send: async () => {} });
+    expect(out["risk-analysis"]).toEqual({ ran: true, detail: "4 analysed" });
+    expect((await runJobs(store(["risk-analysis"]), { send: async () => {} }))["risk-analysis"]).toBeUndefined();
+  });
+});
