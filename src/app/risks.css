@@ -83,3 +83,8 @@ textarea.rk-in { resize: vertical; line-height: 1.5; }
 .ra-list { margin: var(--s2) 0 0; padding-inline-start: 1.1rem; display: grid; gap: var(--s2); }
 .ra .ps-send input { min-height: 2.25rem; }
 .ra .rk-aitag::after { content: none; }
+.rk-head .act, .ra .act { width: auto; height: auto; min-height: 1.875rem; padding: 4px 12px; border-radius: var(--radius-full); background: var(--control); color: var(--text); white-space: nowrap; flex-shrink: 0; }
+.rk-head .act::before, .ra .act::before { content: none; }
+.rk-head .act:hover, .ra .act:hover, .rk-add[open] > .act { background: var(--control-active); color: var(--text); }
+.rk-head .act-primary, .ra .act-primary { background: var(--primary); color: var(--on-primary); }
+.rk-head .act-primary:hover, .ra .act-primary:hover { background: var(--primary); color: var(--on-primary); }
