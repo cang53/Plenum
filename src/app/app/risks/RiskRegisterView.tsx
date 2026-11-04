@@ -34,7 +34,6 @@ export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, 
           </details>
         </div>
       </div>
-      {analysis}
       <nav className="rk-seg" aria-label={t("risks.filter")}>
         {KINDS.map((k) => (
           <a key={k} href={href(k, null)} aria-current={kind === k ? "page" : undefined}>{t(`risks.filter.${k}` as MessageKey)} <span className="rk-count">{k === "all" ? items.length : items.filter((i) => i.kind === k).length}</span></a>
@@ -74,6 +73,7 @@ export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, 
           )}
         </section>
       </div>
+      {analysis}
     </main>
   );
 }
