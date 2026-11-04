@@ -8,7 +8,7 @@ import { listInbox, listSnoozes } from "@/data/inbox";
 import { awake, groupByMessage, inboxTab, type InboxTab } from "@/domain/inbox";
 import { applySuggestion, dismissSuggestionForm } from "@/app/app/stream/actions";
 import { InboxKeys } from "./InboxKeys";
-import { markAllRead, saveDigest, snoozeSuggestion } from "./actions";
+import { applyGroup, markAllRead, saveDigest, snoozeSuggestion } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -105,7 +105,12 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
             )
           ) : items.length === 0 ? <p className="inbox-empty">{t(tab === "history" ? "inbox.empty.history" : "inbox.empty.needs")}</p> : groups.map((g) => (
             <section key={g.messageId} className="igroup" aria-label={g.items[0].subject || t("timeline.noSubject")}>
-              <h2 className="igroup-head">{t("inbox.from")} <a href={`/app/stream?project=${project.id}#msg-${g.messageId}`}>{g.items[0].subject || t("timeline.noSubject")}</a><span className="igroup-line" /></h2>
+              <h2 className="igroup-head">{t("inbox.from")} <a href={`/app/stream?project=${project.id}#msg-${g.messageId}`}>{g.items[0].subject || t("timeline.noSubject")}</a><span className="igroup-line" />{canManage && g.items.length > 1 && g.items.every((i) => i.status === "pending") && (
+                <form action={applyGroup}>
+                  <input type="hidden" name="items" value={JSON.stringify(g.items.map(({ id, kind, title, details }) => ({ id, kind, title, details })))} />
+                  <button type="submit" className="btn btn-secondary">{t("inbox.applyAll").replace("{n}", String(g.items.length))}</button>
+                </form>
+              )}</h2>
               {g.items.map(card)}
             </section>
           ))}

@@ -20,3 +20,14 @@ export function groupByMessage<T extends { messageId: string }>(list: T[]): { me
   for (const i of list) groups.set(i.messageId, [...(groups.get(i.messageId) ?? []), i]);
   return [...groups].map(([messageId, items]) => ({ messageId, items }));
 }
+
+export type BatchItem = { id: string; kind: "task" | "decision" | "risk" | "change_request"; title: string; details: string };
+
+// "Apply all" sends the group's suggestions as JSON; anything that is not a list of complete items is refused.
+export function parseBatch(raw: string): BatchItem[] {
+  let list: unknown;
+  try { list = JSON.parse(raw); } catch { return []; }
+  if (!Array.isArray(list)) return [];
+  const ok = (i: any): i is BatchItem => !!i && typeof i.id === "string" && typeof i.title === "string" && typeof i.details === "string" && ["task", "decision", "risk", "change_request"].includes(i.kind); // eslint-disable-line @typescript-eslint/no-explicit-any
+  return list.every(ok) ? list : [];
+}
