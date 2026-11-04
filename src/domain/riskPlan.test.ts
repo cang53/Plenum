@@ -39,3 +39,21 @@ describe("fallbackPlan", () => {
     expect(fallbackPlan("X", "2026-11-04")[0].startDate).toBe("2026-11-04");
   });
 });
+
+import { isoWeek, ownerLoad, weekGrid } from "./riskPlan";
+describe("plan screen helpers", () => {
+  it("computes ISO weeks", () => {
+    expect([isoWeek("2026-11-04"), isoWeek("2026-01-01"), isoWeek("2026-12-31")]).toEqual([45, 1, 53]);
+  });
+  it("reports load as a share of the full threshold", () => {
+    const busy = [{ ownerId: "a", startDate: "2026-11-10", dueDate: "2026-11-12" }];
+    expect(ownerLoad({ startDate: "2026-11-10", dueDate: "2026-11-11" }, "a", busy)).toBe(25);
+    expect(ownerLoad({ startDate: "2026-11-10", dueDate: "2026-11-11" }, "b", busy)).toBe(0);
+  });
+  it("lays steps and tasks on week columns", () => {
+    const g = weekGrid([{ title: "s", startDate: "2026-11-05", dueDate: "2026-11-18" }], [{ title: "t", startDate: "2026-11-01", dueDate: "2026-11-12" }, { title: "far", startDate: "2027-06-01", dueDate: "2027-06-05" }]);
+    expect(g.weeks[0]).toBe("W45");
+    expect(g.steps[0]).toEqual({ title: "s", from: 0, to: 2 });
+    expect(g.tasks.map((t) => t.title)).toEqual(["t"]);
+  });
+});

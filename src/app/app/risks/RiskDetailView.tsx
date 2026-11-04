@@ -1,7 +1,7 @@
 import type { Member } from "@/data/projects";
 import type { RiskRow } from "@/data/risks";
-import type { StepRow } from "@/data/riskPlan";
 import { Choice } from "./Choice";
+import { RiskTabs } from "./RiskTabs";
 import { riskBand, riskScore } from "@/domain/risk";
 import type { Similar } from "@/domain/riskSimilar";
 import type { MessageKey } from "@/lib/messages";
@@ -11,19 +11,17 @@ type Props = {
   t: (key: MessageKey) => string;
   risk: RiskRow; code: string; back: string; projectParam: string;
   members: Pick<Member, "userId" | "name">[];
-  steps: StepRow[];
   similar: Similar<RiskRow & { projectName: string }>[]; analyzed: boolean;
-  actions: { save: Act; toggle: Act; propose: Act; decide: Act };
+  actions: { save: Act; toggle: Act };
 };
 const LEVELS = [1, 2, 3, 4, 5];
 const levels = LEVELS.map((n) => ({ value: String(n), label: String(n) }));
 const TONE = { low: "ok", medium: "warn", high: "bad" } as const;
 
 // The detail screen: description and plan on the left, scoring and owner on the right. Pure markup so it can be rendered without a database.
-export function RiskDetailView({ t, risk, code, back, projectParam, members, steps, similar, analyzed, actions }: Props) {
+export function RiskDetailView({ t, risk, code, back, projectParam, members, similar, analyzed, actions }: Props) {
   const score = riskScore(risk.likelihood, risk.severity, risk.kind);
   const band = riskBand(score);
-  const nameOf = (id: string | null) => members.find((m) => m.userId === id)?.name ?? t("risks.noOwner");
   const kind = (k: string) => t(`risks.kind.${k}` as MessageKey);
   return (
     <main id="main" className="page">
@@ -42,6 +40,7 @@ export function RiskDetailView({ t, risk, code, back, projectParam, members, ste
           </form>
         </div>
       </div>
+      <RiskTabs t={t} id={risk.id} projectParam={projectParam} current="details" />
       <form id="rk-edit" action={actions.save}><input type="hidden" name="id" value={risk.id} /></form>
       <div className="rk-detail">
         <div className="rk-col">
@@ -50,29 +49,6 @@ export function RiskDetailView({ t, risk, code, back, projectParam, members, ste
             <label className="rk-lab">{t("risks.newTitle")}<input form="rk-edit" name="title" className="rk-in" defaultValue={risk.title} required maxLength={200} /></label>
             <label className="rk-lab">{t("risks.details")}<textarea form="rk-edit" name="details" className="rk-in" rows={5} maxLength={4000} defaultValue={risk.details} /></label>
             {risk.sourceMessageId && <p><a className="rk-link" href={`/app/stream?message=${risk.sourceMessageId}`}>{t("risks.source")} ↗</a></p>}
-          </section>
-          <section className="surface rk-card" aria-labelledby="rk-plan">
-            <div className="rk-card-top"><h2 id="rk-plan">{t("risks.plan")}</h2>
-              <form action={actions.propose}><input type="hidden" name="id" value={risk.id} /><button type="submit" className="act">{t("risks.proposePlan")}</button></form>
-            </div>
-            {steps.length === 0 && <p className="meta">{t("risks.planEmpty")}</p>}
-            <ul className="rk-steps">
-              {steps.map((st) => (
-                <li key={st.id}>
-                  <div className="rk-card-top"><strong>{st.title}</strong>{st.status === "accepted" ? <span className="st st-ok">{t("risks.step.accepted")}</span> : <span className="st">{t("risks.step.proposed")}</span>}</div>
-                  <p className="meta">{st.startDate ?? "?"} → {st.dueDate ?? "?"} · {nameOf(st.ownerId)}{st.origin === "ai" ? ` · ${t("risks.aiMade")}` : ""}</p>
-                  {st.reason && <p>{st.reason}</p>}
-                  {st.gapNote && <p className="rk-gap">{st.gapNote}</p>}
-                  {st.status === "proposed" && (
-                    <form action={actions.decide} className="rk-actions">
-                      <input type="hidden" name="stepId" value={st.id} />
-                      <button type="submit" name="accept" value="1" className="act act-primary">{t("risks.step.accept")}</button>
-                      <button type="submit" name="accept" value="0" className="act">{t("risks.step.dismiss")}</button>
-                    </form>
-                  )}
-                </li>
-              ))}
-            </ul>
           </section>
           {analyzed && similar.length > 0 && (
             <section className="surface rk-card" aria-labelledby="rk-sim">

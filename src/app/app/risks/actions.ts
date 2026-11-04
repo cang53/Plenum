@@ -71,11 +71,34 @@ export async function proposePlan(form: FormData): Promise<void> {
   }
   const placed = placeOwners(steps ?? fallbackPlan(risk.title, today), people, tasks);
   await saveProposedSteps(supabase, riskId, projectId, "ai", placed);
-  revalidatePath(`/app/risks/${riskId}`);
+  redirect(`/app/risks/${riskId}/plan${form.get("project") ? `?project=${form.get("project")}` : ""}`);
 }
 
 export async function decideStep(form: FormData): Promise<void> {
   await resolveStep(await supabaseServer(), String(form.get("stepId")), form.get("accept") === "1");
   revalidatePath("/app/risks");
   revalidatePath("/app/gantt");
+}
+
+// Adds the ticked steps to the timeline. A gap step may get an owner here first; the database still checks who may do it.
+export async function acceptSteps(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  for (const id of form.getAll("stepId").map(String)) {
+    const owner = String(form.get(`owner:${id}`) ?? "");
+    if (owner) {
+      const { error } = await supabase.from("risk_plan_steps").update({ owner_id: owner, gap_note: "" }).eq("id", id).eq("status", "proposed");
+      if (error) throw error;
+    }
+    await resolveStep(supabase, id, true);
+  }
+  revalidatePath("/app/risks");
+  revalidatePath("/app/gantt");
+  redirect(`/app/risks/${String(form.get("id"))}/plan`);
+}
+
+export async function discardPlan(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.from("risk_plan_steps").update({ status: "dismissed" }).eq("risk_id", String(form.get("id"))).eq("status", "proposed");
+  if (error) throw error;
+  revalidatePath(`/app/risks/${String(form.get("id"))}/plan`);
 }

@@ -60,3 +60,20 @@ textarea.rk-in { resize: vertical; line-height: 1.5; }
 .rk-pills input:checked + span { background: var(--accent-soft); color: var(--accent-text); border-color: var(--primary); font-weight: 600; }
 .rk-pills input:focus-visible + span { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .rk-dl .rk-full { grid-column: 1; margin-block-start: var(--s2); }
+.rk-h2 { margin: 0; font-size: var(--text-lg, 1.125rem); }
+.rk-ai { border-style: dashed; border-color: var(--primary); background: var(--info-surface); }
+.rk-aitag { color: var(--primary); font-weight: 600; }
+.rk-aitag::after { content: " ·"; }
+.rk-gantt-wrap { overflow-x: auto; }
+.rk-gantt { display: grid; min-width: 40rem; font-size: var(--text-xs); }
+.rk-gantt > div, .rk-gantt > div > div { padding: 0.375rem 0.25rem; border-block-end: 1px solid var(--glass-border); }
+.rk-gantt > div[style*="contents"] { display: contents; padding: 0; border: 0; }
+.rk-gh { color: var(--text-muted); text-align: center; font-size: 0.65rem; }
+.rk-gl { color: var(--text-secondary); text-align: start; padding-inline: 0; }
+.rk-gantt .rk-bar { align-self: center; height: 1rem; border-radius: 5px; background: var(--text-muted); opacity: 0.55; border-block-end: 0; }
+.rk-gantt .rk-new { opacity: 1; background: repeating-linear-gradient(45deg, var(--primary) 0 6px, color-mix(in srgb, var(--primary) 55%, var(--surface)) 6px 12px); outline: 2px dashed var(--primary); outline-offset: 2px; }
+.rk-tick { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s3); align-items: start; cursor: pointer; }
+.rk-tick input { margin-block-start: 0.2rem; width: 1.1rem; height: 1.1rem; accent-color: var(--primary); }
+.rk-who { display: inline-flex; flex-wrap: wrap; gap: var(--s2); align-items: center; font-size: var(--text-sm); }
+.rk-av { width: 1.5rem; height: 1.5rem; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); font-size: 0.7rem; font-weight: 700; }
+.page > .rk-card { margin-block-start: var(--s4); }
