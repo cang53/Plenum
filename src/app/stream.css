@@ -214,8 +214,8 @@ html { scroll-behavior: smooth; }
   --c-field-shadow: 0 6px 22px #0004; --c-send-shadow: 0 4px 12px #0004;
 }
 :root[data-theme="light"] .msgs.chat {
-  --c-card: #ffffffa6; --c-solid: #fafbfe; --c-card-line: #ffffffe0; --c-shadow: 0 12px 32px #25365c0d;
-  --c-bubble: #fff; --c-agent: #edf0ff; --c-line: #dfe4ef; --c-agent-line: #dce2fa;
+  --c-card: #ffffff73; --c-solid: #f4f7fc; --c-card-line: #ffffffcc; --c-shadow: 0 12px 32px #25365c14;
+  --c-bubble: #fff; --c-agent: #e6ebff; --c-line: #d4dbea; --c-agent-line: #dce2fa;
   --c-title: #202531; --c-sub: #687080; --c-faint: #8a91a0;
   --c-avatar: #e6ebf5; --c-avatar-ink: #687080; --c-brand: #3454db; --c-on-brand: #fff; --c-ok: #26785d;
   --c-field-shadow: 0 6px 22px #293d6410; --c-send-shadow: 0 4px 12px #3454db25;
@@ -242,6 +242,8 @@ html { scroll-behavior: smooth; }
 .chat .msg .pill, .chat .msg .pill[data-src] { padding: 5px 9px; background: var(--c-agent); color: var(--c-brand); font-size: 11px; line-height: 13px; font-weight: 500; }
 .chat .msg .who time { margin-inline-start: auto; font-size: 11px; line-height: 13px; color: var(--c-faint); }
 .chat .bubble { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px; border-radius: 6px 22px 22px 22px; background: var(--c-bubble); color: var(--c-title); font-size: 15px; line-height: 1.75; min-width: 0; }
+/* Light bubbles lift off the card with a hairline and soft shadow. */
+:root[data-theme="light"] .chat .bubble { border: 1px solid var(--c-line); box-shadow: 0 2px 10px #25365c12; }
 .chat .bubble > * { align-self: stretch; margin: 0; }
 .chat .msg-agent .bubble { background: var(--c-agent); }
 .chat .bubble .body, .chat .bubble details, .chat .bubble .agent-title, .chat .bubble .agent-details { font-size: 15px; line-height: 1.75; letter-spacing: 0; color: var(--c-title); }

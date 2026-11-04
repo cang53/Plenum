@@ -39,8 +39,8 @@
   --control-active: #ffffff45;
   --glass-border: #2b323e;
   --glass-blur: none;
-  --ambient-background: #0e1116;
-  --frame: #0e1116;
+  --ambient-background: linear-gradient(90deg, #0e1116 0%, #10151e 45%, #12131f 80%, #0e151a 100%);
+  --frame: var(--ambient-background);
 
   /* Shadow: only menus and dialogs lift */
   --elevation: none;
@@ -103,13 +103,13 @@
 :root[data-theme="light"] {
   color-scheme: light;
   --surface: #ffffff;
-  --surface-subtle: #f4f6f9;
-  --surface-muted: #eaeef4;
-  --surface-hover: #eaeef4;
+  --surface-subtle: #f1f4fa;
+  --surface-muted: #e4eaf5;
+  --surface-hover: #e4eaf5;
   --text: #151921;
   --text-secondary: #3d4756;
   --text-muted: #566174;
-  --border: #d3d9e2;
+  --border: #d4dbea;
   --border-strong: #707c90;
   --primary: #2c4fd6;
   --primary-hover: #1f3bb0;
@@ -133,9 +133,11 @@
   --glass-strong: #00000010;
   --control: #0000000f;
   --control-active: #0000001f;
-  --glass-border: #d3d9e2;
-  --ambient-background: #f4f6f9;
-  --frame: #f4f6f9;
+  --glass-border: #d4dbea;
+  /* Ambient light from the Figma design */
+  --ambient-background: linear-gradient(90deg, #F6F8FC 0%, #EDF2FB 45%, #F0EEFA 80%, #E9F2F7 100%);
+  --frame: var(--ambient-background);
+  --elevation: 0 1px 2px #25365c0f, 0 8px 24px #25365c0f;
   --elevation-dialog: 0 24px 60px #00000033;
 }
 
