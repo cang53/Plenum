@@ -797,6 +797,7 @@ export const en = {
   "risks.severityShort": "Severity",
   "risks.listTitle": "All risks and issues",
   "risks.id": "ID",
+  "risks.detailsTitle": "Details",
   "risks.soon": "Risks and issues will be tracked here soon.",
   "overview.title": "Overview",
   "overview.subtitle": "{project} · Today, {date}",

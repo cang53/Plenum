@@ -799,6 +799,7 @@ export const nl: Record<keyof typeof en, string> = {
   "risks.severityShort": "Ernst",
   "risks.listTitle": "Alle risico's en issues",
   "risks.id": "ID",
+  "risks.detailsTitle": "Details",
   "risks.soon": "Risico's en issues worden hier binnenkort bijgehouden.",
   "overview.title": "Overzicht",
   "overview.subtitle": "{project} · Vandaag, {date}",
