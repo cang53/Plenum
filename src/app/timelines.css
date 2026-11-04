@@ -1,0 +1,56 @@
+/* Timelines: the saved list and the slide editor. Colours come from the theme tokens; the slide itself keeps its own colours because it is what gets exported. */
+.tl-list-page .board-head { margin-block-end: var(--s6); }
+.tl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: var(--s5); margin: 0; padding: 0; list-style: none; }
+.tl-card { display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius-lg); }
+.tl-thumb { display: block; padding: var(--s4); background: var(--surface-muted); }
+.tl-thumb .tl-slide { display: block; width: 100%; height: auto; border-radius: var(--radius-sm); box-shadow: 0 8px 24px color-mix(in srgb, #000 28%, transparent); }
+.tl-card-body { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s4); }
+.tl-card-body h2 { margin: 0; font-size: var(--text-md); }
+.tl-card-body h2 a { color: var(--text); text-decoration: none; }
+.tl-card-body .sub { margin: 0; color: var(--text-secondary); font-size: var(--text-sm); }
+.tl-actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-block-start: var(--s2); }
+.tl-actions form { margin: 0; }
+
+.tl-main { display: block; }
+.tl-editor { display: flex; flex-direction: column; min-height: calc(100vh - 4.75rem); }
+.tl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding: var(--s3) var(--s5); border-bottom: 1px solid var(--border); background: var(--surface); }
+.tl-title { flex: 0 1 22rem; min-width: 8rem; padding: var(--s2) var(--s3); border: 1px solid transparent; border-radius: var(--radius-sm); background: none; color: var(--text); font: inherit; font-size: var(--text-lg); font-weight: var(--weight-semibold); }
+.tl-title:hover:not(:disabled), .tl-title:focus { border-color: var(--border); background: var(--surface-subtle); }
+.tl-status { font-size: var(--text-sm); color: var(--text-secondary); }
+.tl-status[data-state="error"] { color: var(--danger); }
+.tl-meta { font-size: var(--text-xs); color: var(--text-muted); }
+.tl-spacer { flex: 1; }
+.tl-note { margin: 0; padding: var(--s2) var(--s5); background: var(--info-surface); color: var(--info); font-size: var(--text-sm); }
+.tl-body { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 20rem; min-height: 0; }
+.tl-stage { position: relative; padding: var(--s6) var(--s6) 5.5rem; background: var(--surface-muted); background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 22px 22px; overflow: auto; touch-action: none; }
+.tl-paper { max-width: 62rem; margin: 0 auto; }
+.tl-paper .tl-slide { display: block; width: 100%; height: auto; border-radius: var(--radius); box-shadow: 0 30px 60px -20px color-mix(in srgb, #000 55%, transparent), 0 0 0 1px color-mix(in srgb, #000 10%, transparent); }
+.tl-tools { position: sticky; bottom: var(--s5); width: max-content; max-width: 100%; margin: var(--s5) auto 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1); padding: var(--s2); border: 1px solid var(--border); border-radius: var(--radius-full); background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(14px); box-shadow: var(--elevation-dialog); }
+.tl-tools button { padding: var(--s2) var(--s4); border: 0; border-radius: var(--radius-full); background: none; color: var(--text-secondary); font: inherit; font-size: var(--text-sm); font-weight: var(--weight-medium); cursor: pointer; }
+.tl-tools button:hover:not(:disabled) { background: var(--accent-soft); color: var(--text); }
+.tl-tools button:disabled { opacity: 0.45; cursor: not-allowed; }
+.tl-sep { width: 1px; height: 1.25rem; margin: 0 var(--s2); background: var(--border); }
+.tl-panel { display: block; border-radius: 0; border-width: 0 0 0 1px; padding: var(--s5); overflow-y: auto; max-height: calc(100vh - 9rem); }
+.tl-panel fieldset { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; margin: 0; padding: 0; border: 0; }
+.tl-panel h2, .tl-panel h3 { margin: var(--s3) 0 0; font-size: var(--text-xs); font-weight: var(--weight-semibold); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.tl-panel h2:first-child { margin-block-start: 0; }
+.tl-f { display: flex; flex-direction: column; gap: var(--s1); font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--text-secondary); }
+.tl-panel .field { min-height: 2.25rem; border-radius: var(--radius-sm); }
+.tl-colour { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.tl-sw { width: 1.5rem; height: 1.5rem; padding: 0; border: 2px solid var(--surface); border-radius: 50%; box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
+.tl-sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--text); }
+.tl-colour input[type="color"], .tl-legend input[type="color"] { width: 2rem; height: 1.75rem; padding: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: none; cursor: pointer; }
+.tl-seg { display: flex; padding: 3px; border-radius: var(--radius); background: var(--surface-muted); }
+.tl-seg button { flex: 1; padding: var(--s1) var(--s2); border: 0; border-radius: var(--radius-sm); background: none; color: var(--text-secondary); font: inherit; font-size: var(--text-sm); cursor: pointer; }
+.tl-seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); font-weight: var(--weight-semibold); box-shadow: 0 1px 3px color-mix(in srgb, #000 30%, transparent); }
+.tl-legend { display: flex; align-items: center; gap: var(--s2); }
+.tl-hint { margin: 0; font-size: var(--text-sm); color: var(--text-secondary); }
+.tl-picklist { display: flex; flex-direction: column; gap: var(--s2); max-height: 20rem; margin: var(--s3) 0 0; padding: 0; overflow-y: auto; list-style: none; }
+.tl-picklist label { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s3); border-radius: var(--radius-sm); background: var(--surface-muted); font-size: var(--text-sm); }
+@media (max-width: 62rem) {
+  .tl-body { grid-template-columns: minmax(0, 1fr); }
+  .tl-panel { max-height: none; border-width: 1px 0 0; }
+}
+.tl-panel, .tl-panel fieldset, .tl-f { min-width: 0; max-width: 100%; }
+.tl-panel fieldset { min-inline-size: 0; }
+.tl-f .field, .tl-f input:not([type="color"]), .tl-f select { width: 100%; min-width: 0; }

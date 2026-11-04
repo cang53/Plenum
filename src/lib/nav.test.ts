@@ -16,7 +16,7 @@ describe("navItems", () => {
     expect(paths("member", true)).toEqual(expect.arrayContaining(["/app/logs", "/app/roles"]));
   });
   it("shows the project pages in order and hides the old ones", () => {
-    expect(paths("member", false).slice(0, 6)).toEqual(["/app", "/app/stream", "/app/gantt", "/app/risks", "/app/library", "/app/charter"]);
+    expect(paths("member", false).slice(0, 7)).toEqual(["/app", "/app/stream", "/app/gantt", "/app/timelines", "/app/risks", "/app/library", "/app/charter"]);
     for (const old of ["/app/board", "/app/items", "/app/timesheet", "/app/members", "/app/audit"]) expect(paths("project_manager", true)).not.toContain(old);
   });
   it("puts every page in a group and leaves the inbox out of the list", () => {

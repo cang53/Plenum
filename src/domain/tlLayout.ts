@@ -126,8 +126,8 @@ export function layoutTimeline(doc: TlDoc, today: string, labels: Labels): Layou
   doc.rows.forEach((r, i) => {
     const y = chartTop + i * rowH;
     if (i > 0) prims.push({ t: "line", x1: m, y1: y, x2: x1, y2: y, color: faint, w: 1 });
-    prims.push({ t: "text", x: m, y: y + rowH / 2 + fs * 0.35, s: fit(r.label, labelW - 10, fs, font), size: fs, color: ink, bold: true });
-    if (doc.ownerColumn && r.owner) prims.push({ t: "text", x: m + labelW, y: y + rowH / 2 + fs * 0.32, s: fit(r.owner, ownerW - 6, fs * 0.8, font), size: fs * 0.8, color: mid });
+    prims.push({ t: "text", x: m, y: y + rowH / 2 + fs * 0.35, s: fit(r.label, labelW - 10, fs, font), size: fs, color: ink, bold: true, id: `row:${r.id}` });
+    if (doc.ownerColumn && r.owner) prims.push({ t: "text", x: m + labelW, y: y + rowH / 2 + fs * 0.32, s: fit(r.owner, ownerW - 6, fs * 0.8, font), size: fs * 0.8, color: mid, id: `row:${r.id}` });
   });
 
   const barH = Math.min(22, rowH * 0.56);
