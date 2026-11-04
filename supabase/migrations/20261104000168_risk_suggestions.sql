@@ -8,7 +8,7 @@ alter table public.suggestions
 drop function if exists public.accept_suggestion(uuid, text, text, text);
 
 -- Same as before; for a risk, the person's (possibly edited) type, likelihood and severity are used, else the suggestion's.
-create function public.accept_suggestion(p_id uuid, p_kind text, p_title text, p_details text,
+create or replace function public.accept_suggestion(p_id uuid, p_kind text, p_title text, p_details text,
   p_risk_kind text default null, p_likelihood int default null, p_severity int default null)
 returns uuid
 language plpgsql set search_path = public as $$
