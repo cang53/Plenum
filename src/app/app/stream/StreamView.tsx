@@ -260,7 +260,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             {!readOnly && <AgentWait />}
           </form>
         )}
-        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} />}
+        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} fresh={t("stream.newMessages")} />}
       </div>
     </main>
   );

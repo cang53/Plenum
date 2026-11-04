@@ -150,6 +150,7 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.file.tooBig": "Bestanden mogen samen 10 MB zijn.",
   "stream.file.type": "Alleen foto's, pdf's, tekst en Office-bestanden kunnen worden bijgevoegd.",
   "stream.jump": "Naar het laatste bericht",
+  "stream.newMessages": "Nieuwe berichten",
   "stream.earlier": "Eerdere berichten tonen",
   "stream.keys": "Toetsen: J / K tussen berichten · T taak · D beslissing · C schrijven · End laatste",
   "stream.views": "Weergaven van de stroom",

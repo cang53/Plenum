@@ -148,6 +148,7 @@ export const en = {
   "stream.file.tooBig": "Files can be 10 MB in total.",
   "stream.file.type": "Only pictures, PDFs, text and Office files can be attached.",
   "stream.jump": "Jump to latest",
+  "stream.newMessages": "New messages",
   "stream.earlier": "Show earlier messages",
   "stream.keys": "Keys: J / K move between messages · T task · D decision · C write · End latest",
   "stream.views": "Stream views",
