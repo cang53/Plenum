@@ -2,7 +2,7 @@ import type { MessageKey } from "@/lib/messages";
 
 const VIEWS = [
   { id: "board", path: "board", label: "ui.segmented.board" },
-  { id: "timeline", path: "gantt", label: "ui.segmented.timeline" },
+  { id: "timeline", path: "gantt", label: "ui.segmented.gantt" },
   { id: "items", path: "items", label: "ui.segmented.items" },
 ] as const satisfies readonly { id: string; path: string; label: MessageKey }[];
 

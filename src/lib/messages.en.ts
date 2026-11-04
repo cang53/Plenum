@@ -725,7 +725,7 @@ export const en = {
   "gantt.subtitle": "{project} · Today, {date}",
   "gantt.viewPlan": "Plan",
   "gantt.viewList": "List",
-  "gantt.viewLabel": "Timeline view",
+  "gantt.viewLabel": "Gantt view",
   "gantt.filterAll": "All tasks",
   "gantt.filterLate": "Starts early",
   "gantt.filterCritical": "Critical path",

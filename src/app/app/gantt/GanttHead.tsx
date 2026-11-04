@@ -5,7 +5,7 @@ export function GanttHead({ t, projectId, projectName, today }: { t: (key: Messa
   return (
     <div className="board-head gantt-head">
       <div>
-        <h1>{t("app.timeline")}</h1>
+        <h1>{t("gantt.title")}</h1>
         <p className="sub">{t("gantt.subtitle").replace("{project}", projectName).replace("{date}", today)}</p>
       </div>
       <div className="gantt-head-actions">

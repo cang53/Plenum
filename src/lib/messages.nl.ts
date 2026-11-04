@@ -727,7 +727,7 @@ export const nl: Record<keyof typeof en, string> = {
   "gantt.subtitle": "{project} · Vandaag, {date}",
   "gantt.viewPlan": "Planning",
   "gantt.viewList": "Lijst",
-  "gantt.viewLabel": "Weergave van de tijdlijn",
+  "gantt.viewLabel": "Ganttweergave",
   "gantt.filterAll": "Alle taken",
   "gantt.filterLate": "Start te vroeg",
   "gantt.filterCritical": "Kritiek pad",
