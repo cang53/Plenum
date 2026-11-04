@@ -185,3 +185,7 @@
 html { scroll-behavior: smooth; }
 .mail.msg:target { animation: quote-flash 1.6s ease-out; }
 @keyframes quote-flash { from { background: var(--glass); } to { background: transparent; } }
+.inbox-side .surface { padding: var(--s4); }
+.inbox-side .sm { margin: 0; font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; }
+.icard .agent-acts form, .igroup-head form { margin: 0; }
+.icard .agent-acts .btn-primary .kbd { color: var(--on-primary); border-color: currentColor; background: none; }
