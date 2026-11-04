@@ -57,18 +57,36 @@
 .mail.on { outline: 2px solid var(--primary); outline-offset: 2px; }
 
 /* Inbox */
-.inbox .tabs { margin-block-end: var(--s3); border-bottom: 1px solid var(--border); }
+.inbox .tabs { margin-block-end: var(--s4); border-bottom: 1px solid var(--border); }
 .inbox .tabs a { padding-block: var(--s2); color: var(--text-secondary); text-decoration: none; border-bottom: 2px solid transparent; }
 .inbox .tabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--primary); }
-.inbox .panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--s3); margin-block-end: var(--s4); }
-.inbox .list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--glass-border); border-radius: var(--radius-card); background: var(--glass); }
-.inbox .list a { display: block; padding: var(--s2) var(--s3); color: var(--text); text-decoration: none; border-inline-start: 3px solid transparent; }
-.inbox .list li + li { border-block-start: 1px solid var(--border); }
-.inbox .list a[aria-current="true"] { background: var(--info-surface); border-inline-start-color: var(--primary); }
-.inbox .list span, .inbox .body { display: block; color: var(--text-muted); font-size: var(--text-xs); overflow-wrap: anywhere; }
-.inbox .detail { margin: 0; align-self: start; }
-.inbox .body { white-space: pre-line; max-height: 12rem; overflow: auto; }
-@media (max-width: 720px) { .inbox .panes { grid-template-columns: 1fr; } }
+.inbox-layout { display: grid; grid-template-columns: minmax(0, 1fr) 18.75rem; gap: var(--s6); align-items: start; }
+.inbox-main, .inbox-side { min-width: 0; }
+.inbox-side { display: grid; gap: var(--s4); position: sticky; top: 6rem; }
+.inbox-side h2, .igroup-head { margin: 0 0 var(--s2); font-size: var(--text-xs); font-weight: var(--weight-semibold); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.igroup { margin-block-end: var(--s6); }
+.igroup-head { display: flex; align-items: center; gap: var(--s2); }
+.igroup-head a { color: var(--text-secondary); text-transform: none; letter-spacing: 0; font-size: var(--text-sm); text-decoration: none; }
+.igroup-line { flex: 1; height: 1px; background: var(--border); }
+.notice-list { list-style: none; margin: var(--s3) 0; padding: 0; }
+.notice-list li.icard { display: grid; padding: var(--s4); }
+.notice-list li.icard + li { border-block-start: 1px solid var(--border); }
+.icard { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0.875rem; padding: var(--s4); margin-block-end: var(--s2); border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); }
+.icard:focus-visible, .icard:focus-within { border-color: var(--primary); }
+.icard-ico { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background: var(--accent-soft); color: var(--primary); font-size: var(--text-lg); }
+.icard-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) 0.625rem; margin: 0; font-size: var(--text-xs); color: var(--text-muted); }
+.icard-tag { font-weight: var(--weight-semibold); color: var(--primary); }
+.icard-ai { padding: 1px 8px; border-radius: var(--radius-full); background: var(--accent-soft); color: var(--accent-text); font-weight: var(--weight-semibold); }
+.icard-meta time { margin-inline-start: auto; }
+.icard h3 { margin: var(--s1) 0 2px; font-size: var(--text-base); font-weight: var(--weight-semibold); line-height: var(--line-normal); overflow-wrap: anywhere; }
+.icard h3 a { color: inherit; text-decoration: none; }
+.icard-sub { margin: 0; font-size: var(--text-sm); color: var(--text-secondary); }
+.icard .agent-acts { margin-block-start: var(--s3); }
+.icard-why { margin-block-start: var(--s3); font-size: var(--text-sm); color: var(--text-secondary); }
+.icard-why summary { cursor: pointer; color: var(--text-muted); }
+.icard-quote { margin: var(--s2) 0 0; padding: var(--s2) var(--s3); border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--glass); white-space: pre-line; max-height: 12rem; overflow: auto; overflow-wrap: anywhere; }
+.isummary p { margin: 0; line-height: 1.5; }
+@media (max-width: 980px) { .inbox-layout { grid-template-columns: minmax(0, 1fr); } .inbox-side { position: static; order: -1; } }
 
 /* One project chat: Plenum, email and Teams messages in time order */
 .msgs.chat { max-width: 820px; margin-inline: auto; width: 100%; }

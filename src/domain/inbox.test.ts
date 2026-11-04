@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { awake, inboxAction, inboxTab } from "./inbox";
+import { awake, groupByMessage, inboxAction, inboxTab } from "./inbox";
 
 describe("inbox", () => {
   it("falls back to the first tab", () => {
@@ -14,5 +14,9 @@ describe("inbox", () => {
   });
   it("maps A, D and H", () => {
     expect([inboxAction("a"), inboxAction("D"), inboxAction("h"), inboxAction("x")]).toEqual(["apply", "dismiss", "snooze", null]);
+  });
+  it("groups suggestions by their message, keeping order", () => {
+    const g = groupByMessage([{ id: "1", messageId: "m1" }, { id: "2", messageId: "m2" }, { id: "3", messageId: "m1" }]);
+    expect(g.map((x) => [x.messageId, x.items.map((i) => i.id)])).toEqual([["m1", ["1", "3"]], ["m2", ["2"]]]);
   });
 });
