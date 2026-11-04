@@ -154,3 +154,4 @@
 .comp-box:empty::before { content: attr(data-placeholder); color: var(--text-muted); pointer-events: none; }
 .comp-box ul, .rich ul, .rich ol { margin: 0; padding-inline-start: 1.25rem; }
 .rich { overflow-wrap: anywhere; }
+.comp-box ul ul, .rich ul ul { list-style: circle; }

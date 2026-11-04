@@ -19,6 +19,23 @@ export function Composer({ labels, disabled }: { labels: ComposerLabels; disable
     html.current!.value = el.innerHTML;
   };
   const run = (cmd: string, value?: string) => { box.current?.focus(); document.execCommand("styleWithCSS", false, "true"); document.execCommand(cmd, false, value); sync(); };
+  // "- " at the start of a line becomes a bullet; Shift+Enter in a list adds the next bullet; Tab nests a bullet (Shift+Tab undoes it).
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const sel = window.getSelection();
+    const node = sel?.anchorNode ?? null;
+    const inList = !!(node && (node.nodeType === 1 ? (node as Element) : node.parentElement)?.closest("li"));
+    if (e.key === " " && sel?.isCollapsed && node?.nodeType === 3 && /^[-*]$/.test(node.textContent ?? "") && sel.anchorOffset === 1 && !inList) {
+      e.preventDefault();
+      document.execCommand("delete");
+      run("insertUnorderedList");
+    } else if (e.key === "Enter" && e.shiftKey && inList) {
+      e.preventDefault();
+      run("insertParagraph");
+    } else if (e.key === "Tab" && inList) {
+      e.preventDefault();
+      run(e.shiftKey ? "outdent" : "indent");
+    }
+  };
   const tools: [string, string, string][] = [["bold", "B", labels.bold], ["italic", "I", labels.italic], ["underline", "U", labels.underline], ["insertUnorderedList", "•", labels.list]];
 
   return (
@@ -45,6 +62,7 @@ export function Composer({ labels, disabled }: { labels: ComposerLabels; disable
         contentEditable={!disabled}
         suppressContentEditableWarning
         onInput={sync}
+        onKeyDown={onKeyDown}
         // Pasted text goes in as plain words: formatting from other pages is not brought along. Pasted files are left to the attach handler.
         onPaste={(e) => { if (e.clipboardData.files.length) return; e.preventDefault(); document.execCommand("insertText", false, e.clipboardData.getData("text/plain")); }}
       />
