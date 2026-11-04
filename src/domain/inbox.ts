@@ -13,3 +13,10 @@ export function awake<T extends { id: string }>(list: T[], snoozedUntil: Map<str
 export function inboxAction(key: string): "apply" | "dismiss" | "snooze" | null {
   return ({ a: "apply", d: "dismiss", h: "snooze" } as const)[key.toLowerCase() as "a"] ?? null;
 }
+
+// Suggestions from one message sit together, in the order the first of each message appears.
+export function groupByMessage<T extends { messageId: string }>(list: T[]): { messageId: string; items: T[] }[] {
+  const groups = new Map<string, T[]>();
+  for (const i of list) groups.set(i.messageId, [...(groups.get(i.messageId) ?? []), i]);
+  return [...groups].map(([messageId, items]) => ({ messageId, items }));
+}
