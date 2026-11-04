@@ -13,11 +13,13 @@ export const riskBand = (score: number): RiskBand => (score >= 15 ? "high" : sco
 
 type Cell = { id: string; kind: "risk" | "issue"; likelihood: number; severity: number };
 
+export const cellKey = (i: { kind: "risk" | "issue"; likelihood: number; severity: number }): string => `${i.kind === "issue" ? 5 : i.likelihood}:${i.severity}`;
+
 // Groups items by matrix cell; an issue sits in the top row (likelihood 5) of its impact column.
 export function matrixCells<T extends Cell>(items: T[]): Map<string, T[]> {
   const cells = new Map<string, T[]>();
   for (const i of items) {
-    const key = `${i.kind === "issue" ? 5 : i.likelihood}:${i.severity}`;
+    const key = cellKey(i);
     cells.set(key, [...(cells.get(key) ?? []), i]);
   }
   return cells;

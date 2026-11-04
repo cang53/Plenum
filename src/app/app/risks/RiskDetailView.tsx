@@ -1,6 +1,7 @@
 import type { Member } from "@/data/projects";
 import type { RiskRow } from "@/data/risks";
 import type { StepRow } from "@/data/riskPlan";
+import { Choice } from "./Choice";
 import { riskBand, riskScore } from "@/domain/risk";
 import type { Similar } from "@/domain/riskSimilar";
 import type { MessageKey } from "@/lib/messages";
@@ -15,6 +16,7 @@ type Props = {
   actions: { save: Act; toggle: Act; propose: Act; decide: Act };
 };
 const LEVELS = [1, 2, 3, 4, 5];
+const levels = LEVELS.map((n) => ({ value: String(n), label: String(n) }));
 const TONE = { low: "ok", medium: "warn", high: "bad" } as const;
 
 // The detail screen: description and plan on the left, scoring and owner on the right. Pure markup so it can be rendered without a database.
@@ -92,14 +94,10 @@ export function RiskDetailView({ t, risk, code, back, projectParam, members, ste
           <dl className="rk-dl">
             <dt>{t("risk.state")}</dt><dd><span className={`st st-${risk.status === "open" ? "warn" : "ok"}`}>{t(`risk.${risk.status}` as MessageKey)}</span></dd>
             <dt>{t("risks.score")}</dt><dd><span className={`st st-${TONE[band]}`}>{score} · {t(`risks.band.${band}` as MessageKey)}</span></dd>
-            <dt><label htmlFor="rk-kind">{t("risk.kindLabel")}</label></dt>
-            <dd><select id="rk-kind" form="rk-edit" name="kind" className="rk-in" defaultValue={risk.kind}><option value="risk">{kind("risk")}</option><option value="issue">{kind("issue")}</option></select></dd>
-            <dt><label htmlFor="rk-l">{t("risks.likelihood")}</label></dt>
-            <dd><select id="rk-l" form="rk-edit" name="likelihood" className="rk-in" defaultValue={risk.likelihood}>{LEVELS.map((n) => <option key={n}>{n}</option>)}</select></dd>
-            <dt><label htmlFor="rk-s">{t("risks.severity")}</label></dt>
-            <dd><select id="rk-s" form="rk-edit" name="severity" className="rk-in" defaultValue={risk.severity}>{LEVELS.map((n) => <option key={n}>{n}</option>)}</select></dd>
-            <dt><label htmlFor="rk-o">{t("risks.owner")}</label></dt>
-            <dd><select id="rk-o" form="rk-edit" name="ownerId" className="rk-in" defaultValue={risk.ownerId ?? ""}><option value="">{t("risks.noOwner")}</option>{members.map((m) => <option key={m.userId} value={m.userId}>{m.name}</option>)}</select></dd>
+            <dt className="rk-full"><Choice form="rk-edit" name="kind" label={t("risk.kindLabel")} value={risk.kind} options={[{ value: "risk", label: kind("risk") }, { value: "issue", label: kind("issue") }]} /></dt>
+            <dt className="rk-full"><Choice form="rk-edit" name="likelihood" label={t("risks.likelihood")} value={String(risk.likelihood)} options={levels} /></dt>
+            <dt className="rk-full"><Choice form="rk-edit" name="severity" label={t("risks.severity")} value={String(risk.severity)} options={levels} /></dt>
+            <dt className="rk-full"><Choice form="rk-edit" name="ownerId" label={t("risks.owner")} value={risk.ownerId ?? ""} options={[{ value: "", label: t("risks.noOwner") }, ...members.map((m) => ({ value: m.userId, label: m.name }))]} /></dt>
             <dt><label htmlFor="rk-due">{t("risks.due")}</label></dt>
             <dd><input id="rk-due" form="rk-edit" type="date" name="dueDate" className="rk-in" defaultValue={risk.dueDate ?? ""} /></dd>
           </dl>
