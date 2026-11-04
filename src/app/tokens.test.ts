@@ -10,6 +10,7 @@ function block(selector: string): Record<string, string> {
 }
 
 const tokens = block(":root");
+const lightTokens = block(':root[data-theme="light"]');
 
 const lum = (hex: string) => {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -45,11 +46,11 @@ const pairs: [string, string, number][] = [
   ["--status-done", "--surface", 3],
 ];
 
-describe("token contrast", () => {
+describe.each([["dark", tokens], ["light", lightTokens]] as const)("%s token contrast", (_name, set) => {
   it.each(pairs)("%s on %s is at least %s:1", (fg, bg, min) => {
-    expect(tokens[fg], fg).toBeDefined();
-    expect(tokens[bg], bg).toBeDefined();
-    expect(ratio(tokens[fg], tokens[bg])).toBeGreaterThanOrEqual(min);
+    expect(set[fg], fg).toBeDefined();
+    expect(set[bg], bg).toBeDefined();
+    expect(ratio(set[fg], set[bg])).toBeGreaterThanOrEqual(min);
   });
 });
 
@@ -58,7 +59,6 @@ describe("slate and cobalt look", () => {
     expect(css).toContain("prefers-contrast: more");
     expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
-    expect(css).not.toMatch(/data-theme/);
   });
   it("uses the design artifact palette and the system (SF Pro) font", () => {
     expect(tokens["--primary"]).toBe("#8fa8ff");

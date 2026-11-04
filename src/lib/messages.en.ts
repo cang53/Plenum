@@ -21,6 +21,7 @@ export const en = {
   "shell.group.site": "Site and time",
   "shell.group.admin": "Admin",
   "shell.bell": "Notifications",
+  "shell.theme": "Light theme",
   "app.skip": "Skip to main content",
   "app.loading": "Loading…",
   "app.error": "Something went wrong on our side. Your data is safe.",

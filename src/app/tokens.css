@@ -99,6 +99,46 @@
   --accent: var(--primary);
 }
 
+/* Light theme: same token names, so no component changes. Set by the toggle on <html data-theme="light">. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface: #ffffff;
+  --surface-subtle: #f4f6f9;
+  --surface-muted: #eaeef4;
+  --surface-hover: #eaeef4;
+  --text: #151921;
+  --text-secondary: #3d4756;
+  --text-muted: #566174;
+  --border: #d3d9e2;
+  --border-strong: #707c90;
+  --primary: #2c4fd6;
+  --primary-hover: #1f3bb0;
+  --on-primary: #ffffff;
+  --focus-ring: #2c4fd6;
+  --danger: #b3261e;
+  --danger-surface: #fcebea;
+  --success: #17653f;
+  --success-surface: #e4f4ec;
+  --warning: #8a5300;
+  --warning-surface: #fdf1dc;
+  --info: #2c4fd6;
+  --info-surface: #e8edff;
+  --accent-soft: #e0e7ff;
+  --accent-text: #1c3199;
+  --status-todo: #566174;
+  --status-progress: #2c4fd6;
+  --status-blocked: #8a5300;
+  --status-done: #17653f;
+  --glass: #0000000a;
+  --glass-strong: #00000010;
+  --control: #0000000f;
+  --control-active: #0000001f;
+  --glass-border: #d3d9e2;
+  --ambient-background: #f4f6f9;
+  --frame: #f4f6f9;
+  --elevation-dialog: 0 24px 60px #00000033;
+}
+
 @media (prefers-contrast: more) {
   :root {
     --border: var(--border-strong);

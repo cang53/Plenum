@@ -23,6 +23,7 @@ export const nl: Record<keyof typeof en, string> = {
   "shell.group.site": "Locatie en uren",
   "shell.group.admin": "Beheer",
   "shell.bell": "Meldingen",
+  "shell.theme": "Licht thema",
   "app.skip": "Ga naar de hoofdinhoud",
   "app.loading": "Laden…",
   "app.error": "Er ging iets mis aan onze kant. Uw gegevens zijn veilig.",

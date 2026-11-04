@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { Bell } from "./Bell";
+import { ThemeToggle } from "./ThemeToggle";
 import { CommandMenu } from "./CommandMenu";
 
 type Group = "project" | "site" | "admin";
@@ -14,7 +15,7 @@ type Props = {
   email: string;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "theme" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -72,6 +73,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
         <div className="shell-actions">
           <CommandMenu project={project?.id} labels={labels.menu} />
           {inbox}
+          <ThemeToggle label={labels.theme} />
           <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
             <span className="shell-avatar" title={email} aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
             <button type="submit" className="btn btn-plain">{labels.signOut}</button>

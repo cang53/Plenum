@@ -14,6 +14,9 @@ export const metadata: Metadata = {
 // Matches the --surface-subtle token.
 export const viewport: Viewport = { themeColor: "#1a342b", colorScheme: "dark" };
 
+// Applies the saved theme before first paint so there is no dark flash.
+const THEME_BOOT = `try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -21,8 +24,9 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <a className="skip" href="#main">{t("app.skip", locale)}</a>
         {children}
         <OfflineBoot />

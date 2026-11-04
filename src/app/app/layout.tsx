@@ -48,6 +48,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         signOut: t("app.signOut"),
         mobile: t("shell.mobile"),
         bell: t("shell.inbox"),
+        theme: t("shell.theme"),
         newTask: t("shell.newTask"),
         menu: {
           open: t("menu.open"), title: t("menu.title"), placeholder: t("menu.placeholder"), actions: t("menu.actions"), results: t("menu.results"), empty: t("menu.empty"),

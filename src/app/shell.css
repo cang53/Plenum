@@ -16,6 +16,8 @@ body:has(.shell) { background: var(--frame); }
 .shell-projects a { display: block; padding: var(--s2); border-radius: var(--radius); color: var(--text-secondary); text-decoration: none; }
 .shell-projects a:hover { background: var(--surface-hover); }
 .shell-projects a[aria-current] { color: var(--text); }
+.theme-toggle { min-height: var(--target); padding: 0 var(--s3); border: 1px solid var(--border); border-radius: var(--radius); background: none; color: var(--text-secondary); font: inherit; font-size: var(--text-sm); cursor: pointer; }
+.theme-toggle[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-text); }
 .shell-actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.875rem; flex: 1; }
 .shell-find { flex: none; width: 15.625rem; display: flex; justify-content: space-between; align-items: center; gap: var(--s2); height: 2.75rem; padding: 0 0.6875rem; border: 0; border-radius: var(--radius-full); background: var(--control); backdrop-filter: var(--glass-blur); color: var(--text-secondary); font: inherit; font-size: var(--text-md); letter-spacing: -0.08px; cursor: pointer; }
 .shell-find:hover { background: var(--control-active); }
