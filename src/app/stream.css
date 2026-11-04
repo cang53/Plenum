@@ -291,3 +291,14 @@ html { scroll-behavior: smooth; }
 .chat .impact-track i.now { opacity: 1; background: repeating-linear-gradient(45deg, var(--c-brand) 0 6px, color-mix(in srgb, var(--c-brand) 55%, var(--c-bubble)) 6px 12px); outline: 2px dashed var(--c-brand); outline-offset: 1px; }
 .chat .impact-track i.now.done { background: var(--c-ok); outline: 0; }
 .chat .agent-foot .ok { color: var(--c-ok); }
+
+/* The "@" picker and the mention chips */
+.mention-pop { position: fixed; z-index: 30; width: min(20rem, calc(100vw - 1rem)); max-height: 18rem; overflow-y: auto; margin: 0; padding: var(--s1); list-style: none; border: 1px solid var(--glass-border); border-radius: 12px; background: var(--surface); box-shadow: var(--elevation-dialog); }
+.mention-pop li { display: flex; align-items: center; gap: var(--s2); padding: 6px 8px; border-radius: 8px; color: var(--text); font-size: var(--text-sm); cursor: pointer; }
+.mention-pop li.on { background: var(--glass); }
+.mention-pop li.none { color: var(--text-muted); cursor: default; }
+.mention-pop svg { flex: none; color: var(--text-secondary); }
+.mention-pop .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mention-pop .kind { color: var(--text-muted); font-size: var(--text-xs); }
+a.mention, .comp-box a { color: var(--c-brand); text-decoration: none; background: var(--glass); border-radius: 6px; padding: 0 4px; }
+a.mention:hover { text-decoration: underline; }

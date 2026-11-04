@@ -13,8 +13,8 @@ export type AgentInput = { today: string; tasks: TaskRef[]; history: string[]; m
 const MAX_ACTIONS = 10;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
-// "@agent" or "@plenum" anywhere in the text.
-export const isAgentTagged = (text: string): boolean => /(^|[\s(])@(agent|plenum)\b/i.test(text);
+// "@cobia" (also the hidden aliases "@agent" and "@plenum") anywhere in the text.
+export const isAgentTagged = (text: string): boolean => /(^|[\s(])@(cobia|agent|plenum)\b/i.test(text);
 
 export const AGENT_SYSTEM_PROMPT = [
   "You are the project agent in a construction or industrial project team's chat. You answer the person who tagged you and, when a message or an attached meeting note contains work to track, propose changes to the task plan.",

@@ -55,7 +55,7 @@ const RULES: ((s: string) => [string, string] | null)[] = [
 export function findDependencies(text: string, tasks: TaskRef[]): { found: DependencyFound[]; unresolved: string[] } {
   const found: DependencyFound[] = [];
   const unresolved: string[] = [];
-  const segments = text.replace(/@(agent|plenum)\b[,:]?/gi, " ").split(/\n+|(?<=[.!?])\s+/).map((s) => s.replace(/^[\s\-*•]+|[\s.!?]+$/g, "").replace(/["“”']/g, "").trim()).filter(Boolean);
+  const segments = text.replace(/@(cobia|agent|plenum)\b[,:]?/gi, " ").split(/\n+|(?<=[.!?])\s+/).map((s) => s.replace(/^[\s\-*•]+|[\s.!?]+$/g, "").replace(/["“”']/g, "").trim()).filter(Boolean);
   for (const s of segments) {
     const parts = RULES.map((r) => r(s)).find(Boolean);
     if (!parts) continue;

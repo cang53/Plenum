@@ -1,6 +1,6 @@
-// Formatting for messages written in Plenum. Only the tags below survive, with no attributes except a colour on a span.
+// Formatting for messages written in Plenum. Only the tags below survive, with no attributes except a colour on a span and an in-app link on a mention.
 // The same function runs when saving and when showing, so a row written by any other route cannot carry script or links.
-const KEEP = new Set(["b", "i", "u", "ul", "ol", "li", "br", "p", "div", "span"]);
+const KEEP = new Set(["b", "i", "u", "ul", "ol", "li", "br", "p", "div", "span", "a"]);
 const ALIAS: Record<string, string> = { strong: "b", em: "i" };
 
 const hex = (n: string) => Number(n).toString(16).padStart(2, "0");
@@ -36,6 +36,13 @@ export function sanitizeHtml(html: string): string {
       out.push(...open.splice(at).reverse().map((t) => `</${t}>`));
     } else if (tag === "br") out.push("<br>");
     else {
+      if (tag === "a") { // a mention chip: only a link to a page inside the app survives
+        const h = /\bhref\s*=\s*"(\/app\/[A-Za-z0-9\/_\-?=.#]*)"/i.exec(m[3]);
+        if (!h) continue;
+        open.push("a");
+        out.push(`<a class="mention" href="${h[1]}">`);
+        continue;
+      }
       const c = tag === "span" ? colorOf(m[3]) : "";
       if (tag === "span" && !c) continue; // a span without a colour carries nothing
       open.push(tag);
@@ -56,4 +63,4 @@ export function htmlToText(html: string): string {
 }
 
 // True when the message has something worth keeping beyond its plain text.
-export const hasFormatting = (clean: string): boolean => /<(b|i|u|ul|ol|span)\b/.test(clean);
+export const hasFormatting = (clean: string): boolean => /<(b|i|u|ul|ol|span|a)\b/.test(clean);

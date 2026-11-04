@@ -13,6 +13,7 @@ import type { MessageKey } from "@/lib/messages";
 import { isImage, sizeLabel } from "@/domain/attachments";
 import type { StreamDay, StreamQuery } from "@/domain/stream";
 import { Composer } from "./Composer";
+import type { MentionItem } from "@/domain/mentions";
 import { ReplyBar, ReplyButton } from "./Reply";
 import { sanitizeHtml } from "@/domain/richtext";
 import { AGENT_ADDRESS, proposalHosts, waitingForAgent, type AgentProposal } from "@/domain/agent";
@@ -24,7 +25,7 @@ import type { TimelineMessage } from "@/domain/timeline";
 const LONG_BODY = 280;
 const SOURCES = ["email", "app", "teams"] as const;
 
-// "@agent" stands out in plain message text.
+// "@cobia" stands out in plain message text.
 const mentions = (text: string) => text.split(/(@\w+)/).map((part, i) => (i % 2 ? <span key={i} className="mention">{part}</span> : part));
 
 // CobIA's face: a small friendly robot with a wink.
@@ -85,6 +86,7 @@ export type StreamViewProps = {
   actions?: AgentProposal[]; // pending proposals from the project agent, shown under the message they came from
   fileUrls?: Map<string, string>; // attachment id to a link, for files written in Plenum
   open: { id: string; title: string }[] | null;
+  mentionItems?: MentionItem[];
   pins: Pin[];
   pinned: Set<string>;
   canPin: boolean;
@@ -97,7 +99,7 @@ export type StreamViewProps = {
   me?: string; // the signed-in person's address; their own messages get an accent bar
 };
 
-export function StreamView({ t, base, project, days, query, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, next, fresh, linked, proposed, actions = [], fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
   const href = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams({ project: project.id });
     for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
@@ -334,7 +336,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
             <ReplyBar replyingTo={t("stream.c.replyingTo")} cancel={t("stream.c.cancel")} />
             <div className="comp-row">
               <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />
-              <Composer disabled={!!readOnly} labels={{ placeholder: t("stream.composer"), bold: t("stream.fmt.bold"), italic: t("stream.fmt.italic"), underline: t("stream.fmt.underline"), list: t("stream.fmt.list"), color: t("stream.fmt.color"), colors: [t("stream.fmt.red"), t("stream.fmt.orange"), t("stream.fmt.green"), t("stream.fmt.blue"), t("stream.fmt.purple")], plain: t("stream.fmt.plain") }} />
+              <Composer disabled={!!readOnly} mentions={mentionItems} labels={{ mention: { empty: t("stream.mention.empty"), types: { person: t("stream.mention.person"), agent: t("stream.mention.agent"), task: t("stream.mention.task"), risk: t("stream.mention.risk"), issue: t("stream.mention.issue"), decision: t("stream.mention.decision"), file: t("stream.mention.file") } }, placeholder: t("stream.composer"), bold: t("stream.fmt.bold"), italic: t("stream.fmt.italic"), underline: t("stream.fmt.underline"), list: t("stream.fmt.list"), color: t("stream.fmt.color"), colors: [t("stream.fmt.red"), t("stream.fmt.orange"), t("stream.fmt.green"), t("stream.fmt.blue"), t("stream.fmt.purple")], plain: t("stream.fmt.plain") }} />
               <SendButton label={t("stream.send")} disabled={readOnly}>
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </SendButton>
