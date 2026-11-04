@@ -15,7 +15,8 @@ import type { StreamDay, StreamQuery } from "@/domain/stream";
 import { Composer } from "./Composer";
 import { ReplyBar, ReplyButton } from "./Reply";
 import { sanitizeHtml } from "@/domain/richtext";
-import { proposalHosts, waitingForAgent, type AgentProposal } from "@/domain/agent";
+import { AGENT_ADDRESS, proposalHosts, waitingForAgent, type AgentProposal } from "@/domain/agent";
+import { isoWeek, shiftDays } from "@/domain/riskPlan";
 import type { StoredSuggestion } from "@/domain/triage";
 import type { TimelineMessage } from "@/domain/timeline";
 
@@ -25,6 +26,47 @@ const SOURCES = ["email", "app", "teams"] as const;
 
 // "@agent" stands out in plain message text.
 const mentions = (text: string) => text.split(/(@\w+)/).map((part, i) => (i % 2 ? <span key={i} className="mention">{part}</span> : part));
+
+// CobIA's face: a small friendly robot with a wink.
+function Robot() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v3" /><circle cx="12" cy="2.6" r="1" fill="currentColor" />
+      <rect x="4.5" y="6" width="15" height="12" rx="4" />
+      <path d="M2.5 11v3M21.5 11v3" />
+      <circle cx="9.2" cy="11" r="1.3" fill="currentColor" stroke="none" /><path d="M13.6 11h2.6" />
+      <path d="M9 14.6c1.8 1.4 4.2 1.4 6 0" />
+      <path d="M9 18v2h6v-2" />
+    </svg>
+  );
+}
+
+// What a proposed date change does to the timeline: the old dates in grey, the proposal hatched, green once accepted. One column per day.
+const DAY_MS = 86_400_000;
+export function Impact({ a, label, before, after, done }: { a: AgentProposal; label: string; before: string; after: string; done: boolean }) {
+  if (a.kind === "add_dependency" || !a.dueDate) return null;
+  const span = (s: string | null, d: string | null) => (d ? { start: s ?? d, due: d } : null);
+  const now = span(a.startDate, a.dueDate)!;
+  const was = a.before ? span(a.before.startDate, a.before.dueDate) : null;
+  const all = [now, ...(was ? [was] : [])];
+  const first = all.map((x) => x.start).sort()[0];
+  const last = all.map((x) => x.due).sort().reverse()[0];
+  const day = (d: string) => Math.round((Date.parse(d) - Date.parse(first)) / DAY_MS);
+  const n = day(last) + 1;
+  if (n < 1 || n > 120) return null;
+  const weeks = Array.from({ length: n }, (_, i) => shiftDays(first, i)).flatMap((d, i) => (i === 0 || new Date(`${d}T00:00:00Z`).getUTCDay() === 1 ? [{ i, w: isoWeek(d) }] : []));
+  const cols = { gridTemplateColumns: `repeat(${n}, 1fr)` };
+  const lane = (x: { start: string; due: string } | null, name: string, cls: string) => (
+    <div className="impact-lane"><span>{name}</span><div className="impact-track" style={cols}>{x && <i className={cls} style={{ gridColumn: `${day(x.start) + 1} / ${day(x.due) + 2}` }} />}</div></div>
+  );
+  return (
+    <div className="impact" role="img" aria-label={label}>
+      <div className="impact-lane impact-weeks"><span /><div className="impact-track" style={cols}>{weeks.map((x) => <b key={x.i} style={{ gridColumn: `${x.i + 1} / ${n + 1}`, justifySelf: "start", gridRow: 1 }}>W{x.w}</b>)}</div></div>
+      {was && lane(was, before, "was")}
+      {lane(now, after, done ? "now done" : "now")}
+    </div>
+  );
+}
 
 function AgentWho({ t, time, at }: { t: StreamViewProps["t"]; time: Intl.DateTimeFormat; at: string }) {
   return <p className="who"><b>{t("stream.agent.name")}</b><span className="pill">{t("stream.source.app")}</span><time dateTime={at}>{time.format(new Date(at))}</time></p>;
@@ -65,7 +107,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
   const host = proposalHosts(all);
   const waiting = readOnly ? new Set<string>() : waitingForAgent(all, now);
   const src = (a: AgentProposal) => all.find((x) => x.id === a.messageId) ?? all[0];
-  const who = (m: TimelineMessage) => m.fromName || m.fromAddress;
+  const who = (m: TimelineMessage) => (m.fromAddress === AGENT_ADDRESS ? t("stream.agent.name") : m.fromName || m.fromAddress);
   return (
     <main id="main" className="page msgs chat">
       {!readOnly && <MarkRead projectId={project.id} />}
@@ -117,8 +159,8 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
               return (
                 <div key={m.id} className="msgs-main">
                   {fresh?.id === m.id && <p className="newline" role="separator"><span>{t("stream.new")} · {fresh.count}</span></p>}
-                  <article className="mail msg" data-src={m.source} data-mine={me && m.source === "app" && m.fromAddress === me ? "" : undefined} id={`msg-${m.id}`}>
-                    <span className="avatar" aria-hidden="true">{who(m).charAt(0).toUpperCase()}</span>
+                  <article className={`mail msg${m.fromAddress === AGENT_ADDRESS ? " msg-agent" : ""}`} data-src={m.source} data-mine={me && m.source === "app" && m.fromAddress === me ? "" : undefined} id={`msg-${m.id}`}>
+                    <span className="avatar" aria-hidden="true">{m.fromAddress === AGENT_ADDRESS ? <Robot /> : who(m).charAt(0).toUpperCase()}</span>
                     <div className="msg-body">
                       <p className="who">
                         <b>{who(m)}</b>
@@ -191,13 +233,13 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                   </article>
                   {waiting.has(m.id) && (
                     <div className="mail msg msg-agent msg-pending" data-src="app" role="status">
-                      <span className="avatar" aria-hidden="true">P</span>
+                      <span className="avatar" aria-hidden="true"><Robot /></span>
                       <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b><span className="pill">{t("stream.source.app")}</span></p><div className="bubble"><p className="body">{t("stream.agentWriting")}…</p></div></div>
                     </div>
                   )}
                   {(proposed.get(m.id) ?? []).map((sg) => (
                     <section key={sg.id} className="mail msg msg-agent agent-card" aria-label={t("stream.agent")}>
-                      <span className="avatar" aria-hidden="true">P</span>
+                      <span className="avatar" aria-hidden="true"><Robot /></span>
                       <div className="msg-body">
                         <AgentWho t={t} time={time} at={m.receivedAt} />
                         <div className="bubble">
@@ -231,7 +273,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                   ))}
                   {actions.filter((a) => host.get(a.messageId) === m.id).map((a) => (
                     <section key={a.id} className="mail msg msg-agent agent-card" aria-label={t("stream.agent")}>
-                      <span className="avatar" aria-hidden="true">P</span>
+                      <span className="avatar" aria-hidden="true"><Robot /></span>
                       <div className="msg-body">
                         <AgentWho t={t} time={time} at={src(a).receivedAt} />
                         <div className="bubble">
@@ -240,6 +282,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                           {a.details && <p className="agent-details">{a.details}</p>}
                           {a.kind !== "add_dependency" && a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
                           {a.kind !== "add_dependency" && <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>}
+                          <Impact a={a} label={t("stream.impact")} before={t("stream.before")} after={t("stream.after")} done={!!a.accepted} />
                           <p className="from">{t("stream.basedOn")} <a href={`#msg-${a.messageId}`}>{who(src(a))}, {time.format(new Date(src(a).receivedAt))}</a> · {a.reason}</p>
                           {a.accepted ? (
                             <div className="agent-foot" title={`${t("stream.acceptedBy")} ${a.accepted.by} · ${date.format(new Date(a.accepted.at))} ${time.format(new Date(a.accepted.at))}`}>

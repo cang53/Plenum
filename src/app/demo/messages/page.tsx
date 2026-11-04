@@ -44,6 +44,7 @@ export default async function DemoMessagesPage({ searchParams }: { searchParams:
       actions={[
         { id: "a1", messageId: "m4", kind: "update_task", title: "Pour slab", details: "New finish date 2026-11-13.", startDate: "2026-11-09", dueDate: "2026-11-13", reason: 'The note says "Move pour slab to 13 November".', before: { startDate: "2026-11-02", dueDate: "2026-11-06" } },
         { id: "a3", messageId: "m4", kind: "add_dependency", title: "Install control cabinet after Install conveyor modules", details: "The cabinet cannot start before the conveyor modules are installed.", startDate: null, dueDate: null, reason: "The note links the two tasks.", before: null, accepted: { by: "Maya de Vries", at: now.toISOString() } },
+        { id: "a4", messageId: "m4", kind: "update_task", title: "Install conveyor modules", details: "New finish date 2026-11-20.", startDate: "2026-11-09", dueDate: "2026-11-20", reason: "The note says the install slips to 20 November.", before: { startDate: "2026-11-09", dueDate: "2026-11-16" }, accepted: { by: "Maya de Vries", at: now.toISOString() } },
         { id: "a2", messageId: "m4", kind: "create_task", title: "Order rebar", details: "", startDate: "2026-11-12", dueDate: "2026-11-12", reason: 'The note says "Action: Order rebar by 12 Nov".', before: null },
       ]}
       open={null}
