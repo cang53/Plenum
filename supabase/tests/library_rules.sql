@@ -32,3 +32,19 @@ begin
   end;
 end $$;
 reset role;
+
+-- Folders follow the project: members see them, only a manager adds them.
+set role authenticated;
+do $$
+begin
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
+  insert into public.library_folders (project_id, path) values ('20000000-0000-0000-0000-000000000001', 'Contracts/2026');
+  if (select count(*) from public.library_folders) <> 1 then raise exception 'manager cannot see its folder'; end if;
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000d', true);
+  begin
+    insert into public.library_folders (project_id, path) values ('20000000-0000-0000-0000-000000000001', 'Nope');
+    raise exception 'a non-manager added a folder';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;

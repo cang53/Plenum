@@ -1,26 +1,25 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { t } from "@/lib/messages";
+import { folderTree } from "@/domain/library";
+import { t as tr, type MessageKey } from "@/lib/messages";
 import { LibraryView } from "./LibraryView";
 
-const act = () => {};
-const lessons = [{ id: "1", title: "Late supplier delivery", bodyText: "Order long-lead items before the design freeze.", filename: "late.pdf", sizeBytes: 20480, createdAt: "2026-03-10T10:00:00Z" }];
-const render = (staff: boolean, docs = lessons) => renderToStaticMarkup(<LibraryView t={t} locale="en-GB" project={{ name: "Dock 3" }} workspaceId="w" lessons={docs} staff={staff} add={act} remove={act} />);
+const t = (k: MessageKey) => tr(k);
+const en = new Proxy({} as Record<MessageKey, string>, { get: (_, k) => tr(k as MessageKey) });
+const noop = () => {};
+const base = { t, project: { id: "p", name: "Atlas" }, workspaceId: "w", projectParam: "", at: "p:", heading: "Project files", crumbs: [{ label: "Project files", at: "p:" }],
+  tree: folderTree(["Contracts"]), counts: { lessons: 1, "p:": 1, "p:Contracts": 0, stream: 2 }, subfolders: folderTree(["Contracts"]), rows: [{ key: "d:1", title: "Plan", ext: "PDF", meta: "1 KB" }],
+  selected: "d:1", preview: null, canWrite: true, canCreateFolder: true, href: (a: string, f?: string | null) => `/x?at=${a}${f ? `&file=${f}` : ""}`, actions: { add: noop, remove: noop, newFolder: noop } };
 
 describe("LibraryView", () => {
-  it("lists lessons with an excerpt, and lets staff add and remove", () => {
-    const html = render(true);
-    expect(html).toContain("Late supplier delivery");
-    expect(html).toContain("Order long-lead items");
-    expect(html).toContain(t("library.addButton"));
-    expect(html).toContain(t("library.remove"));
+  it("shows the three roots, folders and files", () => {
+    const h = renderToStaticMarkup(<LibraryView {...base} />);
+    expect(h).toContain(en["library.lessons"]); expect(h).toContain(en["library.stream"]); expect(h).toContain("Contracts"); expect(h).toContain("Plan");
   });
-  it("hides add and remove from people who are not staff", () => {
-    const html = render(false);
-    expect(html).not.toContain(t("library.addButton"));
-    expect(html).not.toContain(t("library.remove"));
-  });
-  it("says so when the folder is empty", () => {
-    expect(render(true, [])).toContain(t("library.empty"));
+  it("previews text and offers removal only for library documents", () => {
+    const preview = { key: "d:1", title: "Plan", filename: "plan.pdf", contentType: "application/pdf", sizeBytes: 10, kind: "text" as const, text: "Hello body", imageUrl: null, downloadUrl: "https://x/y", source: "Project files", ext: "PDF" };
+    const h = renderToStaticMarkup(<LibraryView {...base} preview={preview} />);
+    expect(h).toContain("Hello body"); expect(h).toContain(en["library.remove"]);
+    expect(renderToStaticMarkup(<LibraryView {...base} preview={{ ...preview, key: "s:1" }} />)).not.toContain(en["library.remove"]);
   });
 });

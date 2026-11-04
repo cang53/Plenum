@@ -11,3 +11,32 @@ export const excerpt = (text: string, max = 280): string => {
   const flat = text.replace(/\s+/g, " ").trim();
   return flat.length > max ? `${flat.slice(0, max).trimEnd()}…` : flat;
 };
+
+/* --- explorer --- */
+export type FolderNode = { path: string; name: string; children: FolderNode[] };
+
+// A folder path from what a person typed: trimmed parts joined by "/", at most 4 levels of 40 characters; null if nothing usable.
+export function cleanFolderPath(raw: string): string | null {
+  const parts = raw.split("/").map((p) => p.replace(/[\u0000-\u001f]/g, "").trim()).filter((p) => p && p !== "." && p !== "..").slice(0, 4).map((p) => p.slice(0, 40));
+  return parts.length ? parts.join("/") : null;
+}
+
+// A tree from the folder paths in use; every parent of a path is included.
+export function folderTree(paths: string[]): FolderNode[] {
+  const roots: FolderNode[] = [];
+  const all = new Set(paths.flatMap((p) => p.split("/").map((_, i, a) => a.slice(0, i + 1).join("/"))));
+  for (const path of [...all].sort((a, b) => a.localeCompare(b))) {
+    const parts = path.split("/");
+    const list = parts.length === 1 ? roots : roots.flatMap(function find(n): FolderNode[] { return n.path === parts.slice(0, -1).join("/") ? [n] : n.children.flatMap(find); })[0]?.children;
+    list?.push({ path, name: parts[parts.length - 1], children: [] });
+  }
+  return roots;
+}
+
+export type PreviewKind = "image" | "text" | "other";
+export const previewKind = (contentType: string | null, filename: string | null): PreviewKind => {
+  if (/^image\/(png|jpe?g|gif|webp)$/.test(contentType ?? "")) return "image";
+  return libraryType(filename ?? "") || /^(application\/pdf|text\/)/.test(contentType ?? "") ? "text" : "other";
+};
+
+export const extLabel = (filename: string | null): string => (filename?.split(".").pop() ?? "").slice(0, 4).toUpperCase() || "FILE";
