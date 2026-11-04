@@ -5,7 +5,8 @@ import { findSimilar } from "@/domain/riskSimilar";
 import { riskBand, riskScore } from "@/domain/risk";
 import { getT } from "@/lib/locale";
 import type { MessageKey } from "@/lib/messages";
-import { saveRisk, toggleRiskStatus } from "../actions";
+import { listSteps } from "@/data/riskPlan";
+import { decideStep, proposePlan, saveRisk, toggleRiskStatus } from "../actions";
 
 const LEVELS = [1, 2, 3, 4, 5];
 
@@ -20,6 +21,8 @@ export default async function RiskDetail({ params, searchParams }: { params: Pro
   const sp = await searchParams;
   // Only when asked: compare with risks and issues of the other projects this person can see.
   const similar = sp.analyze && pr ? findSimilar(risk, await listOtherRisks(supabase, pr.project_id as string)) : [];
+  const steps = await listSteps(supabase, risk.id);
+  const nameOf = (id: string | null) => members.find((m) => m.userId === id)?.name ?? t("risks.noOwner");
   const score = riskScore(risk.likelihood, risk.severity, risk.kind);
   const level = (name: string, label: MessageKey, v: number) => (
     <label>{t(label)} <select name={name} className="field" defaultValue={v}>{LEVELS.map((n) => <option key={n}>{n}</option>)}</select></label>
@@ -70,6 +73,28 @@ export default async function RiskDetail({ params, searchParams }: { params: Pro
             </>
           )}
         </form>
+        <section className="surface rk-fields" aria-labelledby="rk-plan">
+          <h2 id="rk-plan">{t("risks.plan")}</h2>
+          <form action={proposePlan}><input type="hidden" name="id" value={risk.id} /><button type="submit" className="btn">{t("risks.proposePlan")}</button></form>
+          {steps.length === 0 && <p className="meta">{t("risks.planEmpty")}</p>}
+          <ul className="rk-fields">
+            {steps.map((st) => (
+              <li key={st.id}>
+                <strong>{st.title}</strong> {st.status === "accepted" ? <span className="st st-ok">{t("risks.step.accepted")}</span> : <span className="st">{t("risks.step.proposed")}</span>}
+                <p className="meta">{st.startDate ?? "?"} → {st.dueDate ?? "?"} · {nameOf(st.ownerId)}{st.origin === "ai" ? ` · ${t("risks.aiMade")}` : ""}</p>
+                {st.reason && <p>{st.reason}</p>}
+                {st.gapNote && <p className="field-error">{st.gapNote}</p>}
+                {st.status === "proposed" && (
+                  <form action={decideStep} className="rk-form">
+                    <input type="hidden" name="stepId" value={st.id} />
+                    <button type="submit" name="accept" value="1" className="act act-primary">{t("risks.step.accept")}</button>
+                    <button type="submit" name="accept" value="0" className="act">{t("risks.step.dismiss")}</button>
+                  </form>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
         </div>
         <aside className="surface">
           <p><span className={`st st-${{ low: "ok", medium: "warn", high: "bad" }[riskBand(score)]}`}>{t("risks.score")} {score} · {t(`risks.band.${riskBand(score)}` as MessageKey)}</span></p>
