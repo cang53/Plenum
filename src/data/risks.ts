@@ -40,3 +40,12 @@ export async function updateRisk(client: SupabaseClient, id: string, patch: Part
   if (error) throw error;
   if (!data?.length) throw new Error("risk not found or not allowed");
 }
+
+export type OtherRisk = RiskRow & { projectName: string };
+
+// Earlier risks and issues in the other projects this person can see. Row-level security limits the rows.
+export async function listOtherRisks(client: SupabaseClient, projectId: string): Promise<OtherRisk[]> {
+  const { data, error } = await client.from("risks").select(`${COLS}, projects(name)`).neq("project_id", projectId).order("created_at", { ascending: false }).limit(300);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ ...map(r), projectName: ((r as unknown as { projects: { name: string } | null }).projects?.name) ?? "" }));
+}
