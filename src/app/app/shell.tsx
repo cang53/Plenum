@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Bell } from "./Bell";
 import { CommandMenu } from "./CommandMenu";
 
@@ -21,9 +21,15 @@ type Props = {
 };
 
 const GROUPS: Group[] = ["project", "site", "admin"];
+const NARROW = "(max-width: 48rem)";
 
 export function Shell({ projects, itemsByProject, fallbackItems, email, unread, streamNew, unreadLabel, labels, children }: Props) {
   const pathname = usePathname();
+  // Until the person toggles it, the side bar is open on wide windows and hidden on narrow ones (CSS decides).
+  const [nav, setNav] = useState<"open" | "closed" | undefined>(undefined);
+  const [shut, setShut] = useState<Group[]>([]);
+  const toggleNav = () => setNav((n) => ((n ?? (window.matchMedia(NARROW).matches ? "closed" : "open")) === "open" ? "closed" : "open"));
+  const toggleGroup = (g: Group) => setShut((x) => (x.includes(g) ? x.filter((y) => y !== g) : [...x, g]));
   const chosen = useSearchParams().get("project");
   const project = projects.find((p) => p.id === chosen) ?? projects[0];
   const items = (project && itemsByProject[project.id]) || fallbackItems;
@@ -48,8 +54,9 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
     <Bell icon href={href("/app/notifications")} initial={unread} label={labels.bell} current={pathname.startsWith("/app/notifications")} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
   );
   return (
-    <div className="shell">
+    <div className="shell" data-nav={nav}>
       <header className="shell-top">
+        <button type="button" className="shell-toggle" aria-label={labels.mobile} aria-controls="shell-side" aria-expanded={nav === undefined ? undefined : nav === "open"} onClick={toggleNav} />
         <a className="shell-brand" href={href("/app")}><span className="shell-logo" aria-hidden="true">{labels.brand.charAt(0).toUpperCase()}</span>{labels.brand}</a>
         {projects.length > 1 && (
           <details className="shell-projects">
@@ -71,15 +78,17 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
           </form>
         </div>
       </header>
-      <aside className="shell-side">
+      <aside className="shell-side" id="shell-side">
         {quickLink("mine", labels.mywork)}
         <nav aria-label={labels.main}>
           {GROUPS.map((g) => {
             const group = items.filter((i) => i.group === g);
             return group.length > 0 && (
               <div key={g} role="group" aria-labelledby={`shell-group-${g}`}>
-                <h2 id={`shell-group-${g}`} className="shell-group">{labels.group[g]}</h2>
-                {group.map(link)}
+                <h2 id={`shell-group-${g}`} className="shell-group">
+                  <button type="button" aria-expanded={!shut.includes(g)} onClick={() => toggleGroup(g)}>{labels.group[g]}</button>
+                </h2>
+                {!shut.includes(g) && group.map(link)}
               </div>
             );
           })}
@@ -91,9 +100,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
         </section>
       </aside>
       <div className="shell-body">{children}</div>
-      <nav className="shell-bar" aria-label={labels.mobile}>
-        {items.filter((i) => i.group === "project").slice(0, 4).map(link)}
-      </nav>
+      <button type="button" className="shell-scrim" tabIndex={-1} aria-hidden="true" onClick={toggleNav} />
     </div>
   );
 }

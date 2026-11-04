@@ -27,4 +27,10 @@ describe("Shell", () => {
     expect(html).toContain("<details");
     expect(html).not.toContain("new in stream");
   });
+  it("has a toggle for the side bar and collapsible groups, and no bottom tab bar", () => {
+    const html = render([{ id: "p1", name: "Pump" }], {});
+    expect(html).toContain('aria-controls="shell-side"');
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).not.toContain("shell-bar");
+  });
 });

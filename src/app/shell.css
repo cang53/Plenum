@@ -44,7 +44,6 @@ body:has(.shell) { background: var(--frame); }
 .shell-privacy p { margin: 0; }
 .shell-privacy a { color: var(--text-secondary); }
 .shell .page, .shell .home { max-width: none; margin: 0; padding: var(--s6); }
-.shell-bar { display: none; }
 
 /* Open line icons (Lucide-style strokes), one per page. */
 .shell-link[href="/app"], .shell-link[href^="/app?"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'><path d='M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'/></svg>"); }
@@ -64,15 +63,24 @@ body:has(.shell) { background: var(--frame); }
 .shell-link[href^="/app/settings"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'><circle cx='12' cy='12' r='3.5'/><path d='M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1'/></svg>"); }
 .shell-link[href^="/app/notifications"], .shell-bell[href^="/app/notifications"] { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'><path d='M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4'/></svg>"); }
 
-/* Phone: no window frame or sidebar, a glass tab bar of the first four project pages. */
+/* Side bar toggle and accordion groups. */
+.shell-toggle { flex: none; width: 2.5rem; height: 2.5rem; border: 0; border-radius: var(--radius-full); background: var(--glass-strong); color: var(--text); cursor: pointer; mask: none; position: relative; }
+.shell-toggle::before { content: ""; position: absolute; inset: 0; margin: auto; width: 1.25rem; height: 1.25rem; background: currentColor; mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'><path d='M4 6h16M4 12h16M4 18h16'/></svg>") center / contain no-repeat; }
+.shell-group button { all: unset; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; cursor: pointer; }
+.shell-group button::after { content: "⌄"; transition: transform 0.15s; }
+.shell-group button[aria-expanded="false"]::after { transform: rotate(-90deg); }
+.shell-group button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.shell-scrim { display: none; }
+.shell[data-nav="closed"] { grid-template-columns: 0 minmax(0, 1fr); }
+.shell[data-nav="closed"] .shell-side { visibility: hidden; padding-inline: 0; border-right: 0; overflow: hidden; }
+
+/* Phone: the side bar is a drawer over the page, so nothing ever covers the composer. */
 @media (max-width: 48rem) {
-  .shell { display: block; margin: 0; min-height: 100vh; padding-bottom: 4rem; border: 0; border-radius: 0; }
-  .shell-side { display: none; }
-  .shell-top { flex-wrap: wrap; height: auto; gap: var(--s3); padding: var(--s2) var(--s3); }
+  .shell { display: block; margin: 0; min-height: 100vh; border: 0; border-radius: 0; }
+  .shell-top { position: static; flex-wrap: wrap; height: auto; gap: var(--s3); padding: var(--s2) var(--s3); }
   .shell-actions { gap: var(--s2); }
   .shell-find { order: 5; width: auto; flex: 1 1 100%; }
-  .shell-bar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; inset: auto var(--s3) var(--s3); padding: var(--s1); border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--glass-strong); backdrop-filter: var(--glass-blur); z-index: 5; }
-  .shell-bar .shell-link { flex-direction: column; justify-content: center; gap: 2px; min-height: 3.25rem; padding: 0; font-size: 0.6875rem; font-weight: var(--weight-medium); color: var(--text-secondary); }
-  .shell-bar .shell-link > span:first-child { flex: none; }
-  .shell-bar .shell-link[aria-current="page"] { color: var(--text); }
+  .shell-side { position: fixed; inset: 0 auto 0 0; z-index: 8; width: min(16rem, 85vw); height: 100dvh; background: var(--surface); transform: translateX(-100%); visibility: hidden; transition: transform 0.2s, visibility 0.2s; }
+  .shell[data-nav="open"] .shell-side { transform: none; visibility: visible; padding: 1.375rem 0.625rem 1.25rem; border-right: 1px solid var(--glass-border); }
+  .shell[data-nav="open"] .shell-scrim { display: block; position: fixed; inset: 0; z-index: 7; border: 0; background: var(--glass-strong); backdrop-filter: var(--glass-blur); }
 }
