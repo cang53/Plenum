@@ -358,3 +358,4 @@ a.mention:hover { text-decoration: underline; }
 .chat .msgs-search input[type="search"] { pointer-events: auto; width: min(32rem, 100%); padding: 9px 16px; border: 1px solid var(--c-line); border-radius: 100px; background: var(--c-solid); box-shadow: var(--c-shadow); font-size: 14px; }
 /* My own messages carry no name, source or time line. */
 .chat .mail.msg[data-mine] .who { display: none; }
+.chat .mail.msg[data-mine] { align-items: center; }
