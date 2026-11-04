@@ -194,7 +194,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                       <div className="agent-acts">
                         <form action={applySuggestion}>
                           {["id", "kind", "title", "details"].map((k) => <input key={k} type="hidden" name={k} value={k === "id" ? sg.id : String(sg[k as "kind" | "title" | "details"])} />)}
-                          <button type="submit" disabled={readOnly} className="btn btn-primary">{t("stream.apply")}</button>
+                          <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
                         </form>
                         <details className="edit-pop">
                           <summary className="btn btn-secondary">{t("stream.edit")}</summary>
@@ -203,12 +203,12 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                             <input type="hidden" name="kind" value={sg.kind} />
                             <input name="title" defaultValue={sg.title} aria-label={t("stream.editTitle")} required />
                             <input name="details" defaultValue={sg.details} aria-label={t("stream.editDetails")} />
-                            <button type="submit" disabled={readOnly} className="btn btn-primary">{t("stream.apply")}</button>
+                            <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
                           </form>
                         </details>
                         <form action={dismissSuggestionForm}>
                           <input type="hidden" name="id" value={sg.id} />
-                          <button type="submit" disabled={readOnly} className="btn btn-secondary">{t("stream.dismiss")}</button>
+                          <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-secondary">{t("stream.dismiss")}</button>
                         </form>
                       </div>
                     </section>
@@ -226,7 +226,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                           <p className="agent-done">{`${t("stream.acceptedBy")} ${a.accepted.by} · ${date.format(new Date(a.accepted.at))} ${time.format(new Date(a.accepted.at))}`}</p>
                           <form action={undoAgentAction}>
                             <input type="hidden" name="id" value={a.id} />
-                            <button type="submit" disabled={readOnly} className="btn btn-danger">{t("stream.undo")}</button>
+                            <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-danger">{t("stream.undo")}</button>
                           </form>
                         </div>
                       ) : (
@@ -235,7 +235,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                           <form key={accept} action={resolveAgentAction}>
                             <input type="hidden" name="id" value={a.id} />
                             <input type="hidden" name="accept" value={accept} />
-                            <button type="submit" disabled={readOnly} className={cls}>{t(label as MessageKey)}</button>
+                            <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className={cls}>{t(label as MessageKey)}</button>
                           </form>
                         ))}
                       </div>
