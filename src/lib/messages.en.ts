@@ -489,6 +489,7 @@ export const en = {
   "inbox.trust": "Every AI suggestion needs your click and links to the message it came from. Nobody sees what you clear.",
   "inbox.tag.suggestion": "Suggestion",
   "inbox.keys.title": "Keyboard",
+  "inbox.applyAll": "Apply all {n}",
   "inbox.title": "Inbox",
   "inbox.keys": "J and K move, A applies, D dismisses, H snoozes",
   "inbox.tab.needs": "Needs your click",

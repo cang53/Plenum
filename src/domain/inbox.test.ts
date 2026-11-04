@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { awake, groupByMessage, inboxAction, inboxTab } from "./inbox";
+import { awake, groupByMessage, inboxAction, parseBatch, inboxTab } from "./inbox";
 
 describe("inbox", () => {
   it("falls back to the first tab", () => {
@@ -18,5 +18,11 @@ describe("inbox", () => {
   it("groups suggestions by their message, keeping order", () => {
     const g = groupByMessage([{ id: "1", messageId: "m1" }, { id: "2", messageId: "m2" }, { id: "3", messageId: "m1" }]);
     expect(g.map((x) => [x.messageId, x.items.map((i) => i.id)])).toEqual([["m1", ["1", "3"]], ["m2", ["2"]]]);
+  });
+  it("parses a batch only when every item is complete", () => {
+    const good = [{ id: "1", kind: "task", title: "A", details: "" }];
+    expect(parseBatch(JSON.stringify(good))).toEqual(good);
+    expect(parseBatch(JSON.stringify([...good, { id: "2" }]))).toEqual([]);
+    expect(parseBatch("nope")).toEqual([]);
   });
 });

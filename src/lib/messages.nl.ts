@@ -491,6 +491,7 @@ export const nl: Record<keyof typeof en, string> = {
   "inbox.trust": "Elke AI-suggestie wacht op jouw klik en verwijst naar het bericht waar ze op is gebaseerd. Niemand ziet wat jij afhandelt.",
   "inbox.tag.suggestion": "Suggestie",
   "inbox.keys.title": "Toetsenbord",
+  "inbox.applyAll": "Alles accepteren ({n})",
   "inbox.title": "Postvak",
   "inbox.keys": "J en K bewegen, A past toe, D wijst af, H stelt uit",
   "inbox.tab.needs": "Wacht op jouw klik",

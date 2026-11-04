@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/auth/supabase";
+import { acceptSuggestion } from "@/data/live";
+import { parseBatch } from "@/domain/inbox";
 
 // Row-level security limits this to the person's own rows.
 export async function markAllRead(form: FormData): Promise<void> {
@@ -32,5 +34,13 @@ export async function snoozeSuggestion(form: FormData): Promise<void> {
   if (!user) throw new Error("Not signed in");
   const { error } = await supabase.from("suggestion_snoozes").upsert({ user_id: user.id, suggestion_id: String(form.get("id")), until: new Date(Date.now() + 864e5).toISOString() });
   if (error) throw error;
+  revalidatePath("/app/notifications");
+}
+
+// One click applies every suggestion of a message, one by one through the same accept call; the database checks access for each.
+export async function applyGroup(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  for (const i of parseBatch(String(form.get("items")))) await acceptSuggestion(supabase, i.id, { kind: i.kind, title: i.title, details: i.details });
+  revalidatePath("/app/stream");
   revalidatePath("/app/notifications");
 }
