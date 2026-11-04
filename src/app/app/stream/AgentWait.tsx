@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAgentTagged } from "@/domain/agent";
 
-const EVERY = 2000;
+const EVERY = 1000;
+const REFRESH_EVERY = 8; // seconds-ish ticks: Realtime already refreshes the feed, this is only the safety net
 const GIVE_UP = 90000;
 
 // The AI works after the send has answered, so after each send this refreshes the page until its reply or card shows up.
@@ -31,6 +32,7 @@ export function AgentWait() {
     if (!round) return;
     const started = Date.now();
     const stop = () => { clearInterval(timer); setRound(null); };
+    let tick = 0;
     const timer = setInterval(() => {
       const c = (sel: string) => document.querySelectorAll(sel).length;
       // Own message, then the agent's reply (tagged), or a new card.
@@ -39,7 +41,7 @@ export function AgentWait() {
         stop();
         window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
       } else if (Date.now() - started > (round.tagged ? GIVE_UP : 20000)) stop();
-      else router.refresh();
+      else if (++tick % REFRESH_EVERY === 0) router.refresh();
     }, EVERY);
     return () => clearInterval(timer);
   }, [round, router]);
