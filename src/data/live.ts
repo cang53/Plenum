@@ -142,9 +142,11 @@ export async function listLinkedItems(client: SupabaseClient, projectId: string,
   if (!messageIds.length) return [];
   const found = await Promise.all(
     ITEM_KINDS.map(async (kind) => {
-      const { data, error } = await client.from(ITEM_TABLE[kind]).select("id, title, source_message_id, kind").eq("project_id", projectId).in("source_message_id", messageIds);
+      // Only risks have a "kind" column (risk or issue).
+      const cols = kind === "risk" ? "id, title, source_message_id, kind" : "id, title, source_message_id";
+      const { data, error } = await client.from(ITEM_TABLE[kind]).select(cols).eq("project_id", projectId).in("source_message_id", messageIds).returns<{ id: string; title: string; source_message_id: string; kind?: "risk" | "issue" }[]>();
       if (error) throw error;
-      return (data ?? []).map((r) => ({ id: r.id, kind, title: r.title, messageId: r.source_message_id, ...(kind === "risk" ? { riskKind: (r as { kind?: "risk" | "issue" }).kind } : {}) }));
+      return (data ?? []).map((r) => ({ id: r.id, kind, title: r.title, messageId: r.source_message_id, ...(kind === "risk" ? { riskKind: r.kind } : {}) }));
     }),
   );
   return found.flat();
