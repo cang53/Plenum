@@ -51,9 +51,9 @@ export function ItemDetail({ t, locale, item, projectId, shareHref, owner, phase
     <aside className="item-inspector item-detail" aria-label={heading}>
       <InspectorKeys closeHref={closeHref} text={{ title: t("items.unsaved"), body: t("items.discard"), keep: t("items.keepEditing"), discard: t("items.discardGo") }} />
       <header className="insp-head insp-bar">
-        <a className="insp-close" href={closeHref} aria-label={t("taskDetail.close")}>✕</a>
+        <a className="insp-close" href={closeHref} aria-label={t("taskDetail.close")}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" /></svg></a>
         <div><h2>{heading}</h2><p>{t("items.detail.context").replace("{role}", t(canManage ? "items.role.manager" : "items.role.member"))}</p></div>
-        {canManage && <a className="btn btn-secondary" href={editHref}>{t("items.rowEdit")}</a>}
+        {canManage ? <a className="btn btn-secondary" href={editHref}>{t("items.rowEdit")}</a> : <span />}
       </header>
       <div className="insp-body insp-read">
         <section className="wide insp-identity">
