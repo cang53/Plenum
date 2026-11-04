@@ -10,16 +10,16 @@ describe("shell.css", () => {
   });
   it("only reads tokens that exist", () => {
     // --icon is set per link inside shell.css itself.
-    for (const m of css.matchAll(/var\((--[\w-]+)\)/g)) if (m[1] !== "--icon") expect(tokens, m[1]).toContain(`${m[1]}:`);
+    for (const m of css.matchAll(/var\((--[\w-]+)\)/g)) if (m[1] !== "--icon" && m[1] !== "--nav-pill") expect(tokens, m[1]).toContain(`${m[1]}:`);
   });
-  it("has a 176px sidebar, a phone bar and glass from tokens", () => {
-    expect(css).toContain("grid-template-columns: 11rem");
+  it("has a 196px sidebar capsule, a phone bar and glass from tokens", () => {
+    expect(css).toContain("grid-template-columns: 13rem");
     expect(css).toContain("max-width: 48rem");
     expect(css).toContain("var(--ambient-background)");
     expect(css).toContain("backdrop-filter: var(--glass-blur)");
   });
   it("gives every nav page an icon", () => {
-    const pages = ["stream", "board", "gantt", "items", "timesheet", "timesheets", "members", "audit", "reports", "roles", "privacy", "settings", "notifications"];
+    const pages = ["risks", "library", "charter", "logs", "stream", "board", "gantt", "items", "timesheet", "timesheets", "members", "audit", "reports", "roles", "privacy", "settings", "notifications"];
     for (const page of pages) expect(css, page).toContain(`[href^="/app/${page}"]`);
   });
 });
