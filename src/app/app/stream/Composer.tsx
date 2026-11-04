@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 
-const COLORS = ["#dc2626", "#ea580c", "#16a34a", "#2563eb", "#9333ea"];
+const COLORS = ["#df343b", "#ec7022", "#23a56b", "#3454db", "#9541e8"];
 export type ComposerLabels = { placeholder: string; bold: string; italic: string; underline: string; list: string; color: string; colors: string[]; plain: string };
 
 // The message box: typing with a small toolbar for bold, italic, underline, a list and a font colour.
@@ -36,7 +36,7 @@ export function Composer({ labels, disabled }: { labels: ComposerLabels; disable
       run(e.shiftKey ? "outdent" : "indent");
     }
   };
-  const tools: [string, string, string][] = [["bold", "B", labels.bold], ["italic", "I", labels.italic], ["underline", "U", labels.underline], ["insertUnorderedList", "•", labels.list]];
+  const tools: [string, React.ReactNode, string][] = [["bold", "B", labels.bold], ["italic", "I", labels.italic], ["underline", "U", labels.underline], ["insertUnorderedList", <svg key="l" viewBox="0 0 24 24" width="18" height="15" aria-hidden="true"><path d="M3 6h.01M3 12h.01M3 18h.01M9 6h12M9 12h12M9 18h12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>, labels.list]];
 
   return (
     <div className="comp-edit">

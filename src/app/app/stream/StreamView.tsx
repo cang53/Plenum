@@ -23,6 +23,13 @@ import type { TimelineMessage } from "@/domain/timeline";
 const LONG_BODY = 280;
 const SOURCES = ["email", "app", "teams"] as const;
 
+// "@agent" stands out in plain message text.
+const mentions = (text: string) => text.split(/(@\w+)/).map((part, i) => (i % 2 ? <span key={i} className="mention">{part}</span> : part));
+
+function AgentWho({ t, time, at }: { t: StreamViewProps["t"]; time: Intl.DateTimeFormat; at: string }) {
+  return <p className="who"><b>{t("stream.agent.name")}</b><span className="pill">{t("stream.source.app")}</span><time dateTime={at}>{time.format(new Date(at))}</time></p>;
+}
+
 export type StreamViewProps = {
   t: (key: MessageKey) => string;
   base: string; // "/app/stream" or "/demo/messages"
@@ -64,6 +71,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
       {!readOnly && <MarkRead projectId={project.id} />}
       <header className="chat-head">
         <h1 className="sr-only">{project.name} · {t("stream.title")}</h1>
+        <div className="chat-title"><h2>{t("stream.conversation")}</h2><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg></div>
         <nav className="chips" aria-label={t("stream.views")}>
           <a className="chip" href={href({ source: undefined, view: undefined })} aria-current={!query.source && !decisions ? "page" : undefined}>{t("stream.tab.all")}</a>
           {SOURCES.map((k) => <a key={k} className="chip" data-src={k} href={href({ source: k, view: undefined })} aria-current={query.source === k ? "page" : undefined}>{t(`stream.source.${k}`)}</a>)}
@@ -117,6 +125,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                         <span className="pill" data-src={m.source}>{t(`stream.source.${m.source}`)}</span>
                         <time dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                       </p>
+                      <div className="bubble">
                       {m.replyTo && (() => {
                         const q = all.find((x) => x.id === m.replyTo);
                         return q ? <a className="quote" href={`#msg-${q.id}`}><b>{who(q)}</b> {q.bodyText.slice(0, 120)}</a> : null;
@@ -132,7 +141,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                           {m.bodyHtml ? <div className="full rich" dangerouslySetInnerHTML={{ __html: sanitizeHtml(m.bodyHtml) }} /> : <div className="full">{m.bodyText}</div>}
                         </details>
                       ) : (
-                        m.bodyHtml ? <div className="body rich" dangerouslySetInnerHTML={{ __html: sanitizeHtml(m.bodyHtml) }} /> : <p className="body">{m.bodyText}</p>
+                        m.bodyHtml ? <div className="body rich" dangerouslySetInnerHTML={{ __html: sanitizeHtml(m.bodyHtml) }} /> : <p className="body">{mentions(m.bodyText)}</p>
                       )}
                       {m.attachments.map((a) => {
                         const url = fileUrls?.get(a.id);
@@ -147,6 +156,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                           </div>
                         );
                       })}
+                      </div>
                       <div className="mail-acts" role="group" aria-label={t("stream.actions")}>
                         <ReplyButton disabled={readOnly} label={t("stream.c.reply")} target={{ id: m.id, who: who(m), subject: m.subject, excerpt: m.bodyText.slice(0, 80) }} />
 <details className="mail-create">
@@ -180,66 +190,82 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                     </div>
                   </article>
                   {waiting.has(m.id) && (
-                    <div className="mail msg msg-pending" data-src="app" role="status">
+                    <div className="mail msg msg-agent msg-pending" data-src="app" role="status">
                       <span className="avatar" aria-hidden="true">P</span>
-                      <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b></p><p className="body">{t("stream.agentWriting")}…</p></div>
+                      <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b><span className="pill">{t("stream.source.app")}</span></p><div className="bubble"><p className="body">{t("stream.agentWriting")}…</p></div></div>
                     </div>
                   )}
                   {(proposed.get(m.id) ?? []).map((sg) => (
-                    <section key={sg.id} className="agent-card" aria-label={t("stream.agent")}>
-                      <p className="agent-tag">{t("stream.agent")} · {t(`stream.linked.${sg.kind}`)}</p>
-                      <p className="agent-title">{sg.title}</p>
-                      {sg.details && <p className="agent-details">{sg.details}</p>}
-                      <p className="from">{t("stream.basedOn")} <a href={`#msg-${m.id}`}>{who(m)}, {time.format(new Date(m.receivedAt))}</a></p>
-                      <div className="agent-acts">
-                        <form action={applySuggestion}>
-                          {["id", "kind", "title", "details"].map((k) => <input key={k} type="hidden" name={k} value={k === "id" ? sg.id : String(sg[k as "kind" | "title" | "details"])} />)}
-                          <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
-                        </form>
-                        <details className="edit-pop">
-                          <summary className="btn btn-secondary">{t("stream.edit")}</summary>
-                          <form action={applySuggestion}>
-                            <input type="hidden" name="id" value={sg.id} />
-                            <input type="hidden" name="kind" value={sg.kind} />
-                            <input name="title" defaultValue={sg.title} aria-label={t("stream.editTitle")} required />
-                            <input name="details" defaultValue={sg.details} aria-label={t("stream.editDetails")} />
-                            <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
-                          </form>
-                        </details>
-                        <form action={dismissSuggestionForm}>
-                          <input type="hidden" name="id" value={sg.id} />
-                          <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-secondary">{t("stream.dismiss")}</button>
-                        </form>
+                    <section key={sg.id} className="mail msg msg-agent agent-card" aria-label={t("stream.agent")}>
+                      <span className="avatar" aria-hidden="true">P</span>
+                      <div className="msg-body">
+                        <AgentWho t={t} time={time} at={m.receivedAt} />
+                        <div className="bubble">
+                          <p className="agent-tag">{t("stream.agent")} · {t(`stream.linked.${sg.kind}`)}</p>
+                          <p className="agent-title">{sg.title}</p>
+                          {sg.details && <p className="agent-details">{sg.details}</p>}
+                          <p className="from">{t("stream.basedOn")} <a href={`#msg-${m.id}`}>{who(m)}, {time.format(new Date(m.receivedAt))}</a></p>
+                          <div className="agent-acts agent-foot">
+                            <form action={applySuggestion}>
+                              {["id", "kind", "title", "details"].map((k) => <input key={k} type="hidden" name={k} value={k === "id" ? sg.id : String(sg[k as "kind" | "title" | "details"])} />)}
+                              <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
+                            </form>
+                            <details className="edit-pop">
+                              <summary className="btn btn-secondary">{t("stream.edit")}</summary>
+                              <form action={applySuggestion}>
+                                <input type="hidden" name="id" value={sg.id} />
+                                <input type="hidden" name="kind" value={sg.kind} />
+                                <input name="title" defaultValue={sg.title} aria-label={t("stream.editTitle")} required />
+                                <input name="details" defaultValue={sg.details} aria-label={t("stream.editDetails")} />
+                                <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
+                              </form>
+                            </details>
+                            <form action={dismissSuggestionForm}>
+                              <input type="hidden" name="id" value={sg.id} />
+                              <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-secondary">{t("stream.dismiss")}</button>
+                            </form>
+                          </div>
+                        </div>
                       </div>
                     </section>
                   ))}
                   {actions.filter((a) => host.get(a.messageId) === m.id).map((a) => (
-                    <section key={a.id} className="agent-card" aria-label={t("stream.agent")}>
-                      <p className="agent-tag">{t("stream.agent")} · {t(`stream.agent.${a.kind}`)}</p>
-                      <p className="agent-title">{a.title}</p>
-                      {a.details && <p className="agent-details">{a.details}</p>}
-                      {a.kind !== "add_dependency" && a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
-                      {a.kind !== "add_dependency" && <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>}
-                      <p className="from">{t("stream.basedOn")} <a href={`#msg-${a.messageId}`}>{who(src(a))}, {time.format(new Date(src(a).receivedAt))}</a> · {a.reason}</p>
-                      {a.accepted ? (
-                        <div className="agent-acts">
-                          <p className="agent-done">{`${t("stream.acceptedBy")} ${a.accepted.by} · ${date.format(new Date(a.accepted.at))} ${time.format(new Date(a.accepted.at))}`}</p>
-                          <form action={undoAgentAction}>
-                            <input type="hidden" name="id" value={a.id} />
-                            <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-danger">{t("stream.undo")}</button>
-                          </form>
+                    <section key={a.id} className="mail msg msg-agent agent-card" aria-label={t("stream.agent")}>
+                      <span className="avatar" aria-hidden="true">P</span>
+                      <div className="msg-body">
+                        <AgentWho t={t} time={time} at={src(a).receivedAt} />
+                        <div className="bubble">
+                          <p className="agent-tag">{t("stream.agent")} · {t(`stream.agent.${a.kind}`)}</p>
+                          <p className="agent-title">{a.title}</p>
+                          {a.details && <p className="agent-details">{a.details}</p>}
+                          {a.kind !== "add_dependency" && a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
+                          {a.kind !== "add_dependency" && <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>}
+                          <p className="from">{t("stream.basedOn")} <a href={`#msg-${a.messageId}`}>{who(src(a))}, {time.format(new Date(src(a).receivedAt))}</a> · {a.reason}</p>
+                          {a.accepted ? (
+                            <div className="agent-foot" title={`${t("stream.acceptedBy")} ${a.accepted.by} · ${date.format(new Date(a.accepted.at))} ${time.format(new Date(a.accepted.at))}`}>
+                              <svg className="ok" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M2 13l5 5L18 6M12 16l2 2L23 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                              <p className="agent-done">{t(`stream.done.${a.kind}`)} · {`${t("stream.acceptedBy")} ${a.accepted.by} · ${date.format(new Date(a.accepted.at))} ${time.format(new Date(a.accepted.at))}`}</p>
+                              <form action={undoAgentAction}>
+                                <input type="hidden" name="id" value={a.id} />
+                                <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-danger">{t("stream.undo")}</button>
+                              </form>
+                              <a className="go" href={`/app/items?project=${project.id}`} aria-label={t("stream.openItems")} title={t("stream.openItems")}>
+                                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M3 12h17M14 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                              </a>
+                            </div>
+                          ) : (
+                            <div className="agent-acts agent-foot">
+                              {[["1", "stream.apply", "btn btn-primary"], ["0", "stream.dismiss", "btn btn-secondary"]].map(([accept, label, cls]) => (
+                                <form key={accept} action={resolveAgentAction}>
+                                  <input type="hidden" name="id" value={a.id} />
+                                  <input type="hidden" name="accept" value={accept} />
+                                  <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className={cls}>{t(label as MessageKey)}</button>
+                                </form>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                      <div className="agent-acts">
-                        {[["1", "stream.apply", "btn btn-primary"], ["0", "stream.dismiss", "btn btn-secondary"]].map(([accept, label, cls]) => (
-                          <form key={accept} action={resolveAgentAction}>
-                            <input type="hidden" name="id" value={a.id} />
-                            <input type="hidden" name="accept" value={accept} />
-                            <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className={cls}>{t(label as MessageKey)}</button>
-                          </form>
-                        ))}
                       </div>
-                      )}
                     </section>
                   ))}
                 </div>
@@ -249,6 +275,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
         ))}
         <LiveStream projectId={project.id} />
         {!decisions && (
+          <div className="comp-wrap">
           <form className="comp" id="composer" action={postMessage}>
             <input type="hidden" name="projectId" value={project.id} />
             <ReplyBar replyingTo={t("stream.c.replyingTo")} cancel={t("stream.c.cancel")} />
@@ -256,11 +283,14 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
               <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />
               <Composer disabled={!!readOnly} labels={{ placeholder: t("stream.composer"), bold: t("stream.fmt.bold"), italic: t("stream.fmt.italic"), underline: t("stream.fmt.underline"), list: t("stream.fmt.list"), color: t("stream.fmt.color"), colors: [t("stream.fmt.red"), t("stream.fmt.orange"), t("stream.fmt.green"), t("stream.fmt.blue"), t("stream.fmt.purple")], plain: t("stream.fmt.plain") }} />
               <SendButton label={t("stream.send")} disabled={readOnly}>
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </SendButton>
             </div>
             {!readOnly && <AgentWait />}
           </form>
+          <p className="hint-agent">{t("stream.hint.agent")}</p>
+          <p className="hint-keys">{t("stream.hint.keys")}</p>
+          </div>
         )}
         {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} fresh={t("stream.newMessages")} />}
       </div>
