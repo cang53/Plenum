@@ -227,7 +227,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                         )}
                       </div>
                       {linked.filter((l) => l.messageId === m.id).map((l) => (
-                        <a key={l.id} className="linked" href={`/app/items?project=${project.id}`}>{t(`stream.linked.${l.kind}`)}: {l.title}</a>
+                        <a key={l.id} className="linked" href={l.kind === "risk" ? `/app/risks/${l.id}?project=${project.id}` : `/app/items?project=${project.id}`}>{t(l.riskKind ? (`risks.kind.${l.riskKind}` as "risks.kind.risk") : `stream.linked.${l.kind}`)}: {l.title}</a>
                       ))}
                     </div>
                   </article>
@@ -243,13 +243,14 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                       <div className="msg-body">
                         <AgentWho t={t} time={time} at={m.receivedAt} />
                         <div className="bubble">
-                          <p className="agent-tag">{t("stream.agent")} · {t(`stream.linked.${sg.kind}`)}</p>
+                          <p className="agent-tag">{t("stream.agent")} · {t(sg.riskKind ? (`risks.kind.${sg.riskKind}` as "risks.kind.risk") : `stream.linked.${sg.kind}`)}</p>
                           <p className="agent-title">{sg.title}</p>
                           {sg.details && <p className="agent-details">{sg.details}</p>}
+                          {sg.riskKind && <p className="agent-details">{t("risks.likelihood")} {sg.likelihood}/5 · {t("risks.severityShort")} {sg.severity}/5</p>}
                           <p className="from">{t("stream.basedOn")} <a href={`#msg-${m.id}`}>{who(m)}, {time.format(new Date(m.receivedAt))}</a></p>
                           <div className="agent-acts agent-foot">
                             <form action={applySuggestion}>
-                              {["id", "kind", "title", "details"].map((k) => <input key={k} type="hidden" name={k} value={k === "id" ? sg.id : String(sg[k as "kind" | "title" | "details"])} />)}
+                              {["id", "kind", "title", "details", "riskKind", "likelihood", "severity"].map((k) => sg[k as "kind"] !== undefined && <input key={k} type="hidden" name={k} value={k === "id" ? sg.id : String(sg[k as "kind"])} />)}
                               <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
                             </form>
                             <details className="edit-pop">
@@ -259,6 +260,15 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                                 <input type="hidden" name="kind" value={sg.kind} />
                                 <input name="title" defaultValue={sg.title} aria-label={t("stream.editTitle")} required />
                                 <input name="details" defaultValue={sg.details} aria-label={t("stream.editDetails")} />
+                                {sg.riskKind && (
+                                  <>
+                                    <select name="riskKind" defaultValue={sg.riskKind} aria-label={t("stream.editType")}>
+                                      {["risk", "issue"].map((k) => <option key={k} value={k}>{t(k === "issue" ? "risks.kind.issue" : "risks.kind.risk")}</option>)}
+                                    </select>
+                                    <input name="likelihood" type="number" min={1} max={5} defaultValue={sg.likelihood} aria-label={t("risks.likelihood")} required />
+                                    <input name="severity" type="number" min={1} max={5} defaultValue={sg.severity} aria-label={t("risks.severityShort")} required />
+                                  </>
+                                )}
                                 <button type="submit" disabled={readOnly || !canPin} title={canPin ? undefined : t("inbox.managersOnly")} className="btn btn-primary">{t("stream.apply")}</button>
                               </form>
                             </details>

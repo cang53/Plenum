@@ -194,6 +194,7 @@ export const en = {
   "stream.edit": "Edit",
   "stream.editTitle": "Title",
   "stream.editDetails": "Details",
+  "stream.editType": "Type",
   "stream.dismiss": "Dismiss",
   "app.timesheet": "Timesheet",
   "hours.title": "Timesheet",

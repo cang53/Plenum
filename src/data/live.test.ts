@@ -59,6 +59,11 @@ describe("acceptSuggestion", () => {
     await acceptSuggestion(client, "s1", { kind: "risk", title: " Crane lost ", details: " Ends 30 Nov " });
     expect(rpc).toHaveBeenCalledWith("accept_suggestion", { p_id: "s1", p_kind: "risk", p_title: "Crane lost", p_details: "Ends 30 Nov" });
   });
+  it("sends the risk type and scores when given", async () => {
+    const rpc = vi.fn().mockResolvedValue({ error: null });
+    await acceptSuggestion({ rpc } as unknown as SupabaseClient, "s1", { kind: "risk", title: "Crane", details: "", riskKind: "issue", likelihood: 5, severity: 4 });
+    expect(rpc).toHaveBeenCalledWith("accept_suggestion", { p_id: "s1", p_kind: "risk", p_title: "Crane", p_details: "", p_risk_kind: "issue", p_likelihood: 5, p_severity: 4 });
+  });
   it("refuses an empty title", async () => {
     const rpc = vi.fn();
     await expect(acceptSuggestion({ rpc } as unknown as SupabaseClient, "s1", { kind: "task", title: " ", details: "" })).rejects.toThrow("title");

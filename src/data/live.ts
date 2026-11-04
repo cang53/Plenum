@@ -119,11 +119,11 @@ export async function listPins(client: SupabaseClient, projectId: string): Promi
 export async function listPendingSuggestions(client: SupabaseClient, projectId: string): Promise<StoredSuggestion[]> {
   const { data, error } = await client
     .from("suggestions")
-    .select("id, message_id, kind, title, details, reason, status")
+    .select("id, message_id, kind, title, details, reason, status, risk_kind, likelihood, severity")
     .eq("project_id", projectId)
     .eq("status", "pending");
   if (error) throw error;
-  return (data ?? []).map((r) => ({ id: r.id, messageId: r.message_id, kind: r.kind, title: r.title, details: r.details, reason: r.reason, status: r.status }));
+  return (data ?? []).map((r) => ({ id: r.id, messageId: r.message_id, kind: r.kind, title: r.title, details: r.details, reason: r.reason, status: r.status, ...(r.kind === "risk" ? { riskKind: r.risk_kind, likelihood: r.likelihood, severity: r.severity } : {}) }));
 }
 
 // Accepted and dismissed counts for one project; never split by person.
@@ -142,9 +142,9 @@ export async function listLinkedItems(client: SupabaseClient, projectId: string,
   if (!messageIds.length) return [];
   const found = await Promise.all(
     ITEM_KINDS.map(async (kind) => {
-      const { data, error } = await client.from(ITEM_TABLE[kind]).select("id, title, source_message_id").eq("project_id", projectId).in("source_message_id", messageIds);
+      const { data, error } = await client.from(ITEM_TABLE[kind]).select("id, title, source_message_id, kind").eq("project_id", projectId).in("source_message_id", messageIds);
       if (error) throw error;
-      return (data ?? []).map((r) => ({ id: r.id, kind, title: r.title, messageId: r.source_message_id }));
+      return (data ?? []).map((r) => ({ id: r.id, kind, title: r.title, messageId: r.source_message_id, ...(kind === "risk" ? { riskKind: (r as { kind?: "risk" | "issue" }).kind } : {}) }));
     }),
   );
   return found.flat();
@@ -158,6 +158,7 @@ export async function acceptSuggestion(client: SupabaseClient, id: string, draft
     p_kind: draft.kind,
     p_title: draft.title.trim(),
     p_details: draft.details.trim(),
+    ...(draft.kind === "risk" && draft.riskKind ? { p_risk_kind: draft.riskKind, p_likelihood: draft.likelihood, p_severity: draft.severity } : {}),
   });
   if (error) throw error;
 }

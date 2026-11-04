@@ -75,10 +75,11 @@ export function supabaseTriageIo(url: string, serviceRoleKey: string): TriageIo 
       return (await res.json()) === true;
     },
     async save(row) {
+      const { riskKind, ...rest } = row;
       const res = await fetch(`${url}/rest/v1/suggestions?on_conflict=message_id`, {
         method: "POST",
         headers: { ...headers, prefer: "resolution=ignore-duplicates,return=minimal" },
-        body: JSON.stringify(row),
+        body: JSON.stringify(riskKind ? { ...rest, risk_kind: riskKind } : rest),
       });
       if (!res.ok) throw new Error(`save suggestion failed: ${res.status}`);
     },

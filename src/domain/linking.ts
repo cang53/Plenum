@@ -14,10 +14,11 @@ export const ITEM_TABLE: Record<ItemKind, string> = {
   change_request: "change_requests",
 };
 
-export type ItemDraft = { kind: ItemKind; title: string; details: string };
+// For a risk, the type and its 1 to 5 scores can come along; the database falls back to the suggestion's own.
+export type ItemDraft = { kind: ItemKind; title: string; details: string; riskKind?: "risk" | "issue"; likelihood?: number; severity?: number };
 
 // A saved item as the timeline shows it under its message.
-export type LinkedItem = { id: string; kind: ItemKind; title: string; messageId: string };
+export type LinkedItem = { id: string; kind: ItemKind; title: string; messageId: string; riskKind?: "risk" | "issue" };
 
 const DETAILS_LIMIT = 500;
 

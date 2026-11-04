@@ -45,6 +45,7 @@ export async function applySuggestion(form: FormData): Promise<void> {
     kind: String(form.get("kind")) as ItemKind,
     title: String(form.get("title") ?? ""),
     details: String(form.get("details") ?? ""),
+    ...(form.get("riskKind") ? { riskKind: form.get("riskKind") === "issue" ? "issue" as const : "risk" as const, likelihood: Number(form.get("likelihood")), severity: Number(form.get("severity")) } : {}),
   });
   revalidatePath("/app/stream");
 }
