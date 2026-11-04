@@ -204,7 +204,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                       <div className="mail-acts" role="group" aria-label={t("stream.actions")}>
                         <ReplyButton disabled={readOnly} label={t("stream.c.reply")} target={{ id: m.id, who: who(m), subject: m.subject, excerpt: m.bodyText.slice(0, 80) }} />
 <details className="mail-create">
-                          <summary className="btn btn-plain">{t("stream.createItem")}</summary>
+                          <summary className="act" data-ico="create" data-tip={t("stream.createItem")} aria-label={t("stream.createItem")} />
                           <div>{(["task", "decision", "risk"] as const).map((k) => <a key={k} href={`/app/items?project=${project.id}&create=${k}&from=${m.id}`}>{t(`kind.${k}`)}</a>)}</div>
                         </details>
                         {canPin && (
@@ -212,12 +212,12 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                             <input type="hidden" name="projectId" value={project.id} />
                             <input type="hidden" name="messageId" value={m.id} />
                             {pinned.has(m.id) && <input type="hidden" name="pinned" value="1" />}
-                            <button type="submit" data-act="pin" disabled={readOnly} className="btn btn-plain">{pinned.has(m.id) ? t("stream.unpin") : t("stream.pin")}</button>
+                            <button type="submit" data-act="pin" disabled={readOnly} className="act" data-ico="pin" data-tip={pinned.has(m.id) ? t("stream.unpin") : t("stream.pin")} aria-label={pinned.has(m.id) ? t("stream.unpin") : t("stream.pin")} />
                           </form>
                         )}
                         {open && open.length > 0 && (
                           <details className="link-pop">
-                            <summary className="btn btn-plain">{t("stream.linkTask")}</summary>
+                            <summary className="act" data-ico="link" data-tip={t("stream.linkTask")} aria-label={t("stream.linkTask")} />
                             <form action={linkMessageToTask}>
                               <input type="hidden" name="messageId" value={m.id} />
                               <select name="taskId" aria-label={t("stream.pickTask")} required>

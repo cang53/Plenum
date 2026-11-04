@@ -34,7 +34,7 @@
 .mail-acts form { display: flex; gap: 4px; }
 .mail-acts .btn, .agent-acts .btn, .comp .btn { min-height: 30px; padding: 4px 10px; border-radius: 1000px; font-size: var(--text-base); line-height: 20px; letter-spacing: -0.23px; }
 .mail-acts .btn-plain, .agent-acts .btn-secondary { background: var(--control); color: var(--text); border: 0; }
-.mail-acts .link-pop { position: relative; }
+.mail-acts .link-pop { position: relative; display: flex; }
 .mail-acts .link-pop summary { list-style: none; }
 .mail-acts .link-pop form { position: absolute; inset-inline-start: 0; margin-block-start: 4px; padding: var(--s2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); z-index: 1; }
 .mail-acts .linked { align-self: center; color: var(--primary); font-size: var(--text-xs); }
@@ -116,7 +116,8 @@
 .mail.msg { position: relative; }
 .msg .mail-acts { position: absolute; inset-block-start: 6px; inset-inline-end: 8px; padding: 3px; border: 1px solid var(--glass-border); border-radius: 100px; background: var(--surface); opacity: 0; pointer-events: none; transition: opacity .12s; }
 .msg:hover .mail-acts, .msg:focus-within .mail-acts, .msg.on .mail-acts { opacity: 1; pointer-events: auto; }
-@media (hover: none) { .msg .mail-acts { position: static; opacity: 1; pointer-events: auto; border: 0; background: none; padding: 0; } }
+@media (hover: none) { .msg .mail-acts { position: static; opacity: 1; pointer-events: auto; border: 0; background: none; padding: 0; box-shadow: none; transform: none; } .act { width: 40px; height: 40px; } }
+@media (prefers-reduced-motion: reduce) { .msg .mail-acts { transition: none; transform: none; } }
 .mail-acts a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 .msg .linked { color: var(--primary); font-size: var(--text-xs); }
 .pins { border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass); padding: 8px 12px; }
@@ -125,7 +126,7 @@
 @media (max-width: 720px) { .agent-card { margin-inline-start: 0; } }
 @media (max-width: 48rem) { .chat-head { top: 0; } .msgs-search { flex: 1 1 100%; } .msgs-search input { width: 100%; box-sizing: border-box; } }
 
-.mail-create { position: relative; }
+.mail-create { position: relative; display: flex; }
 .mail-create > summary { list-style: none; cursor: pointer; }
 .mail-create > summary::-webkit-details-marker { display: none; }
 .mail-create > div { position: absolute; z-index: 3; display: grid; min-width: 9rem; padding: var(--s1); border: 1px solid var(--glass-border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--elevation-dialog); }
@@ -154,8 +155,22 @@
 .msg .pic img { display: block; width: 100%; max-height: 280px; object-fit: cover; }
 .attach .info a { color: var(--text); }
 /* Hover actions sit on the card's top edge, so they never cover the text */
-.msg .mail-acts { inset-block-start: -14px; padding: 2px; }
-.msg .mail-acts .btn { min-height: 26px; padding: 2px 10px; font-size: var(--text-sm); }
+/* Floating capsule toolbar: icon buttons with tooltips, straddling the bubble's top edge below the timestamp */
+.msg .mail-acts { inset-block-start: 22px; inset-inline-end: 12px; flex-wrap: nowrap; align-items: center; gap: 2px; padding: 3px; z-index: 2; border-radius: 16px; background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(10px); box-shadow: 0 8px 24px color-mix(in srgb, var(--text) 10%, transparent); transform: translateY(3px); transition: opacity .15s, transform .15s; }
+.msg:hover .mail-acts, .msg:focus-within .mail-acts, .msg.on .mail-acts { transform: none; }
+.act { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3'/></svg>"); position: relative; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--text-secondary); cursor: pointer; list-style: none; }
+.act::-webkit-details-marker { display: none; }
+.act::before { content: ""; width: 16px; height: 16px; background: currentColor; mask: var(--ico) center / contain no-repeat; }
+.act:hover, .act:focus-visible, details[open] > .act { background: var(--nav-pill, var(--surface-muted)); color: var(--primary); }
+.act:disabled { opacity: .45; cursor: default; }
+.act[data-tip]:hover::after, .act[data-tip]:focus-visible::after { content: attr(data-tip); position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 4; padding: 4px 8px; border-radius: 8px; background: var(--text); color: var(--surface); font-size: var(--text-xs); line-height: 16px; white-space: nowrap; pointer-events: none; }
+.act[data-ico="reply"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 14 4 9l5-5'/><path d='M4 9h10a6 6 0 0 1 6 6v3'/></svg>"); }
+.act[data-ico="create"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><path d='M12 5v14M5 12h14'/></svg>"); }
+.act[data-ico="link"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/><path d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/></svg>"); }
+.act[data-ico="pin"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 17v5M9 3h6l-1 7 3 3v2H7v-2l3-3z'/></svg>"); }
+.msg .mail-acts:has(details[open]) { opacity: 1; pointer-events: auto; transform: none; }
+.mail-create > div { inset-inline-end: 0; margin-block-start: 6px; }
+.mail-acts .link-pop form { inset-inline-start: auto; inset-inline-end: 0; margin-block-start: 6px; }
 .shell .chat-head { top: 4.75rem; }
 .msg-pending .body { color: var(--text-muted); animation: agent-pulse 1.4s ease-in-out infinite; }
 @keyframes agent-pulse { 50% { opacity: 0.45; } }

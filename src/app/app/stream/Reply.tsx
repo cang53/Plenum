@@ -8,10 +8,10 @@ const EVENT = "plenum:reply";
 // Replying needs no page load: the button tells the composer which message it answers.
 export function ReplyButton({ target, label, disabled }: { target: ReplyTarget; label: string; disabled?: boolean }) {
   return (
-    <button type="button" className="btn btn-plain" disabled={disabled} onClick={() => {
+    <button type="button" className="act" data-ico="reply" data-tip={label} aria-label={label} disabled={disabled} onClick={() => {
       window.dispatchEvent(new CustomEvent<ReplyTarget>(EVENT, { detail: target }));
       document.querySelector<HTMLElement>("#composer .comp-box")?.focus();
-    }}>{label}</button>
+    }} />
   );
 }
 
