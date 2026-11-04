@@ -14,6 +14,7 @@ export type AgentIo = {
   propose: (actions: AgentAction[]) => Promise<void>;
 };
 
+const DAY = 86_400_000;
 const AGENT_TOKENS = 2000;
 const CLAIM = /\b(I'll|I will|I have|I've|I made|I updated|I added|I linked|done|updated|linked|added)\b/i;
 
@@ -38,6 +39,15 @@ export async function agentRespond(input: { message: string; documents: string; 
       if (out.actions.some((a) => a.kind === "add_dependency" && a.taskId === d.successorId && a.predecessorId === d.predecessorId)) continue;
       out.actions.push(dependencyAction(tasks.find((t) => t.id === d.predecessorId)!, tasks.find((t) => t.id === d.successorId)!, `The message says "${d.sentence}".`));
     }
+  }
+  // A link whose tasks already clash gets a second card that moves the waiting task to start the day after, keeping its length.
+  for (const d of deps.found) {
+    const pred = tasks.find((t) => t.id === d.predecessorId)!;
+    const succ = tasks.find((t) => t.id === d.successorId)!;
+    if (!pred.dueDate || !succ.startDate || succ.startDate > pred.dueDate || out.actions.some((a) => a.kind === "update_task" && a.taskId === succ.id)) continue;
+    const start = new Date(Date.parse(pred.dueDate) + DAY).toISOString().slice(0, 10);
+    const due = succ.dueDate ? new Date(Date.parse(succ.dueDate) + (Date.parse(start) - Date.parse(succ.startDate))).toISOString().slice(0, 10) : null;
+    out.actions.push({ kind: "update_task", taskId: succ.id, title: succ.title, details: `Starts ${start} so it follows "${pred.title}".`, startDate: start, dueDate: due, reason: `"${succ.title}" starts before "${pred.title}" is due (${pred.dueDate}).` });
   }
   // Never say a change is made or coming when no card was proposed.
   if (!out.actions.length && (deps.unresolved.length || CLAIM.test(out.reply))) {

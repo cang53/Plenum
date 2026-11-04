@@ -109,4 +109,9 @@ describe("dependencies", () => {
     const out = parseAgentAnswer(JSON.stringify({ reply: "ok", actions: [{ kind: "add_dependency", task_id: "cab", predecessor_id: "nope", title: "x", reason: "r" }, { kind: "add_dependency", task_id: "cab", predecessor_id: "cab", title: "x", reason: "r" }] }), deps);
     expect(out?.actions).toEqual([]);
   });
+  it("also proposes moving the waiting task when the dates clash", async () => {
+    const dated = [{ ...deps[0], startDate: "2027-01-04", dueDate: "2027-01-15" }, { ...deps[1], startDate: "2026-12-21", dueDate: "2027-01-15" }];
+    const { out } = await run(said, agentRuleAsk).then(() => agentRespond({ today: "2026-11-04", message: said, documents: "" }, io({ tasks: async () => dated }), agentRuleAsk).then((o) => ({ out: o })));
+    expect(out.actions).toMatchObject([card, { kind: "update_task", taskId: "cab", startDate: "2027-01-16", dueDate: "2027-01-27" }]);
+  });
 });
