@@ -6,7 +6,7 @@ import { AgentWait } from "./AgentWait";
 import { LiveStream } from "./LiveStream";
 import { StreamKeys } from "./StreamKeys";
 import { SearchBar } from "./SearchBar";
-import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin, undoAgentAction } from "./actions";
+import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, toggleReaction, togglePin, undoAgentAction } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
@@ -20,6 +20,7 @@ import { sanitizeHtml } from "@/domain/richtext";
 import { AGENT_ADDRESS, proposalHosts, waitingForAgent, type AgentProposal } from "@/domain/agent";
 import { isoWeek, shiftDays } from "@/domain/riskPlan";
 import type { StoredSuggestion } from "@/domain/triage";
+import { REACTION_EMOJIS, type Reaction } from "@/domain/reactions";
 import type { TimelineMessage } from "@/domain/timeline";
 
 // A body longer than this folds behind its first lines.
@@ -84,6 +85,7 @@ export type StreamViewProps = {
   linked: LinkedItem[];
   proposed: Map<string, StoredSuggestion[]>;
   actions?: AgentProposal[]; // pending proposals from the project agent, shown under the message they came from
+  reactions?: Map<string, Reaction[]>; // emoji chips per message id
   fileUrls?: Map<string, string>; // attachment id to a link, for files written in Plenum
   open: { id: string; title: string }[] | null;
   mentionItems?: MentionItem[];
@@ -99,7 +101,7 @@ export type StreamViewProps = {
   me?: string; // the signed-in person's address; their own messages get an accent bar
 };
 
-export function StreamView({ t, base, project, days, query, next, fresh, linked, proposed, actions = [], fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, next, fresh, linked, proposed, actions = [], reactions, fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
   const all = days.flatMap((d) => d.groups.flatMap((g) => g.messages));
   const host = proposalHosts(all);
   const waiting = readOnly ? new Set<string>() : waitingForAgent(all, now);
@@ -187,8 +189,27 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
                         );
                       })}
                       </div>
+                      <div className="reacts">
+                        {(reactions?.get(m.id) ?? []).map((r) => (
+                          <form key={r.emoji} action={toggleReaction}>
+                            <input type="hidden" name="messageId" value={m.id} />
+                            <input type="hidden" name="emoji" value={r.emoji} />
+                            <button type="submit" disabled={readOnly} className="react" aria-pressed={r.mine} title={r.agent ? t("stream.reactedByAgent") : undefined}>{r.emoji} {r.count}{r.agent && <Robot />}</button>
+                          </form>
+                        ))}
+                      </div>
                       <div className="mail-acts" role="group" aria-label={t("stream.actions")}>
                         <ReplyButton disabled={readOnly} label={t("stream.c.reply")} target={{ id: m.id, who: who(m), subject: m.subject, excerpt: m.bodyText.slice(0, 80) }} />
+<details className="link-pop">
+                          <summary className="act" data-ico="react" data-tip={t("stream.react")} aria-label={t("stream.react")}>☺</summary>
+                          <div className="react-pick">{REACTION_EMOJIS.map((e) => (
+                            <form key={e} action={toggleReaction}>
+                              <input type="hidden" name="messageId" value={m.id} />
+                              <input type="hidden" name="emoji" value={e} />
+                              <button type="submit" disabled={readOnly} className="react">{e}</button>
+                            </form>
+                          ))}</div>
+                        </details>
 <details className="mail-create">
                           <summary className="act" data-ico="create" data-tip={t("stream.createItem")} aria-label={t("stream.createItem")} />
                           <div>{(["task", "decision", "risk"] as const).map((k) => <a key={k} href={`/app/items?project=${project.id}&create=${k}&from=${m.id}`}>{t(`kind.${k}`)}</a>)}</div>

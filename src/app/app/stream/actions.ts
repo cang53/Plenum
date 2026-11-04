@@ -8,7 +8,8 @@ import { teamsPoster } from "@/server/teams";
 import { logError } from "@/lib/log";
 import { checkFiles, safeName } from "@/domain/attachments";
 import type { ItemKind } from "@/domain/linking";
-import { isAgentTagged } from "@/domain/agent";
+import { AGENT_ADDRESS, isAgentTagged } from "@/domain/agent";
+import { reactionFor } from "@/domain/reactions";
 import { hasFormatting, htmlToText, sanitizeHtml } from "@/domain/richtext";
 import { attachmentText } from "@/server/attachment-text";
 import { agentRespond } from "@/server/agent-run";
@@ -91,9 +92,17 @@ export async function postMessage(form: FormData): Promise<void> {
     }
     try {
       const documents = files.length ? await attachmentText(await Promise.all(files.map(async (f) => ({ filename: f.name, contentType: f.type, content: Buffer.from(await f.arrayBuffer()) }))), { limit: 20000, keepLines: true }) : "";
-      if (isAgentTagged(body)) {
+      // Replying to one of CobIA's messages counts as tagging it.
+      const answered = replyTo ? (await supabase.from("messages").select("from_address").eq("id", replyTo).eq("project_id", projectId).maybeSingle()).data : null;
+      if (isAgentTagged(body) || answered?.from_address === AGENT_ADDRESS) {
         await agentRespond({ message: body, documents, today: new Date().toISOString().slice(0, 10) }, supabaseAgentIo(supabase, projectId, String(id)), aiAsk(process.env, agentRuleAsk));
       } else if (serviceConfig()) {
+        // CobIA may also react on its own. A plain word check, no model call, so it costs nothing.
+        const emoji = reactionFor(body);
+        if (emoji) {
+          const { error } = await supabase.rpc("agent_react", { p_message: id, p_emoji: emoji });
+          if (error) logError("agent reaction failed", error);
+        }
         // Ordinary chat: the AI may suggest one item, shown as a card under the message. A person still decides.
         const c = serviceConfig()!;
         await triageMessage(String(id), supabaseTriageIo(c.supabaseUrl, c.serviceRoleKey), aiAsk(), documents);
@@ -117,4 +126,11 @@ export async function undoAgentAction(form: FormData): Promise<void> {
   const { error } = await (await supabaseServer()).rpc("undo_agent_action", { p_id: String(form.get("id")) });
   if (error) throw error;
   for (const path of ["/app/stream", "/app/gantt", "/app/board", "/app/items"]) revalidatePath(path);
+}
+
+// A person's click on an emoji: the database adds it, or removes it when they already gave it.
+export async function toggleReaction(form: FormData): Promise<void> {
+  const { error } = await (await supabaseServer()).rpc("toggle_reaction", { p_message: String(form.get("messageId")), p_emoji: String(form.get("emoji")) });
+  if (error) throw error;
+  revalidatePath("/app/stream");
 }

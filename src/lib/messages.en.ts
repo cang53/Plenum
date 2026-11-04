@@ -149,6 +149,8 @@ export const en = {
   "stream.agent.add_dependency": "Link tasks",
   "stream.source.app": "Plenum",
   "stream.c.search": "Search messages",
+  "stream.react": "React",
+  "stream.reactedByAgent": "CobIA reacted too",
   "stream.c.reply": "Reply",
   "stream.c.replyingTo": "Replying to",
   "stream.c.cancel": "Cancel",

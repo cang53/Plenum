@@ -5,6 +5,7 @@ import { currentProject, listMembers, listProjects } from "@/data/projects";
 import { demoProject } from "@/data/demo";
 import { buildStream, filterFeed, newSince, suggestionsByMessage, type StreamQuery } from "@/domain/stream";
 import type { AgentProposal } from "@/domain/agent";
+import { groupReactions } from "@/domain/reactions";
 import type { MentionItem } from "@/domain/mentions";
 import { StreamView } from "./StreamView";
 import { getLocale, getT } from "@/lib/locale";
@@ -41,6 +42,10 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
     const task = a.tasks as unknown as { start_date: string | null; due_date: string | null } | null;
     return { id: a.id, messageId: a.message_id, kind: a.kind, title: a.title, details: a.details, startDate: a.start_date, dueDate: a.due_date, reason: a.reason, before: a.status === "accepted" ? (a.kind === "update_task" ? { startDate: a.prev_start_date, dueDate: a.prev_due_date } : null) : task ? { startDate: task.start_date, dueDate: task.due_date } : null, accepted: a.status === "accepted" ? { by: a.resolved_by_name ?? "", at: a.resolved_at } : null };
   });
+  // Quietly none until the reactions migration is applied.
+  const { data: reacted } = await supabase.from("message_reactions").select("message_id, emoji, user_id, agent").in("message_id", rows.map((m) => m.id));
+  const myId = (await supabase.auth.getUser()).data.user?.id;
+  const reactions = groupReactions(reacted ?? [], myId);
   // What the "@" picker offers: people, CobIA, then the project's open items and files. Quietly fewer where a table cannot be read.
   const [people, tasks, risks, decs, files] = await Promise.all([
     listMembers(supabase, project.id).catch(() => []),
@@ -64,5 +69,5 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
-  return <StreamView {...{ t, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, fileUrls, open, pins, pinned, canPin: !!canPin, mentionItems: mentions, decisions, time, date, now: new Date(), me }} />;
+  return <StreamView {...{ t, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, reactions, fileUrls, open, pins, pinned, canPin: !!canPin, mentionItems: mentions, decisions, time, date, now: new Date(), me }} />;
 }

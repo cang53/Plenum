@@ -89,12 +89,17 @@ export function dependencyAction(pred: TaskRef, succ: TaskRef, reason: string): 
 
 export const AGENT_ADDRESS = "agent@plenum.app";
 
+// A message is for the agent when it tags it, or when it replies to one of the agent's messages (the same as tagging).
+type Addressed = { id: string; fromAddress: string; bodyText: string; replyTo?: string | null };
+export const isToAgent = (m: Addressed, all: Addressed[]): boolean =>
+  m.fromAddress !== AGENT_ADDRESS && (isAgentTagged(m.bodyText) || (!!m.replyTo && all.some((x) => x.id === m.replyTo && x.fromAddress === AGENT_ADDRESS)));
+
 // Messages in time order. Proposals show under the agent's reply to the tagged message: the first agent message after it.
 // Until that reply exists they stay under the tagged message itself.
-export function proposalHosts(messages: { id: string; fromAddress: string; bodyText: string }[]): Map<string, string> {
+export function proposalHosts(messages: Addressed[]): Map<string, string> {
   const host = new Map<string, string>();
   messages.forEach((m, i) => {
-    const reply = isAgentTagged(m.bodyText) ? messages.slice(i + 1).find((x) => x.fromAddress === AGENT_ADDRESS) : undefined;
+    const reply = isToAgent(m, messages) ? messages.slice(i + 1).find((x) => x.fromAddress === AGENT_ADDRESS) : undefined;
     host.set(m.id, reply?.id ?? m.id);
   });
   return host;
@@ -103,10 +108,10 @@ export function proposalHosts(messages: { id: string; fromAddress: string; bodyT
 export const AGENT_WAIT_MS = 90000;
 
 // Ids of tagged messages the agent has not answered yet and that are recent enough to still be answered. Every viewer can work this out from the stream alone.
-export function waitingForAgent(messages: { id: string; fromAddress: string; bodyText: string; receivedAt: string }[], now: Date): Set<string> {
+export function waitingForAgent(messages: (Addressed & { receivedAt: string })[], now: Date): Set<string> {
   const waiting = new Set<string>();
   messages.forEach((m, i) => {
-    if (isAgentTagged(m.bodyText) && now.getTime() - Date.parse(m.receivedAt) < AGENT_WAIT_MS && !messages.slice(i + 1).some((x) => x.fromAddress === AGENT_ADDRESS)) waiting.add(m.id);
+    if (isToAgent(m, messages) && now.getTime() - Date.parse(m.receivedAt) < AGENT_WAIT_MS && !messages.slice(i + 1).some((x) => x.fromAddress === AGENT_ADDRESS)) waiting.add(m.id);
   });
   return waiting;
 }

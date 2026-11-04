@@ -151,6 +151,8 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.agent.add_dependency": "Taken koppelen",
   "stream.source.app": "Plenum",
   "stream.c.search": "Berichten zoeken",
+  "stream.react": "Reageren",
+  "stream.reactedByAgent": "CobIA reageerde ook",
   "stream.c.reply": "Beantwoorden",
   "stream.c.replyingTo": "Antwoord aan",
   "stream.c.cancel": "Annuleren",
