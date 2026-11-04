@@ -67,7 +67,7 @@ export async function postMessage(form: FormData): Promise<void> {
   if (checkFiles(files)) throw new Error(checkFiles(files)!);
   const supabase = await supabaseServer();
   const projectId = String(form.get("projectId"));
-  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}), ...(html ? { p_html: html } : {}) });
+  const { data: id, error } = await supabase.rpc("post_message", { p_project: projectId, p_body: body, p_subject: String(form.get("subject") ?? ""), ...(files.length ? { p_allow_empty: true } : {}), ...(html ? { p_html: html } : {}), ...(form.get("replyTo") ? { p_reply_to: String(form.get("replyTo")) } : {}) });
   if (error) throw error;
   // Files upload side by side, not one after another.
   await Promise.all(files.map(async (f) => {

@@ -13,6 +13,7 @@ import type { MessageKey } from "@/lib/messages";
 import { isImage, sizeLabel } from "@/domain/attachments";
 import type { StreamDay, StreamQuery } from "@/domain/stream";
 import { Composer } from "./Composer";
+import { ReplyBar, ReplyButton } from "./Reply";
 import { sanitizeHtml } from "@/domain/richtext";
 import { proposalHosts, waitingForAgent, type AgentProposal } from "@/domain/agent";
 import type { StoredSuggestion } from "@/domain/triage";
@@ -28,7 +29,6 @@ export type StreamViewProps = {
   project: { id: string; name: string };
   days: StreamDay[];
   query: StreamQuery;
-  reply: TimelineMessage | null; // the message the composer answers
   next: string | null;
   fresh: { id: string; count: number } | null;
   linked: LinkedItem[];
@@ -48,13 +48,12 @@ export type StreamViewProps = {
   me?: string; // the signed-in person's address; their own messages get an accent bar
 };
 
-export function StreamView({ t, base, project, days, query, reply, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, next, fresh, linked, proposed, actions = [], fileUrls, open, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
   const href = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams({ project: project.id });
     for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
     return `${base}?${p}`;
   };
-  const replySubject = reply ? `Re: ${reply.subject.replace(/^(\s*re:)+\s*/i, "") || reply.bodyText.slice(0, 60)}` : "";
   const all = days.flatMap((d) => d.groups.flatMap((g) => g.messages));
   const host = proposalHosts(all);
   const waiting = readOnly ? new Set<string>() : waitingForAgent(all, now);
@@ -118,6 +117,10 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                         <span className="pill" data-src={m.source}>{t(`stream.source.${m.source}`)}</span>
                         <time dateTime={m.receivedAt}>{time.format(new Date(m.receivedAt))}</time>
                       </p>
+                      {m.replyTo && (() => {
+                        const q = all.find((x) => x.id === m.replyTo);
+                        return q ? <a className="quote" href={`#msg-${q.id}`}><b>{who(q)}</b> {q.bodyText.slice(0, 120)}</a> : null;
+                      })()}
                       {m.subject && <p className="subject">{email ? "✉ " : ""}{m.subject}</p>}
                       {long ? (
                         <details>
@@ -145,7 +148,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                         );
                       })}
                       <div className="mail-acts" role="group" aria-label={t("stream.actions")}>
-                        <a className="btn btn-plain" href={`${href({ reply: m.id })}#composer`}>{t("stream.c.reply")}</a>
+                        <ReplyButton disabled={readOnly} label={t("stream.c.reply")} target={{ id: m.id, who: who(m), subject: m.subject, excerpt: m.bodyText.slice(0, 80) }} />
 <details className="mail-create">
                           <summary className="btn btn-plain">{t("stream.createItem")}</summary>
                           <div>{(["task", "decision", "risk"] as const).map((k) => <a key={k} href={`/app/items?project=${project.id}&create=${k}&from=${m.id}`}>{t(`kind.${k}`)}</a>)}</div>
@@ -248,8 +251,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
         {!decisions && (
           <form className="comp" id="composer" action={postMessage}>
             <input type="hidden" name="projectId" value={project.id} />
-            <input type="hidden" name="subject" value={replySubject} />
-            {reply && <p className="replying">{t("stream.c.replyingTo")} <b>{who(reply)}</b> · <a href={href({})}>{t("stream.c.cancel")}</a></p>}
+            <ReplyBar replyingTo={t("stream.c.replyingTo")} cancel={t("stream.c.cancel")} />
             <div className="comp-row">
               <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />
               <Composer disabled={!!readOnly} labels={{ placeholder: t("stream.composer"), bold: t("stream.fmt.bold"), italic: t("stream.fmt.italic"), underline: t("stream.fmt.underline"), list: t("stream.fmt.list"), color: t("stream.fmt.color"), colors: [t("stream.fmt.red"), t("stream.fmt.orange"), t("stream.fmt.green"), t("stream.fmt.blue"), t("stream.fmt.purple")], plain: t("stream.fmt.plain") }} />

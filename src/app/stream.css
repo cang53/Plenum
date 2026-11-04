@@ -158,3 +158,10 @@
 .comp .agent-writing:empty { display: none; }
 .agent-acts .btn-danger { background: var(--danger); color: #fff; border: 0; }
 .agent-done { font-size: var(--text-sm); color: var(--text-muted); align-self: center; }
+.comp .replying .linkish { margin-inline-start: auto; background: none; border: 0; padding: 0; color: var(--primary); cursor: pointer; font: inherit; }
+.comp .replying span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg .quote { display: block; margin-block: 2px; padding: 2px 10px; border-inline-start: 2px solid var(--primary); border-radius: 4px; background: var(--glass); color: var(--text-muted); font-size: var(--text-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+.msg { scroll-margin-block: 80px; }
+html { scroll-behavior: smooth; }
+.mail.msg:target { animation: quote-flash 1.6s ease-out; }
+@keyframes quote-flash { from { background: var(--glass); } to { background: transparent; } }
