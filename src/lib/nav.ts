@@ -11,7 +11,6 @@ export function navItems(role: string | undefined, isAdmin: boolean): NavItem[] 
     { path: "/app/board", label: "app.board", group: "project" },
     { path: "/app/gantt", label: "app.timeline", group: "project" },
     { path: "/app/items", label: "app.items", group: "project" },
-    { path: "/app/sitelog", label: "app.sitelog", group: "site" },
     { path: "/app/timesheet", label: "app.timesheet", group: "site" },
     { path: "/app/timesheets", label: "app.timesheets", group: "site" },
     { path: "/app/members", label: "app.members", group: "admin" },

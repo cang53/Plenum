@@ -3,9 +3,9 @@ import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
 import { SendButton } from "./SendButton";
 import { AgentWait } from "./AgentWait";
-import { PendingPoll } from "./PendingPoll";
+import { LiveStream } from "./LiveStream";
 import { StreamKeys } from "./StreamKeys";
-import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin } from "./actions";
+import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin, undoAgentAction } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
@@ -179,7 +179,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                   {waiting.has(m.id) && (
                     <div className="mail msg msg-pending" data-src="app" role="status">
                       <span className="avatar" aria-hidden="true">P</span>
-                      <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b></p><p className="body">{t("stream.agentWriting")}…</p><PendingPoll /></div>
+                      <div className="msg-body"><p className="who"><b>{t("stream.agent.name")}</b></p><p className="body">{t("stream.agentWriting")}…</p></div>
                     </div>
                   )}
                   {(proposed.get(m.id) ?? []).map((sg) => (
@@ -218,6 +218,15 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                       {a.before && <p className="agent-details">{t("stream.before")}: {a.before.startDate ?? "–"} → {a.before.dueDate ?? "–"}</p>}
                       <p className="agent-details">{a.before ? `${t("stream.after")}: ` : ""}{a.startDate ?? "–"} → {a.dueDate ?? "–"}</p>
                       <p className="from">{t("stream.basedOn")} <a href={`#msg-${a.messageId}`}>{who(src(a))}, {time.format(new Date(src(a).receivedAt))}</a> · {a.reason}</p>
+                      {a.accepted ? (
+                        <div className="agent-acts">
+                          <p className="agent-done">{`${t("stream.acceptedBy")} ${a.accepted.by} · ${date.format(new Date(a.accepted.at))} ${time.format(new Date(a.accepted.at))}`}</p>
+                          <form action={undoAgentAction}>
+                            <input type="hidden" name="id" value={a.id} />
+                            <button type="submit" disabled={readOnly} className="btn btn-danger">{t("stream.undo")}</button>
+                          </form>
+                        </div>
+                      ) : (
                       <div className="agent-acts">
                         {[["1", "stream.apply", "btn btn-primary"], ["0", "stream.dismiss", "btn btn-secondary"]].map(([accept, label, cls]) => (
                           <form key={accept} action={resolveAgentAction}>
@@ -227,6 +236,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
                           </form>
                         ))}
                       </div>
+                      )}
                     </section>
                   ))}
                 </div>
@@ -234,6 +244,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             })}
           </section>
         ))}
+        <LiveStream projectId={project.id} />
         {!decisions && (
           <form className="comp" id="composer" action={postMessage}>
             <input type="hidden" name="projectId" value={project.id} />
@@ -249,7 +260,7 @@ export function StreamView({ t, base, project, days, query, reply, next, fresh, 
             {!readOnly && <AgentWait />}
           </form>
         )}
-        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} />}
+        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} fresh={t("stream.newMessages")} />}
       </div>
     </main>
   );

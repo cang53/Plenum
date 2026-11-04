@@ -155,3 +155,7 @@
 .comp-box ul, .rich ul, .rich ol { margin: 0; padding-inline-start: 1.25rem; }
 .rich { overflow-wrap: anywhere; }
 .comp-box ul ul, .rich ul ul { list-style: circle; }
+.comp .agent-writing { font-size: var(--text-sm); color: var(--text-muted); }
+.comp .agent-writing:empty { display: none; }
+.agent-acts .btn-danger { background: var(--danger); color: #fff; border: 0; }
+.agent-done { font-size: var(--text-sm); color: var(--text-muted); align-self: center; }

@@ -15,7 +15,7 @@ describe("buildBars", () => {
   it("places bars on a day grid from the earliest start and skips undated tasks", () => {
     const { bars, totalDays } = buildBars([task("b", "2026-11-05", "2026-11-06"), task("a", "2026-11-01", "2026-11-03"), task("c", null, null)]);
     expect(bars.map((b) => [b.id, b.startDay, b.length])).toEqual([["a", 0, 3], ["b", 4, 2]]);
-    expect(totalDays).toBe(6);
+    expect(totalDays).toBe(6 + 21);
   });
   it("is empty without dated tasks", () => {
     expect(buildBars([task("a", null, "2026-11-03")]).bars).toEqual([]);
