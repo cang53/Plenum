@@ -27,6 +27,10 @@ describe("Gantt", () => {
     expect(html).toContain('data-critical-path="false"');
     expect(html).not.toContain("<path");
   });
+  it("links a task title to the side panel on the same page", () => {
+    const html = renderToStaticMarkup(<Gantt projectId="p1" tasks={[task("a", "2026-11-01", "2026-11-03")]} dependencies={[]} onSave={save} labels={labels} />);
+    expect(html).toContain('href="/app/gantt?project=p1&amp;detail=a"');
+  });
   it("draws a milestone as a marked, labelled bar", () => {
     const html = renderToStaticMarkup(<Gantt tasks={[{ ...task("m", "2026-11-01", "2026-11-03"), isMilestone: true }]} dependencies={[]} onSave={save} labels={labels} />);
     expect(html).toContain('data-milestone="true"');

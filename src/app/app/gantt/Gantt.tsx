@@ -19,7 +19,7 @@ type Labels = { chart: string; today: string; critical: string; conflict: string
 // A suggested risk waiting for a person; it links to the message it came from and to where it is reviewed.
 export type ScheduleRisk = { title: string; quote: string; source: string; sourceHref: string; reviewHref: string };
 
-export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk }: { tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
+export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId }: { projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
   const tr = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initial);
   const [error, setError] = useState(false);
@@ -203,7 +203,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
                           </>
                         ) : (
                           <>
-                            <span className="gantt-task-title"><span className="gantt-task-name">{b!.title}</span><span aria-hidden="true">›</span></span>
+                            <span className="gantt-task-title"><span className="gantt-task-name">{projectId ? <a href={`/app/gantt?project=${projectId}&detail=${b!.id}`}>{b!.title}</a> : b!.title}</span><span aria-hidden="true">›</span></span>
                             <span className="gantt-task-line">{b!.ownerName ?? tr("gantt.unowned")}{b!.number ? ` · ${prefix}-${b!.number}` : ""}</span>
                             <span className="gantt-task-line gantt-task-status">{b!.status ? `${translate(`status.${b!.status}`, locale)}${b!.priority ? ` · ${translate(`priority.${b!.priority}`, locale)}` : ""}` : `${show(b!.start)} – ${show(b!.due)}`}</span>
                           </>

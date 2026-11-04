@@ -50,7 +50,7 @@ export function InspectorHost({ locale, items, plan, projectId, projectName, can
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
-      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || a.target || !a.closest(".items-page")) return;
+      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || a.target || !a.closest(".items-page, .gantt-page")) return;
       const url = new URL(a.href, location.href);
       if (url.origin !== location.origin || url.pathname !== location.pathname || listHref(url) !== listHref(new URL(location.href))) return;
       if (url.search === location.search) return;
