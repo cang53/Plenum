@@ -21,3 +21,11 @@ describe("risk scoring", () => {
     expect(cells.get("5:3")?.map((i) => i.id)).toEqual(["b"]);
   });
 });
+
+import { riskCodes } from "./risk";
+describe("riskCodes", () => {
+  it("numbers risks and issues separately by age", () => {
+    const m = riskCodes([{ id: "b", kind: "issue", createdAt: "2026-02" }, { id: "a", kind: "risk", createdAt: "2026-01" }, { id: "c", kind: "risk", createdAt: "2026-03" }]);
+    expect([m.get("a"), m.get("b"), m.get("c")]).toEqual(["R1", "I1", "R2"]);
+  });
+});

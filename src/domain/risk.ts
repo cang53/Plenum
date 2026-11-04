@@ -22,3 +22,9 @@ export function matrixCells<T extends Cell>(items: T[]): Map<string, T[]> {
   }
   return cells;
 }
+
+// Short codes by order of creation: R1, R2 for risks and I1, I2 for issues.
+export function riskCodes(items: { id: string; kind: "risk" | "issue"; createdAt: string }[]): Map<string, string> {
+  const n = { risk: 0, issue: 0 };
+  return new Map([...items].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((i) => [i.id, `${i.kind === "issue" ? "I" : "R"}${++n[i.kind]}`]));
+}
