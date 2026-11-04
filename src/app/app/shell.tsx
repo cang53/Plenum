@@ -81,6 +81,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
         </div>
       </header>
       <aside className="shell-side" id="shell-side">
+        <div className="shell-capsule">
         {quickLink("mine", labels.mywork)}
         <nav aria-label={labels.main}>
           {GROUPS.map((g) => {
@@ -95,6 +96,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
             );
           })}
         </nav>
+        </div>
         <section className="shell-privacy" aria-label={labels.privacy.title}>
           <strong>{labels.privacy.title}</strong>
           <p>{labels.privacy.body}</p>
