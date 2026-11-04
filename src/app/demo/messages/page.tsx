@@ -56,6 +56,7 @@ export default async function DemoMessagesPage({ searchParams }: { searchParams:
       date={date}
       now={now}
       readOnly
+      me="maya@plenum.example"
     />
   );
 }

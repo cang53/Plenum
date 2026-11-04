@@ -319,3 +319,40 @@ html { scroll-behavior: smooth; }
 .mention-pop .kind { color: var(--text-muted); font-size: var(--text-xs); }
 a.mention, .comp-box a { color: var(--c-brand); text-decoration: none; background: var(--glass); border-radius: 6px; padding: 0 4px; }
 a.mention:hover { text-decoration: underline; }
+
+/* Compact, two-sided chat: my messages on the right, everyone else (and CobIA) on the left. */
+.chat .chat-head { padding-block: 16px 8px; }
+.msgs.chat { padding: 16px; gap: 14px; border-radius: 22px; }
+.chat .chat-head { margin-block-start: -16px; }
+.chat .comp-wrap { margin-block-end: -16px; padding-block-end: 16px; }
+.chat .feed, .chat .msgs-main { gap: 8px; }
+.chat .mail.msg { gap: 8px; max-width: 80%; align-self: flex-start; }
+.chat .mail.msg.agent-card, .chat .mail.msg.msg-pending { max-width: 88%; }
+.chat .mail.msg[data-mine] { flex-direction: row-reverse; align-self: flex-end; box-shadow: none; }
+.chat .msg-body { flex: 0 1 auto; gap: 3px; }
+.chat .avatar { width: 26px; height: 26px; font-size: 12px; }
+.chat .avatar svg { width: 17px; height: 17px; }
+.chat .msg-agent .avatar { border-radius: 8px; }
+.chat .msg .who { min-height: 16px; gap: 6px; font-size: 12px; line-height: 14px; }
+.chat .msg .pill, .chat .msg .pill[data-src] { padding: 2px 6px; font-size: 10px; line-height: 12px; }
+.chat .msg .who time { margin-inline-start: 4px; font-size: 10px; }
+.chat .mail.msg[data-mine] .who { flex-direction: row-reverse; }
+.chat .mail.msg[data-mine] .who time { margin-inline-start: 0; margin-inline-end: 4px; }
+.chat .bubble { gap: 6px; padding: 7px 11px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.45; }
+.chat .mail.msg[data-mine] .bubble { border-radius: 14px 4px 14px 14px; background: var(--c-agent); }
+.chat .bubble .body, .chat .bubble details, .chat .bubble .agent-title, .chat .bubble .agent-details { font-size: 13.5px; line-height: 1.45; }
+.chat .bubble .quote { padding: 1px 8px; font-size: 12px; }
+.chat .dayrule { font-size: 10px; margin-block: 2px; }
+.chat .agent-foot { padding-block-start: 8px; }
+.chat .impact { padding: 6px 8px; }
+/* Hover toolbar sits on the outer edge of the bubble's far side, so it never covers the text. */
+.chat .msg .mail-acts { inset-block-start: -6px; inset-inline-end: 8px; padding: 2px; }
+.chat .msg .act { width: 26px; height: 26px; }
+.chat .mail.msg[data-mine] .mail-acts { inset-inline-end: auto; inset-inline-start: 8px; }
+.chat .mail.msg[data-mine] .mail-create > div { inset-inline-end: auto; inset-inline-start: 0; }
+.chat .mail.msg[data-mine] .mail-acts .link-pop form { inset-inline-end: auto; inset-inline-start: 0; }
+.chat .mail.msg[data-mine] .act[data-tip]:hover::after, .chat .mail.msg[data-mine] .act[data-tip]:focus-visible::after { inset-inline-end: auto; inset-inline-start: 0; }
+/* Search overlay: opened with Ctrl/Cmd+F, closed with Esc. */
+.chat .msgs-search { position: fixed; inset-block-start: 5.5rem; inset-inline: 0; z-index: 20; display: flex; justify-content: center; padding-inline: var(--s4); pointer-events: none; }
+.chat .msgs-search[hidden] { display: none; }
+.chat .msgs-search input[type="search"] { pointer-events: auto; width: min(32rem, 100%); padding: 9px 16px; border: 1px solid var(--c-line); border-radius: 100px; background: var(--c-solid); box-shadow: var(--c-shadow); font-size: 14px; }

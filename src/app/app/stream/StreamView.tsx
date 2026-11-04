@@ -5,6 +5,7 @@ import { SendButton } from "./SendButton";
 import { AgentWait } from "./AgentWait";
 import { LiveStream } from "./LiveStream";
 import { StreamKeys } from "./StreamKeys";
+import { SearchBar } from "./SearchBar";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, togglePin, undoAgentAction } from "./actions";
 import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
@@ -23,7 +24,6 @@ import type { TimelineMessage } from "@/domain/timeline";
 
 // A body longer than this folds behind its first lines.
 const LONG_BODY = 280;
-const SOURCES = ["email", "app", "teams"] as const;
 
 // "@cobia" stands out in plain message text.
 const mentions = (text: string) => text.split(/(@\w+)/).map((part, i) => (i % 2 ? <span key={i} className="mention">{part}</span> : part));
@@ -100,11 +100,6 @@ export type StreamViewProps = {
 };
 
 export function StreamView({ t, base, project, days, query, next, fresh, linked, proposed, actions = [], fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
-  const href = (over: Record<string, string | undefined>) => {
-    const p = new URLSearchParams({ project: project.id });
-    for (const [k, v] of Object.entries({ q: query.q, source: query.source, ...over })) if (v) p.set(k, v);
-    return `${base}?${p}`;
-  };
   const all = days.flatMap((d) => d.groups.flatMap((g) => g.messages));
   const host = proposalHosts(all);
   const waiting = readOnly ? new Set<string>() : waitingForAgent(all, now);
@@ -116,16 +111,7 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
       <header className="chat-head">
         <h1 className="sr-only">{project.name} · {t("stream.title")}</h1>
         <div className="chat-title"><h2>{t("stream.conversation")}</h2><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg></div>
-        <nav className="chips" aria-label={t("stream.views")}>
-          <a className="chip" href={href({ source: undefined, view: undefined })} aria-current={!query.source && !decisions ? "page" : undefined}>{t("stream.tab.all")}</a>
-          {SOURCES.map((k) => <a key={k} className="chip" data-src={k} href={href({ source: k, view: undefined })} aria-current={query.source === k ? "page" : undefined}>{t(`stream.source.${k}`)}</a>)}
-          <a className="chip" href={href({ view: "decisions", source: undefined })} aria-current={decisions ? "page" : undefined}>{t("stream.tab.decisions")} · {pins.length}</a>
-          <form action={base} role="search" className="msgs-search">
-            <input type="hidden" name="project" value={project.id} />
-            {query.source && <input type="hidden" name="source" value={query.source} />}
-            <input type="search" name="q" defaultValue={query.q} placeholder={t("stream.c.search")} aria-label={t("stream.c.search")} />
-          </form>
-        </nav>
+        <SearchBar action={base} projectId={project.id} source={query.source} q={query.q} label={t("stream.c.search")} />
       </header>
       <div className="msgs-main feed">
         {(decisions || pins.length > 0) && (
