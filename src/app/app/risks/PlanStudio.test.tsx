@@ -61,11 +61,14 @@ describe("saved plan", () => {
     expect(html).toContain("3 activities added to the Gantt");
   });
   it("shows an added step once, in green, on the real task", () => {
-    const real = { ...gantt, tasks: [...gantt.tasks, { id: "t2", title: "Place order early", startDate: "2026-11-02", dueDate: "2026-11-13", phase: null, ownerName: "Mila V." }] };
-    const html = renderToStaticMarkup(<PlanStudio riskId="r" weekStart="2026-11-02" gantt={real} people={people} weekNames={weekNames} existing={[]} base={base} labels={labels} canManage initialSteps={steps.slice(0, 1)} initialLog={[{ who: "ai", text: "ok" }]} />);
+    const dup = { title: "Place order early", startDate: "2026-11-02", dueDate: "2026-11-13", phase: null, ownerName: "Mila V." };
+    const real = { ...gantt, tasks: [...gantt.tasks, { id: "t2", ...dup }, { id: "t3", ...dup }] }; // same title twice: only the saved id is green
+    const html = renderToStaticMarkup(<PlanStudio riskId="r" weekStart="2026-11-02" gantt={real} people={people} weekNames={weekNames} existing={[]} base={base} labels={labels} canManage initialSteps={[{ ...steps[0], taskId: "t3" }]} initialLog={[{ who: "ai", text: "ok" }]} />);
     expect(html.match(/Place order early/g)?.length).toBeGreaterThan(0);
     expect(html).toContain("gantt-proposal ps-ok");
     expect(html).not.toContain('data-bar-id="p-1"');
+    expect(html.match(/gantt-proposal ps-ok/g)).toHaveLength(1);
+    expect(html).toMatch(/data-bar-id="t3"/);
   });
   it("draws the real chart with the existing activities and each proposal in its own color", () => {
     const html = render(steps);
