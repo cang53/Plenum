@@ -19,9 +19,14 @@ type Labels = { chart: string; today: string; critical: string; conflict: string
 // A suggested risk waiting for a person; it links to the message it came from and to where it is reviewed.
 export type ScheduleRisk = { title: string; quote: string; source: string; sourceHref: string; reviewHref: string };
 
-export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId }: { projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
+// Lets another screen (the remediation plan) lay its own bars over the chart: each gets a color class, and may flash or fade out.
+export type Proposals = Record<string, { cls: string; flash?: boolean; leaving?: boolean }>;
+
+export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId }: { embedded?: boolean; focusId?: string; reveal?: { id: string }; proposals?: Proposals; projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
   const tr = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initial);
+  const [seen, setSeen] = useState(initial);
+  if (seen !== initial) { setSeen(initial); setTasks(initial); } // a new list from the parent replaces the local one before it is drawn
   const [error, setError] = useState(false);
   const [saved, setSaved] = useState(false);
   const [zoom, setZoom] = useState<Zoom>("week");
@@ -49,21 +54,28 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
   const zoomPx = DAY_PX[zoom];
   const todayOffset = dayOf(new Date().toISOString().slice(0, 10)) - firstDay;
   // Open with today near the left of the chart once; later zoom changes keep the person's place.
+  const slideTo = (id: string, behavior: ScrollBehavior) => {
+    const el = scroller.current;
+    const bar = el?.querySelector<HTMLElement>(`[data-bar-id="${id}"]`);
+    if (!el || !bar) return false;
+    const a = bar.getBoundingClientRect(), b = el.getBoundingClientRect();
+    el.scrollTo({ left: Math.max(0, el.scrollLeft + a.left - b.left - META_PX - 80), top: Math.max(0, el.scrollTop + a.top - b.top - el.clientHeight / 3), behavior });
+    return true;
+  };
   useEffect(() => {
     const el = scroller.current;
     if (!el || scrolled.current) return;
     scrolled.current = true;
-    el.scrollLeft = Math.max(0, todayOffset * zoomPx - (el.clientWidth - META_PX) / 4);
-  }, [todayOffset, zoomPx]);
-  useEffect(() => {
-    const el = scroller.current;
-    if (el) setView({ left: el.scrollLeft, width: el.clientWidth });
-  }, [zoom]);
+    // The embedded chart opens on the activity it is about; the full page opens near today.
+    if (!(focusId && slideTo(focusId, "auto"))) el.scrollLeft = Math.max(0, todayOffset * zoomPx - (el.clientWidth - META_PX) / 4);
+  }, [todayOffset, zoomPx, focusId, bars]);
+  // Slide to a bar the agent just added or moved.
+  useEffect(() => { if (reveal) slideTo(reveal.id, "smooth"); }, [reveal]);
   if (!bars.length) return <p className="intro">{labels.empty}</p>;
 
   const move = async (id: string, days: number) => {
     const task = tasks.find((t) => t.id === id);
-    if (!task || !days) return;
+    if (!task || !days || embedded) return;
     const next = shiftDates(task, days);
     setTasks((all) => all.map((t) => (t.id === id ? { ...t, ...next } : t)));
     setError(false);
@@ -114,7 +126,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
   const weekend = (offset: number) => { const d = (firstDay + offset + 4) % 7; return d === 0 || d === 6; }; // day 0 of the epoch was a Thursday
   const days = Array.from({ length: totalDays }, (_, i) => i);
   return (
-    <section className="gantt" data-critical-path={showCritical} aria-label={labels.chart}>
+    <section className="gantt" data-embedded={embedded || undefined} data-critical-path={showCritical} aria-label={labels.chart}>
       <div className="gantt-controls">
         <div className="gantt-filters" role="group" aria-label={tr("gantt.filters")}>
           <label className="gantt-pill">
@@ -150,7 +162,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
           </div>
         </div>
       </div>
-      <div className="gantt-baselinebar">
+      {!embedded && <div className="gantt-baselinebar">
         {baseline ? <p>{labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p>{labels.baselineNone}</p>}
         {picker}
         {onBaseline && (
@@ -160,7 +172,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
           </form>
         )}
         <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
-      </div>
+      </div>}
       {saved && <p role="status">{labels.baselineSaved}</p>}
       {error && <p role="alert">{labels.saveError}</p>}
       <div className="gantt-plan">
@@ -265,7 +277,10 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
                     <button
                       key={b.id}
                       type="button"
-                      className="gantt-bar"
+                      className={`gantt-bar${proposals?.[b.id] ? ` gantt-proposal ${proposals[b.id].cls}` : ""}`}
+                      data-bar-id={b.id}
+                      data-flash={proposals?.[b.id]?.flash || undefined}
+                      data-leaving={proposals?.[b.id]?.leaving || undefined}
                       data-milestone={b.isMilestone}
                       data-critical={critical.has(b.id)}
                       data-late={late}
@@ -327,7 +342,7 @@ export function Gantt({ tasks: initial, dependencies, onSave, baseline = null, b
           </div>
         </article>
       )}
-      <p className="gantt-policy">{tr("gantt.risk.policy")}</p>
+      {!embedded && <p className="gantt-policy">{tr("gantt.risk.policy")}</p>}
     </section>
   );
 }

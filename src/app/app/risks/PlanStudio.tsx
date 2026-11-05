@@ -1,21 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BaseLoad, bestOwnerLocal } from "./studioLocal";
-import { isoWeek } from "@/domain/riskPlan";
-import { WEEKS, loadPct, nearlyFull, type Draft, type Person } from "@/domain/planStudio";
+import { Gantt } from "@/app/app/gantt/Gantt";
+import type { ganttLabels } from "@/app/app/gantt/labels";
+import type { GanttTask } from "@/domain/gantt";
+import type { Dependency } from "@/domain/schedule";
+import type { Locale } from "@/lib/messages";
+import { weekDates, loadPct, nearlyFull, type Draft, type Person } from "@/domain/planStudio";
 import { studioChat, studioCommit, studioFromNotes } from "./studio-actions";
 import type { STUDIO_KEYS } from "./studioLabels";
 
 type Labels = Record<(typeof STUDIO_KEYS)[number], string>;
 type Msg = { id: number; who: "me" | "ai"; text: string; typing?: boolean };
-type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; weekStart?: string; startAt?: number; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[]; initialLog?: { who: "me" | "ai"; text: string }[] };
-const LO = -4, HI = 12; // how far the timeline can be moved: weeks before and after this one
-const clamp = (n: number) => Math.max(LO, Math.min(HI, n));
+type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; weekStart: string; gantt: { tasks: GanttTask[]; dependencies: Dependency[]; labels: ReturnType<typeof ganttLabels>; locale: Locale; prefix: string; focusId?: string }; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[]; initialLog?: { who: "me" | "ai"; text: string }[] };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function PlanStudio({ riskId, people, weekNames, existing, marker = null, weekStart, startAt = 0, base, labels: L, canManage, initialSteps = [], initialLog }: Props) {
+export function PlanStudio({ riskId, people, weekNames, existing, marker = null, weekStart, gantt: g, base, labels: L, canManage, initialSteps = [], initialLog }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [steps, setSteps] = useState<Draft[]>(initialSteps);
@@ -29,7 +31,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
   const [added, setAdded] = useState(saved);
   const [toast, setToast] = useState("");
   const [asking, setAsking] = useState(false);
-  const [off, setOff] = useState(clamp(Math.round(startAt)));
+  const [revealed, setRevealed] = useState<{ id: string }>();
   const busy = useRef(false);
   const seq = useRef(initialLog?.length ?? 0);
   const logEl = useRef<HTMLDivElement>(null);
@@ -40,10 +42,8 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
 
   const push = (m: Omit<Msg, "id">) => { const id = ++seq.current; setLog((x) => [...x, { ...m, id }]); return id; };
   const reply = async (text: string, typingId?: number) => { await wait(650); setLog((x) => x.map((m) => (m.id === typingId ? { ...m, typing: false, text } : m))); };
-  // Slide the timeline just enough to show a step the agent added or moved.
-  const reveal = (s: { s: number; l: number }) => setOff((o) => (s.s < o || s.s + s.l > o + WEEKS ? clamp(s.s - 1) : o));
-  const weekLabel = (i: number) => (i >= 0 && i < weekNames.length ? weekNames[i] : weekStart ? `W${isoWeek(new Date(Date.parse(`${weekStart}T00:00:00Z`) + i * 7 * 86_400_000).toISOString().slice(0, 10))}` : "");
-  const left = (w: number) => `${(w - off) * 12.5}%`;
+  // Slide the chart to a step the agent added or moved.
+  const reveal = (s: { id: number }) => setRevealed({ id: `p-${s.id}` });
   const flash = (id?: number) => { if (!id) return; setFlashId(id); setTimeout(() => setFlashId(null), 1400); };
 
   useEffect(() => { logEl.current?.scrollTo({ top: 1e9 }); }, [log]);
@@ -106,7 +106,12 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
     } catch { setToast(L["ps.error"]); setTimeout(() => setToast(""), 2600); }
   }
 
-  const grid = { gridTemplateColumns: `150px repeat(8, 1fr)` };
+  const proposals = Object.fromEntries(steps.map((s, i) => [`p-${s.id}`, { cls: `ps-c${i % 8}`, flash: flashId === s.id, leaving: leaving === s.id }]));
+  const tasks = useMemo<GanttTask[]>(() => [
+    ...g.tasks,
+    ...(marker === null ? [] : [{ id: "p-risk", title: L["ps.riskDate"], startDate: weekDates(weekStart, marker, 1).startDate, dueDate: weekDates(weekStart, marker, 1).startDate, isMilestone: true, phase: null }]),
+    ...steps.map((s) => ({ id: `p-${s.id}`, title: s.title, ...weekDates(weekStart, s.s, s.l), phase: L["ps.proposed"], status: "todo" as const, ownerName: people.find((p) => p.userId === s.owner)?.name ?? null })),
+  ], [g.tasks, steps, marker, weekStart, people, L]);
   return (
     <div className="ps">
       <div className="ps-row">
@@ -128,24 +133,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
                 <button type="button" className="ps-btn p" disabled={!steps.length || added || !canManage} onClick={commit}>{added ? L["ps.added"].replace("{n}", String(steps.length)) : steps.length ? L["ps.add"].replace("{n}", String(steps.length)) : L["ps.addNone"]}</button>
               </div>
             </div>
-            <div className="ps-nav">
-              <button type="button" className="ps-btn" onClick={() => setOff((o) => clamp(o - 4))} disabled={off <= LO}>← {L["ps.earlier"]}</button>
-              <button type="button" className="ps-btn" onClick={() => setOff(0)}>{L["ps.today"]}</button>
-              {existing.some((e) => e.hot) && <button type="button" className="ps-btn" onClick={() => { const h = existing.find((e) => e.hot); if (h) setOff(clamp(Math.round(h.s))); }}>{L["ps.affected"]}</button>}
-              <button type="button" className="ps-btn" onClick={() => setOff((o) => clamp(o + 4))} disabled={off >= HI}>{L["ps.later"]} →</button>
-            </div>
-            <div className="ps-tl"><div className="ps-grid" role="img" aria-label={L["ps.timeline"]}>
-              <div className="ps-weeks" style={grid}><span />{Array.from({ length: WEEKS }, (_, i) => <span key={i} className={off + i === 0 ? "now" : undefined}>{weekLabel(off + i)}</span>)}</div>
-              {marker !== null && <div className="ps-lane"><span className="ps-lbl"><span className="ps-tag">{L["ps.riskDate"]}</span></span><div className="ps-track"><div className="ps-bar mark" style={{ left: left(marker) }} /></div></div>}
-              {steps.map((s, i) => (
-                <div className={`ps-lane${leaving === s.id ? " leaving" : ""}`} key={s.id}><span className="ps-lbl"><b>{L["ps.new"]}</b> {s.title}</span><div className="ps-track"><div className={`ps-bar new ps-c${i % 8}${s.owner ? "" : " gap"}${added ? " done" : ""}${flashId === s.id ? " pulse" : ""}`} style={{ left: left(s.s), width: `${s.l * 12.5}%` }} /></div></div>
-              ))}
-              <div className="ps-old">
-                {existing.map((e, i) => (
-                  <div className="ps-lane" key={i}><span className="ps-lbl"><span className="ps-tag">{e.hot ? L["ps.affected"] : L["ps.existing"]}</span> {e.title}</span><div className="ps-track"><div className={`ps-bar${e.hot ? " hot" : ""}`} style={{ left: left(e.s), width: `${e.l * 12.5}%` }} /></div></div>
-                ))}
-              </div>
-            </div></div>
+            <div className="ps-gantt"><Gantt embedded {...g} tasks={tasks} proposals={proposals} reveal={revealed} /></div>
           </section>
           <section className="ps-card" aria-labelledby="ps-t2">
             <div className="ps-row"><h2 id="ps-t2">{L["ps.steps"]}</h2><span className="ps-tag">{steps.length || ""}</span></div>

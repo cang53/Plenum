@@ -112,3 +112,14 @@
   .gantt-scroll { overflow: visible; }
   .gantt-bar { cursor: default; }
 }
+
+/* Embedded in the remediation plan: a window onto the same chart, with the agent's proposed bars laid over it. */
+.gantt[data-embedded] .gantt-scroll { max-height: 440px; overflow: auto; scroll-behavior: smooth; }
+.gantt[data-embedded] .gantt-axis { position: sticky; top: 0; z-index: 5; background: var(--surface); }
+.gantt-row, .gantt-proposal { transition: top .6s cubic-bezier(.3,1.2,.4,1); }
+.gantt-proposal { --c: var(--primary); background: color-mix(in srgb, var(--c) 22%, var(--surface)); border: 2px dashed var(--c); transition: top .6s cubic-bezier(.3,1.2,.4,1), inset-inline-start .6s cubic-bezier(.3,1.2,.4,1), width .6s cubic-bezier(.3,1.2,.4,1), opacity .35s, scale .35s; animation: gantt-propose .6s cubic-bezier(.3,1.2,.4,1) backwards; transform-origin: left; }
+.gantt-proposal[data-flash] { animation: gantt-propose .6s cubic-bezier(.3,1.2,.4,1) backwards, gantt-pulse 1.1s ease-out; }
+.gantt-proposal[data-leaving] { opacity: 0; scale: .9 1; }
+@keyframes gantt-propose { from { opacity: 0; scale: 0 1; } }
+@keyframes gantt-pulse { 0% { box-shadow: 0 0 0 0 var(--c); } 100% { box-shadow: 0 0 0 12px transparent; } }
+@media (prefers-reduced-motion: reduce) { .gantt-row, .gantt-proposal { transition: none; animation: none; } .gantt[data-embedded] .gantt-scroll { scroll-behavior: auto; } }

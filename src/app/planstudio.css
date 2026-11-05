@@ -76,11 +76,4 @@
 .ps-c4 { --c: #7c3aed; } .ps-c5 { --c: #65a30d; } .ps-c6 { --c: #0891b2; } .ps-c7 { --c: #e11d48; }
 .ps-step[class*="ps-c"] { border-inline-start: 4px solid var(--c); }
 
-.ps-nav { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-.ps-old { max-height: 220px; overflow-y: auto; scroll-behavior: smooth; }
-.ps-weeks .now { color: var(--primary); font-weight: 700; }
-.ps-weeks span { transition: color .3s; }
-.ps-lane { animation: ps-rise .45s cubic-bezier(.3,1.2,.4,1) backwards; }
-.ps-lane.leaving { animation: ps-out .35s forwards; }
-.ps-bar.pulse { animation: ps-grow .6s cubic-bezier(.3,1.2,.4,1) backwards, ps-pulse 1.1s ease-out; }
-@keyframes ps-pulse { 0% { box-shadow: 0 0 0 0 var(--c, var(--primary)); } 100% { box-shadow: 0 0 0 12px transparent; } }
+.ps-gantt { margin-top: 10px; min-width: 0; }

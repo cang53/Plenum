@@ -6,7 +6,10 @@ import { extractDate, suggestTask } from "@/domain/riskLink";
 import { LinkAsk } from "../../LinkAsk";
 import { riskCodes } from "@/domain/risk";
 import { WEEKS } from "@/domain/planStudio";
-import { getT } from "@/lib/locale";
+import { projectPrefix } from "@/domain/board";
+import { listGanttPlan } from "@/data/live";
+import { ganttLabels } from "../../../gantt/labels";
+import { getLocale, getT } from "@/lib/locale";
 import type { MessageKey } from "@/lib/messages";
 import { loadStudio } from "@/server/plan-studio";
 import { PlanStudio } from "../../PlanStudio";
@@ -26,17 +29,11 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
   const ctx = await loadStudio(supabase, id);
   const [all, steps, projects, snaps] = await Promise.all([listRisks(supabase, ctx.projectId), listSteps(supabase, id), listProjects(supabase), listSnapshots(supabase, id)]);
   const canManage = Boolean((await supabase.rpc("can_manage_project", { p: ctx.projectId })).data);
-  void currentProject(projects, ctx.projectId);
   const col = (d: string) => Math.floor((Date.parse(d) - Date.parse(ctx.weekStart)) / (7 * DAY));
   const linked = ctx.tasks.find((x) => x.id === risk.linkedTaskId);
-  // Every dated activity, as weeks from this Monday (may be before it); the screen pans over them and opens on the affected one.
-  const bars = ctx.tasks.flatMap((x) => {
-    if (!x.startDate || !x.dueDate) return [];
-    const s = col(x.startDate), e = col(x.dueDate);
-    return e < -4 || s > 19 ? [] : [{ title: x.title, s, l: e - s + 1, hot: x === linked }];
-  });
-  const existing = [...bars.filter((b) => b.hot), ...bars.filter((b) => !b.hot).sort((a, b) => a.s - b.s)];
-  const startAt = existing.find((b) => b.hot)?.s ?? 0;
+  const plan = await listGanttPlan(supabase, ctx.projectId);
+  const project = currentProject(projects, ctx.projectId);
+  const existing = ctx.tasks.filter((x) => x === linked).flatMap((x) => (x.startDate && x.dueDate ? [{ title: x.title, s: col(x.startDate), l: col(x.dueDate) - col(x.startDate) + 1, hot: true }] : []));
   const day = extractDate(`${risk.title} ${risk.details}`, ctx.weekStart);
   const at = day ? (Date.parse(day) - Date.parse(ctx.weekStart)) / (7 * DAY) : null;
   const marker = at !== null && at >= 0 && at < WEEKS ? at : null;
@@ -52,7 +49,7 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
       <div className="rk-head"><div><p className="eyebrow"><span className="rk-id">{code}</span> · {t(`risks.kind.${risk.kind}` as MessageKey)}</p><h1>{risk.title}</h1></div></div>
       <RiskTabs t={t} id={id} projectParam={sp.project ?? ""} current="plan" />
       {guess && <LinkAsk t={t} riskId={id} guess={guess} tasks={withIds} />}
-      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} weekStart={ctx.weekStart} startAt={startAt} base={ctx.base} labels={labels} canManage={canManage} initialSteps={snap?.doc.steps.map((x, i) => ({ id: i + 1, title: x.title, s: x.s, l: x.l, owner: x.owner, why: "" }))} initialLog={snap?.doc.chat} />
+      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} weekStart={ctx.weekStart} gantt={{ tasks: plan.tasks, dependencies: plan.dependencies, labels: ganttLabels(t), locale: await getLocale(), prefix: projectPrefix(project?.name ?? ""), focusId: linked?.id }} base={ctx.base} labels={labels} canManage={canManage} initialSteps={snap?.doc.steps.map((x, i) => ({ id: i + 1, title: x.title, s: x.s, l: x.l, owner: x.owner, why: "" }))} initialLog={snap?.doc.chat} />
       {snaps.length > 0 && (
         <section className="surface rk-card" aria-labelledby="rk-snap">
           <h2 id="rk-snap">{t("risks.snapshot")}</h2>
