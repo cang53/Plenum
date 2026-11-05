@@ -53,3 +53,10 @@
 .ov-event > div { display: flex; flex-direction: column; gap: 3px; font-size: var(--text-base); letter-spacing: -0.23px; }
 .ov-address code { font-size: var(--text-base); letter-spacing: -0.23px; }
 .ov-extra { display: flex; flex-direction: column; gap: 20px; }
+
+/* Text buttons on the Overview: the shared .act is an icon square, so make it a pill that never wraps. */
+.ov .act, .ov-write > .act { width: auto; height: auto; min-height: 2.25rem; padding: 6px 16px; border-radius: var(--radius-full); background: var(--control); color: var(--text); font-weight: var(--weight-semibold); white-space: nowrap; flex-shrink: 0; }
+.ov .act::before, .ov-write > .act::before { content: none; }
+.ov .act:hover, .ov-write > .act:hover, .ov-write[open] > .act { background: var(--control-active); color: var(--text); }
+.ov .act-primary, .ov .act-primary:hover { background: var(--primary); color: var(--on-primary); }
+.ov-card > div > .act { margin-block-start: var(--s2); }
