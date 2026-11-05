@@ -31,7 +31,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
   const [added, setAdded] = useState(saved);
   const [toast, setToast] = useState("");
   const [asking, setAsking] = useState(false);
-  const [revealed, setRevealed] = useState<{ id: string }>();
+  const [revealed, setRevealed] = useState<{ ids: string[] }>();
   const busy = useRef(false);
   const seq = useRef(initialLog?.length ?? 0);
   const logEl = useRef<HTMLDivElement>(null);
@@ -43,9 +43,34 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
   const push = (m: Omit<Msg, "id">) => { const id = ++seq.current; setLog((x) => [...x, { ...m, id }]); return id; };
   const reply = async (text: string, typingId?: number) => { await wait(650); setLog((x) => x.map((m) => (m.id === typingId ? { ...m, typing: false, text } : m))); };
   // Slide the chart to a step the agent added or moved.
-  const reveal = (s: { id: number }) => setRevealed({ id: `p-${s.id}` });
+  const reveal = (list: { id: number }[]) => setRevealed({ ids: [...list.map((x) => `p-${x.id}`), ...(g.focusId ? [g.focusId] : [])] });
   const flash = (id?: number) => { if (!id) return; setFlashId(id); setTimeout(() => setFlashId(null), 1400); };
 
+  // The draft and the chat stay in this browser until the plan is added or the person starts over.
+  const draftKey = `plenum:plan-draft:${riskId}`;
+  const loaded = useRef(false);
+  /* eslint-disable react-hooks/set-state-in-effect -- read once after mount: the server cannot see this browser's storage */
+  useEffect(() => {
+    try {
+      const d = JSON.parse(localStorage.getItem(draftKey) ?? "null") as { mode: "ai" | "manual"; steps: Draft[]; log: Omit<Msg, "typing">[]; notes: string } | null;
+      if (d && Array.isArray(d.steps) && Array.isArray(d.log)) {
+        setMode(d.mode); setSteps(d.steps); setLog(d.log); setNotes(d.notes); setAdded(false);
+        seq.current = Math.max(seq.current, ...d.log.map((m) => m.id), 0);
+        setChips(d.steps.length ? [L["ps.chip.move"], L["ps.chip.assign"], L["ps.chip.shorter"], L["ps.chip.add"], L["ps.chip.remove"]] : mode === "ai" ? [L["ps.chip.propose"]] : []);
+        if (d.steps.length) reveal(d.steps);
+      }
+    } catch { /* no saved draft */ }
+    loaded.current = true;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  /* eslint-enable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!loaded.current || added) return;
+    try {
+      const talked = log.some((m) => m.who === "me") || steps.length > 0;
+      if (talked) localStorage.setItem(draftKey, JSON.stringify({ mode, steps, log: log.filter((m) => !m.typing && m.text), notes }));
+      else localStorage.removeItem(draftKey);
+    } catch { /* storage is off */ }
+  }, [steps, log, mode, notes, added, draftKey]);
   useEffect(() => { logEl.current?.scrollTo({ top: 1e9 }); }, [log]);
   useEffect(() => {
     const b = segBtns.current[mode];
@@ -69,11 +94,11 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
         // New steps arrive one after another so each bar visibly grows into place.
         const shown = new Set(out.steps.filter((n) => !fresh.includes(n)).map((n) => n.id));
         setSteps(out.steps.filter((n) => shown.has(n.id)));
-        for (const n of fresh) { await wait(420); shown.add(n.id); setSteps(out.steps.filter((x) => shown.has(x.id))); reveal(n); flash(n.id); }
+        for (const n of fresh) { await wait(420); shown.add(n.id); const now = out.steps.filter((x) => shown.has(x.id)); setSteps(now); reveal(now); flash(n.id); }
       } else {
         setSteps(out.steps); flash(out.changed);
         const c = out.steps.find((n) => n.id === out.changed) ?? fresh[0];
-        if (c) reveal(c);
+        if (c) reveal(out.steps);
       }
       await reply(out.reply, typing);
       setChips(out.steps.length ? [L["ps.chip.move"], L["ps.chip.assign"], L["ps.chip.shorter"], L["ps.chip.add"], L["ps.chip.remove"]] : [L["ps.chip.propose"]]);
@@ -88,7 +113,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
     busy.current = true; setSteps([]); setAdded(false);
     try {
       const out = await studioFromNotes(riskId, notes);
-      for (const s of out) { await wait(380); setSteps((x) => [...x, s]); reveal(s); flash(s.id); }
+      for (const [i, s] of out.entries()) { await wait(380); setSteps((x) => [...x, s]); reveal(out.slice(0, i + 1)); flash(s.id); }
       setAsking(true);
     } catch { setToast(L["ps.error"]); setTimeout(() => setToast(""), 2600); }
     busy.current = false;
@@ -101,6 +126,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
   async function commit() {
     try {
       const n = await studioCommit(riskId, mode === "ai" ? "ai" : "manual", steps, log.filter((m) => !m.typing && m.text).map(({ who, text }) => ({ who, text })), existing.slice(0, 6), marker);
+      try { localStorage.removeItem(draftKey); } catch { /* storage is off */ }
       setAdded(true); setToast(L["ps.added"].replace("{n}", String(n))); setTimeout(() => setToast(""), 2600);
       router.refresh();
     } catch { setToast(L["ps.error"]); setTimeout(() => setToast(""), 2600); }

@@ -22,7 +22,7 @@ export type ScheduleRisk = { title: string; quote: string; source: string; sourc
 // Lets another screen (the remediation plan) lay its own bars over the chart: each gets a color class, and may flash or fade out.
 export type Proposals = Record<string, { cls: string; flash?: boolean; leaving?: boolean }>;
 
-export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId }: { embedded?: boolean; focusId?: string; reveal?: { id: string }; proposals?: Proposals; projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
+export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId }: { embedded?: boolean; focusId?: string; reveal?: { ids: string[] }; proposals?: Proposals; projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
   const tr = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initial);
   const [seen, setSeen] = useState(initial);
@@ -69,8 +69,19 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
     // The embedded chart opens on the activity it is about; the full page opens near today.
     if (!(focusId && slideTo(focusId, "auto"))) el.scrollLeft = Math.max(0, todayOffset * zoomPx - (el.clientWidth - META_PX) / 4);
   }, [todayOffset, zoomPx, focusId, bars]);
-  // Slide to a bar the agent just added or moved.
-  useEffect(() => { if (reveal) slideTo(reveal.id, "smooth"); }, [reveal]);
+  // Fit everything the agent proposed (and the activity it is about) in view: zoom out if needed, then slide to the earliest one.
+  const pending = useRef<number | null>(null);
+  useEffect(() => {
+    const el = scroller.current;
+    const hit = reveal ? bars.filter((b) => reveal.ids.includes(b.id)) : [];
+    if (!el || !hit.length) return;
+    const from = Math.min(...hit.map((b) => b.startDay)), to = Math.max(...hit.map((b) => b.startDay + b.length));
+    const room = el.clientWidth - META_PX - 60;
+    const z = ZOOMS.find((k) => (to - from) * DAY_PX[k] <= room) ?? "quarter";
+    pending.current = Math.max(0, (from - 2) * DAY_PX[z]);
+    if (z !== zoom) setZoom(z); else el.scrollTo({ left: pending.current, top: 0, behavior: "smooth" });
+  }, [reveal]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (pending.current !== null) { scroller.current?.scrollTo({ left: pending.current, top: 0, behavior: "smooth" }); pending.current = null; } }, [zoom]);
   if (!bars.length) return <p className="intro">{labels.empty}</p>;
 
   const move = async (id: string, days: number) => {
@@ -103,7 +114,8 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
   const show = (iso: string) => fmt.format(new Date(`${iso}T00:00:00Z`));
   // One shared list of rows: the task column and the plot draw the same index, so they line up.
   type Row = { key: string; phase: string | null; summary: boolean; bar?: (typeof bars)[number]; startDay: number; endDay: number; count: number };
-  const rows: Row[] = groups.flatMap((g) => [
+  const ordered = proposals ? [...groups].sort((a, b) => Number(b.bars.some((x) => proposals[x.id])) - Number(a.bars.some((x) => proposals[x.id]))) : groups; // proposals first
+  const rows: Row[] = ordered.flatMap((g) => [
     ...(g.phase === null ? [] : [{ key: `phase-${g.phase}`, phase: g.phase, summary: true, startDay: g.startDay, endDay: g.endDay, count: g.bars.length }]),
     ...(folded.has(g.phase) ? [] : g.bars.map((b) => ({ key: b.id, phase: g.phase, summary: false, bar: b, startDay: b.startDay, endDay: b.startDay + b.length - 1, count: 0 }))),
   ]);
@@ -279,6 +291,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                       type="button"
                       className={`gantt-bar${proposals?.[b.id] ? ` gantt-proposal ${proposals[b.id].cls}` : ""}`}
                       data-bar-id={b.id}
+                      data-muted={(!!proposals && Object.keys(proposals).length > 0 && !proposals[b.id] && b.id !== "p-risk") || undefined}
                       data-flash={proposals?.[b.id]?.flash || undefined}
                       data-leaving={proposals?.[b.id]?.leaving || undefined}
                       data-milestone={b.isMilestone}

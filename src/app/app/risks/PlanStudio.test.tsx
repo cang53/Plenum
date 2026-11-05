@@ -60,5 +60,7 @@ describe("saved plan", () => {
     expect(html).toContain("gantt-proposal ps-c0");
     expect(html).toContain("gantt-proposal ps-c2");
     expect(html).toContain(labels["ps.proposed"]);
+    expect(html).toContain("data-muted"); // other activities go grey while a plan is proposed
+    expect(render([])).not.toContain("data-muted");
   });
 });

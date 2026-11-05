@@ -123,3 +123,10 @@
 @keyframes gantt-propose { from { opacity: 0; scale: 0 1; } }
 @keyframes gantt-pulse { 0% { box-shadow: 0 0 0 0 var(--c); } 100% { box-shadow: 0 0 0 12px transparent; } }
 @media (prefers-reduced-motion: reduce) { .gantt-row, .gantt-proposal { transition: none; animation: none; } .gantt[data-embedded] .gantt-scroll { scroll-behavior: auto; } }
+.gantt[data-embedded] .gantt-scroll { max-height: 520px; }
+.gantt .gantt-bar[data-muted] { background: var(--surface-muted); border: 1px solid var(--border); color: var(--text-muted); opacity: .75; }
+.gantt[data-embedded] .gantt-pill { min-height: 1.5rem; padding: 1px 8px; font-size: var(--text-xs); line-height: 1rem; }
+.gantt[data-embedded] .gantt-pill:has(select)::after { inset-inline-end: 6px; top: 2px; }
+.gantt[data-embedded] .gantt-pill select { padding-inline-end: 0.9rem; }
+.gantt[data-embedded] .gantt-zoom { width: 9rem; } .gantt[data-embedded] .gantt-zoom button { min-height: 1.25rem; font-size: var(--text-xs); }
+.gantt[data-embedded] .gantt-controls { gap: var(--s2); } .gantt[data-embedded] .gantt-count { font-size: var(--text-xs); }
