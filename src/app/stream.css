@@ -385,4 +385,11 @@ a.mention:hover { text-decoration: underline; }
 /* CobIA looks the same on suggestions and plain replies; an even gap between messages; the hover bar floats above its own message. */
 .chat .mail.msg.msg-agent[data-src] .avatar { background: var(--c-brand); color: var(--c-on-brand); border-radius: 8px; }
 .chat .feed, .chat .msgs-main { gap: 14px; }
-.chat .msg .mail-acts { inset-block-start: -14px; }
+/* Hover bar: small, pinned to the top-right corner of the message bubble. */
+.chat .msg-body { position: relative; }
+.chat .msg .mail-acts, .chat .mail.msg[data-mine] .mail-acts { inset-block-start: 6px; inset-inline-start: auto; inset-inline-end: 6px; gap: 0; padding: 1px; border-radius: 12px; transform: none; }
+.chat .mail.msg[data-mine] .mail-acts { inset-block-start: -12px; }
+.chat .msg .act { width: 22px; height: 22px; }
+.chat .msg .act::before { width: 14px; height: 14px; }
+.act[data-ico="react"]::before { display: none; }
+.chat .feed, .chat .msgs-main { gap: 12px; }
