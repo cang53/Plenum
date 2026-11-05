@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Bell } from "./Bell";
 import { ThemeToggle } from "./ThemeToggle";
 import { CommandMenu } from "./CommandMenu";
@@ -15,7 +15,7 @@ type Props = {
   email: string;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "bell" | "theme" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "collapse" | "expand" | "bell" | "theme" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -29,7 +29,19 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
   // Until the person toggles it, the side bar is open on wide windows and hidden on narrow ones (CSS decides).
   const [nav, setNav] = useState<"open" | "closed" | undefined>(undefined);
   const [shut, setShut] = useState<Group[]>([]);
+  const collapsed = nav === "closed";
   const toggleNav = () => setNav((n) => ((n ?? (window.matchMedia(NARROW).matches ? "closed" : "open")) === "open" ? "closed" : "open"));
+  const account = useRef<HTMLDetailsElement>(null);
+  // The account menu closes on a click elsewhere or Escape.
+  useEffect(() => {
+    const shut = (e: Event) => {
+      const d = account.current;
+      if (d?.open && (e.type === "keydown" ? (e as KeyboardEvent).key === "Escape" : !d.contains(e.target as Node))) d.open = false;
+    };
+    document.addEventListener("click", shut);
+    document.addEventListener("keydown", shut);
+    return () => { document.removeEventListener("click", shut); document.removeEventListener("keydown", shut); };
+  }, []);
   const toggleGroup = (g: Group) => setShut((x) => (x.includes(g) ? x.filter((y) => y !== g) : [...x, g]));
   const chosen = useSearchParams().get("project");
   const project = projects.find((p) => p.id === chosen) ?? projects[0];
@@ -40,7 +52,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
   const link = (i: Item) => {
     const badge = i.path === "/app/stream" && fresh > 0;
     return (
-      <a key={i.path} href={href(i.path)} className={`shell-link${badge ? " shell-unread" : ""}`} aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : undefined}>
+      <a key={i.path} href={href(i.path)} title={i.label} className={`shell-link${badge ? " shell-unread" : ""}`} aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : undefined}>
         <span aria-hidden={badge || undefined}>{i.label}</span>
         {badge && <span className="shell-badge" aria-hidden="true">{fresh > 99 ? "99+" : fresh}</span>}
       </a>
@@ -48,7 +60,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
   };
   const quick = (q: string) => `/app/items?${project ? `project=${project.id}&` : ""}quick=${q}`;
   const quickLink = (q: string, label: string) => (
-    <a key={q} href={quick(q)} className="shell-link" aria-current={pathname === "/app/items" && quickNow === q ? "page" : undefined}>{label}</a>
+    <a key={q} href={quick(q)} title={label} className="shell-link" aria-current={pathname === "/app/items" && quickNow === q ? "page" : undefined}>{label}</a>
   );
   const quickNow = useSearchParams().get("quick");
   const inbox = (
@@ -75,13 +87,17 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
           <CommandMenu project={project?.id} labels={labels.menu} />
           {inbox}
           <ThemeToggle label={labels.theme} />
-          <form action="/auth/signout" method="post" className="shell-account" aria-label={labels.account}>
-            <span className="shell-avatar" title={email} aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
-            <button type="submit" className="btn btn-plain">{labels.signOut}</button>
-          </form>
+          <details className="shell-account" ref={account}>
+            <summary aria-label={labels.account} title={email}><span className="shell-avatar" aria-hidden="true">{email.charAt(0).toUpperCase()}</span></summary>
+            <form action="/auth/signout" method="post" aria-label={labels.account}>
+              <p className="shell-email">{email}</p>
+              <button type="submit" className="shell-signout">{labels.signOut}</button>
+            </form>
+          </details>
         </div>
       </header>
       <aside className="shell-side" id="shell-side">
+        <button type="button" className="shell-collapse" aria-label={collapsed ? labels.expand : labels.collapse} title={collapsed ? labels.expand : labels.collapse} aria-controls="shell-side" aria-expanded={!collapsed} onClick={toggleNav} />
         <div className="shell-capsule">
         {quickLink("mine", labels.mywork)}
         <nav aria-label={labels.main}>

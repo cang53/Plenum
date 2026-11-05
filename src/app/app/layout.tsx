@@ -47,6 +47,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         account: t("shell.account"),
         signOut: t("app.signOut"),
         mobile: t("shell.mobile"),
+        collapse: t("shell.collapse"),
+        expand: t("shell.expand"),
         bell: t("shell.inbox"),
         theme: t("shell.theme"),
         newTask: t("shell.newTask"),

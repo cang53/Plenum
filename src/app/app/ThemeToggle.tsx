@@ -17,5 +17,5 @@ export function ThemeToggle({ label }: { label: string }) {
     else root().dataset.theme = "light";
     try { localStorage.setItem("theme", light ? "dark" : "light"); } catch {}
   };
-  return <button type="button" className="theme-toggle" aria-pressed={light} onClick={toggle}>{label}</button>;
+  return <button type="button" className="theme-toggle" aria-pressed={light} aria-label={label} title={label} onClick={toggle} />;
 }

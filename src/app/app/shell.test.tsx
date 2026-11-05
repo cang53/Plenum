@@ -6,7 +6,7 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/app/stream", useSearchP
 
 const menu = { open: "Search or jump to…", title: "t", placeholder: "p", actions: "a", results: "r", empty: "e", newTask: "New task", search: "s", task: "Task", message: "Message", decision: "Decision" };
 const labels = {
-  brand: "Plenum", main: "Main", projects: "Projects", account: "Account", signOut: "Sign out", mobile: "Mobile", bell: "Inbox", theme: "Light theme", newTask: "New task", mywork: "My work", streamNew: "{n} new in stream",
+  brand: "Plenum", main: "Main", projects: "Projects", account: "Account", signOut: "Sign out", mobile: "Mobile", collapse: "Collapse menu", expand: "Expand menu", bell: "Inbox", theme: "Light theme", newTask: "New task", mywork: "My work", streamNew: "{n} new in stream",
   privacy: { title: "Project privacy", body: "b", link: "l" }, menu, group: { project: "Project", site: "Site", admin: "Admin" },
 };
 const items = [{ path: "/app/stream", label: "Stream", group: "project" as const }];
@@ -20,7 +20,7 @@ describe("Shell", () => {
     for (const q of ["at_risk", "blocked", "week"]) expect(html).not.toContain(`quick=${q}`);
     expect(html).toContain("3 new in stream");
     expect(html).toContain("Search or jump to…");
-    expect(html).not.toContain("<details");
+    expect(html).not.toContain("shell-projects");
   });
   it("shows a switcher only with several projects, and no badge without new messages", () => {
     const html = render([{ id: "p1", name: "A" }, { id: "p2", name: "B" }], {});
@@ -32,5 +32,10 @@ describe("Shell", () => {
     expect(html).toContain('aria-controls="shell-side"');
     expect(html).toContain('aria-expanded="true"');
     expect(html).not.toContain("shell-bar");
+    expect(html).toContain('class="shell-collapse"');
+  });
+  it("keeps sign out in the account menu", () => {
+    const html = render([{ id: "p1", name: "Pump" }], {});
+    expect(html).toMatch(/<details class="shell-account".*Sign out/);
   });
 });
