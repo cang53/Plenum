@@ -1,0 +1,27 @@
+/* Projects page: parent projects as blocks, their projects nested below on a tree line. */
+.pt-page { max-width: 62rem; margin: 0 auto; padding: var(--s6) var(--s4); display: flex; flex-direction: column; gap: var(--s4); }
+.pt-page h1 { margin: 0; font-size: var(--text-xl); letter-spacing: var(--tracking-tight); }
+.pt-wrap, .pt-forms { display: flex; flex-direction: column; gap: var(--s3); }
+.pt-block { border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); }
+.pt-over { outline: 2px dashed var(--primary); outline-offset: 2px; }
+.pt-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); background: var(--surface-subtle); border-radius: var(--radius-card); }
+.pt-title { flex: 1 1 12rem; min-width: 0; display: flex; flex-direction: column; }
+.pt-title h2 { margin: 0; font-size: var(--text-md); }
+.pt-tag { font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.pt-count { font-size: var(--text-sm); color: var(--text-secondary); }
+.pt-toggle { width: 1.5rem; height: 1.5rem; border: 0; background: none; color: var(--text-muted); cursor: pointer; }
+.pt-toggle::before { content: "▸"; display: inline-block; transition: transform 0.15s; }
+.pt-toggle[aria-expanded="true"]::before { transform: rotate(90deg); }
+.pt-kids { position: relative; list-style: none; margin: 0 0 var(--s3) var(--s6); padding: var(--s2) 0 0; display: flex; flex-direction: column; gap: var(--s2); }
+.pt-kids::before { content: ""; position: absolute; left: 0; top: 0; bottom: 1.25rem; border-left: 2px solid var(--border-strong); }
+.pt-kid, .pt-add, .pt-kids > .pt-empty { position: relative; margin: 0 var(--s4) 0 var(--s5); }
+.pt-kid::before, .pt-add::before, .pt-kids > .pt-empty::before { content: ""; position: absolute; left: calc(-1 * var(--s5)); top: 50%; width: var(--s5); border-top: 2px solid var(--border-strong); }
+.pt-kid { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding: var(--s2) var(--s3); border: 1px solid var(--border); border-radius: var(--radius-card); }
+.pt-kid[draggable="true"] { cursor: grab; }
+.pt-kid a { flex: 1 1 10rem; min-width: 0; font-weight: var(--weight-semibold); color: var(--text); text-decoration: none; }
+.pt-kid a:hover { text-decoration: underline; }
+.pt-kid .field { width: auto; }
+.pt-add a { display: block; padding: var(--s2); text-align: center; border: 1px dashed var(--border); border-radius: var(--radius-card); color: var(--text-secondary); text-decoration: none; font-size: var(--text-sm); }
+.pt-add a:hover { border-color: var(--primary); color: var(--text); }
+.pt-empty { font-size: var(--text-sm); color: var(--text-muted); }
+.pt-solo .pt-head { background: none; }

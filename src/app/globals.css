@@ -15,6 +15,7 @@
 @import "./timesheet.css";
 @import "./approvals.css";
 @import "./states.css";
+@import "./projects.css";
 
 * {
   box-sizing: border-box;

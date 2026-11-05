@@ -7,6 +7,8 @@ body:has(.shell) { background: var(--frame); }
 .shell-brand { display: flex; align-items: center; gap: 0.625rem; flex: none; font-size: var(--text-lg); font-weight: var(--weight-semibold); line-height: 1.5625rem; letter-spacing: -0.45px; color: var(--text); text-decoration: none; }
 .shell-logo { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 0.5625rem; background: var(--primary); color: var(--on-primary); font-size: var(--text-lg); font-weight: 700; line-height: 1.5rem; }
 .shell-crumb { color: var(--text-secondary); font-weight: var(--weight-normal); }
+.shell-crumb-link { font-size: var(--text-base); text-decoration: none; margin-right: calc(-1 * var(--s2)); }
+.shell-crumb-link:hover { color: var(--text); text-decoration: underline; }
 .shell-project, .shell-projects { margin: 0; font-size: var(--text-base); line-height: 1.25rem; letter-spacing: -0.23px; font-weight: var(--weight-semibold); }
 .shell-projects { position: relative; }
 .shell-projects summary { cursor: pointer; display: flex; gap: 0.75rem; align-items: center; list-style: none; }

@@ -59,9 +59,10 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
       <header className="shell-top">
         <button type="button" className="shell-toggle" aria-label={labels.mobile} aria-controls="shell-side" aria-expanded={nav === undefined ? undefined : nav === "open"} onClick={toggleNav} />
         <a className="shell-brand" href={href("/app")}><span className="shell-logo" aria-hidden="true">{labels.brand.charAt(0).toUpperCase()}</span>{labels.brand}</a>
+        <a className="shell-crumb shell-crumb-link" href="/app/projects">{labels.projects} /</a>
         {projects.length > 1 && (
           <details className="shell-projects">
-            <summary><span className="shell-crumb">{labels.projects} /</span> {project?.name}</summary>
+            <summary>{project?.name}</summary>
             <ul aria-label={labels.projects}>
               {projects.map((p) => (
                 <li key={p.id}><a href={`${pathname}?project=${p.id}`} aria-current={p.id === project?.id ? "true" : undefined}>{p.name}</a></li>
@@ -69,7 +70,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
             </ul>
           </details>
         )}
-        {projects.length === 1 && <p className="shell-project"><span className="shell-crumb">{labels.projects} /</span> {project?.name}</p>}
+        {projects.length === 1 && <p className="shell-project">{project?.name}</p>}
         <div className="shell-actions">
           <CommandMenu project={project?.id} labels={labels.menu} />
           {inbox}

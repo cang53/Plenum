@@ -2,15 +2,23 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { hiddenKinds, type Notification } from "@/domain/notifications";
 import { PAGE_SIZE, afterFilter, decodeCursor, toPage, type Page } from "@/domain/paging";
 
-export type Project = { id: string; name: string; email_slug: string };
+export type Project = { id: string; name: string; email_slug: string; parent_id?: string | null };
+export type ProjectParent = { id: string; name: string };
 
 // Row-level security limits this to projects the signed-in person belongs to.
 export async function listProjects(client: SupabaseClient): Promise<Project[]> {
   const { data, error } = await client
     .from("projects")
-    .select("id, name, email_slug")
+    .select("id, name, email_slug, parent_id")
     .is("archived_at", null)
     .order("name");
+  if (error) throw error;
+  return data ?? [];
+}
+
+// Parent projects of the workspace; row-level security shows them to staff only.
+export async function listParents(client: SupabaseClient): Promise<ProjectParent[]> {
+  const { data, error } = await client.from("project_parents").select("id, name").order("name");
   if (error) throw error;
   return data ?? [];
 }
