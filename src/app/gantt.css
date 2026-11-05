@@ -133,3 +133,8 @@
 .gantt[data-embedded] .gantt-controls { gap: var(--s2); } .gantt[data-embedded] .gantt-count { font-size: var(--text-xs); }
 .gantt-group-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-block: 8px; }
 .gantt-proposal.ps-ok { border-style: solid; background: var(--success-surface); }
+/* A group inside another group is not a phase: no tinted band, an accent rail on the left, a thinner bar and a ↳ before its name. */
+.gantt-row[data-summary="true"][data-nested] .gantt-meta { background: var(--surface); }
+.gantt-row[data-nested] .gantt-meta { box-shadow: inset 3px 0 0 var(--primary); }
+.gantt-meta button[data-sub] { font-weight: 500; color: var(--text-secondary); }
+.gantt-summary[data-sub] { height: 4px; background: var(--primary); opacity: .55; }

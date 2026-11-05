@@ -216,13 +216,13 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                 {rows.map((r, i) => {
                   const b = r.bar;
                   return (
-                    <div key={r.key} role="listitem" className="gantt-row" data-summary={!!r.group} data-selected={!!b && selected === b.id} style={{ top: tops[i], height: r.group ? PHASE_PX : TASK_PX }}>
+                    <div key={r.key} role="listitem" className="gantt-row" data-summary={!!r.group} data-nested={r.depth > (r.group ? 0 : 1) || undefined} data-selected={!!b && selected === b.id} style={{ top: tops[i], height: r.group ? PHASE_PX : TASK_PX }}>
                       <div className="gantt-meta" data-attention={!!b && attention(b)}>
                         {r.group ? (
                           <>
-                            <button type="button" style={{ marginInlineStart: r.depth * 14 }} aria-expanded={!folded.has(r.group.id)} aria-label={`${folded.has(r.group.id) ? labels.expand : labels.collapse}: ${r.group.name}`}
+                            <button type="button" style={{ marginInlineStart: r.depth * 14 }} data-sub={r.depth > 0 || undefined} aria-expanded={!folded.has(r.group.id)} aria-label={`${folded.has(r.group.id) ? labels.expand : labels.collapse}: ${r.group.name}`}
                               onClick={() => setFolded((f) => { const next = new Set(f); if (!next.delete(r.group!.id)) next.add(r.group!.id); return next; })}>
-                              <span aria-hidden="true">{folded.has(r.group.id) ? "▸" : "▾"}</span> {r.group.name}
+                              <span aria-hidden="true">{folded.has(r.group.id) ? "▸" : "▾"}</span> {r.depth > 0 && <span aria-hidden="true">↳</span>} {r.group.name}
                             </button>
                             <span className="gantt-phase-count">{r.count}</span>
                           </>
@@ -257,7 +257,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                     return <path key={`${d.predecessorId}-${d.successorId}`} d={`M${x1} ${y1} H${x1 + 6} V${y2} H${x2}`} data-critical={onPath} data-selected={touches} />;
                   })}
                 </svg>
-                {rows.map((r, i) => r.group && r.count > 0 && <div key={r.key} className="gantt-summary" aria-hidden="true" style={{ insetInlineStart: r.startDay * dayPx, width: (r.endDay - r.startDay + 1) * dayPx, top: tops[i]! + 11 }} />)}
+                {rows.map((r, i) => r.group && r.count > 0 && <div key={r.key} className="gantt-summary" data-sub={r.depth > 0 || undefined} aria-hidden="true" style={{ insetInlineStart: r.startDay * dayPx, width: (r.endDay - r.startDay + 1) * dayPx, top: tops[i]! + 11 }} />)}
                 {rows.map((r, i) => r.bar && baseline?.[r.bar.id] && (
                   // shortcut: a baseline that starts before the first current task is clipped at the left edge, redraw the grid if that matters
                   <div key={`base-${r.key}`} className="gantt-baseline" aria-hidden="true" style={{ insetInlineStart: Math.max(0, dayOf(baseline[r.bar.id].startDate) - firstDay) * dayPx, width: (dayOf(baseline[r.bar.id].dueDate) - dayOf(baseline[r.bar.id].startDate) + 1) * dayPx, top: tops[i]! + TASK_PX - 14 }} />
