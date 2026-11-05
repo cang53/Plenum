@@ -10,7 +10,7 @@ type Act = (form: FormData) => void | Promise<void>;
 type Props = {
   t: (key: MessageKey) => string;
   risk: RiskRow; code: string; back: string; projectParam: string;
-  members: Pick<Member, "userId" | "name">[]; tasks: { id: string; title: string }[]; ask?: React.ReactNode;
+  members: Pick<Member, "userId" | "name">[]; tasks: { id: string; title: string; label?: string }[]; ask?: React.ReactNode;
   similar: Similar<RiskRow & { projectName: string }>[]; analyzed: boolean;
   actions: { save: Act; toggle: Act };
 };
@@ -73,7 +73,7 @@ export function RiskDetailView({ t, risk, code, back, projectParam, members, tas
             <dt>{t("risks.remediation")}</dt><dd><span className={`st st-${risk.remediation === "none" ? "todo" : risk.remediation === "remediated" ? "ok" : "go"}`}>{t(`risks.remediation.${risk.remediation}` as MessageKey)}</span></dd>
             <dt>{t("risks.score")}</dt><dd><span className={`st st-${TONE[band]}`}>{score} · {t(`risks.band.${band}` as MessageKey)}</span></dd>
             <dt className="rk-full"><Choice form="rk-edit" name="kind" label={t("risk.kindLabel")} value={risk.kind} options={[{ value: "risk", label: kind("risk") }, { value: "issue", label: kind("issue") }]} /></dt>
-            <dt className="rk-full"><label className="rk-lab">{t("risks.linkedTask")}<select form="rk-edit" name="linkedTaskId" className="rk-in" defaultValue={risk.linkedTaskId ?? ""}><option value="">{t("risks.noLinkedTask")}</option>{tasks.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}</select></label></dt>
+            <dt className="rk-full"><label className="rk-lab">{t("risks.linkedTask")}<select key={risk.linkedTaskId ?? "none"} form="rk-edit" name="linkedTaskId" className="rk-in" defaultValue={risk.linkedTaskId ?? ""}><option value="">{t("risks.noLinkedTask")}</option>{tasks.map((x) => <option key={x.id} value={x.id}>{x.label ?? x.title}</option>)}</select></label></dt>
             <dt className="rk-full"><Choice form="rk-edit" name="likelihood" label={t("risks.likelihood")} value={String(risk.likelihood)} options={levels} /></dt>
             <dt className="rk-full"><Choice form="rk-edit" name="severity" label={t("risks.severity")} value={String(risk.severity)} options={levels} /></dt>
             <dt className="rk-full"><Choice form="rk-edit" name="ownerId" label={t("risks.owner")} value={risk.ownerId ?? ""} options={[{ value: "", label: t("risks.noOwner") }, ...members.map((m) => ({ value: m.userId, label: m.name }))]} /></dt>
