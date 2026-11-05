@@ -43,18 +43,14 @@ describe("Gantt", () => {
     expect(html).toContain('aria-pressed="true">Week');
     expect(html.match(/class="gantt-summary"/g)).toHaveLength(1);
   });
-  it("shows slip against a baseline and the save button only when allowed", () => {
+  it("shows slip against a baseline", () => {
     const tasks = [task("a", "2026-11-01", "2026-11-05")];
     const base = { a: { startDate: "2026-11-01", dueDate: "2026-11-03" } };
-    const html = renderToStaticMarkup(<Gantt tasks={tasks} dependencies={[]} onSave={save} baseline={base} baselineName="Kick-off" onBaseline={async () => {}} labels={labels} />);
+    const html = renderToStaticMarkup(<Gantt tasks={tasks} dependencies={[]} onSave={save} baseline={base} baselineName="Kick-off" labels={labels} />);
     expect(html).toContain("2 days against the baseline");
     expect(html).toContain('data-static="true">Baseline: Kick-off</span>');
-    expect(html).toContain("1 tasks late");
     expect(html).toContain('data-baseline="true"');
     expect(html).toContain("+2 d");
-    expect(html).toContain("Save baseline");
-    expect(html).toContain("Baseline name");
-    expect(renderToStaticMarkup(<Gantt tasks={tasks} dependencies={[]} onSave={save} labels={labels} />)).not.toContain("Save baseline");
   });
   it("shows owner, number, status and priority in the task column and a symbol on each bar", () => {
     const html = renderToStaticMarkup(<Gantt tasks={[{ ...task("a", "2026-11-01", "2026-11-03"), ownerName: "Aylin Kaya", number: 7, status: "in_progress", priority: "high" }]} dependencies={[]} onSave={save} labels={labels} prefix="P" />);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { buildBars, criticalPath, dayOf, DAY_PX, layoutRows, isoOf, scaleTicks, shiftDates, slipDays, type BaselineDates, type GanttGroup, type GanttTask, type Zoom } from "@/domain/gantt";
 import { findConflicts, type Dependency } from "@/domain/schedule";
 import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/messages";
@@ -22,16 +22,14 @@ export type ScheduleRisk = { title: string; quote: string; source: string; sourc
 // Lets another screen (the remediation plan) lay its own bars over the chart: each gets a color class, and may flash or fade out.
 export type Proposals = Record<string, { cls: string; flash?: boolean; leaving?: boolean }>;
 
-export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId, groups: groupList = [] }: { embedded?: boolean; groups?: GanttGroup[]; focusId?: string; reveal?: { ids: string[] }; proposals?: Proposals; projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
+export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: initial, dependencies, onSave, baseline = null, baselineName = "", labels, locale = "en", prefix = "T", risk, projectId, groups: groupList = [] }: { embedded?: boolean; groups?: GanttGroup[]; focusId?: string; reveal?: { ids: string[] }; proposals?: Proposals; projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
   const tr = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initial);
   const [seen, setSeen] = useState(initial);
   if (seen !== initial) { setSeen(initial); setTasks(initial); } // a new list from the parent replaces the local one before it is drawn
   const [error, setError] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [zoom, setZoom] = useState<Zoom>("week");
   const [folded, setFolded] = useState<Set<string>>(new Set());
-  const [name, setName] = useState("");
   const [showCritical, setShowCritical] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [lateOnly, setLateOnly] = useState(false);
@@ -103,17 +101,6 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
     }
   };
 
-  const saveBase = async () => {
-    setError(false);
-    try {
-      await onBaseline!(name);
-      setName("");
-      setSaved(true);
-    } catch {
-      setError(true);
-    }
-  };
-
   const dayPx = zoomPx;
   const fmt = new Intl.DateTimeFormat(intlLocale[locale], { timeZone: "UTC", day: "numeric", month: "short" });
   const show = (iso: string) => fmt.format(new Date(`${iso}T00:00:00Z`));
@@ -173,20 +160,9 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
           <div className="gantt-zoom" role="group" aria-label={labels.zoom}>
             {ZOOMS.map((z) => <button key={z} type="button" aria-pressed={z === zoom} onClick={() => setZoom(z)}>{labels[z]}</button>)}
           </div>
+          {!embedded && <button type="button" className="gantt-pill gantt-print" onClick={() => window.print()}>⎙ {labels.print}</button>}
         </div>
       </div>
-      {!embedded && <div className="gantt-baselinebar">
-        {baseline ? <p>{labels.baselineLate.replace("{n}", String([...slip.values()].filter((d) => d > 0).length))}</p> : <p>{labels.baselineNone}</p>}
-        {picker}
-        {onBaseline && (
-          <form onSubmit={(e) => { e.preventDefault(); void saveBase(); }}>
-            <label>{labels.baselineName} <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required /></label>
-            <button type="submit" className="btn">{labels.saveBaseline}</button>
-          </form>
-        )}
-        <button type="button" className="btn gantt-print" onClick={() => window.print()}>{labels.print}</button>
-      </div>}
-      {saved && <p role="status">{labels.baselineSaved}</p>}
       {error && <p role="alert">{labels.saveError}</p>}
       <div className="gantt-plan">
         <div className="gantt-range">

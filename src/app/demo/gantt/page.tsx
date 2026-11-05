@@ -16,7 +16,7 @@ export default async function DemoGanttPage() {
   const today = new Intl.DateTimeFormat(intlLocale[locale], { day: "numeric", month: "long" }).format(now);
   return (
     <main id="main" className="page gantt-page">
-      <GanttHead t={t} projectId="demo" projectName={demoProject.name} today={today} />
+      <GanttHead t={t} projectId="demo" projectName={demoProject.name} today={today} groups={[]} canManage={false} />
       <p className="notice">{t("gantt.demoNotice")}</p>
       <Gantt tasks={tasks} dependencies={dependencies} labels={ganttLabels(t)} locale={locale} prefix="P"
         risk={{ title: "Load chart may not match the final gearbox weight", quote: "The crane load chart on page 4 has not been checked against the supplier's final weight. A mismatch could stop the lift on the day.", source: "Jonas Peeters, Re: Crane load chart", sourceHref: "/demo/messages", reviewHref: "/demo/messages" }} />

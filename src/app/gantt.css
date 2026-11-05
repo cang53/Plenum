@@ -108,7 +108,7 @@
   .gantt-head-actions { flex-wrap: wrap; }
 }
 @media print {
-  .gantt-controls, .gantt-baselinebar, .gantt-head-actions, .shell-bar, nav, .work-switch { display: none; }
+  .gantt-controls, .gantt-head-actions, .shell-bar, nav, .work-switch { display: none; }
   .gantt-scroll { overflow: visible; }
   .gantt-bar { cursor: default; }
 }
@@ -138,3 +138,15 @@
 .gantt-row[data-nested] .gantt-meta { box-shadow: inset 3px 0 0 var(--primary); }
 .gantt-meta button[data-sub] { font-weight: 500; color: var(--text-secondary); }
 .gantt-summary[data-sub] { height: 4px; background: var(--primary); opacity: .55; }
+
+/* One compact toolbar: filters on the left; steps, zoom and print on the right. */
+.gantt-controls { padding: 6px var(--s3); border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--surface); }
+.gantt-nav { margin-inline-start: auto; }
+.gantt-pill.gantt-print { border-color: transparent; background: none; color: var(--text-secondary); }
+.gantt-pill.gantt-print:hover { background: var(--control); color: var(--text); }
+.gantt-add { position: relative; }
+.gantt-add-panel { position: absolute; inset-inline-end: 0; top: calc(100% + 6px); z-index: 20; display: flex; flex-direction: column; gap: 2px; min-width: 10rem; padding: var(--s2); border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); box-shadow: 0 8px 24px rgb(0 0 0 / 0.14); }
+.gantt-add-panel > a, .gantt-add-panel > button { display: block; padding: 6px 10px; border: 0; border-radius: var(--radius-sm, 6px); background: none; color: var(--text); font: inherit; text-align: start; text-decoration: none; cursor: pointer; }
+.gantt-add-panel > a:hover, .gantt-add-panel > button:hover { background: var(--control); }
+.gantt-add-panel .gantt-group-form { display: flex; flex-direction: column; gap: var(--s2); min-width: 15rem; }
+@media (max-width: 720px) { .gantt-controls { border-radius: var(--radius); } .gantt-nav { margin-inline-start: 0; } }
