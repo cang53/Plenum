@@ -1,6 +1,6 @@
 // Which activity a risk is about, and on which date: read from the title and description. Pure rules; the person decides.
 const STOP = new Set(["the", "and", "for", "with", "that", "this", "from", "could", "will", "may", "might", "be", "of", "to", "in", "on", "is", "are", "was", "delay", "delayed", "risk", "issue", "late", "week", "weeks"]);
-const words = (s: string) => new Set(s.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !STOP.has(w)).map((w) => w.replace(/(ing|ed|es|s)$/, "")));
+const words = (s: string) => new Set(s.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !STOP.has(w)).map((w) => w.slice(0, 5)));
 
 export function suggestTask<T extends { id: string; title: string }>(risk: { title: string; details: string }, tasks: T[]): T | null {
   const mine = words(`${risk.title} ${risk.details}`);

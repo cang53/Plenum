@@ -29,11 +29,13 @@ export async function saveRisk(form: FormData): Promise<void> {
     linkedTaskId: String(form.get("linkedTaskId") ?? "") || null, ownerId: owner || null, dueDate: /^\d{4}-\d{2}-\d{2}$/.test(due) ? due : null,
   });
   revalidatePath("/app/risks");
+  revalidatePath(`/app/risks/${id}`);
+  revalidatePath(`/app/risks/${id}/plan`);
 }
 
 export async function toggleRiskStatus(form: FormData): Promise<void> {
   await updateRisk(await supabaseServer(), String(form.get("id")), { status: form.get("to") === "closed" ? "closed" : "open" });
-  revalidatePath("/app/risks");
+  revalidatePath("/app/risks", "layout");
 }
 
 // The person's answer to the suggested activity: yes or another activity links it; no remembers the refusal.

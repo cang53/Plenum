@@ -7,6 +7,9 @@ describe("suggestTask", () => {
     expect(suggestTask({ title: "Conveyor delivery could be delayed", details: "" }, tasks)?.id).toBe("a");
     expect(suggestTask({ title: "Floor not ready", details: "The floor preparation slips" }, tasks)?.id).toBe("b");
   });
+  it("matches word forms such as preparation and prepare, anchor and anchors", () => {
+    expect(suggestTask({ title: "Preparation of anchor could be delayed", details: "" }, [...tasks, { id: "d", title: "Prepare floor and anchors" }])?.id).toBe("d");
+  });
   it("suggests nothing when nothing matches", () => {
     expect(suggestTask({ title: "Weather", details: "Rain in winter" }, tasks)).toBeNull();
   });
