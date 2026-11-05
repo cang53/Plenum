@@ -393,3 +393,5 @@ a.mention:hover { text-decoration: underline; }
 .chat .msg .act::before { width: 14px; height: 14px; }
 .act[data-ico="react"]::before { display: none; }
 .chat .feed, .chat .msgs-main { gap: 12px; }
+/* My name-less bubble needs a little more air against the neighbours that do carry a name line. */
+.chat .mail.msg[data-mine] { margin-block: 6px; }
