@@ -198,6 +198,8 @@ export const en = {
   "stream.basedOn": "Based on",
   "stream.acceptedBy": "Accepted by",
   "stream.undo": "Cancel",
+  "stream.prev": "Previous suggestion",
+  "stream.next": "Next suggestion",
   "stream.apply": "Accept",
   "stream.pending": "Pending",
   "stream.decisionNote": "Your decision is needed. Nothing changes until you accept.",

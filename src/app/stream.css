@@ -369,3 +369,14 @@ a.mention:hover { text-decoration: underline; }
 .react-pick { position: absolute; inset-inline-start: 0; display: flex; gap: 2px; margin-block-start: 4px; padding: var(--s2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); z-index: 1; }
 .react-pick form { display: flex; }
 .react-pick .react { border: 0; font-size: var(--text-base); }
+
+/* One message for all AI suggestions: arrows on top, one card below. */
+.carousel { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.carousel-nav { display: flex; align-items: center; justify-content: flex-end; gap: 6px; color: var(--c-sub); font-size: 12px; }
+.carousel-nav .act { width: 28px; height: 28px; border: 0; border-radius: 100px; background: var(--c-avatar); color: var(--c-title); font-size: 16px; line-height: 1; cursor: pointer; }
+.carousel-nav .act:disabled { opacity: .35; cursor: default; }
+.carousel [hidden] { display: none; }
+/* CobIA looks the same on suggestions and plain replies; an even gap between messages; the hover bar floats above its own message. */
+.chat .mail.msg.msg-agent[data-src] .avatar { background: var(--c-brand); color: var(--c-on-brand); border-radius: 8px; }
+.chat .feed, .chat .msgs-main { gap: 14px; }
+.chat .msg .mail-acts { inset-block-start: -14px; }
