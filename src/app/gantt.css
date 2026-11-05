@@ -8,7 +8,7 @@
 
 /* Pill: the frame's 32px control, also used for the filters and the date steps. */
 .gantt-pill { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 3px; box-sizing: border-box; min-height: 2rem; padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); background: var(--control); color: var(--text); font: inherit; font-size: var(--text-base); line-height: 1.25rem; letter-spacing: -0.23px; cursor: pointer; }
-.gantt-pill select { appearance: none; background: none; border: 0; padding: 0 1rem 0 0; color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; }
+.gantt-pill select { appearance: none; display: block; min-height: 0; height: 1.25rem; border-radius: 0; background: none; border: 0; padding: 0 1rem 0 0; color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; }
 .gantt-pill select option { color: var(--text); background: var(--surface); }
 .gantt-pill:has(select)::after { content: "⌄"; position: absolute; inset-inline-end: 10px; top: 4px; pointer-events: none; }
 .gantt-pill[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-text); border-color: var(--primary); }
@@ -128,5 +128,6 @@
 .gantt[data-embedded] .gantt-pill { min-height: 1.5rem; padding: 1px 8px; font-size: var(--text-xs); line-height: 1rem; }
 .gantt[data-embedded] .gantt-pill:has(select)::after { inset-inline-end: 6px; top: 2px; }
 .gantt[data-embedded] .gantt-pill select { padding-inline-end: 0.9rem; }
-.gantt[data-embedded] .gantt-zoom { width: 9rem; } .gantt[data-embedded] .gantt-zoom button { min-height: 1.25rem; font-size: var(--text-xs); }
+.gantt[data-embedded] .gantt-zoom { width: auto; flex: none; } .gantt[data-embedded] .gantt-zoom button { flex: none; min-height: 1.25rem; padding: 3px 9px; font-size: var(--text-xs); }
+.gantt[data-embedded] .gantt-pill select { height: 1rem; }
 .gantt[data-embedded] .gantt-controls { gap: var(--s2); } .gantt[data-embedded] .gantt-count { font-size: var(--text-xs); }
