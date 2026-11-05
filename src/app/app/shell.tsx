@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Bell } from "./Bell";
 import { ThemeToggle } from "./ThemeToggle";
 import { CommandMenu } from "./CommandMenu";
@@ -24,13 +24,27 @@ type Props = {
 const GROUPS: Group[] = ["project", "site", "admin"];
 const NARROW = "(max-width: 48rem)";
 
+// The choice is kept in this browser so it stays the same on every screen; phones always start closed.
+const savedNav = (): "open" | "closed" | undefined => {
+  try {
+    const v = localStorage.getItem("nav");
+    return (v === "open" || v === "closed") && !window.matchMedia(NARROW).matches ? v : undefined;
+  } catch { return undefined; }
+};
+
 export function Shell({ projects, itemsByProject, fallbackItems, email, unread, streamNew, unreadLabel, labels, children }: Props) {
   const pathname = usePathname();
   // Until the person toggles it, the side bar is open on wide windows and hidden on narrow ones (CSS decides).
-  const [nav, setNav] = useState<"open" | "closed" | undefined>(undefined);
+  const saved = useSyncExternalStore(() => () => {}, savedNav, () => undefined);
+  const [chosenNav, setNav] = useState<"open" | "closed" | undefined>(undefined);
+  const nav = chosenNav ?? saved;
   const [shut, setShut] = useState<Group[]>([]);
   const collapsed = nav === "closed";
-  const toggleNav = () => setNav((n) => ((n ?? (window.matchMedia(NARROW).matches ? "closed" : "open")) === "open" ? "closed" : "open"));
+  const toggleNav = () => {
+    const next = (nav ?? (window.matchMedia(NARROW).matches ? "closed" : "open")) === "open" ? "closed" : "open";
+    setNav(next);
+    try { localStorage.setItem("nav", next); } catch {}
+  };
   const account = useRef<HTMLDetailsElement>(null);
   // The account menu closes on a click elsewhere or Escape.
   useEffect(() => {
@@ -60,7 +74,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
   };
   const quick = (q: string) => `/app/items?${project ? `project=${project.id}&` : ""}quick=${q}`;
   const quickLink = (q: string, label: string) => (
-    <a key={q} href={quick(q)} title={label} className="shell-link" aria-current={pathname === "/app/items" && quickNow === q ? "page" : undefined}>{label}</a>
+    <a key={q} href={quick(q)} title={label} className="shell-link" aria-current={pathname === "/app/items" && quickNow === q ? "page" : undefined}><span>{label}</span></a>
   );
   const quickNow = useSearchParams().get("quick");
   const inbox = (
@@ -97,8 +111,8 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
         </div>
       </header>
       <aside className="shell-side" id="shell-side">
-        <button type="button" className="shell-collapse" aria-label={collapsed ? labels.expand : labels.collapse} title={collapsed ? labels.expand : labels.collapse} aria-controls="shell-side" aria-expanded={!collapsed} onClick={toggleNav} />
         <div className="shell-capsule">
+        <button type="button" className="shell-collapse" aria-label={collapsed ? labels.expand : labels.collapse} title={collapsed ? labels.expand : labels.collapse} aria-controls="shell-side" aria-expanded={!collapsed} onClick={toggleNav} />
         {quickLink("mine", labels.mywork)}
         <nav aria-label={labels.main}>
           {GROUPS.map((g) => {

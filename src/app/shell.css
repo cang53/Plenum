@@ -93,7 +93,7 @@ body:has(.shell) { background: var(--frame); }
 .shell-group button[aria-expanded="false"]::after { transform: rotate(-90deg); }
 .shell-group button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .shell-scrim { display: none; }
-.shell-collapse { flex: none; align-self: flex-start; width: 2.25rem; height: 2.25rem; margin-left: 0.25rem; border: 0; border-radius: var(--radius-full); background: none; color: var(--text-secondary); cursor: pointer; display: grid; place-items: center; }
+.shell-collapse { flex: none; align-self: flex-end; width: 2.25rem; height: 2.25rem; margin: 0 0 4px; border: 0; border-radius: var(--radius-full); background: none; color: var(--text-secondary); cursor: pointer; display: grid; place-items: center; }
 .shell-collapse:hover { background: var(--glass-strong); color: var(--text); }
 .shell-collapse::before { content: ""; width: 1.125rem; height: 1.125rem; background: currentColor; mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round' stroke-linecap='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M9 3v18M15 8l-4 4 4 4'/></svg>") center / contain no-repeat; transition: transform 0.15s; }
 .shell-collapse[aria-expanded="false"]::before { transform: rotate(180deg); }
@@ -102,7 +102,7 @@ body:has(.shell) { background: var(--frame); }
   .shell-toggle { display: none; }
   .shell[data-nav="closed"] { grid-template-columns: 4.5rem minmax(0, 1fr); }
   .shell[data-nav="closed"] .shell-side { padding-inline: 0.5rem; scrollbar-gutter: auto; }
-  .shell[data-nav="closed"] .shell-collapse { align-self: center; margin: 0; }
+  .shell[data-nav="closed"] .shell-collapse { align-self: center; }
   .shell[data-nav="closed"] .shell-capsule { padding: 8px 6px; border-radius: 22px; }
   .shell[data-nav="closed"] .shell-link { justify-content: center; padding: 0; position: relative; }
   .shell[data-nav="closed"] .shell-link > span:first-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
