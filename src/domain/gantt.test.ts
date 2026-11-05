@@ -64,7 +64,7 @@ describe("layoutRows", () => {
   });
   it("places a nested group right below its anchor task and skips what a folded group holds", () => {
     const bars = [bar("a", "P", 0, 1), bar("z", "P", 4, 1), bar("r", "Rem", 2, 1)];
-    expect(show(layoutRows(bars, [g("P"), g("Rem", "P", "a")], new Set()))).toEqual(["0G:P", "1T:a", "1G:Rem", "2T:r", "1T:z"]);
+    expect(show(layoutRows(bars, [g("P"), g("Rem", "P", "a")], new Set()))).toEqual(["0G:P", "1T:a", "2G:Rem", "3T:r", "1T:z"]);
     expect(show(layoutRows(bars, [g("P"), g("Rem", "P", "a")], new Set(["P"])))).toEqual(["0G:P"]);
   });
   it("keeps groups with no tasks unless asked to hide them, and survives a parent loop", () => {

@@ -124,10 +124,11 @@ export function layoutRows(bars: GanttBar[], groups: GanttGroup[], folded: Set<s
     const inside = (kids.get(g.id) ?? []).filter((c) => !path.has(c.id));
     const tasks = own.get(g.id) ?? [];
     const placed = new Set<string>();
-    const nested = (c: GanttGroup) => emit(c, depth + 1, new Set([...path, g.id]));
+    // a group anchored to a task sits one step in, under that task
+    const nested = (c: GanttGroup, anchored = false) => emit(c, depth + (anchored ? 2 : 1), new Set([...path, g.id]));
     for (const b of tasks) {
       rows.push({ key: b.id, group: null, depth: depth + 1, bar: b, startDay: b.startDay, endDay: b.startDay + b.length - 1, count: 0 });
-      for (const c of inside.filter((c) => c.afterTaskId === b.id)) { placed.add(c.id); nested(c); }
+      for (const c of inside.filter((c) => c.afterTaskId === b.id)) { placed.add(c.id); nested(c, true); }
     }
     for (const c of sorted(inside.filter((c) => !placed.has(c.id)))) nested(c);
   };
