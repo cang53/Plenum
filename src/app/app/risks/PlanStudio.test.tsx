@@ -28,7 +28,7 @@ describe("PlanStudio", () => {
     expect(html).toContain(labels["ps.hello"]);
     expect(html).toContain(labels["ps.chip.propose"]);
     expect(html).toContain(labels["ps.stepsEmpty"]);
-    expect(html).toMatch(/<button[^>]*disabled[^>]*>Add to timeline<\/button>/);
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>Add to Gantt<\/button>/);
   });
   it("puts proposed steps in a Remediation plan group inside the affected activity's group", () => {
     const g = { ...gantt, anchor: "t1", groups: [{ id: "proc", name: "Procurement", parentId: null }], tasks: [{ ...gantt.tasks[0], phase: "Procurement", phaseId: "proc" }] };
@@ -42,7 +42,7 @@ describe("PlanStudio", () => {
     expect(new Set(html.match(/gantt-proposal ps-c\d/g)).size).toBe(3);
     expect(html).toContain("Mila V. · Member");
     expect(html).toContain(labels["ps.gap"]);
-    expect(html).toContain("Add 3 to timeline");
+    expect(html).toContain("Add 3 to Gantt");
     if (process.env.PLAN_STUDIO_HTML) writeFileSync(process.env.PLAN_STUDIO_HTML, html);
   });
 });
@@ -58,7 +58,14 @@ describe("saved plan", () => {
     const html = renderToStaticMarkup(<PlanStudio riskId="r" weekStart="2026-11-02" gantt={gantt} people={people} weekNames={weekNames} existing={[]} base={base} labels={labels} canManage initialSteps={steps} initialLog={[{ who: "me", text: "Propose a plan" }, { who: "ai", text: "Here is a plan" }]} />);
     expect(html).toContain("Here is a plan");
     expect(html).not.toContain(labels["ps.hello"]);
-    expect(html).toContain("3 activities added to the timeline");
+    expect(html).toContain("3 activities added to the Gantt");
+  });
+  it("shows an added step once, in green, on the real task", () => {
+    const real = { ...gantt, tasks: [...gantt.tasks, { id: "t2", title: "Place order early", startDate: "2026-11-02", dueDate: "2026-11-13", phase: null, ownerName: "Mila V." }] };
+    const html = renderToStaticMarkup(<PlanStudio riskId="r" weekStart="2026-11-02" gantt={real} people={people} weekNames={weekNames} existing={[]} base={base} labels={labels} canManage initialSteps={steps.slice(0, 1)} initialLog={[{ who: "ai", text: "ok" }]} />);
+    expect(html.match(/Place order early/g)?.length).toBeGreaterThan(0);
+    expect(html).toContain("gantt-proposal ps-ok");
+    expect(html).not.toContain('data-bar-id="p-1"');
   });
   it("draws the real chart with the existing activities and each proposal in its own color", () => {
     const html = render(steps);

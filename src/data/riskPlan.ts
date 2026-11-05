@@ -29,6 +29,15 @@ export async function resolveStep(client: SupabaseClient, id: string, accept: bo
   if (!data?.length) throw new Error("step not found or not allowed");
 }
 
+// The tasks that accepted steps became, in the order of the given step ids.
+export async function taskIdsOf(client: SupabaseClient, stepIds: string[]): Promise<(string | undefined)[]> {
+  if (!stepIds.length) return [];
+  const { data, error } = await client.from("risk_plan_steps").select("id, task_id").in("id", stepIds);
+  if (error) throw error;
+  const by = new Map((data ?? []).map((r) => [r.id as string, (r.task_id as string | null) ?? undefined]));
+  return stepIds.map((id) => by.get(id));
+}
+
 export type StepInsert = { title: string; startDate: string; dueDate: string; ownerId: string | null; reason: string };
 
 // Stores steps as proposals and returns their ids, replacing earlier proposals of the same origin.
@@ -41,7 +50,7 @@ export async function insertSteps(client: SupabaseClient, riskId: string, projec
   return (data ?? []).map((d) => d.id as string);
 }
 
-export type Snapshot = { id: string; createdAt: string; createdBy: string | null; doc: { weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; steps: { title: string; s: number; l: number; owner: string | null }[]; chat: { who: "me" | "ai"; text: string }[] } };
+export type Snapshot = { id: string; createdAt: string; createdBy: string | null; doc: { weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; steps: { title: string; s: number; l: number; owner: string | null; taskId?: string }[]; chat: { who: "me" | "ai"; text: string }[] } };
 
 // The plan as it was when a manager added it to the timeline; shown on the risk after a refresh.
 export async function saveSnapshot(client: SupabaseClient, riskId: string, projectId: string, origin: "ai" | "manual", doc: Snapshot["doc"]): Promise<void> {

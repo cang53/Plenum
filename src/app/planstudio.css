@@ -77,3 +77,4 @@
 .ps-step[class*="ps-c"] { border-inline-start: 4px solid var(--c); }
 
 .ps-gantt { margin-top: 10px; min-width: 0; }
+.ps-ok { --c: var(--success); }

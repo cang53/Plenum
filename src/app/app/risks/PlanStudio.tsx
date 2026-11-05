@@ -125,14 +125,18 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
 
   async function commit() {
     try {
-      const n = await studioCommit(riskId, mode === "ai" ? "ai" : "manual", steps, log.filter((m) => !m.typing && m.text).map(({ who, text }) => ({ who, text })), existing.slice(0, 6), marker);
+      const { n, taskIds } = await studioCommit(riskId, mode === "ai" ? "ai" : "manual", steps, log.filter((m) => !m.typing && m.text).map(({ who, text }) => ({ who, text })), existing.slice(0, 6), marker);
       try { localStorage.removeItem(draftKey); } catch { /* storage is off */ }
+      const kept = steps.slice(0, 8).filter((s) => s.title.trim());
+      setSteps((all) => all.map((s) => ({ ...s, taskId: taskIds[kept.indexOf(s)] ?? s.taskId })));
       setAdded(true); setToast(L["ps.added"].replace("{n}", String(n))); setTimeout(() => setToast(""), 2600);
       router.refresh();
     } catch { setToast(L["ps.error"]); setTimeout(() => setToast(""), 2600); }
   }
 
-  const proposals = Object.fromEntries(steps.map((s, i) => [`p-${s.id}`, { cls: `ps-c${i % 8}`, flash: flashId === s.id, leaving: leaving === s.id }]));
+  // Once added, the real tasks are on the Gantt (found by the id saved with the step): color those green instead of drawing the proposal again.
+  const real = useMemo(() => new Map(steps.flatMap((s) => (added && s.taskId && g.tasks.some((x) => x.id === s.taskId) ? [[s.id, s.taskId] as const] : []))), [added, steps, g.tasks]);
+  const proposals = Object.fromEntries(steps.map((s, i) => [real.get(s.id) ?? `p-${s.id}`, { cls: real.has(s.id) ? "ps-ok" : `ps-c${i % 8}`, flash: flashId === s.id, leaving: leaving === s.id }]));
   // Proposed steps sit in the "Remediation plan" group right below the affected activity, as they will once accepted.
   const home = g.tasks.find((x) => x.id === anchor)?.phaseId;
   const remGroup = useMemo<GanttGroup | null>(() => (home && anchor ? (g.groups.find((x) => x.parentId === home && x.afterTaskId === anchor) ?? { id: "p-group", name: L["ps.group"], parentId: home, afterTaskId: anchor }) : null), [g.groups, home, anchor, L]);
@@ -140,8 +144,8 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
   const tasks = useMemo<GanttTask[]>(() => [
     ...g.tasks,
     ...(marker === null ? [] : [{ id: "p-risk", title: L["ps.riskDate"], startDate: weekDates(weekStart, marker, 1).startDate, dueDate: weekDates(weekStart, marker, 1).startDate, isMilestone: true, phase: null }]),
-    ...steps.map((s) => ({ id: `p-${s.id}`, title: s.title, ...weekDates(weekStart, s.s, s.l), phase: remGroup?.name ?? L["ps.proposed"], phaseId: remGroup?.id, status: "todo" as const, ownerName: people.find((p) => p.userId === s.owner)?.name ?? null })),
-  ], [g.tasks, steps, marker, weekStart, people, L, remGroup]);
+    ...steps.filter((s) => !real.has(s.id)).map((s) => ({ id: `p-${s.id}`, title: s.title, ...weekDates(weekStart, s.s, s.l), phase: remGroup?.name ?? L["ps.proposed"], phaseId: remGroup?.id, status: "todo" as const, ownerName: people.find((p) => p.userId === s.owner)?.name ?? null })),
+  ], [g.tasks, steps, real, marker, weekStart, people, L, remGroup]);
   return (
     <div className="ps">
       <div className="ps-row">
@@ -172,7 +176,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
               {steps.map((s, i) => {
                 const who = nameOf(s.owner);
                 return (
-                  <li key={s.id} className={`ps-step ps-c${i % 8}${flashId === s.id ? " flash" : ""}${leaving === s.id ? " leaving" : ""}`}>
+                  <li key={s.id} className={`ps-step ${added ? "ps-ok" : `ps-c${i % 8}`}${flashId === s.id ? " flash" : ""}${leaving === s.id ? " leaving" : ""}`}>
                     <div className="ps-top">
                       <label><input type="checkbox" checked readOnly aria-label={s.title} />{s.title}</label>
                       {who ? <span className="ps-who"><span className="ps-av">{who.name.charAt(0).toUpperCase()}</span>{who.name} · {roleLabel(who.role)}</span> : <span className="ps-chip ps-bad">{L["ps.noOwner"]}</span>}
