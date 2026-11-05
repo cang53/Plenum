@@ -44,3 +44,12 @@ describe("remediation snapshot", () => {
     for (const k of ["risks.remediation.in_remediation", "risks.snapshot", "risks.snapshotChat"] as const) expect(t(k)).toBeTruthy();
   });
 });
+
+describe("saved plan", () => {
+  it("comes back with its chat and the add button done", () => {
+    const html = renderToStaticMarkup(<PlanStudio riskId="r" people={people} weekNames={weekNames} existing={[]} base={base} labels={labels} canManage initialSteps={steps} initialLog={[{ who: "me", text: "Propose a plan" }, { who: "ai", text: "Here is a plan" }]} />);
+    expect(html).toContain("Here is a plan");
+    expect(html).not.toContain(labels["ps.hello"]);
+    expect(html).toContain("3 activities added to the timeline");
+  });
+});

@@ -10,7 +10,7 @@ type Act = (form: FormData) => void | Promise<void>;
 type Props = {
   t: (key: MessageKey) => string;
   risk: RiskRow; code: string; back: string; projectParam: string;
-  members: Pick<Member, "userId" | "name">[]; tasks: { id: string; title: string }[];
+  members: Pick<Member, "userId" | "name">[]; tasks: { id: string; title: string }[]; ask?: React.ReactNode;
   similar: Similar<RiskRow & { projectName: string }>[]; analyzed: boolean;
   actions: { save: Act; toggle: Act };
 };
@@ -19,7 +19,7 @@ const levels = LEVELS.map((n) => ({ value: String(n), label: String(n) }));
 const TONE = { low: "ok", medium: "warn", high: "bad" } as const;
 
 // The detail screen: description and plan on the left, scoring and owner on the right. Pure markup so it can be rendered without a database.
-export function RiskDetailView({ t, risk, code, back, projectParam, members, tasks, similar, analyzed, actions }: Props) {
+export function RiskDetailView({ t, risk, code, back, projectParam, members, tasks, ask, similar, analyzed, actions }: Props) {
   const score = riskScore(risk.likelihood, risk.severity, risk.kind);
   const band = riskBand(score);
   const kind = (k: string) => t(`risks.kind.${k}` as MessageKey);
@@ -41,6 +41,7 @@ export function RiskDetailView({ t, risk, code, back, projectParam, members, tas
         </div>
       </div>
       <RiskTabs t={t} id={risk.id} projectParam={projectParam} current="details" />
+      {ask}
       <form id="rk-edit" action={actions.save}><input type="hidden" name="id" value={risk.id} /></form>
       <div className="rk-detail">
         <div className="rk-col">

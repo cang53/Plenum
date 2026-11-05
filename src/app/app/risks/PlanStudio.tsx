@@ -9,24 +9,25 @@ import type { STUDIO_KEYS } from "./studioLabels";
 
 type Labels = Record<(typeof STUDIO_KEYS)[number], string>;
 type Msg = { id: number; who: "me" | "ai"; text: string; typing?: boolean };
-type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[] };
+type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[]; initialLog?: { who: "me" | "ai"; text: string }[] };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function PlanStudio({ riskId, people, weekNames, existing, marker = null, base, labels: L, canManage, initialSteps = [] }: Props) {
+export function PlanStudio({ riskId, people, weekNames, existing, marker = null, base, labels: L, canManage, initialSteps = [], initialLog }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [steps, setSteps] = useState<Draft[]>(initialSteps);
+  const saved = Boolean(initialLog?.length);
   const [leaving, setLeaving] = useState<number | null>(null);
   const [flashId, setFlashId] = useState<number | null>(null);
-  const [log, setLog] = useState<Msg[]>([{ id: 0, who: "ai", text: L["ps.hello"] }]);
+  const [log, setLog] = useState<Msg[]>(saved ? initialLog!.map((m, i) => ({ id: i, ...m })) : [{ id: 0, who: "ai", text: L["ps.hello"] }]);
   const [chips, setChips] = useState<string[]>([L["ps.chip.propose"]]);
   const [say, setSay] = useState("");
   const [notes, setNotes] = useState(L["ps.manual.sample"]);
-  const [added, setAdded] = useState(false);
+  const [added, setAdded] = useState(saved);
   const [toast, setToast] = useState("");
   const [asking, setAsking] = useState(false);
   const busy = useRef(false);
-  const seq = useRef(0);
+  const seq = useRef(initialLog?.length ?? 0);
   const logEl = useRef<HTMLDivElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
   const segBtns = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -54,7 +55,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
       const out = await studioChat(riskId, text, steps);
       const gone = steps.filter((s) => !out.steps.some((n) => n.id === s.id));
       if (gone.length) { setLeaving(gone[0].id); await wait(350); setLeaving(null); }
-      setSteps(out.steps); flash(out.changed);
+      setSteps(out.steps); setAdded(false); flash(out.changed);
       await reply(out.reply, typing);
       setChips(out.steps.length ? [L["ps.chip.move"], L["ps.chip.assign"], L["ps.chip.shorter"], L["ps.chip.add"], L["ps.chip.remove"]] : [L["ps.chip.propose"]]);
     } catch {

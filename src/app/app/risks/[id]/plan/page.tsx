@@ -3,7 +3,7 @@ import { currentProject, listProjects } from "@/data/projects";
 import { getRisk, listRisks } from "@/data/risks";
 import { listSnapshots, listSteps } from "@/data/riskPlan";
 import { extractDate, suggestTask } from "@/domain/riskLink";
-import { answerLink } from "../../actions";
+import { LinkAsk } from "../../LinkAsk";
 import { riskCodes } from "@/domain/risk";
 import { WEEKS } from "@/domain/planStudio";
 import { getT } from "@/lib/locale";
@@ -39,6 +39,7 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
   const at = day ? (Date.parse(day) - Date.parse(ctx.weekStart)) / (7 * DAY) : null;
   const marker = at !== null && at >= 0 && at < WEEKS ? at : null;
   const withIds = ctx.tasks.filter((x): x is typeof x & { id: string } => Boolean(x.id));
+  const snap = snaps[0];
   const guess = !linked && !risk.linkDeclined ? suggestTask(risk, withIds) : null;
   const labels = Object.fromEntries(STUDIO_KEYS.map((k) => [k, t(k as MessageKey)])) as Record<(typeof STUDIO_KEYS)[number], string>;
   const code = riskCodes(all).get(id) ?? "";
@@ -48,17 +49,8 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
       <p><a className="rk-back" href={back}>← {t("risks.back")}</a></p>
       <div className="rk-head"><div><p className="eyebrow"><span className="rk-id">{code}</span> · {t(`risks.kind.${risk.kind}` as MessageKey)}</p><h1>{risk.title}</h1></div></div>
       <RiskTabs t={t} id={id} projectParam={sp.project ?? ""} current="plan" />
-      {guess && (
-        <section className="surface rk-card" aria-label={t("risks.linkedTask")}>
-          <p>{t("risks.linkAsk").replace("{title}", guess.title)}</p>
-          <div className="rk-actions">
-            <form action={answerLink}><input type="hidden" name="id" value={id} /><input type="hidden" name="linkedTaskId" value={guess.id} /><button type="submit" className="act act-primary">{t("risks.linkYes")}</button></form>
-            <form action={answerLink}><input type="hidden" name="id" value={id} /><button type="submit" className="act">{t("risks.linkNo")}</button></form>
-            <form action={answerLink}><input type="hidden" name="id" value={id} /><select name="linkedTaskId" className="rk-in" aria-label={t("risks.linkOther")} required defaultValue=""><option value="" disabled>{t("risks.linkOther")}</option>{withIds.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}</select> <button type="submit" className="act">{t("risks.linkSave")}</button></form>
-          </div>
-        </section>
-      )}
-      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} base={ctx.base} labels={labels} canManage={canManage} />
+      {guess && <LinkAsk t={t} riskId={id} guess={guess} tasks={withIds} />}
+      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} base={ctx.base} labels={labels} canManage={canManage} initialSteps={snap?.doc.steps.map((x, i) => ({ id: i + 1, title: x.title, s: x.s, l: x.l, owner: x.owner, why: "" }))} initialLog={snap?.doc.chat} />
       {snaps.length > 0 && (
         <section className="surface rk-card" aria-labelledby="rk-snap">
           <h2 id="rk-snap">{t("risks.snapshot")}</h2>
