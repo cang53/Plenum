@@ -2,6 +2,8 @@ import { supabaseServer } from "@/auth/supabase";
 import { currentProject, listProjects } from "@/data/projects";
 import { getRisk, listRisks } from "@/data/risks";
 import { listSnapshots, listSteps } from "@/data/riskPlan";
+import { extractDate, suggestTask } from "@/domain/riskLink";
+import { answerLink } from "../../actions";
 import { riskCodes } from "@/domain/risk";
 import { WEEKS } from "@/domain/planStudio";
 import { getT } from "@/lib/locale";
@@ -26,11 +28,18 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
   const canManage = Boolean((await supabase.rpc("can_manage_project", { p: ctx.projectId })).data);
   void currentProject(projects, ctx.projectId);
   const col = (d: string) => Math.floor((Date.parse(d) - Date.parse(ctx.weekStart)) / (7 * DAY));
-  const existing = ctx.tasks.flatMap((x) => {
+  const linked = ctx.tasks.find((x) => x.id === risk.linkedTaskId);
+  const bars = ctx.tasks.flatMap((x) => {
     if (!x.startDate || !x.dueDate || col(x.dueDate) < 0 || col(x.startDate) > WEEKS - 1) return [];
     const s = Math.max(0, col(x.startDate));
-    return [{ title: x.title, s, l: Math.min(WEEKS - 1, col(x.dueDate)) - s + 1 }];
-  }).slice(0, 6);
+    return [{ title: x.title, s, l: Math.min(WEEKS - 1, col(x.dueDate)) - s + 1, hot: x === linked }];
+  });
+  const existing = [...bars.filter((b) => b.hot), ...bars.filter((b) => !b.hot)].slice(0, 6);
+  const day = extractDate(`${risk.title} ${risk.details}`, ctx.weekStart);
+  const at = day ? (Date.parse(day) - Date.parse(ctx.weekStart)) / (7 * DAY) : null;
+  const marker = at !== null && at >= 0 && at < WEEKS ? at : null;
+  const withIds = ctx.tasks.filter((x): x is typeof x & { id: string } => Boolean(x.id));
+  const guess = !linked && !risk.linkDeclined ? suggestTask(risk, withIds) : null;
   const labels = Object.fromEntries(STUDIO_KEYS.map((k) => [k, t(k as MessageKey)])) as Record<(typeof STUDIO_KEYS)[number], string>;
   const code = riskCodes(all).get(id) ?? "";
   const done = steps.filter((s) => s.status === "accepted");
@@ -39,7 +48,17 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
       <p><a className="rk-back" href={back}>← {t("risks.back")}</a></p>
       <div className="rk-head"><div><p className="eyebrow"><span className="rk-id">{code}</span> · {t(`risks.kind.${risk.kind}` as MessageKey)}</p><h1>{risk.title}</h1></div></div>
       <RiskTabs t={t} id={id} projectParam={sp.project ?? ""} current="plan" />
-      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} base={ctx.base} labels={labels} canManage={canManage} />
+      {guess && (
+        <section className="surface rk-card" aria-label={t("risks.linkedTask")}>
+          <p>{t("risks.linkAsk").replace("{title}", guess.title)}</p>
+          <div className="rk-actions">
+            <form action={answerLink}><input type="hidden" name="id" value={id} /><input type="hidden" name="linkedTaskId" value={guess.id} /><button type="submit" className="act act-primary">{t("risks.linkYes")}</button></form>
+            <form action={answerLink}><input type="hidden" name="id" value={id} /><button type="submit" className="act">{t("risks.linkNo")}</button></form>
+            <form action={answerLink}><input type="hidden" name="id" value={id} /><select name="linkedTaskId" className="rk-in" aria-label={t("risks.linkOther")} required defaultValue=""><option value="" disabled>{t("risks.linkOther")}</option>{withIds.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}</select> <button type="submit" className="act">{t("risks.linkSave")}</button></form>
+          </div>
+        </section>
+      )}
+      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} base={ctx.base} labels={labels} canManage={canManage} />
       {snaps.length > 0 && (
         <section className="surface rk-card" aria-labelledby="rk-snap">
           <h2 id="rk-snap">{t("risks.snapshot")}</h2>

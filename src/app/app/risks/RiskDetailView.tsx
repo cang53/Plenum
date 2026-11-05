@@ -10,7 +10,7 @@ type Act = (form: FormData) => void | Promise<void>;
 type Props = {
   t: (key: MessageKey) => string;
   risk: RiskRow; code: string; back: string; projectParam: string;
-  members: Pick<Member, "userId" | "name">[];
+  members: Pick<Member, "userId" | "name">[]; tasks: { id: string; title: string }[];
   similar: Similar<RiskRow & { projectName: string }>[]; analyzed: boolean;
   actions: { save: Act; toggle: Act };
 };
@@ -19,7 +19,7 @@ const levels = LEVELS.map((n) => ({ value: String(n), label: String(n) }));
 const TONE = { low: "ok", medium: "warn", high: "bad" } as const;
 
 // The detail screen: description and plan on the left, scoring and owner on the right. Pure markup so it can be rendered without a database.
-export function RiskDetailView({ t, risk, code, back, projectParam, members, similar, analyzed, actions }: Props) {
+export function RiskDetailView({ t, risk, code, back, projectParam, members, tasks, similar, analyzed, actions }: Props) {
   const score = riskScore(risk.likelihood, risk.severity, risk.kind);
   const band = riskBand(score);
   const kind = (k: string) => t(`risks.kind.${k}` as MessageKey);
@@ -72,6 +72,7 @@ export function RiskDetailView({ t, risk, code, back, projectParam, members, sim
             <dt>{t("risks.remediation")}</dt><dd><span className={`st st-${risk.remediation === "none" ? "todo" : risk.remediation === "remediated" ? "ok" : "go"}`}>{t(`risks.remediation.${risk.remediation}` as MessageKey)}</span></dd>
             <dt>{t("risks.score")}</dt><dd><span className={`st st-${TONE[band]}`}>{score} · {t(`risks.band.${band}` as MessageKey)}</span></dd>
             <dt className="rk-full"><Choice form="rk-edit" name="kind" label={t("risk.kindLabel")} value={risk.kind} options={[{ value: "risk", label: kind("risk") }, { value: "issue", label: kind("issue") }]} /></dt>
+            <dt className="rk-full"><label className="rk-lab">{t("risks.linkedTask")}<select form="rk-edit" name="linkedTaskId" className="rk-in" defaultValue={risk.linkedTaskId ?? ""}><option value="">{t("risks.noLinkedTask")}</option>{tasks.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}</select></label></dt>
             <dt className="rk-full"><Choice form="rk-edit" name="likelihood" label={t("risks.likelihood")} value={String(risk.likelihood)} options={levels} /></dt>
             <dt className="rk-full"><Choice form="rk-edit" name="severity" label={t("risks.severity")} value={String(risk.severity)} options={levels} /></dt>
             <dt className="rk-full"><Choice form="rk-edit" name="ownerId" label={t("risks.owner")} value={risk.ownerId ?? ""} options={[{ value: "", label: t("risks.noOwner") }, ...members.map((m) => ({ value: m.userId, label: m.name }))]} /></dt>

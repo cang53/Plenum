@@ -1,13 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type RiskRow = {
-  id: string; kind: "risk" | "issue"; title: string; details: string; status: "open" | "closed"; remediation: "none" | "in_remediation" | "remediated";
+  id: string; kind: "risk" | "issue"; title: string; details: string; status: "open" | "closed"; remediation: "none" | "in_remediation" | "remediated"; linkedTaskId: string | null; linkDeclined: boolean;
   likelihood: number; severity: number; ownerId: string | null; dueDate: string | null; sourceMessageId: string | null; createdAt: string;
 };
-const COLS = "id, kind, title, details, status, remediation, likelihood, severity, owner_id, due_date, source_message_id, created_at";
+const COLS = "id, kind, title, details, status, remediation, linked_task_id, link_declined, likelihood, severity, owner_id, due_date, source_message_id, created_at";
 type Raw = Record<string, unknown>;
 const map = (r: Raw): RiskRow => ({
-  id: r.id as string, kind: r.kind as RiskRow["kind"], title: r.title as string, details: (r.details as string) ?? "", status: r.status as RiskRow["status"], remediation: (r.remediation as RiskRow["remediation"]) ?? "none",
+  id: r.id as string, kind: r.kind as RiskRow["kind"], title: r.title as string, details: (r.details as string) ?? "", status: r.status as RiskRow["status"], remediation: (r.remediation as RiskRow["remediation"]) ?? "none", linkedTaskId: (r.linked_task_id as string) ?? null, linkDeclined: Boolean(r.link_declined),
   likelihood: r.likelihood as number, severity: r.severity as number, ownerId: (r.owner_id as string) ?? null, dueDate: (r.due_date as string) ?? null,
   sourceMessageId: (r.source_message_id as string) ?? null, createdAt: r.created_at as string,
 });
@@ -31,11 +31,13 @@ export async function createRisk(client: SupabaseClient, projectId: string, r: P
 }
 
 // Row-level security decides who may; no row back means not allowed.
-export async function updateRisk(client: SupabaseClient, id: string, patch: Partial<Pick<RiskRow, "kind" | "title" | "details" | "status" | "remediation" | "likelihood" | "severity" | "ownerId" | "dueDate">>): Promise<void> {
-  const { ownerId, dueDate, ...rest } = patch;
+export async function updateRisk(client: SupabaseClient, id: string, patch: Partial<Pick<RiskRow, "kind" | "title" | "details" | "status" | "remediation" | "linkedTaskId" | "linkDeclined" | "likelihood" | "severity" | "ownerId" | "dueDate">>): Promise<void> {
+  const { ownerId, dueDate, linkedTaskId, linkDeclined, ...rest } = patch;
   const row: Raw = { ...rest };
   if (ownerId !== undefined) row.owner_id = ownerId;
   if (dueDate !== undefined) row.due_date = dueDate;
+  if (linkedTaskId !== undefined) row.linked_task_id = linkedTaskId;
+  if (linkDeclined !== undefined) row.link_declined = linkDeclined;
   const { data, error } = await client.from("risks").update(row).eq("id", id).select("id");
   if (error) throw error;
   if (!data?.length) throw new Error("risk not found or not allowed");

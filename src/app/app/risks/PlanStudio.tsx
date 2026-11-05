@@ -9,10 +9,10 @@ import type { STUDIO_KEYS } from "./studioLabels";
 
 type Labels = Record<(typeof STUDIO_KEYS)[number], string>;
 type Msg = { id: number; who: "me" | "ai"; text: string; typing?: boolean };
-type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number }[]; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[] };
+type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[] };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function PlanStudio({ riskId, people, weekNames, existing, base, labels: L, canManage, initialSteps = [] }: Props) {
+export function PlanStudio({ riskId, people, weekNames, existing, marker = null, base, labels: L, canManage, initialSteps = [] }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [steps, setSteps] = useState<Draft[]>(initialSteps);
@@ -80,7 +80,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, base, labels: 
 
   async function commit() {
     try {
-      const n = await studioCommit(riskId, mode === "ai" ? "ai" : "manual", steps, log.filter((m) => !m.typing && m.text).map(({ who, text }) => ({ who, text })), existing);
+      const n = await studioCommit(riskId, mode === "ai" ? "ai" : "manual", steps, log.filter((m) => !m.typing && m.text).map(({ who, text }) => ({ who, text })), existing, marker);
       setAdded(true); setToast(L["ps.added"].replace("{n}", String(n))); setTimeout(() => setToast(""), 2600);
       router.refresh();
     } catch { setToast(L["ps.error"]); setTimeout(() => setToast(""), 2600); }
@@ -111,8 +111,9 @@ export function PlanStudio({ riskId, people, weekNames, existing, base, labels: 
             <div className="ps-tl"><div className="ps-grid" role="img" aria-label={L["ps.timeline"]}>
               <div className="ps-weeks" style={grid}><span />{weekNames.map((w) => <span key={w}>{w}</span>)}</div>
               {existing.map((e) => (
-                <div className="ps-lane" key={e.title}><span className="ps-lbl"><span className="ps-tag">{L["ps.existing"]}</span> {e.title}</span><div className="ps-track"><div className="ps-bar" style={{ left: `${e.s * 12.5}%`, width: `${e.l * 12.5}%` }} /></div></div>
+                <div className="ps-lane" key={e.title}><span className="ps-lbl"><span className="ps-tag">{e.hot ? L["ps.affected"] : L["ps.existing"]}</span> {e.title}</span><div className="ps-track"><div className={`ps-bar${e.hot ? " hot" : ""}`} style={{ left: `${e.s * 12.5}%`, width: `${e.l * 12.5}%` }} /></div></div>
               ))}
+              {marker !== null && <div className="ps-lane"><span className="ps-lbl"><span className="ps-tag">{L["ps.riskDate"]}</span></span><div className="ps-track"><div className="ps-bar mark" style={{ left: `${marker * 12.5}%` }} /></div></div>}
               {steps.map((s) => (
                 <div className="ps-lane" key={s.id}><span className="ps-lbl"><b>{L["ps.new"]}</b> {s.title}</span><div className="ps-track"><div className={`ps-bar new${s.owner ? "" : " gap"}${added ? " done" : ""}`} style={{ left: `${s.s * 12.5}%`, width: `${s.l * 12.5}%` }} /></div></div>
               ))}

@@ -6,7 +6,7 @@ const DAY = 86_400_000;
 
 export type Person = { userId: string; name: string; role: string };
 export type Draft = { id: number; title: string; s: number; l: number; owner: string | null; why: string };
-export type TaskLite = { title: string; startDate: string | null; dueDate: string | null; ownerId: string | null };
+export type TaskLite = { id?: string; title: string; startDate: string | null; dueDate: string | null; ownerId: string | null };
 
 const shift = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * DAY).toISOString().slice(0, 10);
 export const mondayOf = (d: string): string => shift(d, -((new Date(`${d}T00:00:00Z`).getUTCDay() + 6) % 7));

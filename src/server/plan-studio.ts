@@ -24,12 +24,12 @@ export async function loadStudio(supabase: SupabaseClient, riskId: string, today
   const projectId = pr.project_id as string;
   const [members, tasksRes, others] = await Promise.all([
     listMembers(supabase, projectId),
-    supabase.from("tasks").select("title, start_date, due_date, owner_id").eq("project_id", projectId).neq("status", "done").limit(300),
+    supabase.from("tasks").select("id, title, start_date, due_date, owner_id").eq("project_id", projectId).neq("status", "done").limit(300),
     listOtherRisks(supabase, projectId),
   ]);
   if (tasksRes.error) throw tasksRes.error;
   const people = members.map((m) => ({ userId: m.userId, name: m.name || m.email, role: m.role }));
-  const tasks = (tasksRes.data ?? []).map((t) => ({ title: t.title as string, startDate: t.start_date as string | null, dueDate: t.due_date as string | null, ownerId: t.owner_id as string | null }));
+  const tasks = (tasksRes.data ?? []).map((t) => ({ id: t.id as string, title: t.title as string, startDate: t.start_date as string | null, dueDate: t.due_date as string | null, ownerId: t.owner_id as string | null }));
   const weekStart = mondayOf(today);
   const lessons = findSimilar(risk, others, 3).filter((s) => s.details).map((s) => `- ${s.title} (${s.projectName}): ${s.details.slice(0, 300)}`);
   return { risk, projectId, people, tasks, weekStart, weekNames: weekNamesFrom(weekStart), lessons, base: baseLoad(people, tasks, weekStart) };

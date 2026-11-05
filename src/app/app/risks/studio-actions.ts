@@ -37,7 +37,7 @@ export async function studioSuggest(riskId: string, step: Draft, current: Draft[
 }
 
 // A project manager adds the draft: each step becomes a task. The database checks who may and keeps the link to the risk's source message.
-export async function studioCommit(riskId: string, origin: "ai" | "manual", steps: Draft[], chat: { who: "me" | "ai"; text: string }[] = [], existing: { title: string; s: number; l: number }[] = []): Promise<number> {
+export async function studioCommit(riskId: string, origin: "ai" | "manual", steps: Draft[], chat: { who: "me" | "ai"; text: string }[] = [], existing: { title: string; s: number; l: number; hot?: boolean }[] = [], marker: number | null = null): Promise<number> {
   const supabase = await supabaseServer();
   const ctx = await loadStudio(supabase, riskId, today());
   const ok = new Set(eligible(ctx.people).map((p) => p.userId));
@@ -45,7 +45,7 @@ export async function studioCommit(riskId: string, origin: "ai" | "manual", step
   const ids = await insertSteps(supabase, riskId, ctx.projectId, origin, rows);
   for (const id of ids) await resolveStep(supabase, id, true);
   const clean = steps.slice(0, 8).map((s) => ({ title: s.title.trim().slice(0, 200), s: s.s, l: s.l, owner: s.owner }));
-  await saveSnapshot(supabase, riskId, ctx.projectId, origin, { weekNames: ctx.weekNames, existing: existing.slice(0, 6), steps: clean, chat: chat.slice(-40).map((m) => ({ who: m.who, text: m.text.slice(0, 1500) })) });
+  await saveSnapshot(supabase, riskId, ctx.projectId, origin, { weekNames: ctx.weekNames, existing: existing.slice(0, 6), marker, steps: clean, chat: chat.slice(-40).map((m) => ({ who: m.who, text: m.text.slice(0, 1500) })) });
   await updateRisk(supabase, riskId, { remediation: "in_remediation" });
   revalidatePath("/app/gantt");
   revalidatePath(`/app/risks/${riskId}/plan`);

@@ -41,7 +41,7 @@ export async function insertSteps(client: SupabaseClient, riskId: string, projec
   return (data ?? []).map((d) => d.id as string);
 }
 
-export type Snapshot = { id: string; createdAt: string; createdBy: string | null; doc: { weekNames: string[]; existing: { title: string; s: number; l: number }[]; steps: { title: string; s: number; l: number; owner: string | null }[]; chat: { who: "me" | "ai"; text: string }[] } };
+export type Snapshot = { id: string; createdAt: string; createdBy: string | null; doc: { weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; steps: { title: string; s: number; l: number; owner: string | null }[]; chat: { who: "me" | "ai"; text: string }[] } };
 
 // The plan as it was when a manager added it to the timeline; shown on the risk after a refresh.
 export async function saveSnapshot(client: SupabaseClient, riskId: string, projectId: string, origin: "ai" | "manual", doc: Snapshot["doc"]): Promise<void> {

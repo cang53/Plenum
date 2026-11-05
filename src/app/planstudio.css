@@ -69,3 +69,5 @@
 .ps-toast.on { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { .ps *, .ps *::before, .ps *::after { animation: none !important; transition: none !important; } }
 .ps-panes > * { min-width: 0; }
+.ps-bar.hot { opacity: 1; background: var(--danger); }
+.ps-bar.mark { width: 6px; margin-left: -3px; background: var(--danger); opacity: 1; }

@@ -26,7 +26,7 @@ export async function saveRisk(form: FormData): Promise<void> {
   await updateRisk(await supabaseServer(), id, {
     title, kind: kindOf(form.get("kind")), details: String(form.get("details") ?? "").slice(0, 4000),
     likelihood: clampLevel(form.get("likelihood")), severity: clampLevel(form.get("severity")),
-    ownerId: owner || null, dueDate: /^\d{4}-\d{2}-\d{2}$/.test(due) ? due : null,
+    linkedTaskId: String(form.get("linkedTaskId") ?? "") || null, ownerId: owner || null, dueDate: /^\d{4}-\d{2}-\d{2}$/.test(due) ? due : null,
   });
   revalidatePath("/app/risks");
 }
@@ -34,4 +34,13 @@ export async function saveRisk(form: FormData): Promise<void> {
 export async function toggleRiskStatus(form: FormData): Promise<void> {
   await updateRisk(await supabaseServer(), String(form.get("id")), { status: form.get("to") === "closed" ? "closed" : "open" });
   revalidatePath("/app/risks");
+}
+
+// The person's answer to the suggested activity: yes or another activity links it; no remembers the refusal.
+export async function answerLink(form: FormData): Promise<void> {
+  const id = String(form.get("id"));
+  const task = String(form.get("linkedTaskId") ?? "");
+  await updateRisk(await supabaseServer(), id, task ? { linkedTaskId: task } : { linkDeclined: true });
+  revalidatePath(`/app/risks/${id}`);
+  revalidatePath(`/app/risks/${id}/plan`);
 }
