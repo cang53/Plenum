@@ -24,7 +24,7 @@ export async function getRisk(client: SupabaseClient, id: string): Promise<RiskR
   return data ? map(data) : null;
 }
 
-export async function createRisk(client: SupabaseClient, projectId: string, r: Pick<RiskRow, "kind" | "title" | "likelihood" | "severity">): Promise<string> {
+export async function createRisk(client: SupabaseClient, projectId: string, r: Pick<RiskRow, "kind" | "title" | "likelihood" | "severity"> & { details?: string }): Promise<string> {
   const { data, error } = await client.from("risks").insert({ project_id: projectId, ...r }).select("id").single();
   if (error) throw error;
   return data.id as string;

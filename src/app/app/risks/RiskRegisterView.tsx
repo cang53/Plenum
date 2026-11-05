@@ -26,6 +26,7 @@ export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, 
             <form action={add} className="rk-pop">
               <input type="hidden" name="projectId" value={project.id} />
               <label className="rk-lab">{t("risks.newTitle")}<input name="title" className="rk-in" required maxLength={200} /></label>
+              <label className="rk-lab">{t("risks.details")}<textarea name="details" className="rk-in" rows={3} maxLength={4000} /></label>
               <Choice name="kind" label={t("risk.kindLabel")} value="risk" options={[{ value: "risk", label: t("risks.kind.risk") }, { value: "issue", label: t("risks.kind.issue") }]} />
               <Choice name="likelihood" label={t("risks.likelihood")} value="3" options={levels} />
               <Choice name="severity" label={t("risks.severity")} value="3" options={levels} />

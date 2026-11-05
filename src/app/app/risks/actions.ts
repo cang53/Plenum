@@ -13,7 +13,7 @@ export async function addRisk(form: FormData): Promise<void> {
   const projectId = String(form.get("projectId"));
   const title = String(form.get("title") ?? "").trim().slice(0, 200);
   if (!title) throw new Error("title is required");
-  const id = await createRisk(await supabaseServer(), projectId, { kind: kindOf(form.get("kind")), title, likelihood: clampLevel(form.get("likelihood")), severity: clampLevel(form.get("severity")) });
+  const id = await createRisk(await supabaseServer(), projectId, { kind: kindOf(form.get("kind")), title, details: String(form.get("details") ?? "").slice(0, 4000), likelihood: clampLevel(form.get("likelihood")), severity: clampLevel(form.get("severity")) });
   redirect(`/app/risks/${id}?project=${projectId}`);
 }
 
