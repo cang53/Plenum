@@ -49,7 +49,7 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
       <div className="rk-head"><div><p className="eyebrow"><span className="rk-id">{code}</span> · {t(`risks.kind.${risk.kind}` as MessageKey)}</p><h1>{risk.title}</h1></div></div>
       <RiskTabs t={t} id={id} projectParam={sp.project ?? ""} current="plan" />
       {guess && <LinkAsk t={t} riskId={id} guess={guess} tasks={withIds} />}
-      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} weekStart={ctx.weekStart} gantt={{ tasks: plan.tasks, dependencies: plan.dependencies, labels: ganttLabels(t), locale: await getLocale(), prefix: projectPrefix(project?.name ?? ""), focusId: linked?.id }} base={ctx.base} labels={labels} canManage={canManage} initialSteps={snap?.doc.steps.map((x, i) => ({ id: i + 1, title: x.title, s: x.s, l: x.l, owner: x.owner, why: "" }))} initialLog={snap?.doc.chat} />
+      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} weekStart={ctx.weekStart} gantt={{ tasks: plan.tasks, groups: plan.groups, anchor: linked?.id, dependencies: plan.dependencies, labels: ganttLabels(t), locale: await getLocale(), prefix: projectPrefix(project?.name ?? ""), focusId: linked?.id }} base={ctx.base} labels={labels} canManage={canManage} initialSteps={snap?.doc.steps.map((x, i) => ({ id: i + 1, title: x.title, s: x.s, l: x.l, owner: x.owner, why: "" }))} initialLog={snap?.doc.chat} />
       {snaps.length > 0 && (
         <section className="surface rk-card" aria-labelledby="rk-snap">
           <h2 id="rk-snap">{t("risks.snapshot")}</h2>

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BaseLoad, bestOwnerLocal } from "./studioLocal";
 import { Gantt } from "@/app/app/gantt/Gantt";
 import type { ganttLabels } from "@/app/app/gantt/labels";
-import type { GanttTask } from "@/domain/gantt";
+import type { GanttGroup, GanttTask } from "@/domain/gantt";
 import type { Dependency } from "@/domain/schedule";
 import type { Locale } from "@/lib/messages";
 import { weekDates, loadPct, nearlyFull, type Draft, type Person } from "@/domain/planStudio";
@@ -14,10 +14,10 @@ import type { STUDIO_KEYS } from "./studioLabels";
 
 type Labels = Record<(typeof STUDIO_KEYS)[number], string>;
 type Msg = { id: number; who: "me" | "ai"; text: string; typing?: boolean };
-type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; weekStart: string; gantt: { tasks: GanttTask[]; dependencies: Dependency[]; labels: ReturnType<typeof ganttLabels>; locale: Locale; prefix: string; focusId?: string }; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[]; initialLog?: { who: "me" | "ai"; text: string }[] };
+type Props = { riskId: string; people: Person[]; weekNames: string[]; existing: { title: string; s: number; l: number; hot?: boolean }[]; marker?: number | null; weekStart: string; gantt: { tasks: GanttTask[]; groups: GanttGroup[]; anchor?: string; dependencies: Dependency[]; labels: ReturnType<typeof ganttLabels>; locale: Locale; prefix: string; focusId?: string }; base: BaseLoad; labels: Labels; canManage: boolean; initialSteps?: Draft[]; initialLog?: { who: "me" | "ai"; text: string }[] };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function PlanStudio({ riskId, people, weekNames, existing, marker = null, weekStart, gantt: g, base, labels: L, canManage, initialSteps = [], initialLog }: Props) {
+export function PlanStudio({ riskId, people, weekNames, existing, marker = null, weekStart, gantt: { anchor, ...g }, base, labels: L, canManage, initialSteps = [], initialLog }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [steps, setSteps] = useState<Draft[]>(initialSteps);
@@ -133,11 +133,15 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
   }
 
   const proposals = Object.fromEntries(steps.map((s, i) => [`p-${s.id}`, { cls: `ps-c${i % 8}`, flash: flashId === s.id, leaving: leaving === s.id }]));
+  // Proposed steps sit in the "Remediation plan" group right below the affected activity, as they will once accepted.
+  const home = g.tasks.find((x) => x.id === anchor)?.phaseId;
+  const remGroup = useMemo<GanttGroup | null>(() => (home && anchor ? (g.groups.find((x) => x.parentId === home && x.afterTaskId === anchor) ?? { id: "p-group", name: L["ps.group"], parentId: home, afterTaskId: anchor }) : null), [g.groups, home, anchor, L]);
+  const groups = useMemo(() => (remGroup && !g.groups.some((x) => x.id === remGroup.id) ? [...g.groups, remGroup] : g.groups), [g.groups, remGroup]);
   const tasks = useMemo<GanttTask[]>(() => [
     ...g.tasks,
     ...(marker === null ? [] : [{ id: "p-risk", title: L["ps.riskDate"], startDate: weekDates(weekStart, marker, 1).startDate, dueDate: weekDates(weekStart, marker, 1).startDate, isMilestone: true, phase: null }]),
-    ...steps.map((s) => ({ id: `p-${s.id}`, title: s.title, ...weekDates(weekStart, s.s, s.l), phase: L["ps.proposed"], status: "todo" as const, ownerName: people.find((p) => p.userId === s.owner)?.name ?? null })),
-  ], [g.tasks, steps, marker, weekStart, people, L]);
+    ...steps.map((s) => ({ id: `p-${s.id}`, title: s.title, ...weekDates(weekStart, s.s, s.l), phase: remGroup?.name ?? L["ps.proposed"], phaseId: remGroup?.id, status: "todo" as const, ownerName: people.find((p) => p.userId === s.owner)?.name ?? null })),
+  ], [g.tasks, steps, marker, weekStart, people, L, remGroup]);
   return (
     <div className="ps">
       <div className="ps-row">
@@ -159,7 +163,7 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
                 <button type="button" className="ps-btn p" disabled={!steps.length || added || !canManage} onClick={commit}>{added ? L["ps.added"].replace("{n}", String(steps.length)) : steps.length ? L["ps.add"].replace("{n}", String(steps.length)) : L["ps.addNone"]}</button>
               </div>
             </div>
-            <div className="ps-gantt"><Gantt embedded {...g} tasks={tasks} proposals={proposals} reveal={revealed} /></div>
+            <div className="ps-gantt"><Gantt embedded {...g} groups={groups} tasks={tasks} proposals={proposals} reveal={revealed} /></div>
           </section>
           <section className="ps-card" aria-labelledby="ps-t2">
             <div className="ps-row"><h2 id="ps-t2">{L["ps.steps"]}</h2><span className="ps-tag">{steps.length || ""}</span></div>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBars, criticalPath, dayOf, groupByPhase, scaleTicks, shiftDates, slipDays } from "./gantt";
+import { buildBars, criticalPath, dayOf, layoutRows, scaleTicks, shiftDates, slipDays } from "./gantt";
 
 const task = (id: string, startDate: string | null, dueDate: string | null) => ({ id, title: id, startDate, dueDate, phase: null });
 
@@ -53,11 +53,27 @@ describe("slipDays", () => {
   });
 });
 
-describe("groupByPhase", () => {
-  const bar = (id: string, phase: string | null, startDay: number, length: number) => ({ id, title: id, phase, startDay, length, start: "", due: "", isMilestone: false });
-  it("spans each phase over its tasks, in order of first start", () => {
-    const groups = groupByPhase([bar("a", "Build", 0, 3), bar("b", null, 1, 1), bar("c", "Build", 5, 2)]);
-    expect(groups.map((g) => [g.phase, g.startDay, g.endDay, g.bars.length])).toEqual([["Build", 0, 6, 2], [null, 1, 1, 1]]);
+describe("layoutRows", () => {
+  const bar = (id: string, phaseId: string | null, startDay: number, length: number) => ({ id, title: id, phase: phaseId, phaseId, startDay, length, start: "", due: "", isMilestone: false });
+  const g = (id: string, parentId: string | null = null, afterTaskId: string | null = null) => ({ id, name: id, parentId, afterTaskId });
+  const show = (rows: ReturnType<typeof layoutRows>) => rows.map((r) => `${r.depth}${r.group ? "G" : "T"}:${r.group?.id ?? r.bar!.id}`);
+  it("nests groups, spans a group over everything inside it and puts ungrouped tasks last", () => {
+    const rows = layoutRows([bar("a", "Build", 0, 3), bar("b", null, 1, 1), bar("c", "Fix", 5, 2)], [g("Build"), g("Fix", "Build")], new Set());
+    expect(show(rows)).toEqual(["0G:Build", "1T:a", "1G:Fix", "2T:c", "0T:b"]);
+    expect(rows[0]).toMatchObject({ startDay: 0, endDay: 6, count: 2 });
+  });
+  it("places a nested group right below its anchor task and skips what a folded group holds", () => {
+    const bars = [bar("a", "P", 0, 1), bar("z", "P", 4, 1), bar("r", "Rem", 2, 1)];
+    expect(show(layoutRows(bars, [g("P"), g("Rem", "P", "a")], new Set()))).toEqual(["0G:P", "1T:a", "1G:Rem", "2T:r", "1T:z"]);
+    expect(show(layoutRows(bars, [g("P"), g("Rem", "P", "a")], new Set(["P"])))).toEqual(["0G:P"]);
+  });
+  it("keeps groups with no tasks unless asked to hide them, and survives a parent loop", () => {
+    expect(show(layoutRows([], [g("E")], new Set()))).toEqual(["0G:E"]);
+    expect(layoutRows([], [g("E")], new Set(), { hideEmpty: true })).toEqual([]);
+    expect(layoutRows([bar("a", "X", 0, 1)], [g("X", "Y"), g("Y", "X")], new Set()).length).toBeGreaterThan(0);
+  });
+  it("gives name-only tasks a top-level group", () => {
+    expect(show(layoutRows([{ ...bar("a", null, 0, 1), phase: "Proposed" }], [], new Set()))).toEqual(["0G:name:Proposed", "1T:a"]);
   });
 });
 

@@ -232,12 +232,15 @@ export async function listSourceMessages(client: SupabaseClient, ids: string[]):
 // Phases and subtask parents to choose from on the items screen.
 export async function listPlanChoices(client: SupabaseClient, projectId: string) {
   const [phases, tasks] = await Promise.all([
-    client.from("phases").select("id, name").eq("project_id", projectId).order("position"),
+    client.from("phases").select("id, name, parent_id").eq("project_id", projectId).order("position"),
     client.from("tasks").select("id, title").eq("project_id", projectId).order("title"),
   ]);
   if (phases.error) throw phases.error;
   if (tasks.error) throw tasks.error;
-  return { phases: (phases.data ?? []) as { id: string; name: string }[], tasks: (tasks.data ?? []) as { id: string; title: string }[] };
+  const byId = new Map((phases.data ?? []).map((p) => [p.id as string, p]));
+  // A nested group shows its path, so two "Remediation plan" groups can be told apart.
+  const path = (p: { name: string; parent_id: string | null }, n = 0): string => (p.parent_id && n < 10 && byId.get(p.parent_id) ? `${path(byId.get(p.parent_id)!, n + 1)} › ${p.name}` : p.name);
+  return { phases: (phases.data ?? []).map((p) => ({ id: p.id as string, name: path(p) })), tasks: (tasks.data ?? []) as { id: string; title: string }[] };
 }
 
 // Replaces the task's predecessors. The database refuses a loop and logs each change.
@@ -312,16 +315,25 @@ export async function listAuditPage(client: SupabaseClient, projectId: string, a
 
 // Dated tasks and their dependencies for the Gantt view.
 export async function listGanttPlan(client: SupabaseClient, projectId: string) {
-  const [tasks, deps] = await Promise.all([
-    client.from("tasks").select("id, title, start_date, due_date, is_milestone, status, priority, number, phases(name), profiles:owner_id(display_name)").eq("project_id", projectId).order("start_date", { nullsFirst: false }),
+  const [tasks, deps, groups] = await Promise.all([
+    client.from("tasks").select("id, title, start_date, due_date, is_milestone, status, priority, number, phase_id, phases(name), profiles:owner_id(display_name)").eq("project_id", projectId).order("start_date", { nullsFirst: false }),
     client.from("task_dependencies").select("predecessor_id, successor_id, kind, lag_days, tasks:successor_id!inner(project_id)").eq("tasks.project_id", projectId),
+    client.from("phases").select("id, name, parent_id, after_task_id").eq("project_id", projectId).order("position").order("created_at"),
   ]);
+  if (groups.error) throw groups.error;
   if (tasks.error) throw tasks.error;
   if (deps.error) throw deps.error;
   return {
-    tasks: ((tasks.data ?? []) as unknown as { id: string; title: string; start_date: string | null; due_date: string | null; is_milestone: boolean; status: TaskStatus; priority: "low" | "normal" | "high"; number: number; phases: { name: string } | null; profiles: { display_name: string } | null }[]).map((r) => ({ id: r.id, title: r.title, startDate: r.start_date, dueDate: r.due_date, isMilestone: r.is_milestone, phase: r.phases?.name ?? null, status: r.status, priority: r.priority, number: r.number, ownerName: r.profiles?.display_name ?? null })),
+    tasks: ((tasks.data ?? []) as unknown as { id: string; title: string; start_date: string | null; due_date: string | null; is_milestone: boolean; status: TaskStatus; priority: "low" | "normal" | "high"; number: number; phase_id: string | null; phases: { name: string } | null; profiles: { display_name: string } | null }[]).map((r) => ({ id: r.id, title: r.title, startDate: r.start_date, dueDate: r.due_date, isMilestone: r.is_milestone, phase: r.phases?.name ?? null, phaseId: r.phase_id, status: r.status, priority: r.priority, number: r.number, ownerName: r.profiles?.display_name ?? null })),
+    groups: (groups.data ?? []).map((g) => ({ id: g.id as string, name: g.name as string, parentId: g.parent_id as string | null, afterTaskId: g.after_task_id as string | null })),
     dependencies: (deps.data ?? []).map((d) => ({ predecessorId: d.predecessor_id as string, successorId: d.successor_id as string, kind: d.kind as "FS" | "SS" | "FF" | "SF", lagDays: d.lag_days as number })),
   };
+}
+
+// A manager adds a group, at the top or inside another group of the same project.
+export async function createGroup(client: SupabaseClient, projectId: string, name: string, parentId: string | null): Promise<void> {
+  const { error } = await client.from("phases").insert({ project_id: projectId, name: name.trim().slice(0, 80), parent_id: parentId || null, position: Date.now() % 2_000_000_000 });
+  if (error) throw error;
 }
 
 export type BaselineInfo = { id: string; name: string; savedAt: string };

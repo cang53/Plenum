@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: () => {} }) }))
 vi.mock("./studio-actions", () => ({ studioChat: vi.fn(), studioCommit: vi.fn(), studioFromNotes: vi.fn() }));
 
 const labels = Object.fromEntries(STUDIO_KEYS.map((k) => [k, t(k)])) as Record<(typeof STUDIO_KEYS)[number], string>;
-const gantt = { tasks: [{ id: "t1", title: "Install conveyor", startDate: "2026-11-09", dueDate: "2026-11-20", phase: null, ownerName: "Mila V." }], dependencies: [], labels: ganttLabels((k) => t(k)), locale: "en" as const, prefix: "T", focusId: "t1" };
+const gantt = { groups: [], tasks: [{ id: "t1", title: "Install conveyor", startDate: "2026-11-09", dueDate: "2026-11-20", phase: null, ownerName: "Mila V." }], dependencies: [], labels: ganttLabels((k) => t(k)), locale: "en" as const, prefix: "T", focusId: "t1" };
 const people: Person[] = [{ userId: "a", name: "Mila V.", role: "member" }, { userId: "b", name: "Jan K.", role: "project_manager" }, { userId: "c", name: "Sam D.", role: "member" }];
 const weekNames = ["W45", "W46", "W47", "W48", "W49", "W50", "W51", "W52"];
 const base = baseLoad(people, [{ title: "x", startDate: "2026-11-02", dueDate: "2026-11-13", ownerId: "a" }, { title: "y", startDate: "2026-11-02", dueDate: "2026-12-04", ownerId: "b" }], "2026-11-02");
@@ -29,6 +29,13 @@ describe("PlanStudio", () => {
     expect(html).toContain(labels["ps.chip.propose"]);
     expect(html).toContain(labels["ps.stepsEmpty"]);
     expect(html).toMatch(/<button[^>]*disabled[^>]*>Add to timeline<\/button>/);
+  });
+  it("puts proposed steps in a Remediation plan group inside the affected activity's group", () => {
+    const g = { ...gantt, anchor: "t1", groups: [{ id: "proc", name: "Procurement", parentId: null }], tasks: [{ ...gantt.tasks[0], phase: "Procurement", phaseId: "proc" }] };
+    const html = renderToStaticMarkup(<PlanStudio riskId="r" weekStart="2026-11-02" gantt={g} people={people} weekNames={weekNames} existing={[]} base={base} labels={labels} canManage initialSteps={steps} />);
+    expect(html).toContain(`${labels["ps.group"]}</button>`);
+    expect(html.indexOf("Procurement</button>")).toBeGreaterThan(-1);
+    expect(html.indexOf("Procurement</button>")).toBeLessThan(html.indexOf(`${labels["ps.group"]}</button>`));
   });
   it("shows hatched bars, owners with roles, and a gap for a step nobody owns", () => {
     const html = render(steps);

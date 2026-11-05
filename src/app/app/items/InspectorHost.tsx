@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useEffect, useState } from "react";
 import type { ManualItem } from "@/data/live";
-import { MANUAL_KINDS } from "@/domain/items";
+import { MANUAL_KINDS, type ManualKind } from "@/domain/items";
 import { activityKey } from "@/domain/taskDetail";
 import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/messages";
 import { loadActivity } from "./actions";
@@ -30,10 +30,11 @@ type Props = {
   hoursHref: string;
   reviewHref: string;
   streamHref: string;
+  kinds?: readonly ManualKind[];
 };
 
 // Create, edit and details open from the address alone: links to the same list are caught here and only change the URL, so the panel shows at once from data already on the page.
-export function InspectorHost({ locale, items, plan, projectId, projectName, canManage, userId, sources, suggestions, fromSource, demo = false, today, hoursHref, reviewHref, streamHref }: Props) {
+export function InspectorHost({ locale, items, plan, projectId, projectName, canManage, userId, sources, suggestions, fromSource, demo = false, today, hoursHref, reviewHref, streamHref, kinds = MANUAL_KINDS }: Props) {
   const t = (k: MessageKey) => translate(k, locale);
   const sp = useSearchParams();
   const router = useRouter();
@@ -89,13 +90,13 @@ export function InspectorHost({ locale, items, plan, projectId, projectName, can
     return { ...s, id: i.sourceMessageId, href: `${streamHref}#msg-${i.sourceMessageId}`, review: sug ? { title: sug.title, quote: sug.details || sug.reason || undefined, meta: [s.from, s.receivedAt.slice(11, 16)].filter(Boolean).join(" · "), href: reviewHref } : undefined };
   };
   const common = { projectId, project: projectName, closeHref, plan, t, onSaved, demo };
-  const kind = MANUAL_KINDS.find((k) => k === create);
+  const kind = kinds.find((k) => k === create);
   void here;
   return (
     <>
       {toast && <SaveToast title={t("items.saved")} href={withParams({ detail: toast.id })} link={t("items.viewItem")} />}
       {!canManage && <Notice tone="info" title={t("items.readonlyTitle")} body={t("items.readonlyBody")} />}
-      {kind && <Fields key={`create-${kind}`} kind={kind} {...common} draft={{ title: sp.get("title") ?? undefined, details: sp.get("details") ?? undefined }} kindHref={(other) => withParams({ create: other, ...(sp.get("from") ? { from: sp.get("from")! } : {}) })} source={fromSource ? { ...fromSource, href: `${streamHref}#msg-${fromSource.id}` } : undefined} />}
+      {kind && <Fields key={`create-${kind}`} kind={kind} {...common} draft={{ title: sp.get("title") ?? undefined, details: sp.get("details") ?? undefined }} kinds={kinds} kindHref={(other) => withParams({ create: other, ...(sp.get("from") ? { from: sp.get("from")! } : {}) })} source={fromSource ? { ...fromSource, href: `${streamHref}#msg-${fromSource.id}` } : undefined} />}
       {opened && edit && canManage && <Fields key={`edit-${opened.id}`} item={opened} kind={opened.kind} {...common} reloadHref={withParams({ edit: opened.id })} source={sourceFor(opened)} />}
       {opened && edit && !canManage && (
         <Notice tone="warn" title={t("items.deniedTitle")} body={t("items.deniedBody")}>

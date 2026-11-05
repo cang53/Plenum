@@ -7,6 +7,7 @@ import { intlLocale } from "@/lib/messages";
 import { InspectorHost } from "@/app/app/items/InspectorHost";
 import { Gantt } from "./Gantt";
 import { GanttHead } from "./GanttHead";
+import { GroupForm } from "./GroupForm";
 import { ganttLabels } from "./labels";
 import { saveProjectBaseline, saveTaskDates } from "./actions";
 
@@ -36,8 +37,9 @@ export default async function GanttPage({ searchParams }: { searchParams: Promis
   return (
     <main id="main" className="page gantt-page">
       <GanttHead t={t} projectId={project.id} projectName={project.name} today={today} />
-      <InspectorHost locale={locale} items={items} plan={{ members, ...choices }} projectId={project.id} projectName={project.name} canManage={canManage} userId={user?.id ?? null} sources={sources} suggestions={suggestions} today={new Date().toISOString().slice(0, 10)} hoursHref={`/app/timesheet?project=${project.id}`} reviewHref={`/app/notifications?project=${project.id}`} streamHref="/app/stream" />
-      <Gantt projectId={project.id} key={`${project.id}-${picked?.id}`} tasks={plan.tasks} dependencies={plan.dependencies} onSave={saveTaskDates} baseline={baseline} baselineName={picked?.name} picker={picker || undefined} onBaseline={role === "project_manager" ? saveProjectBaseline.bind(null, project.id) : undefined} labels={labels} locale={locale} prefix={projectPrefix(project.name)}
+      {canManage && <GroupForm projectId={project.id} groups={plan.groups} text={{ add: t("gantt.group.add"), name: t("gantt.group.name"), parent: t("gantt.group.parent"), top: t("gantt.group.top"), error: t("gantt.group.error") }} />}
+      <InspectorHost kinds={["task", "decision"]} locale={locale} items={items} plan={{ members, ...choices }} projectId={project.id} projectName={project.name} canManage={canManage} userId={user?.id ?? null} sources={sources} suggestions={suggestions} today={new Date().toISOString().slice(0, 10)} hoursHref={`/app/timesheet?project=${project.id}`} reviewHref={`/app/notifications?project=${project.id}`} streamHref="/app/stream" />
+      <Gantt projectId={project.id} key={`${project.id}-${picked?.id}`} tasks={plan.tasks} groups={plan.groups} dependencies={plan.dependencies} onSave={saveTaskDates} baseline={baseline} baselineName={picked?.name} picker={picker || undefined} onBaseline={role === "project_manager" ? saveProjectBaseline.bind(null, project.id) : undefined} labels={labels} locale={locale} prefix={projectPrefix(project.name)}
         risk={pending && { title: pending.title, quote: pending.details, source: t("gantt.risk.sourceMessage"), sourceHref: `/app/stream?project=${project.id}#msg-${pending.messageId}`, reviewHref: `/app/notifications?project=${project.id}` }} />
     </main>
   );

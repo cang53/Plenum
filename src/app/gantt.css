@@ -131,3 +131,4 @@
 .gantt[data-embedded] .gantt-zoom { width: auto; flex: none; } .gantt[data-embedded] .gantt-zoom button { flex: none; min-height: 1.25rem; padding: 3px 9px; font-size: var(--text-xs); }
 .gantt[data-embedded] .gantt-pill select { height: 1rem; }
 .gantt[data-embedded] .gantt-controls { gap: var(--s2); } .gantt[data-embedded] .gantt-count { font-size: var(--text-xs); }
+.gantt-group-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-block: 8px; }

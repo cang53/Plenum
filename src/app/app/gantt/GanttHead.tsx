@@ -15,7 +15,7 @@ export function GanttHead({ t, projectId, projectName, today }: { t: (key: Messa
             <a href={`/app/items?project=${projectId}`}>{t("gantt.viewList")}</a>
           </div>
         </nav>
-        <a className="act act-primary" href={`/app/items?project=${projectId}`}>＋ {t("shell.newTask")}</a>
+        <a className="act act-primary" href={`/app/gantt?project=${projectId}&create=task`}>＋ {t("shell.newTask")}</a>
       </div>
     </div>
   );

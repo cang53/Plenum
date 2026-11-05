@@ -1,6 +1,6 @@
 import { type ManualItem } from "@/data/live";
 import { type Member } from "@/data/projects";
-import { MANUAL_KINDS, PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/items";
+import { MANUAL_KINDS, type ManualKind, PRIORITIES, RISK_KINDS, RISK_STATUSES } from "@/domain/items";
 import { STATUSES } from "@/domain/board";
 import type { MessageKey } from "@/lib/messages";
 import { saveItem } from "./actions";
@@ -43,7 +43,7 @@ export const discardText = (t: Labels) => ({ title: t("items.unsaved"), body: t(
 // The create/edit inspector: heading with close, scrolling body, footer with Cancel and the save button. One component for task, decision and risk.
 export type Source = { id?: string; subject: string; from: string; receivedAt: string; href: string; review?: { title: string; href: string; quote?: string; meta?: string } };
 
-export function Fields({ item, kind, projectId, project = "", closeHref = "#", reloadHref, demo = false, onSaved, plan, source, draft, kindHref, t }: { item?: ManualItem; reloadHref?: string; demo?: boolean; onSaved?: (r: { kind: string; id: string }) => void; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
+export function Fields({ item, kind, projectId, project = "", closeHref = "#", reloadHref, demo = false, onSaved, plan, source, draft, kindHref, kinds = MANUAL_KINDS, t }: { kinds?: readonly ManualKind[]; item?: ManualItem; reloadHref?: string; demo?: boolean; onSaved?: (r: { kind: string; id: string }) => void; source?: Source; draft?: { title?: string; details?: string }; kindHref?: (kind: ManualItem["kind"]) => string; kind: ManualItem["kind"]; projectId: string; project?: string; closeHref?: string; plan: Plan; t: Labels }) {
   const people: Opt[] = plan.members.map((m) => [m.userId, m.name || m.email]);
   const none = t("items.none");
   const others: Opt[] = plan.tasks.filter((o) => o.id !== item?.id).map((o) => [o.id, o.title]);
@@ -61,7 +61,7 @@ export function Fields({ item, kind, projectId, project = "", closeHref = "#", r
         <a className="insp-close" href={closeHref} aria-label={t("items.close")}>✕</a>
       </header>
       <div className="insp-body">
-        {!item && <Field label={t("items.kindLabel")} wide>{kindHref ? <KindSwitch current={kind} options={MANUAL_KINDS.map((k) => ({ kind: k, label: t(`kind.${k}` as MessageKey), href: kindHref(k) }))} text={{ field: t("items.switch.field"), title: t("items.switch.title"), body: t("items.switch.body"), keep: t("items.switch.keep"), switch: t("items.switch.go"), open: t("items.switch.open") }} /> : <output className="insp-kind">{t(`kind.${kind}` as MessageKey)}</output>}</Field>}
+        {!item && <Field label={t("items.kindLabel")} wide>{kindHref ? <KindSwitch current={kind} options={kinds.map((k) => ({ kind: k, label: t(`kind.${k}` as MessageKey), href: kindHref(k) }))} text={{ field: t("items.switch.field"), title: t("items.switch.title"), body: t("items.switch.body"), keep: t("items.switch.keep"), switch: t("items.switch.go"), open: t("items.switch.open") }} /> : <output className="insp-kind">{t(`kind.${kind}` as MessageKey)}</output>}</Field>}
         {!item && source && <SourceCard source={source} t={t} />}
         <Field label={`${t("link.title")} *`} wide><input name="title" required defaultValue={item?.title ?? draft?.title ?? source?.subject} /></Field>
         {kind === "task" && (

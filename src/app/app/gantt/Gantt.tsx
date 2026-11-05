@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { buildBars, criticalPath, dayOf, DAY_PX, groupByPhase, isoOf, scaleTicks, shiftDates, slipDays, type BaselineDates, type GanttTask, type Zoom } from "@/domain/gantt";
+import { buildBars, criticalPath, dayOf, DAY_PX, layoutRows, isoOf, scaleTicks, shiftDates, slipDays, type BaselineDates, type GanttGroup, type GanttTask, type Zoom } from "@/domain/gantt";
 import { findConflicts, type Dependency } from "@/domain/schedule";
 import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -22,7 +22,7 @@ export type ScheduleRisk = { title: string; quote: string; source: string; sourc
 // Lets another screen (the remediation plan) lay its own bars over the chart: each gets a color class, and may flash or fade out.
 export type Proposals = Record<string, { cls: string; flash?: boolean; leaving?: boolean }>;
 
-export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId }: { embedded?: boolean; focusId?: string; reveal?: { ids: string[] }; proposals?: Proposals; projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
+export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: initial, dependencies, onSave, baseline = null, baselineName = "", picker, onBaseline, labels, locale = "en", prefix = "T", risk, projectId, groups: groupList = [] }: { embedded?: boolean; groups?: GanttGroup[]; focusId?: string; reveal?: { ids: string[] }; proposals?: Proposals; projectId?: string; tasks: GanttTask[]; dependencies: Dependency[]; onSave?: (id: string, start: string, due: string) => Promise<void>; baseline?: BaselineDates | null; baselineName?: string; picker?: ReactNode; onBaseline?: (name: string) => Promise<void>; labels: Labels; locale?: Locale; prefix?: string; risk?: ScheduleRisk }) {
   const tr = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initial);
   const [seen, setSeen] = useState(initial);
@@ -30,7 +30,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
   const [error, setError] = useState(false);
   const [saved, setSaved] = useState(false);
   const [zoom, setZoom] = useState<Zoom>("week");
-  const [folded, setFolded] = useState<Set<string | null>>(new Set());
+  const [folded, setFolded] = useState<Set<string>>(new Set());
   const [name, setName] = useState("");
   const [showCritical, setShowCritical] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -45,9 +45,14 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
   const { bars, firstDay, totalDays } = useMemo(() => buildBars(tasks), [tasks]);
   const critical = useMemo(() => criticalPath(tasks, dependencies), [tasks, dependencies]);
   const lateIds = useMemo(() => new Set(findConflicts(tasks, dependencies).map((c) => c.successor.id)), [tasks, dependencies]);
-  const shown = useMemo(() => bars.filter((b) => (!lateOnly || lateIds.has(b.id)) && (!phaseFilter || b.phase === phaseFilter) && (!ownerFilter || b.ownerName === ownerFilter)), [bars, lateOnly, lateIds, phaseFilter, ownerFilter]);
-  const groups = useMemo(() => groupByPhase(shown), [shown]);
-  const phases = useMemo(() => [...new Set(bars.flatMap((b) => (b.phase ? [b.phase] : [])))], [bars]);
+  // A group filter keeps the tasks of that group and of the groups inside it.
+  const inGroup = (b: { phase: string | null; phaseId?: string | null }) => {
+    for (let id: string | null | undefined = b.phaseId ?? b.phase, n = 0; id && n < 20; n++) { if (id === phaseFilter) return true; id = groupList.find((g) => g.id === id)?.parentId; }
+    return false;
+  };
+  const shown = useMemo(() => bars.filter((b) => (!lateOnly || lateIds.has(b.id)) && (!phaseFilter || inGroup(b)) && (!ownerFilter || b.ownerName === ownerFilter)), // eslint-disable-next-line react-hooks/exhaustive-deps
+  [bars, lateOnly, lateIds, phaseFilter, ownerFilter, groupList]);
+  const phases = useMemo(() => (groupList.length ? groupList : [...new Set(bars.flatMap((b) => (b.phase ? [b.phase] : [])))].map((n) => ({ id: n, name: n, parentId: null }))), [bars, groupList]);
   const owners = useMemo(() => [...new Set(bars.flatMap((b) => (b.ownerName ? [b.ownerName] : [])))], [bars]);
   const predecessors = useMemo(() => new Map(dependencies.map((d) => [d.successorId, tasks.find((t) => t.id === d.predecessorId)?.title] as const).filter(([, title]) => title)), [dependencies, tasks]);
   const slip = useMemo(() => (baseline ? slipDays(tasks, baseline) : new Map<string, number>()), [tasks, baseline]);
@@ -113,15 +118,11 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
   const fmt = new Intl.DateTimeFormat(intlLocale[locale], { timeZone: "UTC", day: "numeric", month: "short" });
   const show = (iso: string) => fmt.format(new Date(`${iso}T00:00:00Z`));
   // One shared list of rows: the task column and the plot draw the same index, so they line up.
-  type Row = { key: string; phase: string | null; summary: boolean; bar?: (typeof bars)[number]; startDay: number; endDay: number; count: number };
-  const ordered = proposals ? [...groups].sort((a, b) => Number(b.bars.some((x) => proposals[x.id])) - Number(a.bars.some((x) => proposals[x.id]))) : groups; // proposals first
-  const rows: Row[] = ordered.flatMap((g) => [
-    ...(g.phase === null ? [] : [{ key: `phase-${g.phase}`, phase: g.phase, summary: true, startDay: g.startDay, endDay: g.endDay, count: g.bars.length }]),
-    ...(folded.has(g.phase) ? [] : g.bars.map((b) => ({ key: b.id, phase: g.phase, summary: false, bar: b, startDay: b.startDay, endDay: b.startDay + b.length - 1, count: 0 }))),
-  ]);
+  const filtered = lateOnly || !!phaseFilter || !!ownerFilter;
+  const rows = layoutRows(shown, groupList, folded, { first: proposals ? (b) => !!proposals[b.id] : undefined, hideEmpty: filtered });
   const tops: number[] = [];
   let height = 0;
-  for (const r of rows) { tops.push(height); height += r.summary ? PHASE_PX : TASK_PX; }
+  for (const r of rows) { tops.push(height); height += r.group ? PHASE_PX : TASK_PX; }
   const row = new Map(rows.flatMap((r, i) => (r.bar ? [[r.bar.id, i] as const] : [])));
   const today = todayOffset;
   const width = totalDays * dayPx;
@@ -150,7 +151,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
           <label className="gantt-pill">
             <select aria-label={tr("gantt.phaseAll")} value={phaseFilter} onChange={(e) => setPhaseFilter(e.target.value)}>
               <option value="">{tr("gantt.phaseAll")}</option>
-              {phases.map((p) => <option key={p} value={p}>{p}</option>)}
+              {phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </label>
           {owners.length > 0 && (
@@ -215,19 +216,19 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                 {rows.map((r, i) => {
                   const b = r.bar;
                   return (
-                    <div key={r.key} role="listitem" className="gantt-row" data-summary={r.summary} data-selected={!!b && selected === b.id} style={{ top: tops[i], height: r.summary ? PHASE_PX : TASK_PX }}>
+                    <div key={r.key} role="listitem" className="gantt-row" data-summary={!!r.group} data-selected={!!b && selected === b.id} style={{ top: tops[i], height: r.group ? PHASE_PX : TASK_PX }}>
                       <div className="gantt-meta" data-attention={!!b && attention(b)}>
-                        {r.summary ? (
+                        {r.group ? (
                           <>
-                            <button type="button" aria-expanded={!folded.has(r.phase)} aria-label={`${folded.has(r.phase) ? labels.expand : labels.collapse}: ${r.phase}`}
-                              onClick={() => setFolded((f) => { const next = new Set(f); if (!next.delete(r.phase)) next.add(r.phase); return next; })}>
-                              <span aria-hidden="true">{folded.has(r.phase) ? "▸" : "▾"}</span> {r.phase}
+                            <button type="button" style={{ marginInlineStart: r.depth * 14 }} aria-expanded={!folded.has(r.group.id)} aria-label={`${folded.has(r.group.id) ? labels.expand : labels.collapse}: ${r.group.name}`}
+                              onClick={() => setFolded((f) => { const next = new Set(f); if (!next.delete(r.group!.id)) next.add(r.group!.id); return next; })}>
+                              <span aria-hidden="true">{folded.has(r.group.id) ? "▸" : "▾"}</span> {r.group.name}
                             </button>
                             <span className="gantt-phase-count">{r.count}</span>
                           </>
                         ) : (
                           <>
-                            <span className="gantt-task-title"><span className="gantt-task-name">{projectId ? <a href={`/app/gantt?project=${projectId}&detail=${b!.id}`}>{b!.title}</a> : b!.title}</span><span aria-hidden="true">›</span></span>
+                            <span className="gantt-task-title" style={{ paddingInlineStart: r.depth > 1 ? (r.depth - 1) * 14 : undefined }}><span className="gantt-task-name">{projectId ? <a href={`/app/gantt?project=${projectId}&detail=${b!.id}`}>{b!.title}</a> : b!.title}</span><span aria-hidden="true">›</span></span>
                             <span className="gantt-task-line">{b!.ownerName ?? tr("gantt.unowned")}{b!.number ? ` · ${prefix}-${b!.number}` : ""}</span>
                             <span className="gantt-task-line gantt-task-status">{b!.status ? `${translate(`status.${b!.status}`, locale)}${b!.priority ? ` · ${translate(`priority.${b!.priority}`, locale)}` : ""}` : `${show(b!.start)} – ${show(b!.due)}`}</span>
                           </>
@@ -256,7 +257,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                     return <path key={`${d.predecessorId}-${d.successorId}`} d={`M${x1} ${y1} H${x1 + 6} V${y2} H${x2}`} data-critical={onPath} data-selected={touches} />;
                   })}
                 </svg>
-                {rows.map((r, i) => r.summary && <div key={r.key} className="gantt-summary" aria-hidden="true" style={{ insetInlineStart: r.startDay * dayPx, width: (r.endDay - r.startDay + 1) * dayPx, top: tops[i]! + 11 }} />)}
+                {rows.map((r, i) => r.group && r.count > 0 && <div key={r.key} className="gantt-summary" aria-hidden="true" style={{ insetInlineStart: r.startDay * dayPx, width: (r.endDay - r.startDay + 1) * dayPx, top: tops[i]! + 11 }} />)}
                 {rows.map((r, i) => r.bar && baseline?.[r.bar.id] && (
                   // shortcut: a baseline that starts before the first current task is clipped at the left edge, redraw the grid if that matters
                   <div key={`base-${r.key}`} className="gantt-baseline" aria-hidden="true" style={{ insetInlineStart: Math.max(0, dayOf(baseline[r.bar.id].startDate) - firstDay) * dayPx, width: (dayOf(baseline[r.bar.id].dueDate) - dayOf(baseline[r.bar.id].startDate) + 1) * dayPx, top: tops[i]! + TASK_PX - 14 }} />
