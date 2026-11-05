@@ -5,16 +5,20 @@ import { Choice } from "./Choice";
 import { RiskMatrix } from "./RiskMatrix";
 
 export type Kind = "all" | "risk" | "issue";
+export const EXTRA_COLS = ["likelihood", "severity", "remediation", "activity", "due", "created"] as const;
+export type ExtraCol = (typeof EXTRA_COLS)[number];
 const KINDS: Kind[] = ["all", "risk", "issue"];
 const LEVELS = [1, 2, 3, 4, 5];
 const TONE = { low: "ok", medium: "warn", high: "bad" } as const;
 
-type Props = { t: (key: MessageKey) => string; project: { id: string; name: string }; items: RiskRow[]; codes: Map<string, string>; owner: (id: string | null) => string; kind: Kind; cell: string | null; href: (kind: Kind, cell: string | null) => string; add: (form: FormData) => void | Promise<void>; analysis?: React.ReactNode };
+type Props = { t: (key: MessageKey) => string; project: { id: string; name: string }; items: RiskRow[]; codes: Map<string, string>; owner: (id: string | null) => string; kind: Kind; cell: string | null; href: (kind: Kind, cell: string | null) => string; add: (form: FormData) => void | Promise<void>; analysis?: React.ReactNode; cols?: ExtraCol[]; activity?: (id: string | null) => string };
 
 // The register screen: matrix on the left, list on the right. Pure markup so it can be rendered without a database.
-export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, href, add, analysis }: Props) {
+export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, href, add, analysis, cols = [], activity = () => "" }: Props) {
   const levels = LEVELS.map((n) => ({ value: String(n), label: String(n) }));
   const shown = items.filter((i) => (kind === "all" || i.kind === kind) && (!cell || cellKey(i) === cell));
+  const head: Record<ExtraCol, MessageKey> = { likelihood: "risks.likelihood", severity: "risks.severity", remediation: "risks.remediation", activity: "risks.linkedTask", due: "risks.due", created: "risks.col.created" };
+  const cell_ = (r: RiskRow, c: ExtraCol) => ({ likelihood: r.likelihood, severity: r.severity, remediation: t(`risks.remediation.${r.remediation}` as MessageKey), activity: activity(r.linkedTaskId), due: r.dueDate ?? "", created: r.createdAt.slice(0, 10) })[c];
   const forMatrix = items.filter((i) => i.status === "open" && (kind === "all" || i.kind === kind));
   return (
     <main id="main" className="page">
@@ -48,11 +52,23 @@ export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, 
           <p className="meta">{t("risks.matrixHint")}</p>
         </section>
         <section className="surface rk-card" aria-labelledby="rk-l">
-          <h2 id="rk-l">{t("risks.listTitle")}</h2>
+          <div className="rk-card-top">
+            <h2 id="rk-l">{t("risks.listTitle")}</h2>
+            <details className="rk-add rk-cols">
+              <summary className="act">{t("items.cols")} ⌄</summary>
+              <form method="get" className="rk-pop">
+                <input type="hidden" name="project" value={project.id} />
+                {kind !== "all" && <input type="hidden" name="kind" value={kind} />}
+                {cell && <input type="hidden" name="cell" value={cell} />}
+                {EXTRA_COLS.map((c) => <label key={c}><input type="checkbox" name="cols" value={c} defaultChecked={cols.includes(c)} />{t(head[c])}</label>)}
+                <button type="submit" className="act act-primary">{t("items.cols.apply")}</button>
+              </form>
+            </details>
+          </div>
           {shown.length === 0 ? <p>{t("risks.empty")}</p> : (
             <div className="rk-table">
               <table>
-                <thead><tr><th scope="col">{t("risks.id")}</th><th scope="col">{t("risks.newTitle")}</th><th scope="col">{t("risk.kindLabel")}</th><th scope="col">{t("risks.score")}</th><th scope="col">{t("risks.owner")}</th><th scope="col">{t("risk.state")}</th></tr></thead>
+                <thead><tr><th scope="col">{t("risks.id")}</th><th scope="col">{t("risks.newTitle")}</th><th scope="col">{t("risk.kindLabel")}</th><th scope="col">{t("risks.score")}</th><th scope="col">{t("risks.owner")}</th><th scope="col">{t("risk.state")}</th>{cols.map((c) => <th key={c} scope="col">{t(head[c])}</th>)}</tr></thead>
                 <tbody>
                   {shown.map((r) => {
                     const score = riskScore(r.likelihood, r.severity, r.kind);
@@ -65,6 +81,7 @@ export function RiskRegisterView({ t, project, items, codes, owner, kind, cell, 
                         <td><span className={`st st-${TONE[band]}`}>{score} · {t(`risks.band.${band}` as MessageKey)}</span></td>
                         <td>{owner(r.ownerId)}</td>
                         <td><span className={`st st-${r.status === "open" ? "warn" : "ok"}`}>{t(`risk.${r.status}` as MessageKey)}</span></td>
+                        {cols.map((c) => <td key={c}>{cell_(r, c)}</td>)}
                       </tr>
                     );
                   })}

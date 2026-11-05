@@ -88,3 +88,15 @@ textarea.rk-in { resize: vertical; line-height: 1.5; }
 .rk-head .act:hover, .ra .act:hover, .rk-add[open] > .act { background: var(--control-active); color: var(--text); }
 .rk-head .act-primary, .ra .act-primary { background: var(--primary); color: var(--on-primary); }
 .rk-head .act-primary:hover, .ra .act-primary:hover { background: var(--primary); color: var(--on-primary); }
+
+.rk-title { font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 0 var(--s2); margin-inline-start: calc(var(--s2) * -1); width: min(100%, 48rem); }
+.rk-title:hover { border-color: var(--glass-border); } .rk-title:focus { border-color: var(--primary); outline: 0; background: var(--surface); }
+.rk-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--s4); align-items: start; }
+.rk-fact { display: grid; gap: var(--s1); min-width: 0; justify-items: start; } .rk-fact .rk-in { width: 100%; }
+.rk-k { color: var(--text-secondary); font-size: var(--text-xs); font-weight: var(--weight-semibold); }
+.page > .rk-card + .rk-card, .page > .rk-ask + .rk-card { margin-block-start: var(--s4); }
+.rk-ask { padding: var(--s3) var(--s4); margin-block-end: var(--s4); display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between; border-inline-start: 4px solid var(--primary); }
+.rk-ask p { margin: 0; }
+.rk-ask-btns, .rk-ask-other { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.rk-ask-other .rk-in { width: auto; min-width: 12rem; }
+.rk-cols .rk-pop label { display: flex; gap: var(--s2); align-items: center; }

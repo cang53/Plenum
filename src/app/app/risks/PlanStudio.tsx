@@ -115,8 +115,8 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
                 <div className="ps-lane" key={e.title}><span className="ps-lbl"><span className="ps-tag">{e.hot ? L["ps.affected"] : L["ps.existing"]}</span> {e.title}</span><div className="ps-track"><div className={`ps-bar${e.hot ? " hot" : ""}`} style={{ left: `${e.s * 12.5}%`, width: `${e.l * 12.5}%` }} /></div></div>
               ))}
               {marker !== null && <div className="ps-lane"><span className="ps-lbl"><span className="ps-tag">{L["ps.riskDate"]}</span></span><div className="ps-track"><div className="ps-bar mark" style={{ left: `${marker * 12.5}%` }} /></div></div>}
-              {steps.map((s) => (
-                <div className="ps-lane" key={s.id}><span className="ps-lbl"><b>{L["ps.new"]}</b> {s.title}</span><div className="ps-track"><div className={`ps-bar new${s.owner ? "" : " gap"}${added ? " done" : ""}`} style={{ left: `${s.s * 12.5}%`, width: `${s.l * 12.5}%` }} /></div></div>
+              {steps.map((s, i) => (
+                <div className="ps-lane" key={s.id}><span className="ps-lbl"><b>{L["ps.new"]}</b> {s.title}</span><div className="ps-track"><div className={`ps-bar new ps-c${i % 8}${s.owner ? "" : " gap"}${added ? " done" : ""}`} style={{ left: `${s.s * 12.5}%`, width: `${s.l * 12.5}%` }} /></div></div>
               ))}
             </div></div>
           </section>
@@ -124,10 +124,10 @@ export function PlanStudio({ riskId, people, weekNames, existing, marker = null,
             <div className="ps-row"><h2 id="ps-t2">{L["ps.steps"]}</h2><span className="ps-tag">{steps.length || ""}</span></div>
             <ul className="ps-steps">
               {steps.length === 0 && <li className="ps-hint">{L["ps.stepsEmpty"]}</li>}
-              {steps.map((s) => {
+              {steps.map((s, i) => {
                 const who = nameOf(s.owner);
                 return (
-                  <li key={s.id} className={`ps-step${flashId === s.id ? " flash" : ""}${leaving === s.id ? " leaving" : ""}`}>
+                  <li key={s.id} className={`ps-step ps-c${i % 8}${flashId === s.id ? " flash" : ""}${leaving === s.id ? " leaving" : ""}`}>
                     <div className="ps-top">
                       <label><input type="checkbox" checked readOnly aria-label={s.title} />{s.title}</label>
                       {who ? <span className="ps-who"><span className="ps-av">{who.name.charAt(0).toUpperCase()}</span>{who.name} · {roleLabel(who.role)}</span> : <span className="ps-chip ps-bad">{L["ps.noOwner"]}</span>}

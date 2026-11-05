@@ -17,7 +17,7 @@ export function RiskAnalysisPanel({ projectId, analysis, items, labels: L, canMa
   const [text, setText] = useState("");
   const seq = useRef(0);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => { end.current?.scrollIntoView({ block: "nearest" }); }, [msgs]);
+  useEffect(() => { if (msgs.length) end.current?.scrollIntoView({ block: "nearest" }); }, [msgs]);
   const link = (id: string | null) => (id && items[id] ? <a href={items[id].href} className="rk-link" title={items[id].title}>{items[id].code}</a> : null);
 
   async function refresh() {

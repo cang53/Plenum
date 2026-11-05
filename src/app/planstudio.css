@@ -27,9 +27,9 @@
 .ps-lbl { padding-right: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
 .ps-track { position: relative; height: 34px; background: repeating-linear-gradient(90deg, transparent 0 calc(12.5% - 1px), var(--border) calc(12.5% - 1px) 12.5%); }
 .ps-bar { position: absolute; top: 9px; height: 16px; border-radius: 5px; background: var(--text-muted); opacity: .5; transition: left .6s cubic-bezier(.3,1.2,.4,1), width .6s cubic-bezier(.3,1.2,.4,1), opacity .4s, background .4s; }
-.ps-bar.new { opacity: 1; background: repeating-linear-gradient(45deg, var(--primary) 0 6px, color-mix(in srgb, var(--primary) 55%, var(--surface)) 6px 12px); outline: 2px dashed var(--primary); outline-offset: 2px; animation: ps-grow .6s cubic-bezier(.3,1.2,.4,1) backwards; }
-.ps-bar.done { background: var(--success); outline: 0; opacity: 1; }
-.ps-bar.gap { background: repeating-linear-gradient(45deg, var(--warning) 0 6px, transparent 6px 12px); outline-color: var(--warning); }
+.ps-bar.new { opacity: 1; background: repeating-linear-gradient(45deg, var(--c, var(--primary)) 0 6px, color-mix(in srgb, var(--c, var(--primary)) 55%, var(--surface)) 6px 12px); outline: 2px dashed var(--c, var(--primary)); outline-offset: 2px; animation: ps-grow .6s cubic-bezier(.3,1.2,.4,1) backwards; }
+.ps-bar.done { background: var(--c, var(--success)); outline: 0; opacity: 1; }
+.ps-bar.gap { outline-style: dotted; }
 @keyframes ps-grow { from { transform: scaleX(0); transform-origin: left; opacity: 0; } }
 .ps-steps { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
 .ps-step { background: var(--surface-muted); border-radius: 10px; padding: 10px 12px; display: grid; gap: 5px; animation: ps-rise .45s cubic-bezier(.3,1.2,.4,1) backwards; transition: background .5s, box-shadow .5s; }
@@ -71,3 +71,7 @@
 .ps-panes > * { min-width: 0; }
 .ps-bar.hot { opacity: 1; background: var(--danger); }
 .ps-bar.mark { width: 6px; margin-left: -3px; background: var(--danger); opacity: 1; }
+
+.ps-c0 { --c: #2563eb; } .ps-c1 { --c: #db2777; } .ps-c2 { --c: #0d9488; } .ps-c3 { --c: #d97706; }
+.ps-c4 { --c: #7c3aed; } .ps-c5 { --c: #65a30d; } .ps-c6 { --c: #0891b2; } .ps-c7 { --c: #e11d48; }
+.ps-step[class*="ps-c"] { border-inline-start: 4px solid var(--c); }

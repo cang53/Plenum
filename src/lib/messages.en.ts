@@ -834,6 +834,7 @@ export const en = {
   "risks.owner": "Owner",
   "risks.noOwner": "No owner",
   "risks.due": "Review by",
+  "risks.col.created": "Created",
   "risks.details": "Description",
   "risks.save": "Save",
   "risks.back": "Back to risks and issues",

@@ -31,7 +31,8 @@ describe("PlanStudio", () => {
   it("shows hatched bars, owners with roles, and a gap for a step nobody owns", () => {
     const html = render(steps);
     expect(html.match(/ps-bar new/g)).toHaveLength(3);
-    expect(html).toContain("ps-bar new gap");
+    expect(html).toMatch(/ps-bar new ps-c2 gap/);
+    expect(new Set(html.match(/ps-bar new ps-c\d/g)).size).toBe(3);
     expect(html).toContain("Mila V. · Member");
     expect(html).toContain(labels["ps.gap"]);
     expect(html).toContain("Add 3 to timeline");

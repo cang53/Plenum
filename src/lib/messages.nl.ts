@@ -836,6 +836,7 @@ export const nl: Record<keyof typeof en, string> = {
   "risks.owner": "Eigenaar",
   "risks.noOwner": "Geen eigenaar",
   "risks.due": "Beoordelen voor",
+  "risks.col.created": "Aangemaakt",
   "risks.details": "Beschrijving",
   "risks.save": "Opslaan",
   "risks.back": "Terug naar risico's en issues",
