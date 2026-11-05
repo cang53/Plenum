@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buildBars, criticalPath, dayOf, DAY_PX, layoutRows, isoOf, scaleTicks, shiftDates, slipDays, type BaselineDates, type GanttGroup, type GanttTask, type Zoom } from "@/domain/gantt";
+import { Dropdown } from "@/app/Dropdown";
 import { findConflicts, type Dependency } from "@/domain/schedule";
 import { intlLocale, t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -127,27 +128,12 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
   const days = Array.from({ length: totalDays }, (_, i) => i);
   return (
     <section className="gantt" data-embedded={embedded || undefined} data-critical-path={showCritical} aria-label={labels.chart}>
-      <div className="gantt-controls">
+      <div className="gantt-controls toolbar">
         <div className="gantt-filters" role="group" aria-label={tr("gantt.filters")}>
-          <label className="gantt-pill">
-            <select aria-label={tr("gantt.filterAll")} value={lateOnly ? "late" : ""} onChange={(e) => setLateOnly(e.target.value === "late")}>
-              <option value="">{tr("gantt.filterAll")}</option>
-              <option value="late">{tr("gantt.filterLate")}</option>
-            </select>
-          </label>
-          <label className="gantt-pill">
-            <select aria-label={tr("gantt.phaseAll")} value={phaseFilter} onChange={(e) => setPhaseFilter(e.target.value)}>
-              <option value="">{tr("gantt.phaseAll")}</option>
-              {phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </label>
+          <Dropdown label={tr("gantt.filterAll")} value={lateOnly ? "late" : ""} onChange={(v) => setLateOnly(v === "late")} options={[{ value: "", label: tr("gantt.filterAll") }, { value: "late", label: tr("gantt.filterLate") }]} />
+          <Dropdown label={tr("gantt.phaseAll")} value={phaseFilter} onChange={setPhaseFilter} options={[{ value: "", label: tr("gantt.phaseAll") }, ...phases.map((p) => ({ value: p.id, label: p.name }))]} />
           {owners.length > 0 && (
-            <label className="gantt-pill">
-              <select aria-label={tr("gantt.ownerAll")} value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)}>
-                <option value="">{tr("gantt.ownerAll")}</option>
-                {owners.map((o) => <option key={o} value={o}>{o}</option>)}
-              </select>
-            </label>
+            <Dropdown label={tr("gantt.ownerAll")} value={ownerFilter} onChange={setOwnerFilter} options={[{ value: "", label: tr("gantt.ownerAll") }, ...owners.map((o) => ({ value: o, label: o }))]} />
           )}
           <button type="button" className="gantt-pill" aria-pressed={showCritical} onClick={() => setShowCritical((v) => !v)}>{labels.criticalToggle}</button>
           {baseline && <span className="gantt-pill" data-static="true">{labels.baselineActive.replace("{name}", baselineName).replace(/\.$/, "")}</span>}

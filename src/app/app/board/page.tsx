@@ -5,6 +5,7 @@ import { getLocale, getT } from "@/lib/locale";
 import { projectPrefix } from "@/domain/board";
 import { Board } from "@/app/demo/board/Board";
 import { WorkSwitch } from "@/app/WorkSwitch";
+import { AddMenu } from "@/app/AddMenu";
 import { TaskSheet } from "../tasks/[id]/TaskSheet";
 import { createBoardTask, saveTaskStatus } from "./actions";
 
@@ -24,9 +25,12 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
           <h1>{t("board.title")}</h1>
           <p className="sub">{t("board.subtitle")}</p>
         </div>
-        <a className="act act-primary" href={`/app/items?project=${project.id}`}>{t("shell.newTask")}</a>
+        <div className="head-actions">
+          <WorkSwitch current="board" projectId={project.id} t={t} />
+          <AddMenu projectId={project.id} groups={[]} canManage={false} taskHref={`/app/items?project=${project.id}&create=task`} text={{ add: t("gantt.add"), task: t("gantt.add.task"), group: t("gantt.add.group"), groupText: { add: "", name: "", parent: "", top: "", error: "" } }} />
+        </div>
       </div>
-      <Board key={project.id} scope={<WorkSwitch current="board" projectId={project.id} t={t} />} pending={pending} reviewHref={`/app/notifications?project=${project.id}`} initialTasks={tasks} onMove={saveTaskStatus} onAdd={createBoardTask.bind(null, project.id)} locale={locale} prefix={projectPrefix(project.name)} openBase={`/app/board?project=${project.id}&task=`} />
+      <Board key={project.id} pending={pending} reviewHref={`/app/notifications?project=${project.id}`} initialTasks={tasks} onMove={saveTaskStatus} onAdd={createBoardTask.bind(null, project.id)} locale={locale} prefix={projectPrefix(project.name)} openBase={`/app/board?project=${project.id}&task=`} />
       {task && <TaskSheet id={task} closeHref={`/app/board?project=${project.id}`} />}
     </main>
   );

@@ -2,8 +2,6 @@
    pinned 358px task column beside the day grid, legend) and the pending-risk card. Row heights, bar
    sizes and spacing are the frame's; the plan is fluid, so the day grid scrolls sideways. */
 .gantt-page { display: flex; flex-direction: column; gap: 18px; flex: 1; min-width: 0; }
-.gantt-head-actions { display: flex; align-items: center; gap: var(--s3); }
-.gantt-head .segmented { width: 10.25rem; }
 .gantt { --gantt-meta: 358px; --gantt-task: 64px; --gantt-phase: 28px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
 /* Pill: the frame's 32px control, also used for the filters and the date steps. */
@@ -105,10 +103,10 @@
 
 @media (max-width: 56rem) {
   .gantt { --gantt-meta: 220px; }
-  .gantt-head-actions { flex-wrap: wrap; }
+  .head-actions { flex-wrap: wrap; }
 }
 @media print {
-  .gantt-controls, .gantt-head-actions, .shell-bar, nav, .work-switch { display: none; }
+  .gantt-controls, .head-actions, .shell-bar, nav, .work-switch { display: none; }
   .gantt-scroll { overflow: visible; }
   .gantt-bar { cursor: default; }
 }
@@ -139,14 +137,3 @@
 .gantt-meta button[data-sub] { font-weight: 500; color: var(--text-secondary); }
 .gantt-summary[data-sub] { height: 4px; background: var(--primary); opacity: .55; }
 
-/* One compact toolbar: filters on the left; steps, zoom and print on the right. */
-.gantt-controls { padding: 6px var(--s3); border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--surface); }
-.gantt-nav { margin-inline-start: auto; }
-.gantt-pill.gantt-print { border-color: transparent; background: none; color: var(--text-secondary); }
-.gantt-pill.gantt-print:hover { background: var(--control); color: var(--text); }
-.gantt-add { position: relative; }
-.gantt-add-panel { position: absolute; inset-inline-end: 0; top: calc(100% + 6px); z-index: 20; display: flex; flex-direction: column; gap: 2px; min-width: 10rem; padding: var(--s2); border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); box-shadow: 0 8px 24px rgb(0 0 0 / 0.14); }
-.gantt-add-panel > a, .gantt-add-panel > button { display: block; padding: 6px 10px; border: 0; border-radius: var(--radius-sm, 6px); background: none; color: var(--text); font: inherit; text-align: start; text-decoration: none; cursor: pointer; }
-.gantt-add-panel > a:hover, .gantt-add-panel > button:hover { background: var(--control); }
-.gantt-add-panel .gantt-group-form { display: flex; flex-direction: column; gap: var(--s2); min-width: 15rem; }
-@media (max-width: 720px) { .gantt-controls { border-radius: var(--radius); } .gantt-nav { margin-inline-start: 0; } }

@@ -25,7 +25,7 @@ describe("Gantt", () => {
     const html = renderToStaticMarkup(<Gantt tasks={[task("a", "2026-11-01", "2026-11-03"), task("b", "2026-11-04", "2026-11-06")]} dependencies={[{ predecessorId: "a", successorId: "b" }]} onSave={save} labels={labels} />);
     expect(html).toContain('aria-pressed="false">Critical path');
     expect(html).toContain('data-critical-path="false"');
-    expect(html).not.toContain("<path");
+    expect(html).not.toMatch(/<path d="M[\d.]+ [\d.]+ H/);
   });
   it("links a task title to the side panel on the same page", () => {
     const html = renderToStaticMarkup(<Gantt projectId="p1" tasks={[task("a", "2026-11-01", "2026-11-03")]} dependencies={[]} onSave={save} labels={labels} />);

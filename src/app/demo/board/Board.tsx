@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { buildColumns, distinct, groupTasks, initials, moveTask, STATUSES, taskKey, WIP_LIMIT, type BoardTask, type DueFilter, type GroupBy, type TaskStatus } from "@/domain/board";
+import { Dropdown } from "@/app/Dropdown";
 import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
@@ -89,26 +90,12 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
 
   return (
     <>
-      <div className="board-filters" role="group" aria-label={t("board.filters")}>
+      <div className="board-filters toolbar" role="group" aria-label={t("board.filters")}>
         <div className="board-view-filters">
         {scope}
-        <select className="chip-select" aria-label={t("board.groupBy")} value={groupBy} onChange={(e) => { setGroupBy(e.target.value as GroupBy); setAdding(null); }}>
-          {GROUPS.map((g) => (
-            <option key={g} value={g}>{t("board.groupBy")}: {t(`board.group.${g}` as MessageKey)}</option>
-          ))}
-        </select>
-        <select className="chip-select" aria-label={t("board.filterOwner")} value={owner} onChange={(e) => setOwner(e.target.value)}>
-          <option value="">{t("board.filterOwner")}</option>
-          {distinct(tasks.map((task) => task.ownerName)).map((o) => (
-            <option key={o}>{o}</option>
-          ))}
-        </select>
-        <select className="chip-select" aria-label={t("board.filterDue")} value={dueFilter} onChange={(e) => setDueFilter(e.target.value as DueFilter | "")}>
-          <option value="">{t("board.filterDue")}</option>
-          {DUE_FILTERS.map((d) => (
-            <option key={d} value={d}>{t(`board.due.${d}` as MessageKey)}</option>
-          ))}
-        </select>
+        <Dropdown label={t("board.groupBy")} value={groupBy} onChange={(v) => { setGroupBy(v as GroupBy); setAdding(null); }} options={GROUPS.map((g) => ({ value: g, label: `${t("board.groupBy")}: ${t(`board.group.${g}` as MessageKey)}` }))} />
+        <Dropdown label={t("board.filterOwner")} value={owner} onChange={setOwner} options={[{ value: "", label: t("board.filterOwner") }, ...distinct(tasks.map((task) => task.ownerName)).map((o) => ({ value: o, label: o }))]} />
+        <Dropdown label={t("board.filterDue")} value={dueFilter} onChange={(v) => setDueFilter(v as DueFilter | "")} options={[{ value: "", label: t("board.filterDue") }, ...DUE_FILTERS.map((d) => ({ value: d, label: t(`board.due.${d}` as MessageKey) }))]} />
         <details className="display-menu">
           <summary className="chip-select">{t("board.display")}</summary>
           <div>
