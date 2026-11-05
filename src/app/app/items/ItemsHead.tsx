@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { STATUSES } from "@/domain/board";
 import { MANUAL_KINDS } from "@/domain/items";
 import type { MessageKey } from "@/lib/messages";
+import { Pop } from "@/app/Pop";
 import { PopSearch } from "./PopSearch";
 
 type T = (key: MessageKey) => string;
@@ -23,6 +24,7 @@ type Props = {
   pending: number;
   reviewHref: string;
   create: ReactNode;
+  switcher?: ReactNode;
 };
 
 // Text match plus the four chips, the same for the real Items page and the demo.
@@ -34,7 +36,7 @@ export function matchesItem(i: { kind: string; title: string; details?: string; 
 }
 
 // Page heading with the Create menu, then search and filter chips, then the pending-suggestion notice.
-export function ItemsHead({ t, action, keep, query, owners, phases, pending, reviewHref, create }: Props) {
+export function ItemsHead({ t, action, keep, query, owners, phases, pending, reviewHref, create, switcher }: Props) {
   // Each chip opens a card: checkboxes for Kind and Status, one choice for Owner and Phase (Owner with search), then Clear and Apply.
   const chip = (name: "kind" | "status" | "owner" | "phase", label: MessageKey, options: [string, string][]) => {
     const picked = [query[name]].flat().filter(Boolean);
@@ -66,14 +68,13 @@ export function ItemsHead({ t, action, keep, query, owners, phases, pending, rev
           <h1>{t("items.heading")}</h1>
           <p>{t("items.headingHelp")}</p>
         </div>
-        <details className="items-create">
-          <summary className="btn btn-primary">＋ {t("items.createMenu")} ⌄</summary>
-          <div className="items-create-menu">
-            <h2>{t("items.createMenu")}</h2>
-            <p>{t("items.createHelp")}</p>
+        <div className="head-actions">
+          {switcher}
+          <Pop label={t("items.createMenu")} role="menu" align="end" className="add-menu" panelClass="mn-wide" trigger={<><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg><span>{t("gantt.add")}</span></>}>
+            <p className="mn-help">{t("items.createHelp")}</p>
             {create}
-          </div>
-        </details>
+          </Pop>
+        </div>
       </div>
       <form className="items-search" method="get" action={action} role="search">
         {keep.map(([k, v]) => <input key={`${k}=${v}`} type="hidden" name={k} value={v} />)}
@@ -98,7 +99,7 @@ const KIND_SYMBOL = { task: "✓", decision: "◇", risk: "△" } as const;
 // One row of the Create menu: kind symbol, name, one line of help and a disclosure arrow; it opens the create inspector.
 export function CreateOption({ kind, t, href }: { kind: keyof typeof KIND_SYMBOL; t: T; href: string }) {
   return (
-    <a className="create-option" href={href}>
+    <a className="create-option" role="menuitem" href={href}>
       <span className="create-sym" aria-hidden="true">{KIND_SYMBOL[kind]}</span>
       <span className="create-text"><b>{t(`kind.${kind}` as MessageKey)}</b><span>{t(`items.create.${kind}` as MessageKey)}</span></span>
       <span className="create-arrow" aria-hidden="true">›</span>

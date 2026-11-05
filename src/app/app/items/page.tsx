@@ -58,12 +58,12 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   return (
     <main id="main" className="page items-page">
       <ItemsHead t={t} action="/app/items" keep={[["project", project.id], ...(quick !== "all" ? [["quick", quick] as [string, string]] : []), ...cols]} query={query} owners={owners} phases={phaseNames} pending={suggestions.length} reviewHref={`/app/notifications?project=${project.id}`}
+        switcher={<WorkSwitch current="items" projectId={project.id} t={t} />}
         create={MANUAL_KINDS.map((k) => (
           <CreateOption key={k} kind={k} t={t} href={`${href(quick)}&create=${k}`} />
         ))} />
       <InspectorHost locale={await getLocale()} items={loaded} plan={plan} projectId={project.id} projectName={project.name} canManage={canManage} userId={user?.id ?? null} sources={sources} suggestions={suggestions} fromSource={create && from && sources[from] ? { ...sources[from], id: from } : null} today={today} hoursHref={`/app/timesheet?project=${project.id}`} reviewHref={`/app/notifications?project=${project.id}`} streamHref="/app/stream" />
       <div className="items-bar">
-        <WorkSwitch current="items" projectId={project.id} t={t} />
         <span className="grow" />
         <details className="items-cols">
           <summary className="chip">{t("items.cols")} ▾</summary>

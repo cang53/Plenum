@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 // Shared popover for menus and listboxes: opens under its button, closes on outside click, Escape or Tab,
 // moves between entries with the arrow keys and gives focus back to the button. Entries are role="menuitem" or role="option".
-export function Pop({ trigger, label, role, className = "", panelClass = "", align = "start", onClose, children }: { trigger: ReactNode; label: string; role: "menu" | "listbox"; className?: string; panelClass?: string; align?: "start" | "end"; onClose?: () => void; children: (close: () => void) => ReactNode }) {
+export function Pop({ trigger, label, role, className = "", panelClass = "", align = "start", onClose, children }: { trigger: ReactNode; label: string; role: "menu" | "listbox"; className?: string; panelClass?: string; align?: "start" | "end"; onClose?: () => void; children: ReactNode | ((close: () => void) => ReactNode) }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
@@ -38,7 +38,7 @@ export function Pop({ trigger, label, role, className = "", panelClass = "", ali
         onKeyDown={(e) => { if (!open && (e.key === "ArrowDown" || e.key === "ArrowUp")) { e.preventDefault(); setOpen(true); } }}>
         {trigger}
       </button>
-      {open && <div id={id} className={`mn-panel ${panelClass}`} role={role} aria-label={label} data-align={align}>{children(() => close())}</div>}
+      {open && <div id={id} className={`mn-panel ${panelClass}`} role={role} aria-label={label} data-align={align}>{typeof children === "function" ? children(() => close()) : children}</div>}
     </div>
   );
 }
