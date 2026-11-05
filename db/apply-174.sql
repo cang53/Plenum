@@ -2,7 +2,7 @@
 -- Gantt groups (the phases table) can sit inside other groups. A group can also be anchored below one task of its parent.
 -- Accepting a remediation step puts the task in a "Remediation plan" group directly below the risk's linked activity.
 alter table public.phases add column if not exists parent_id uuid references public.phases (id) on delete set null;
-alter table public.phases add column if not exists after_task_id uuid references public.tasks (id) on delete set null;
+alter table public.phases add column if not exists after_task_id uuid;
 
 -- A group's parent must be in the same project and the chain must not loop.
 create or replace function public.check_phase_parent() returns trigger
