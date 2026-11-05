@@ -1,5 +1,5 @@
 export type TreeParent = { id: string; name: string };
-export type TreeProject = { id: string; name: string; parent_id?: string | null };
+export type TreeProject = { id: string; name: string; parent_id?: string | null; done?: number; total?: number; blocked?: number; health?: "ok" | "warn" | "bad"; next?: string; nextDate?: string };
 export type Block = { parent: TreeParent | null; projects: TreeProject[] };
 
 const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
