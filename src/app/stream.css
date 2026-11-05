@@ -387,9 +387,9 @@ a.mention:hover { text-decoration: underline; }
 .chat .feed, .chat .msgs-main { gap: 14px; }
 /* Hover bar: small, pinned to the top-right corner of the message bubble. */
 .chat .msg-body { position: relative; }
-.chat .msg .mail-acts, .chat .mail.msg[data-mine] .mail-acts { inset-block-start: 6px; inset-inline-start: auto; inset-inline-end: 6px; gap: 0; padding: 1px; border-radius: 12px; transform: none; }
-.chat .mail.msg[data-mine] .mail-acts { inset-block-start: -12px; }
-.chat .msg .act { width: 22px; height: 22px; }
+.chat .msg .mail-acts, .chat .mail.msg[data-mine] .mail-acts { inset-block-start: -3px; inset-inline-start: auto; inset-inline-end: 0; gap: 0; padding: 1px; border-radius: 12px; transform: none; }
+.chat .mail.msg[data-mine] .mail-acts { inset-block-start: -24px; }
+.chat .msg .act { width: 20px; height: 20px; }
 .chat .msg .act::before { width: 14px; height: 14px; }
 .act[data-ico="react"]::before { display: none; }
 .chat .feed, .chat .msgs-main { gap: 12px; }
