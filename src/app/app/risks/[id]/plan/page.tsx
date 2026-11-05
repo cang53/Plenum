@@ -29,12 +29,14 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
   void currentProject(projects, ctx.projectId);
   const col = (d: string) => Math.floor((Date.parse(d) - Date.parse(ctx.weekStart)) / (7 * DAY));
   const linked = ctx.tasks.find((x) => x.id === risk.linkedTaskId);
+  // Every dated activity, as weeks from this Monday (may be before it); the screen pans over them and opens on the affected one.
   const bars = ctx.tasks.flatMap((x) => {
-    if (!x.startDate || !x.dueDate || col(x.dueDate) < 0 || col(x.startDate) > WEEKS - 1) return [];
-    const s = Math.max(0, col(x.startDate));
-    return [{ title: x.title, s, l: Math.min(WEEKS - 1, col(x.dueDate)) - s + 1, hot: x === linked }];
+    if (!x.startDate || !x.dueDate) return [];
+    const s = col(x.startDate), e = col(x.dueDate);
+    return e < -4 || s > 19 ? [] : [{ title: x.title, s, l: e - s + 1, hot: x === linked }];
   });
-  const existing = [...bars.filter((b) => b.hot), ...bars.filter((b) => !b.hot)].slice(0, 6);
+  const existing = [...bars.filter((b) => b.hot), ...bars.filter((b) => !b.hot).sort((a, b) => a.s - b.s)];
+  const startAt = existing.find((b) => b.hot)?.s ?? 0;
   const day = extractDate(`${risk.title} ${risk.details}`, ctx.weekStart);
   const at = day ? (Date.parse(day) - Date.parse(ctx.weekStart)) / (7 * DAY) : null;
   const marker = at !== null && at >= 0 && at < WEEKS ? at : null;
@@ -50,7 +52,7 @@ export default async function RiskPlanPage({ params, searchParams }: { params: P
       <div className="rk-head"><div><p className="eyebrow"><span className="rk-id">{code}</span> · {t(`risks.kind.${risk.kind}` as MessageKey)}</p><h1>{risk.title}</h1></div></div>
       <RiskTabs t={t} id={id} projectParam={sp.project ?? ""} current="plan" />
       {guess && <LinkAsk t={t} riskId={id} guess={guess} tasks={withIds} />}
-      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} base={ctx.base} labels={labels} canManage={canManage} initialSteps={snap?.doc.steps.map((x, i) => ({ id: i + 1, title: x.title, s: x.s, l: x.l, owner: x.owner, why: "" }))} initialLog={snap?.doc.chat} />
+      <PlanStudio riskId={id} people={ctx.people} weekNames={ctx.weekNames} existing={existing} marker={marker} weekStart={ctx.weekStart} startAt={startAt} base={ctx.base} labels={labels} canManage={canManage} initialSteps={snap?.doc.steps.map((x, i) => ({ id: i + 1, title: x.title, s: x.s, l: x.l, owner: x.owner, why: "" }))} initialLog={snap?.doc.chat} />
       {snaps.length > 0 && (
         <section className="surface rk-card" aria-labelledby="rk-snap">
           <h2 id="rk-snap">{t("risks.snapshot")}</h2>
