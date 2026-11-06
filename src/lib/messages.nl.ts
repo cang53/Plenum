@@ -21,6 +21,8 @@ export const nl: Record<keyof typeof en, string> = {
   "shell.newTask": "Nieuwe taak",
   "shell.mywork": "Mijn werk",
   "shell.streamNew": "{n} nieuw in de stroom",
+  "shell.railExpand": "Paginatitels tonen",
+  "shell.railCollapse": "Paginatitels verbergen",
   "shell.group.project": "Project",
   "shell.group.site": "Locatie en uren",
   "shell.group.admin": "Beheer",

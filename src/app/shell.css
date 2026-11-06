@@ -59,3 +59,31 @@ body:has(.shell) { background: var(--frame); }
   .shell-gap { display: none; }
 }
 .theme-toggle { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg>"); display: grid; place-items: center; width: 2.25rem; height: 2.25rem; padding: 0; border: 0; border-radius: var(--radius-full); background: none; color: var(--text-secondary); cursor: pointer; }
+
+/* Main menu: hover motion and an accordion that opens the icon rail to show the page titles. */
+.shell { transition: grid-template-columns .22s ease; }
+.shell[data-rail="open"] { grid-template-columns: 11.5rem minmax(0, 1fr); }
+.shell-rail .tile { transition: background-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease; }
+.shell-rail .tile svg { transition: transform .22s cubic-bezier(.3, 1.4, .5, 1); }
+.shell-rail .tile:hover { transform: translateX(2px); color: var(--ink); }
+.shell-rail .tile:hover svg { transform: scale(1.14) rotate(-4deg); }
+.shell-rail .tile:active { transform: scale(.96); }
+.tile-label { display: none; }
+.rail-toggle { display: grid; place-items: center; width: 2rem; height: 2rem; margin-inline-start: auto; border: 0; border-radius: var(--radius-sm); background: none; color: var(--text-secondary); cursor: pointer; transition: background-color .18s ease, color .18s ease; }
+.rail-toggle:hover { background: var(--control); color: var(--text); }
+.rail-toggle svg { transition: transform .22s ease; }
+.rail-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.rail-toggle:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+@media (min-width: 47.5rem) {
+  .shell[data-rail="open"] .shell-rail .tile { width: 100%; grid-auto-flow: column; grid-template-columns: auto 1fr; justify-content: start; justify-items: start; gap: var(--s3); padding-inline: 1rem; box-sizing: border-box; }
+  .shell[data-rail="open"] .tile-label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-sm); animation: tile-label-in .22s ease both; }
+  .shell[data-rail="open"] .shell-rail .tile > .dot { inset-block-start: 1.125rem; inset-inline-start: 2.25rem; inset-inline-end: auto; }
+}
+@keyframes tile-label-in { from { opacity: 0; transform: translateX(-6px); } }
+@media (max-width: 47.5rem) { .rail-toggle { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .shell, .shell-rail .tile, .shell-rail .tile svg, .rail-toggle, .rail-toggle svg { transition: none; }
+  .shell-rail .tile:hover, .shell-rail .tile:hover svg, .shell-rail .tile:active { transform: none; }
+  .shell[data-rail="open"] .tile-label { animation: none; }
+}
+.shell-rail .tile, .shell-rail .tile:hover { text-decoration: none; }

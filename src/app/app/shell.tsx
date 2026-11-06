@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { Bell } from "./Bell";
 import { ThemeToggle } from "./ThemeToggle";
 import { CommandMenu } from "./CommandMenu";
@@ -18,15 +18,28 @@ type Props = {
   roleByProject: Record<string, string>;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew", string> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew" | "railExpand" | "railCollapse", string> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
 };
 
+// Whether the side menu shows titles. Kept in localStorage when it works, in memory when it does not.
+let railMemory = false;
+const subscribeRail = (cb: () => void) => { window.addEventListener("plenum-rail", cb); return () => window.removeEventListener("plenum-rail", cb); };
+const readRail = () => { try { return localStorage.getItem("plenum-rail") === "open"; } catch { return railMemory; } };
+const writeRail = (open: boolean) => {
+  railMemory = open;
+  try { localStorage.setItem("plenum-rail", open ? "open" : "closed"); } catch { /* not saved */ }
+  window.dispatchEvent(new Event("plenum-rail"));
+};
+
 export function Shell({ projects, itemsByProject, fallbackItems, email, roleByProject, unread, streamNew, unreadLabel, labels, children }: Props) {
   const pathname = usePathname();
   const account = useRef<HTMLDetailsElement>(null);
+  // The side menu can open to show the page titles beside the icons; the choice is remembered on this device.
+  const wide = useSyncExternalStore(subscribeRail, readRail, () => false);
+  const toggleRail = () => writeRail(!wide);
   // The account menu closes on a click elsewhere or Escape.
   useEffect(() => {
     const shut = (e: Event) => {
@@ -44,19 +57,20 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, roleByPr
   const current = (path: string) => (path === "/app" ? pathname === path : pathname.startsWith(path));
   const fresh = project ? (streamNew[project.id] ?? 0) : 0;
   const role = project ? roleByProject[project.id] : undefined;
+  const rail = items.filter((i) => i.group === "rail");
   const tile = (i: Item) => {
     const badge = i.path === "/app/stream" && fresh > 0;
     return (
       <a key={i.path} href={href(i.path)} title={i.label} className="tile" aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : i.label}>
         <NavIcon name={i.path} />
+        {rail.includes(i) && <span className="tile-label" aria-hidden="true">{i.label}</span>}
         {badge && <span className="dot" aria-hidden="true" />}
       </a>
     );
   };
-  const rail = items.filter((i) => i.group === "rail");
   const settings = items.find((i) => i.group === "top");
   return (
-    <div className="shell">
+    <div className="shell" data-rail={wide ? "open" : "closed"}>
       <header className="shell-top">
         <a className="shell-brand" href={href("/app")}>
           <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="currentColor" /><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -95,7 +109,10 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, roleByPr
           )}
         </div>
       </header>
-      <nav className="shell-rail" aria-label={labels.main}>
+      <nav className="shell-rail" id="shell-rail" aria-label={labels.main}>
+        <button type="button" className="rail-toggle" aria-expanded={wide} aria-controls="shell-rail" aria-label={wide ? labels.railCollapse : labels.railExpand} title={wide ? labels.railCollapse : labels.railExpand} onClick={toggleRail}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
         {rail.slice(0, -1).map(tile)}
         <span className="shell-gap" />
         {rail.slice(-1).map(tile)}

@@ -6,7 +6,7 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/app/stream", useSearchP
 
 const menu = { open: "Search or jump to…", title: "t", placeholder: "p", actions: "a", results: "r", empty: "e", newTask: "New task", search: "s", task: "Task", message: "Message", decision: "Decision" };
 const labels = {
-  brand: "Plenum", main: "Main", projects: "Projects", account: "Account", signOut: "Sign out", bell: "Inbox", theme: "Light theme", newTask: "New task", streamNew: "{n} new in stream",
+  brand: "Plenum", main: "Main", projects: "Projects", account: "Account", signOut: "Sign out", bell: "Inbox", theme: "Light theme", newTask: "New task", streamNew: "{n} new in stream", railExpand: "Show page titles", railCollapse: "Hide page titles",
   privacy: { body: "Only project mail is read.", link: "How it works" }, menu,
 };
 
@@ -28,6 +28,14 @@ describe("Shell", () => {
     expect(html).toContain('aria-label="Settings"');
     expect(html).toContain('class="shell-rail"');
     expect(html).not.toContain("shell-projects");
+  });
+  it("has a toggle that opens the menu to show titles, closed to start with", () => {
+    const html = render([{ id: "p1", name: "Pump" }], {});
+    expect(html).toContain('data-rail="closed"');
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain('aria-label="Show page titles"');
+    expect(html).toContain('class="tile-label" aria-hidden="true">Stream');
+    expect(html).not.toContain('class="tile-label" aria-hidden="true">Settings');
   });
   it("shows a switcher only with several projects, and no dot without new messages", () => {
     const html = render([{ id: "p1", name: "A" }, { id: "p2", name: "B" }], {});
