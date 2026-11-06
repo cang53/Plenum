@@ -40,7 +40,7 @@ body:has(.shell) { background: var(--frame); }
 .shell-signout:hover { background: var(--surface-hover); }
 
 .shell-side { --nav-pill: var(--surface); --nav-icon: 1.0625rem; position: sticky; top: var(--top); align-self: start; height: calc(100vh - var(--top)); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 1.25rem 0 1.25rem 0.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
-.shell-capsule { box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 10px; border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass); box-shadow: var(--elevation-glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.shell-capsule { box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 10px; border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass); box-shadow: var(--elevation-glass); }
 .shell-side nav { display: flex; flex-direction: column; gap: 4px; }
 .shell-group { display: flex; margin: 0; padding: 20px 12px 8px; font-size: 10px; line-height: 12px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase; color: var(--text-muted); }
 .shell-link { --icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3' fill='black'/></svg>"); display: flex; align-items: center; gap: 11px; height: 42px; padding: 0 12px; border-radius: 14px; color: var(--text-secondary); font-size: 12px; line-height: 15px; text-decoration: none; white-space: nowrap; }
@@ -120,7 +120,6 @@ body:has(.shell) { background: var(--frame); }
   .shell-collapse { display: none; }
   .shell-side { position: fixed; inset: 0 auto 0 0; z-index: 8; width: min(16rem, 85vw); height: 100dvh; background: var(--ambient-background); transform: translateX(-100%); visibility: hidden; transition: transform 0.2s, visibility 0.2s; }
   .shell[data-nav="open"] .shell-side { transform: none; visibility: visible; padding: 1rem 0.75rem; }
-  .shell[data-nav="open"] .shell-scrim { display: block; position: fixed; inset: 0; z-index: 7; border: 0; background: var(--scrim); -webkit-backdrop-filter: var(--glass-blur-light); backdrop-filter: var(--glass-blur-light); }
+  .shell[data-nav="open"] .shell-scrim { display: block; position: fixed; inset: 0; z-index: 7; border: 0; background: var(--scrim); }
 }
 
-@media (prefers-reduced-transparency: reduce) { .shell-capsule, .shell-privacy { -webkit-backdrop-filter: none; backdrop-filter: none; } }

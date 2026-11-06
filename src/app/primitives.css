@@ -12,8 +12,6 @@
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-card);
   box-shadow: var(--elevation-glass);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
 }
 
 .btn {
@@ -234,7 +232,7 @@
   color: var(--text);
   box-shadow: var(--elevation-dialog);
 }
-.dialog::backdrop { background: var(--scrim); -webkit-backdrop-filter: var(--glass-blur-light); backdrop-filter: var(--glass-blur-light); }
+.dialog::backdrop { background: var(--scrim); }
 .dialog h2 { margin: 0 0 var(--s2); font-size: var(--text-lg); line-height: 1.5625rem; font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
 .dialog-actions { display: flex; justify-content: flex-end; gap: var(--s2); margin-block-start: var(--s6); }
 
@@ -251,9 +249,6 @@
   .tabs > button, .segmented > button, .filt > button, .menu > [role="menuitem"] { min-height: var(--target); }
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .surface { -webkit-backdrop-filter: none; backdrop-filter: none; }
-}
 @media (prefers-reduced-motion: reduce) {
   .btn { transition: none; }
   .btn:active:not(:disabled) { transform: none; }
@@ -268,3 +263,13 @@
 .cmd-list > li { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); padding: var(--s2) var(--s3); border-radius: var(--radius); color: var(--text-secondary); cursor: pointer; }
 .cmd-list > li[aria-selected="true"] { background: var(--accent-soft); color: var(--text); }
 .cmd-empty { margin: var(--s3); color: var(--text-muted); font-size: var(--text-sm); }
+
+/* Glass blur lives in these two rules only (performance budget). Reduced transparency sets the tokens to none. */
+.surface, .toolbar, .state-card, .shell-capsule, .shell-privacy, .msgs.chat, .comp, .chat .comp {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.dialog::backdrop, .shell-scrim, .msg .mail-acts {
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  backdrop-filter: var(--glass-blur-light);
+}

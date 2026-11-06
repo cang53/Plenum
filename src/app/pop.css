@@ -3,7 +3,7 @@
 .head-actions .segmented { width: 12rem; }
 .add-btn, .add-menu .mn-trigger { flex: none; white-space: nowrap; width: auto; display: inline-flex; align-items: center; gap: 6px; min-height: var(--control-h); padding: 0 14px 0 10px; border: 0; border-radius: var(--radius-full); background: var(--primary); color: var(--on-primary); font: inherit; font-size: var(--text-base); font-weight: var(--weight-semibold); text-decoration: none; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
 .add-btn:hover, .add-menu .mn-trigger:hover { background: var(--primary-hover); }
-.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding: 6px var(--s3); border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--glass); box-shadow: var(--elevation-glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding: 6px var(--s3); border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--glass); box-shadow: var(--elevation-glass); }
 .toolbar .board-view-filters, .toolbar .gantt-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
 .gantt-nav { margin-inline-start: auto; }
 .gantt-pill.gantt-print { border-color: transparent; background: none; color: var(--text-secondary); }
@@ -22,7 +22,6 @@
 .mn-panel > [aria-selected="true"] { color: var(--accent-text); font-weight: var(--weight-semibold); }
 .mn-panel .gantt-group-form { display: flex; flex-direction: column; gap: var(--s2); min-width: 15rem; padding: 4px; }
 @media (max-width: 720px) { .toolbar { border-radius: var(--radius); } .gantt-nav { margin-inline-start: 0; } .head-actions { flex-wrap: wrap; } }
-@media (prefers-reduced-transparency: reduce) { .toolbar { -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @media print { .toolbar, .head-actions { display: none; } }
 .mn-panel.mn-wide { width: min(22rem, calc(100vw - 2rem)); }
 .mn-panel .create-option { border-radius: 8px; }

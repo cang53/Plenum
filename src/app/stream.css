@@ -134,7 +134,7 @@
 .mail-create a:hover { background: var(--accent-soft); }
 
 /* Composer: one rounded box, input and round send button on one row */
-.comp { position: sticky; inset-block-end: var(--s3); z-index: 2; display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 6px 16px; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass); box-shadow: var(--elevation-glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.comp { position: sticky; inset-block-end: var(--s3); z-index: 2; display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 6px 16px; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass); box-shadow: var(--elevation-glass); }
 .comp:focus-within { border-color: var(--primary); }
 .comp-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
 .comp .send { display: grid; place-items: center; flex: none; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: var(--primary); color: var(--on-primary); cursor: pointer; }
@@ -156,7 +156,7 @@
 .attach .info a { color: var(--text); }
 /* Hover actions sit on the card's top edge, so they never cover the text */
 /* Floating capsule toolbar: icon buttons with tooltips, straddling the bubble's top edge below the timestamp */
-.msg .mail-acts { inset-block-start: 22px; inset-inline-end: 12px; flex-wrap: nowrap; align-items: center; gap: 2px; padding: 3px; z-index: 2; border-radius: 16px; background: var(--glass-strong); -webkit-backdrop-filter: var(--glass-blur-light); backdrop-filter: var(--glass-blur-light); box-shadow: var(--elevation-glass); transform: translateY(3px); transition: opacity var(--motion-fast) var(--ease), transform var(--motion-fast) var(--ease); }
+.msg .mail-acts { inset-block-start: 22px; inset-inline-end: 12px; flex-wrap: nowrap; align-items: center; gap: 2px; padding: 3px; z-index: 2; border-radius: 16px; background: var(--glass-strong); box-shadow: var(--elevation-glass); transform: translateY(3px); transition: opacity var(--motion-fast) var(--ease), transform var(--motion-fast) var(--ease); }
 .msg:hover .mail-acts, .msg:focus-within .mail-acts, .msg.on .mail-acts { transform: none; }
 .act { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3'/></svg>"); position: relative; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 30px; height: 30px; padding: 0; border: 0; border-radius: var(--radius-full); background: none; color: var(--text-secondary); cursor: pointer; list-style: none; }
 .act::-webkit-details-marker { display: none; }
@@ -213,7 +213,7 @@ html { scroll-behavior: smooth; }
   --c-avatar: var(--surface-muted); --c-avatar-ink: var(--text-secondary); --c-brand: var(--primary); --c-on-brand: var(--on-primary); --c-ok: var(--success);
   --c-field-shadow: var(--elevation-glass); --c-send-shadow: var(--elevation-btn);
 }
-.msgs.chat { max-width: 1000px; padding: 26px; gap: 28px; background: var(--c-card); border: 1px solid var(--c-card-line); border-radius: var(--radius-xl); box-shadow: var(--c-shadow); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.msgs.chat { max-width: 1000px; padding: 26px; gap: 28px; background: var(--c-card); border: 1px solid var(--c-card-line); border-radius: var(--radius-xl); box-shadow: var(--c-shadow); }
 .chat .chat-head { position: sticky; z-index: 4; display: flex; flex-direction: column; gap: 14px; margin-block-start: -26px; padding-block: 26px 12px; background: var(--c-solid); }
 .chat .chat-title { display: flex; align-items: center; justify-content: space-between; color: var(--c-brand); }
 .chat .chat-title h2 { margin: 0; font-size: 18px; line-height: 22px; font-weight: 400; letter-spacing: -0.4px; color: var(--c-title); }
@@ -372,7 +372,6 @@ a.mention:hover { text-decoration: underline; }
 .carousel-slide[data-pos="before"] { opacity: 0; visibility: hidden; transform: translateX(-24px); }
 .carousel-slide[data-pos="after"] { opacity: 0; visibility: hidden; transform: translateX(24px); }
 @media (prefers-reduced-motion: reduce) { .carousel-slide { transition: none; } }
-@media (prefers-reduced-transparency: reduce) { .msgs.chat, .comp, .chat .comp, .msg .mail-acts { -webkit-backdrop-filter: none; backdrop-filter: none; } }
 /* CobIA looks the same on suggestions and plain replies; an even gap between messages; the hover bar floats above its own message. */
 .chat .mail.msg.msg-agent[data-src] .avatar { background: var(--agent); color: var(--agent-surface); border-radius: 8px; }
 .chat .feed, .chat .msgs-main { gap: 14px; }
