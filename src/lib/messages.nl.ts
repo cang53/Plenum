@@ -53,6 +53,7 @@ export const nl: Record<keyof typeof en, string> = {
   "app.signOut": "Uitloggen",
   "projects.title": "Uw projecten",
   "projects.empty": "U bent nog geen lid van een project. Vraag een projectmanager u uit te nodigen.",
+  "board.mine": "Mijn werk",
   "board.title": "Bord",
   "board.intro": "Dezelfde taken als in de Gantt-weergave. Sleep een kaart, of gebruik het statusmenu, om de status te wijzigen.",
   "board.filterPhase": "Groep",
