@@ -63,10 +63,10 @@ export async function TaskDetail({ id, closeHref, panel }: { id: string; closeHr
       {panel ? (
         <header className="dp-head">
           <div><span className="id">{key}</span><h2 className="td-title">{task.title}</h2></div>
-          <span className={`st ${status === "blocked" ? "st-bad" : status === "done" ? "st-ok" : status === "in_progress" ? "st-go" : "st-todo"}`}>{t(`status.${task.status}` as MessageKey)}</span>
+          <span className={`chip ${status === "blocked" ? "c-red" : status === "done" ? "c-green" : status === "in_progress" ? "c-blue" : "c-neutral"}`}>{t(`status.${task.status}` as MessageKey)}</span>
         </header>
       ) : closeHref ? <p className="sub"><a href={closeHref} data-close>{t("taskDetail.close")}</a></p> : <p className="sub"><a href="/app/items">{t("taskDetail.back")}</a></p>}
-      {panel ? null : closeHref ? <h2 className="td-title">{task.title}</h2> : <h1><span className="id">{key}</span> {task.title}</h1>}
+      {panel ? null : closeHref ? <h2 className="td-title">{task.title}</h2> : <h1 className="h1"><span className="id">{key}</span> {task.title}</h1>}
       <div className={panel ? "td-cols dp-cols" : "td-cols"}>
         <div>
           <section aria-labelledby="td-desc">
@@ -91,7 +91,7 @@ export async function TaskDetail({ id, closeHref, panel }: { id: string; closeHr
                 <input type="hidden" name="taskId" value={id} />
                 <label className="sr-only" htmlFor="td-new">{t("taskDetail.newItem")}</label>
                 <input id="td-new" className="field" name="text" required maxLength={300} placeholder={t("taskDetail.newItem")} />
-                <button className="btn btn-secondary">{t("taskDetail.add")}</button>
+                <button className="btn btn-soft">{t("taskDetail.add")}</button>
               </form>
             )}
           </section>
