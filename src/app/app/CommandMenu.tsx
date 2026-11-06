@@ -61,7 +61,8 @@ export function CommandMenu({ project, labels }: { project?: string; labels: Lab
   return (
     <>
       <button type="button" className="shell-find" data-command-open onClick={() => dialog.current?.showModal()} aria-keyshortcuts="Control+K Meta+K">
-        <span>{labels.open}</span> <kbd className="kbd" aria-hidden="true">⌘K</kbd>
+        <span className="shell-find-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4-4" /></svg></span>
+        <span className="shell-find-text">{labels.open}</span> <kbd className="kbd" aria-hidden="true">⌘K</kbd>
       </button>
       <dialog ref={dialog} className="dialog cmd" aria-label={labels.title} onClose={reset} onToggle={(e) => (e.target as HTMLDialogElement).open && input.current?.focus()}>
         <input

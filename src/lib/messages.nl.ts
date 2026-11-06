@@ -330,6 +330,8 @@ export const nl: Record<keyof typeof en, string> = {
   "app.members": "Mensen",
   "app.roles": "Rollen",
   "app.notifications": "Meldingen",
+  "app.plan": "Planning",
+  "app.team": "Team",
   "app.settings": "Instellingen",
   "settings.title": "Instellingen",
   "settings.intro": "Uw naam en taal, en de naam en het e-mailadres van dit project.",

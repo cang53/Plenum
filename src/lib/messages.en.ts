@@ -328,6 +328,8 @@ export const en = {
   "app.members": "People",
   "app.roles": "Roles",
   "app.notifications": "Notifications",
+  "app.plan": "Plan",
+  "app.team": "Team",
   "app.settings": "Settings",
   "settings.title": "Settings",
   "settings.intro": "Your name and language, and this project's name and email address.",

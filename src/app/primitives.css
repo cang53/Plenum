@@ -307,6 +307,10 @@
 .tile[aria-current="page"] { background: var(--white); color: var(--ink); box-shadow: var(--elevation-lift); }
 .tile > .dot { position: absolute; top: 0.75rem; right: 0.75rem; width: 7px; height: 7px; border-radius: 7px; background: var(--black); }
 
+.h1, .h2, .h3 { margin: 0; font-weight: var(--weight-normal); }
+.h1 { font-size: var(--text-2xl); line-height: 2.5rem; letter-spacing: -0.025em; }
+.h2 { font-size: var(--text-xl); line-height: 1.75rem; letter-spacing: -0.015em; }
+.h3 { font-size: var(--text-md); line-height: 1.5rem; letter-spacing: -0.01em; }
 .subline { margin: var(--s1) 0 0; font-size: var(--text-sm); line-height: 1.1875rem; color: var(--muted); }
 .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.375rem, 1fr)); gap: 1.125rem; max-width: 56.25rem; }
 .metric { display: flex; flex-direction: column; gap: var(--s1); }
