@@ -388,3 +388,8 @@ dialog.pop:not([open]) { display: none; }
 .items-pending { background: var(--panel); border: 0; border-radius: var(--r-panel); }
 .items-pending .items-pending-title { color: var(--text); }
 .items-pending a { color: var(--text); }
+
+/* Redesign: properties sit in a panel; the full-page title uses the shared heading. */
+.td-props { border: 0; padding: var(--s4); border-radius: var(--r-panel); background: var(--panel); }
+.td-cols h2 { font-size: var(--text-base); font-weight: var(--weight-normal); color: var(--ink); }
+.td-props dt { color: var(--muted); }
