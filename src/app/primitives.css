@@ -287,7 +287,7 @@
 .btn-white { background: var(--white); color: var(--text); }
 .btn-white:hover:not(:disabled) { background: var(--surface-hover); }
 .btn-sm { min-height: 2.5rem; padding: 0 1rem; font-size: var(--text-sm); }
-.btn:hover { text-decoration: none; }
+.btn, .btn:hover { text-decoration: none; }
 
 .fpills { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .fpill { min-height: var(--target); padding: 0 1.125rem; border: 0; border-radius: var(--radius); background: var(--panel); color: var(--muted); font: inherit; font-size: var(--text-sm); white-space: nowrap; cursor: pointer; }
@@ -314,9 +314,9 @@
 .subline { margin: var(--s1) 0 0; font-size: var(--text-sm); line-height: 1.1875rem; color: var(--muted); }
 .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.375rem, 1fr)); gap: 1.125rem; max-width: 56.25rem; }
 .metric { display: flex; flex-direction: column; gap: var(--s1); }
-.metric > b { font-weight: var(--weight-normal); font-size: 2.125rem; line-height: 2.5rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.metric b { font-weight: var(--weight-normal); font-size: 2.125rem; line-height: 2.5rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 
-.tablewrap table, table.dt { width: 100%; border-collapse: collapse; }
+.tablewrap table, table.dt { display: table; width: 100%; overflow: visible; border-collapse: collapse; }
 .tablewrap th, table.dt th { padding: 0 10px 14px; font-weight: var(--weight-normal); font-size: var(--text-sm); color: var(--muted); text-align: left; }
 .tablewrap td, table.dt td { padding: 15px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
 .tablewrap tbody tr:hover td, table.dt tbody tr:hover td { background: var(--glass); }

@@ -92,8 +92,8 @@
 .msgs.chat { max-width: 820px; margin-inline: auto; width: 100%; }
 .chat-head { position: sticky; top: 4.75rem; z-index: 4; padding-block: var(--s2); background: var(--ambient-background); }
 .chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.chip { padding: 4px 12px; border-radius: 100px; background: var(--control); color: var(--text-muted); font-size: var(--text-sm); line-height: 18px; text-decoration: none; }
-.chip[aria-current="page"] { background: var(--primary); color: var(--on-primary); }
+.chips .chip { padding: 4px 12px; border-radius: 100px; background: var(--control); color: var(--text-muted); font-size: var(--text-sm); line-height: 18px; text-decoration: none; }
+.chips .chip[aria-current="page"] { background: var(--primary); color: var(--on-primary); }
 .msgs-search input { padding: 5px 12px; border: 1px solid var(--glass-border); border-radius: 100px; background: var(--surface); color: var(--text); font: inherit; font-size: var(--text-sm); width: 11rem; }
 .feed { gap: 10px; }
 /* A short chat sits at the bottom, next to the composer, not at the top. */

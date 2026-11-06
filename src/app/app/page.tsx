@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { latestHealthUpdate, listBoardTasks, listMilestones, listPendingSuggestions, listStreakTasks } from "@/data/live";
-import { currentProject, listProjects } from "@/data/projects";
+import { currentProject, listMembers, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE, projectAddress } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
 import { celebratedMilestones, challengeMet, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
@@ -10,12 +10,16 @@ import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
 import { postHealthUpdate, setTeamGoal } from "./actions";
 import { OverviewView, type OverviewData } from "./OverviewView";
+import { byPhase } from "@/domain/overview";
+import { initials } from "@/domain/board";
+import { calendarCells, monthOf, shiftMonth } from "@/domain/calendar";
+import type { MessageKey } from "@/lib/messages";
 
 const HEALTH = ["on_track", "at_risk", "off_track"] as const;
 const HEALTH_TONE = { on_track: "ok", at_risk: "warn", off_track: "bad" } as const;
 
 // Project overview: one card per project, what needs attention, and the way into AI review. Aggregate only.
-export default async function AppHome({ searchParams }: { searchParams: Promise<{ project?: string }> }) {
+export default async function AppHome({ searchParams }: { searchParams: Promise<{ project?: string; month?: string }> }) {
   const t = await getT();
   const supabase = await supabaseServer();
   const projects = await listProjects(supabase);
@@ -29,7 +33,8 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     const finished = (await cookies()).has(ONBOARDED_COOKIE);
     if (needsInviteStep({ projects: 1, members: members ?? 0, invitations: invitations ?? 0, finished })) redirect("/app/welcome");
   }
-  const current = currentProject(projects, (await searchParams).project)!;
+  const query = await searchParams;
+  const current = currentProject(projects, query.project)!;
   const today = new Date().toISOString().slice(0, 10);
   const locale = intlLocale[await getLocale()];
   const day = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
@@ -43,7 +48,8 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   ]);
   const milestones = (await listMilestones(supabase, current.id)).sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"));
   const long = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" });
-  const firstSuggestion = (await listPendingSuggestions(supabase, current.id))[0];
+  const pending = await listPendingSuggestions(supabase, current.id);
+  const firstSuggestion = pending[0];
   const [{ tasks: streakTasks, sites }, { data: switches }] = await Promise.all([
     listStreakTasks(supabase, current.id),
     supabase.from("reward_switches").select("site"),
@@ -64,21 +70,67 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const { data: history } = rewardsShown ? await supabase.rpc("team_goal_history", { p: current.id }) : { data: null };
   const goal = (goalRows as { weeks_done: number; weeks_total: number }[] | null)?.[0];
   const streak = projectRewardsOn((switches ?? []).map((r) => r.site), sites) ? (streakTasks.length ? streakWeeks(streakTasks, today) : 0) : null;
-  const sorted = tasks.filter((x) => x.status !== "done" && x.dueDate && x.dueDate >= today).sort((x, y) => x.dueDate!.localeCompare(y.dueDate!)).slice(0, 5);
   const weekEnd = new Date(Date.parse(today) + 6 * 864e5).toISOString().slice(0, 10);
   const meta = (x: { ownerName: string | null; dueDate: string | null }) => [x.ownerName, x.dueDate && fmt(x.dueDate)].filter(Boolean).join(" · ");
+  const href = (path: string) => `${path}?project=${current.id}`;
+  const open = tasks.filter((x) => x.status !== "done");
+  const nextMs = milestones.find((m) => m.status !== "done" && m.dueDate && m.dueDate >= today);
+  const [{ data: riskRows }, members] = await Promise.all([
+    supabase.from("risks").select("likelihood, severity").eq("project_id", current.id).eq("status", "open").neq("kind", "issue"),
+    listMembers(supabase, current.id),
+  ]);
+  const scores = (riskRows ?? []).map((r) => r.likelihood * r.severity);
+  const phases = byPhase(tasks).filter((x) => x.phase).map((x) => {
+    const due = tasks.filter((k) => k.phase === x.phase && k.dueDate).map((k) => k.dueDate!).sort();
+    const done = x.done === x.total;
+    const idle = x.done === 0 && x.active === 0 && x.blocked === 0;
+    return { name: x.phase!, label: t(`status.${done ? "done" : idle ? "todo" : "in_progress"}`), tone: done ? "ok" as const : idle ? "todo" as const : "info" as const, percent: Math.round((x.done / x.total) * 100), finish: due.length ? fmt(due[due.length - 1]) : null };
+  });
+  const month = monthOf(query.month, today);
+  const monthHref = (m: string) => `${href("/app")}&month=${m}`;
+  const [my, mm] = month.split("-").map(Number);
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
+  const calendar = {
+    title: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(my, mm - 1, 1))),
+    prevHref: monthHref(shiftMonth(month, -1)),
+    nextHref: monthHref(shiftMonth(month, 1)),
+    days: Array.from({ length: 7 }, (_, i) => weekday.format(new Date(Date.UTC(2026, 0, 5 + i)))),
+    cells: calendarCells(month, today, milestones.filter((m) => m.dueDate).map((m) => m.dueDate!), open.filter((x) => x.dueDate).map((x) => x.dueDate!)),
+  };
+  const stage = (key: "todo" | "in_progress" | "blocked") => {
+    const all = open.filter((x) => x.status === key && x.dueDate && x.dueDate <= weekEnd).sort((x, y) => x.dueDate!.localeCompare(y.dueDate!));
+    return {
+      key,
+      label: t(`status.${key}`),
+      count: all.length,
+      tasks: all.slice(0, 3).map((x) => {
+        const late = x.dueDate! < today;
+        return { id: x.id, title: x.title, href: href("/app/board"), chip: late ? t("overview.overdue") : t(`priority.${x.priority}`), tone: late || x.priority === "high" ? "bad" as const : "todo" as const, date: fmt(x.dueDate!), initials: x.ownerName ? initials(x.ownerName) : "" };
+      }),
+    };
+  };
   const data: OverviewData = {
     projectName: current.name,
     dateLabel: long.format(new Date()),
-    timelineHref: `/app/gantt?project=${current.id}`,
-    reviewHref: `/app/notifications?project=${current.id}`,
+    headline: update ? t(`overview.headline.${update.health}`).replace("{project}", current.name) : current.name,
+    timelineHref: href("/app/gantt"),
+    reviewHref: href("/app/notifications"),
+    newTaskHref: `/app/items?project=${current.id}&create=task`,
+    membersHref: href("/app/members"),
     health: update ? { label: t(`overview.health.${update.health}`), tone: HEALTH_TONE[update.health], note: update.note, author: update.author, dateLabel: fmt(update.createdAt) } : null,
-    attention: attention.map((x) => ({ id: x.id, title: x.title, href: `/app/board?project=${current.id}`, chip: x.status === "blocked" ? t("overview.blocked") : t("overview.overdue"), tone: x.status === "blocked" ? "bad" : "warn", meta: meta(x) })),
-    suggestion: firstSuggestion ? { title: firstSuggestion.title, details: firstSuggestion.details, reason: firstSuggestion.reason, href: `/app/notifications?project=${current.id}` } : null,
+    attention: attention.map((x) => ({ id: x.id, title: x.title, href: href("/app/board"), chip: x.status === "blocked" ? t("overview.blocked") : t("overview.overdue"), tone: x.status === "blocked" ? "bad" : "warn", meta: meta(x) })),
+    suggestion: firstSuggestion ? { title: firstSuggestion.title, details: firstSuggestion.details, reason: firstSuggestion.reason, href: href("/app/notifications") } : null,
+    waiting: pending.length,
     percent: pulse.percentDone,
     counts: { done: pulse.counts.done, in_progress: pulse.counts.in_progress, blocked: pulse.counts.blocked, todo: pulse.counts.todo },
     overdue: tasks.filter((x) => x.status !== "done" && x.dueDate && x.dueDate < today).length,
-    upcoming: sorted.map((x) => ({ id: x.id, title: x.title, href: `/app/board?project=${current.id}`, day: fmt(x.dueDate!), soon: x.dueDate! <= weekEnd, meta: [t(`status.${x.status}`), x.ownerName].filter(Boolean).join(" · ") })),
+    nextMilestone: nextMs ? { title: nextMs.title, days: Math.round((Date.parse(nextMs.dueDate!) - Date.parse(today)) / 864e5) } : null,
+    risks: { open: scores.length, high: scores.filter((x) => x >= 15).length },
+    phases,
+    week: [stage("todo"), stage("in_progress"), stage("blocked")],
+    calendar,
+    team: members.slice(0, 5).map((m) => ({ initials: initials(m.name || m.email), name: m.name || m.email, role: t(`role.${m.role}` as MessageKey) })),
+    teamTotal: members.length,
     events: milestones.filter((m) => m.status === "done").sort((x, y) => y.updatedAt.localeCompare(x.updatedAt)).slice(0, 3).map((m) => ({ text: m.title, dateLabel: fmt(m.updatedAt) })),
     address: current.email_slug ? projectAddress(current.email_slug, process.env.INBOUND_EMAIL_DOMAIN) : null,
   };
@@ -87,7 +139,7 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
       <div className="ov-extra">
         <OverviewView t={t} data={data} write={role && (
           <details className="ov-write">
-            <summary className="act">{t("overview.update.write")}</summary>
+            <summary>{t("overview.update.write")}</summary>
             <form action={postHealthUpdate}>
               <input type="hidden" name="projectId" value={current.id} />
               <label><span className="field-label">{t("overview.update.health")}</span>
