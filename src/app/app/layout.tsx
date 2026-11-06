@@ -46,6 +46,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         main: t("shell.main"),
         projects: t("shell.projects"),
         streamNew: t("shell.streamNew"),
+        railExpand: t("shell.railExpand"),
+        railCollapse: t("shell.railCollapse"),
         account: t("shell.account"),
         signOut: t("app.signOut"),
         bell: t("shell.inbox"),

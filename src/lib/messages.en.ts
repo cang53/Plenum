@@ -19,6 +19,8 @@ export const en = {
   "shell.newTask": "New task",
   "shell.mywork": "My work",
   "shell.streamNew": "{n} new in stream",
+  "shell.railExpand": "Show page titles",
+  "shell.railCollapse": "Hide page titles",
   "shell.group.project": "Project",
   "shell.group.site": "Site and time",
   "shell.group.admin": "Admin",
