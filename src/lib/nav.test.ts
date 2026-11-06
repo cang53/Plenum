@@ -25,3 +25,11 @@ describe("navItems", () => {
     expect(items.map((i) => i.path)).not.toContain("/app/notifications");
   });
 });
+
+describe("navItems settings group", () => {
+  it("lists charter and privacy in settings, not the account menu", () => {
+    const items = navItems("member", false);
+    for (const p of ["/app/charter", "/app/privacy"]) expect(items.find((i) => i.path === p)?.group).toBe("settings");
+    expect(items.filter((i) => i.group === "more").map((i) => i.path)).toEqual(["/app/timelines"]);
+  });
+});

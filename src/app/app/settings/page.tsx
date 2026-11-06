@@ -5,6 +5,7 @@ import { getLocale, getT } from "@/lib/locale";
 import { checkSwitches } from "@/server/switches";
 import { integrationRows } from "@/domain/integrations";
 import { exportTables } from "@/domain/export";
+import { navItems } from "@/lib/nav";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { projectAddress } from "@/domain/onboarding";
 import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject, saveRewardSwitches, saveTeamsChannel } from "./actions";
@@ -46,6 +47,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       {error && <p role="alert" className="badge badge-danger">{error}</p>}
       {sp.removed && <p role="status" className="badge badge-success">{t("settings.removed")}</p>}
       {sp.saved && <p role="status" className="badge badge-success">{t("settings.saved")}</p>}
+      <nav aria-label={t("settings.pages")} className="fpills">
+        {navItems(role ?? undefined, Boolean(isAdmin)).filter((i) => i.group === "settings").map((i) => (
+          <a key={i.path} className="fpill" href={`${i.path}?project=${project.id}`}>{t(i.label)}</a>
+        ))}
+      </nav>
       <nav aria-label={t("settings.nav")} className="fpills">
         <a className="fpill" href="#settings-you">{t("settings.you")}</a>
         <a className="fpill" href="#settings-project">{t("settings.project")}</a>

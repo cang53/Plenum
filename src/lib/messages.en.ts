@@ -338,6 +338,7 @@ export const en = {
   "settings.title": "Settings",
   "settings.intro": "Your name and language, and this project's name and email address.",
   "settings.nav": "Settings sections",
+  "settings.pages": "Project pages",
   "settings.you": "You",
   "settings.displayName": "Display name",
   "settings.language": "Language",
