@@ -383,3 +383,15 @@ a.mention:hover { text-decoration: underline; }
 .chat .msg .act::before { width: 14px; height: 14px; }
 .act[data-ico="react"]::before { display: none; }
 .chat .feed, .chat .msgs-main { gap: 12px; }
+
+/* Redesign: header, client-side source filter, Linked work panel. */
+.chat .page-head { display: flex; flex-direction: column; gap: var(--s1); }
+.chat .chat-head { background: var(--c-solid); gap: var(--s3); }
+.chat[data-filter="app"] .mail.msg:not([data-src="app"]),
+.chat[data-filter="email"] .mail.msg:not([data-src="email"]),
+.chat[data-filter="teams"] .mail.msg:not([data-src="teams"]) { display: none; }
+.linkedwork { display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4); }
+.linkedwork h2 { margin: 0; }
+.linkedwork ul { display: flex; flex-direction: column; gap: var(--s2); margin: 0; padding: 0; list-style: none; }
+.linkedwork a { display: flex; align-items: center; gap: var(--s2); color: var(--text); text-decoration: none; font-size: var(--text-sm); }
+.linkedwork a:hover { text-decoration: underline; }
