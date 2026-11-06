@@ -9,7 +9,6 @@ import type { MessageKey } from "@/lib/messages";
 import { MoreLink } from "@/app/app/MoreLink";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
-import { WorkSwitch } from "@/app/WorkSwitch";
 import { bulkTasks } from "./actions";
 import { OfflineTasks } from "./OfflineTasks";
 import { ItemsTable } from "./ItemsTable";
@@ -58,7 +57,6 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
   return (
     <main id="main" className="page items-page">
       <ItemsHead t={t} action="/app/items" keep={[["project", project.id], ...(quick !== "all" ? [["quick", quick] as [string, string]] : []), ...cols]} query={query} owners={owners} phases={phaseNames} pending={suggestions.length} reviewHref={`/app/notifications?project=${project.id}`}
-        switcher={<WorkSwitch current="items" projectId={project.id} t={t} />}
         create={MANUAL_KINDS.map((k) => (
           <CreateOption key={k} kind={k} t={t} href={`${href(quick)}&create=${k}`} />
         ))} />
@@ -79,9 +77,9 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         <a className="btn" href={`/app/import?project=${project.id}`}>{t("import.title")}</a>
       </div>
       <div className="items-tools">
-        <nav className="items-quick" aria-label={t("items.quick.label")}>
+        <nav className="fpills items-quick" aria-label={t("items.quick.label")}>
           {QUICK_FILTERS.map((q) => (
-            <a key={q} href={href(q)} aria-current={q === quick ? "page" : undefined}>{t(`items.quick.${q}` as MessageKey)} <span className="items-count">{counts[q]}</span></a>
+            <a key={q} className="fpill" href={href(q)} aria-current={q === quick ? "page" : undefined}>{t(`items.quick.${q}` as MessageKey)} <span className="items-count">{counts[q]}</span></a>
           ))}
         </nav>
       </div>
