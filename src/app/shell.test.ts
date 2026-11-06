@@ -16,7 +16,8 @@ describe("shell.css", () => {
     expect(css).toContain("grid-template-columns: var(--sidebar-w)");
     expect(css).toContain("max-width: 48rem");
     expect(css).toContain("var(--ambient-background)");
-    expect(css).toContain("backdrop-filter: var(--glass-blur)");
+    // Blur is declared once for all glass surfaces (performance budget), in primitives.css.
+    expect(readFileSync(new URL("./primitives.css", import.meta.url), "utf8")).toMatch(/\.shell-capsule[^{]*\{[^}]*backdrop-filter: var\(--glass-blur\)/);
   });
   it("gives every nav page an icon", () => {
     const pages = ["risks", "library", "charter", "logs", "stream", "board", "gantt", "items", "timesheet", "timesheets", "members", "audit", "reports", "roles", "privacy", "settings", "notifications"];
