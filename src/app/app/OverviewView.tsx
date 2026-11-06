@@ -26,7 +26,6 @@ export type OverviewData = {
   team: { initials: string; name: string; role: string }[];
   teamTotal: number;
   events: { text: string; dateLabel: string }[];
-  address: string | null;
 };
 
 const Icon = ({ d, size = 14 }: { d: string; size?: number }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
@@ -180,13 +179,6 @@ export function OverviewView({ t, data, write }: { t: (key: MessageKey) => strin
           </section>
         </aside>
       </div>
-      {data.address && (
-        <section className="panel ov-address" aria-labelledby="ov-addr">
-          <strong id="ov-addr">{t("overview.addressTitle")}</strong>
-          <p><code>{data.address}</code></p>
-          <p className="muted">{t("overview.addressPolicy")}</p>
-        </section>
-      )}
     </div>
   );
 }

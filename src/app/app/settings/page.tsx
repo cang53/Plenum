@@ -82,7 +82,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <label><span className="field-label">{t("settings.slug")}</span><input className="field" name="slug" defaultValue={project.email_slug} required /></label>
             <small className="meta">{t("settings.slugHelp")}</small>
           </p>
-          <p><span className="field-label">{t("settings.address")}</span> <code>{projectAddress(project.email_slug, process.env.INBOUND_EMAIL_DOMAIN)}</code></p>
+          <p><span className="field-label">{t("settings.address")}</span> <code>{projectAddress(project.email_slug, process.env.INBOUND_EMAIL_DOMAIN)}</code><br /><small className="meta">{t("overview.addressPolicy")}</small></p>
           <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
         </fieldset>
       </form>

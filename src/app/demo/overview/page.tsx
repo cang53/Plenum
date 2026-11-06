@@ -50,7 +50,6 @@ export default async function DemoOverviewPage() {
     team: [],
     teamTotal: 0,
     events: [{ text: "Lifting permit approved", dateLabel: fmt(today) }, { text: "Cabinet drawings revision A sent for comments", dateLabel: fmt(iso(Date.parse(today) - 3 * 864e5)) }],
-    address: "line4-ghent@in.plenum.example",
   };
   return (
     <main id="main" className="page overview">

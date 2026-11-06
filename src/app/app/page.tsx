@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { latestHealthUpdate, listBoardTasks, listMilestones, listPendingSuggestions, listStreakTasks } from "@/data/live";
 import { currentProject, listMembers, listProjects } from "@/data/projects";
-import { needsInviteStep, ONBOARDED_COOKIE, projectAddress } from "@/domain/onboarding";
+import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
 import { celebratedMilestones, challengeMet, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
 import { getLocale, getT } from "@/lib/locale";
@@ -132,7 +132,6 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     team: members.slice(0, 5).map((m) => ({ initials: initials(m.name || m.email), name: m.name || m.email, role: t(`role.${m.role}` as MessageKey) })),
     teamTotal: members.length,
     events: milestones.filter((m) => m.status === "done").sort((x, y) => y.updatedAt.localeCompare(x.updatedAt)).slice(0, 3).map((m) => ({ text: m.title, dateLabel: fmt(m.updatedAt) })),
-    address: current.email_slug ? projectAddress(current.email_slug, process.env.INBOUND_EMAIL_DOMAIN) : null,
   };
   return (
     <main id="main" className="page overview">
