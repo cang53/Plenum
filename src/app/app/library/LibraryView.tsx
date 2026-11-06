@@ -27,9 +27,9 @@ export function LibraryView({ t, project, workspaceId, projectParam, at, heading
   );
   return (
     <main id="main" className="page">
-      <div className="rk-head"><div><p className="eyebrow">{project.name}</p><h1>{t("app.library")}</h1><p className="sub">{t("library.subtitle")}</p></div></div>
+      <div className="rk-head"><div><h1 className="h1">{t("app.library")}</h1><p className="subline">{t("library.subtitle")}</p></div></div>
       <div className="lib">
-        <nav className="surface lib-tree" aria-label={t("library.folders")}>
+        <nav className="panel lib-tree" aria-label={t("library.folders")}>
           <ul>
             <li><a href={href("lessons")} aria-current={at === "lessons" ? "page" : undefined}>{t("library.lessons")}<span className="lib-n">{counts.lessons ?? 0}</span></a><span className="rk-tag lib-tag">{t("library.shared")}</span></li>
             <li><a href={href("p:")} aria-current={at === "p:" ? "page" : undefined}>{t("library.projectFiles")}<span className="lib-n">{counts["p:"] ?? 0}</span></a>{tree.length > 0 && <ul>{tree.map((n) => node(n, 1))}</ul>}</li>
@@ -39,24 +39,24 @@ export function LibraryView({ t, project, workspaceId, projectParam, at, heading
             <form action={actions.newFolder} className="lib-new">
               <input type="hidden" name="projectId" value={project.id} /><input type="hidden" name="project" value={projectParam} /><input type="hidden" name="parent" value={at.slice(2)} />
               <label className="rk-lab">{t("library.newFolder")}<input name="name" className="rk-in" required maxLength={40} placeholder={t("library.folderName")} /></label>
-              <button type="submit" className="act">{t("library.createFolder")}</button>
+              <button type="submit" className="btn btn-soft btn-sm">{t("library.createFolder")}</button>
             </form>
           )}
         </nav>
 
-        <section className="surface lib-list" aria-labelledby="lib-h">
+        <section className="panel lib-list" aria-labelledby="lib-h">
           <div className="rk-card-top">
             <div><h2 id="lib-h">{heading}</h2>{crumbs.length > 1 && <p className="meta lib-crumbs">{crumbs.map((c, i) => <span key={c.at}>{i > 0 && " / "}<a href={href(c.at)}>{c.label}</a></span>)}</p>}</div>
             {canWrite && (
               <details className="rk-add">
-                <summary className="act act-primary">+ {t("library.upload")}</summary>
+                <summary className="btn btn-primary btn-sm">+ {t("library.upload")}</summary>
                 <form action={actions.add} className="rk-pop">
                   <input type="hidden" name="workspaceId" value={workspaceId} /><input type="hidden" name="project" value={projectParam} />
                   {isProject && <><input type="hidden" name="projectId" value={project.id} /><input type="hidden" name="path" value={at.slice(2)} /></>}
                   <label className="rk-lab">{t("risks.newTitle")}<input name="title" className="rk-in" maxLength={200} /></label>
                   <label className="rk-lab">{t("library.file")}<input type="file" name="file" className="rk-in" /></label>
                   <label className="rk-lab">{t("library.text")}<textarea name="text" className="rk-in" rows={4} maxLength={20000} /></label>
-                  <button type="submit" className="act act-primary">{t("library.addButton")}</button>
+                  <button type="submit" className="btn btn-primary btn-sm">{t("library.addButton")}</button>
                 </form>
               </details>
             )}
@@ -72,7 +72,7 @@ export function LibraryView({ t, project, workspaceId, projectParam, at, heading
           {rows.length === 0 && subfolders.length === 0 && <p className="meta">{t("library.emptyFolder")}</p>}
         </section>
 
-        <section className="surface lib-preview" aria-labelledby="lib-p">
+        <section className="panel lib-preview" aria-labelledby="lib-p">
           {!preview ? <><h2 id="lib-p">{t("library.preview")}</h2><p className="meta">{t("library.pick")}</p></> : (
             <>
               <div className="rk-card-top"><h2 id="lib-p">{preview.title}</h2><span className="lib-ext">{preview.ext}</span></div>
@@ -82,9 +82,9 @@ export function LibraryView({ t, project, workspaceId, projectParam, at, heading
               {preview.kind === "text" && (preview.text ? <pre className="lib-text">{preview.text.slice(0, 6000)}{preview.text.length > 6000 ? "…" : ""}</pre> : <p className="meta">{t("library.noText")}</p>)}
               {preview.kind === "other" && <p className="meta">{t("library.noPreview")}</p>}
               <div className="rk-actions">
-                {preview.downloadUrl && <a className="act" href={preview.downloadUrl} target="_blank" rel="noopener noreferrer">{t("library.open")} ↗</a>}
+                {preview.downloadUrl && <a className="btn btn-soft btn-sm" href={preview.downloadUrl} target="_blank" rel="noopener noreferrer">{t("library.open")} ↗</a>}
                 {canWrite && preview.key.startsWith("d:") && (
-                  <form action={actions.remove}><input type="hidden" name="id" value={preview.key.slice(2)} /><input type="hidden" name="at" value={at} /><input type="hidden" name="project" value={projectParam} /><button type="submit" className="act">{t("library.remove")}</button></form>
+                  <form action={actions.remove}><input type="hidden" name="id" value={preview.key.slice(2)} /><input type="hidden" name="at" value={at} /><input type="hidden" name="project" value={projectParam} /><button type="submit" className="btn btn-soft btn-sm">{t("library.remove")}</button></form>
                 )}
               </div>
             </>
