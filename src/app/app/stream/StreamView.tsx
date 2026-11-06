@@ -1,3 +1,4 @@
+import { SourceFilter } from "./SourceFilter";
 import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
@@ -184,10 +185,21 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
     <main id="main" className="page msgs chat">
       {!readOnly && <MarkRead projectId={project.id} />}
       <header className="chat-head">
-        <h1 className="sr-only">{project.name} · {t("stream.title")}</h1>
-        <div className="chat-title"><h2>{t("stream.conversation")}</h2><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg></div>
+        <div className="page-head"><h1 className="h1">{t("stream.title")}</h1><p className="subline">{t("stream.sub")}</p></div>
+        <h2 className="sr-only">{t("stream.conversation")}</h2>
+        <SourceFilter label={t("stream.filter")} allLabel={t("stream.filter.all")} options={(["app", "email", "teams"] as const).map((v) => ({ value: v, label: t(`stream.source.${v}`) }))} />
         <SearchBar action={base} projectId={project.id} source={query.source} q={query.q} label={t("stream.c.search")} />
       </header>
+      <aside className="panel linkedwork" aria-labelledby="linkedwork-h">
+        <h2 id="linkedwork-h" className="h3">{t("stream.linkedWork")}</h2>
+        {linked.length === 0 ? <p className="sub">{t("stream.linkedWork.empty")}</p> : (
+          <ul>
+            {linked.map((l) => (
+              <li key={l.id}><a href={`#msg-${l.messageId}`}><span className="chip c-neutral">{t(l.riskKind ? (`risks.kind.${l.riskKind}` as "risks.kind.risk") : `stream.linked.${l.kind}`)}</span> {l.title}</a></li>
+            ))}
+          </ul>
+        )}
+      </aside>
       <div className="msgs-main feed">
         {(decisions || pins.length > 0) && (
           <details className="pins" open={decisions}>
