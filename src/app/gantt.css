@@ -138,10 +138,5 @@
 .gantt-summary[data-sub] { height: 4px; background: var(--primary); opacity: .55; }
 
 
-/* Redesign: controls read as the shared pills; bars follow done = black, planned = outline. */
+/* Redesign: toolbar spacing only; colours stay as they were. */
 .gantt-head .head-actions { align-items: center; gap: var(--s3); }
-.gantt-pill { border: 0; border-radius: var(--radius); background: var(--panel); color: var(--muted); font-size: var(--text-sm); }
-.gantt-pill:hover { background: var(--cell); }
-.gantt-pill[aria-pressed="true"] { background: var(--white); color: var(--ink); border: 0; }
-.gantt-bar[data-status="done"] { background: var(--black); border-color: var(--black); color: var(--white); }
-.gantt-bar { border-radius: var(--r-cell); }

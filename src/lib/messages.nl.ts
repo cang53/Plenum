@@ -169,6 +169,8 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.file.type": "Alleen foto's, pdf's, tekst en Office-bestanden kunnen worden bijgevoegd.",
   "stream.jump": "Naar het laatste bericht",
   "stream.newMessages": "Nieuwe berichten",
+  "stream.newCount": "{n} nieuwe berichten",
+  "stream.newCount.one": "1 nieuw bericht",
   "stream.earlier": "Eerdere berichten tonen",
   "stream.conversation": "Gesprek",
   "stream.hint.agent": "Noem @cobia om een gesprek om te zetten in actie.",

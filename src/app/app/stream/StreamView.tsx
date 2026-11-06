@@ -200,7 +200,8 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
           </ul>
         )}
       </aside>
-      <div className="msgs-main feed">
+      <div className="chat-scroll">
+      <div className="msgs-main feed" role="log" aria-live="off" aria-label={t("stream.conversation")} tabIndex={0}>
         {(decisions || pins.length > 0) && (
           <details className="pins" open={decisions}>
             <summary>{t("stream.pinned")} · {pins.length}</summary>
@@ -369,6 +370,9 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
             })}
           </section>
         ))}
+      </div>
+        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} count={t("stream.newCount")} countOne={t("stream.newCount.one")} />}
+      </div>
         <LiveStream projectId={project.id} />
         {!decisions && (
           <div className="comp-wrap">
@@ -388,8 +392,6 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
           <p className="hint-keys">{t("stream.hint.keys")}</p>
           </div>
         )}
-        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} fresh={t("stream.newMessages")} />}
-      </div>
     </main>
   );
 }

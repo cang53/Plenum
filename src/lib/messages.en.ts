@@ -167,6 +167,8 @@ export const en = {
   "stream.file.type": "Only pictures, PDFs, text and Office files can be attached.",
   "stream.jump": "Jump to latest",
   "stream.newMessages": "New messages",
+  "stream.newCount": "{n} new messages",
+  "stream.newCount.one": "1 new message",
   "stream.earlier": "Show earlier messages",
   "stream.conversation": "Conversation",
   "stream.hint.agent": "Mention @cobia to turn a conversation into action.",
