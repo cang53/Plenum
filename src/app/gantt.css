@@ -140,3 +140,13 @@
 
 /* Redesign: toolbar spacing only; colours stay as they were. */
 .gantt-head .head-actions { align-items: center; gap: var(--s3); }
+
+/* The Gantt keeps its own status colours (blue today marker and critical path, green done, amber blocked) as they were before the
+   canvas tokens made the shared accent near-black. Only the light theme needs this; the dark values already match. */
+:root:not([data-theme="dark"]) :is(.gantt, .gantt-head) {
+  --primary: #0a66e0; --on-primary: #ffffff;
+  --accent-soft: #e9f1e7; --accent-text: #2d5a3a;
+  --success: #1b7340; --success-surface: #e3f2e8;
+  --warning: #935600; --warning-surface: #fcf0da;
+  --danger: #c0261d;
+}
