@@ -292,7 +292,7 @@
 .fpills { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .fpill { min-height: var(--target); padding: 0 1.125rem; border: 0; border-radius: var(--radius); background: var(--panel); color: var(--muted); font: inherit; font-size: var(--text-sm); white-space: nowrap; cursor: pointer; }
 .fpill:hover { background: var(--cell); }
-.fpill[aria-pressed="true"], .fpill[aria-current="page"] { background: var(--white); color: var(--ink); }
+.fpill[aria-pressed="true"], .fpill[aria-current="page"] { background: var(--surface); color: var(--text); }
 
 .panel { border-radius: var(--r-panel); background: var(--panel); padding: var(--s5); }
 .cell { border-radius: var(--r-cell); background: var(--cell); }
