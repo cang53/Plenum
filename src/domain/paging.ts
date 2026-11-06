@@ -26,7 +26,14 @@ export const afterFilter = (column: string, c: Cursor): string =>
 export type Page<T> = { rows: T[]; next: string | null };
 
 // Takes PAGE_SIZE + 1 fetched rows: the extra one only says there is more.
-export function toPage<T>(fetched: T[], cursorOf: (row: T) => Cursor): Page<T> {
-  const rows = fetched.slice(0, PAGE_SIZE);
-  return { rows, next: fetched.length > PAGE_SIZE ? encodeCursor(cursorOf(rows[rows.length - 1])) : null };
+export function toPage<T>(fetched: T[], cursorOf: (row: T) => Cursor, size = PAGE_SIZE): Page<T> {
+  const rows = fetched.slice(0, size);
+  return { rows, next: fetched.length > size ? encodeCursor(cursorOf(rows[rows.length - 1])) : null };
+}
+
+// How many pages of rows to show in one go ("load older" in place asks for one more each time). Anything odd means one.
+export const MAX_PAGES = 20;
+export function pagesParam(raw: string | undefined): number {
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 1 ? Math.min(n, MAX_PAGES) : 1;
 }

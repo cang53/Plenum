@@ -43,7 +43,7 @@ test("a new message while at the bottom stays at the bottom", async ({ page }) =
 });
 
 test("a new message while scrolled up shows the pill and does not move", async ({ page }) => {
-  await feed(page).evaluate(async (f) => { f.scrollTop = 0; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
+  await feed(page).evaluate(async (f) => { f.scrollTop = 400; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
   const before = (await metrics(page)).top;
   await addMessage(page, "end");
   await expect(page.getByRole("button", { name: "1 new message", exact: true })).toBeVisible();
@@ -78,4 +78,23 @@ test("with unread messages it opens at the New divider", async ({ page }) => {
   await page.goto(UNREAD);
   await expect(page.locator(".chat .newline")).toBeVisible();
   await expect.poll(() => page.evaluate(() => Math.abs(document.querySelector(".chat .newline")!.getBoundingClientRect().top - document.querySelector(".chat .feed")!.getBoundingClientRect().top))).toBeLessThan(40);
+});
+
+test("scrolling to the top loads older messages in place and keeps the reader's place", async ({ page }) => {
+  await page.goto("/demo/messages?unread=0");
+  await expect.poll(async () => { const m = await metrics(page); return m.max > 0 && m.max - m.top <= 2; }).toBe(true);
+  const count = () => feed(page).locator("article.mail.msg[id]").count();
+  const before = await count();
+  await feed(page).evaluate(async (f) => { f.scrollTop = 300; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
+  const anchor = await feed(page).evaluate((f) => {
+    const top = f.getBoundingClientRect().top;
+    const el = [...f.querySelectorAll<HTMLElement>("article.mail.msg[id]")].find((e) => e.getBoundingClientRect().bottom > top + 1)!;
+    return { id: el.id, offset: el.getBoundingClientRect().top - top };
+  });
+  await feed(page).evaluate((f) => { f.scrollTop = 0; });
+  await expect.poll(count).toBeGreaterThan(before);
+  expect(page.url()).toContain("pages=2");
+  // the message that was in view before scrolling up is still there; the list has not jumped to the top or bottom
+  await expect(page.locator(`#${anchor.id}`)).toHaveCount(1);
+  expect((await metrics(page)).top).toBeGreaterThan(50);
 });

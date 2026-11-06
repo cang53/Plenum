@@ -73,7 +73,8 @@ export async function setTaskStatus(client: SupabaseClient, taskId: string, stat
   if (!data?.length) throw new Error("task not found or not allowed");
 }
 
-export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string, f: Filters = {}): Promise<Page<TimelineMessage>> {
+export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string, f: Filters = {}, pages = 1): Promise<Page<TimelineMessage>> {
+  const size = PAGE_SIZE * pages;
   const cursor = decodeCursor(after);
   const cols = (html: boolean) => `id, source, from_name, from_address, subject, body_text, ${html ? "body_html, reply_to, " : ""}received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded)`;
   // Characters that mean something in a PostgREST filter are removed from the typed text.
@@ -91,14 +92,14 @@ export async function listTimelineMessages(client: SupabaseClient, projectId: st
     if (f.to) q = q.lt("received_at", dayEnd(f.to));
     if (linked) q = q.in("id", linked);
     if (cursor) q = q.or(afterFilter("received_at", cursor));
-    return q.order("received_at", { ascending: false }).order("id", { ascending: false }).limit(PAGE_SIZE + 1);
+    return q.order("received_at", { ascending: false }).order("id", { ascending: false }).limit(size + 1);
   };
   let res = await build(true);
   // Before migration 157 is applied the column does not exist; plain messages still show.
   if (res.error?.code === "42703") res = await build(false);
   const { data, error } = res;
   if (error) throw error;
-  return toPage(((data ?? []) as unknown as MessageRow[]).map(fromRow), (m) => ({ at: m.receivedAt, id: m.id }));
+  return toPage(((data ?? []) as unknown as MessageRow[]).map(fromRow), (m) => ({ at: m.receivedAt, id: m.id }), size);
 }
 
 export type Pin = { messageId: string; pinnedAt: string; pinnedBy: string; message: TimelineMessage };

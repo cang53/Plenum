@@ -172,6 +172,7 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.newCount": "{n} nieuwe berichten",
   "stream.newCount.one": "1 nieuw bericht",
   "stream.earlier": "Eerdere berichten tonen",
+  "stream.loadingEarlier": "Eerdere berichten laden",
   "stream.conversation": "Gesprek",
   "stream.hint.agent": "Noem @cobia om een gesprek om te zetten in actie.",
   "stream.hint.keys": "Enter om te versturen · Shift + Enter voor een nieuwe regel",

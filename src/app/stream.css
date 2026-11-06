@@ -419,3 +419,8 @@ a.mention:hover { text-decoration: underline; }
   .msgs.chat { grid-template-columns: minmax(0, 1fr); height: calc(100dvh - 4.75rem - var(--s4)); }
   .chat .linkedwork { display: none; }
 }
+.chat .earlier { display: flex; justify-content: center; min-height: 2.5rem; }
+.chat .earlier-skel { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.chat .earlier-skel span[aria-hidden] { display: block; height: 2.25rem; width: 60%; border-radius: var(--radius-lg); background: var(--control); animation: earlier-pulse 1.2s ease-in-out infinite; }
+@keyframes earlier-pulse { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .chat .earlier-skel span[aria-hidden] { animation: none; } }

@@ -7,6 +7,7 @@ import { buildStream, filterFeed, newSince, suggestionsByMessage, type StreamQue
 import type { AgentProposal } from "@/domain/agent";
 import { groupReactions } from "@/domain/reactions";
 import type { MentionItem } from "@/domain/mentions";
+import { pagesParam } from "@/domain/paging";
 import { StreamView } from "./StreamView";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
@@ -15,16 +16,17 @@ export const dynamic = "force-dynamic";
 // The agent runs after the send has answered, so it still needs time.
 export const maxDuration = 60;
 
-export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string; q?: string }> }) {
+export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; after?: string; view?: string; source?: string; q?: string; pages?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
   const supabase = await supabaseServer();
-  const { project: chosen, after, view, source, q } = await searchParams;
+  const { project: chosen, after, view, source, q, pages: pagesRaw } = await searchParams;
+  const pages = pagesParam(pagesRaw);
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
   const me = (await supabase.auth.getUser()).data.user?.email ?? undefined;
   const tz = demoProject.timeZone;
-  const { rows, next } = await listTimelineMessages(supabase, project.id, after);
+  const { rows, next } = await listTimelineMessages(supabase, project.id, after, {}, pages);
   const readAt = (await cookies()).get(`stream-read-${project.id}`)?.value;
   const query: StreamQuery = { q, source: source === "email" || source === "app" || source === "teams" ? source : undefined };
   const days = buildStream(filterFeed(rows, query), new Date().toISOString(), tz);
@@ -69,5 +71,5 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
-  return <StreamView {...{ t, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, reactions, fileUrls, open, pins, pinned, canPin: !!canPin, mentionItems: mentions, decisions, time, date, now: new Date(), me }} />;
+  return <StreamView {...{ t, pages, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, reactions, fileUrls, open, pins, pinned, canPin: !!canPin, mentionItems: mentions, decisions, time, date, now: new Date(), me }} />;
 }

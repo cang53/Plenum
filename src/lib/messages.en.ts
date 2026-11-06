@@ -170,6 +170,7 @@ export const en = {
   "stream.newCount": "{n} new messages",
   "stream.newCount.one": "1 new message",
   "stream.earlier": "Show earlier messages",
+  "stream.loadingEarlier": "Loading earlier messages",
   "stream.conversation": "Conversation",
   "stream.hint.agent": "Mention @cobia to turn a conversation into action.",
   "stream.hint.keys": "Enter to send · Shift + Enter for a new line",
