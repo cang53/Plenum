@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dfdcdb">
+<title>Sign in to Plenum</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="plenum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app" style="grid-template-columns: minmax(0, 1fr); min-height: 100vh; align-content: space-between">
+  <header class="top">
+    <span class="brand"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="#0a0a0a"></rect><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Plenum</span>
+    <div class="user"><div class="pills" role="group" aria-label="Language"><button class="pill" aria-pressed="true" style="height: 40px">English</button><button class="pill" style="height: 40px">Nederlands</button></div></div>
+  </header>
+
+  <main style="display: grid; place-items: center; padding: 40px 0">
+    <div class="panel" style="width: min(440px, 100%); box-sizing: border-box; padding: 36px; display: flex; flex-direction: column; gap: 24px">
+      <div>
+        <h1 class="h1" style="font-size: 30px">Sign in to Plenum</h1>
+        <p class="sub" style="font-size: 15px; line-height: 22px; margin-top: 8px">We'll email you a sign-in link. No password needed.</p>
+      </div>
+      <form style="display: flex; flex-direction: column; gap: 16px" onsubmit="return false">
+        <label class="field"><span>Work email</span><input class="input" type="email" autocomplete="email" placeholder="name@company.com"></label>
+        <button class="btn" type="submit" style="height: 50px">Email me a link</button>
+      </form>
+      <div class="cell" style="padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 21px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>
+        <span class="muted">Only people invited to a project can sign in. Ask your project manager if you don't have an invite.</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="muted" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px">
+    <span>One project timeline for industrial teams</span>
+    <span style="display: flex; gap: 18px"><a href="#" class="muted">Privacy</a><a href="#" class="muted">Help</a></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

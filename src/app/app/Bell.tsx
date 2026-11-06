@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { NavIcon } from "./NavIcon";
 
 const EVERY_MS = 30_000;
 
@@ -17,8 +18,8 @@ export function Bell({ href, initial, label, countLabel, current, icon }: { icon
     return () => { clearInterval(timer); document.removeEventListener("visibilitychange", refresh); };
   }, []);
   return (
-    <a href={href} className={`${icon ? "shell-bell" : "shell-link"}${count ? " shell-unread" : ""}`} aria-current={current ? "page" : undefined} aria-label={count ? `${label}: ${countLabel(count)}` : label}>
-      <span aria-hidden="true">{label}</span>
+    <a href={href} className={`${icon ? "tile" : "shell-link"}${count ? " shell-unread" : ""}`} aria-current={current ? "page" : undefined} aria-label={count ? `${label}: ${countLabel(count)}` : label}>
+      {icon ? <NavIcon name="bell" size={20} /> : <span aria-hidden="true">{label}</span>}
       <span role="status" className="shell-badge" hidden={count === 0}>{count > 99 ? "99+" : count}</span>
     </a>
   );

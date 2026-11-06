@@ -1,50 +1,31 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Bell } from "./Bell";
 import { ThemeToggle } from "./ThemeToggle";
 import { CommandMenu } from "./CommandMenu";
+import { NavIcon } from "./NavIcon";
 
-type Group = "project" | "site" | "admin";
+type Group = "rail" | "top" | "more" | "settings";
 type Item = { path: string; label: string; group: Group };
 type Props = {
   projects: { id: string; name: string }[];
   itemsByProject: Record<string, Item[]>;
   fallbackItems: Item[];
   email: string;
+  // The signed-in person's role in each project, already translated.
+  roleByProject: Record<string, string>;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "mobile" | "collapse" | "expand" | "bell" | "theme" | "newTask" | "mywork" | "streamNew", string> & { privacy: Record<"title" | "body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"]; group: Record<Group, string> };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew", string> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
 };
 
-const GROUPS: Group[] = ["project", "site", "admin"];
-const NARROW = "(max-width: 48rem)";
-
-// The choice is kept in this browser so it stays the same on every screen; phones always start closed.
-const savedNav = (): "open" | "closed" | undefined => {
-  try {
-    const v = localStorage.getItem("nav");
-    return (v === "open" || v === "closed") && !window.matchMedia(NARROW).matches ? v : undefined;
-  } catch { return undefined; }
-};
-
-export function Shell({ projects, itemsByProject, fallbackItems, email, unread, streamNew, unreadLabel, labels, children }: Props) {
+export function Shell({ projects, itemsByProject, fallbackItems, email, roleByProject, unread, streamNew, unreadLabel, labels, children }: Props) {
   const pathname = usePathname();
-  // Until the person toggles it, the side bar is open on wide windows and hidden on narrow ones (CSS decides).
-  const saved = useSyncExternalStore(() => () => {}, savedNav, () => undefined);
-  const [chosenNav, setNav] = useState<"open" | "closed" | undefined>(undefined);
-  const nav = chosenNav ?? saved;
-  const [shut, setShut] = useState<Group[]>([]);
-  const collapsed = nav === "closed";
-  const toggleNav = () => {
-    const next = (nav ?? (window.matchMedia(NARROW).matches ? "closed" : "open")) === "open" ? "closed" : "open";
-    setNav(next);
-    try { localStorage.setItem("nav", next); } catch {}
-  };
   const account = useRef<HTMLDetailsElement>(null);
   // The account menu closes on a click elsewhere or Escape.
   useEffect(() => {
@@ -56,36 +37,31 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
     document.addEventListener("keydown", shut);
     return () => { document.removeEventListener("click", shut); document.removeEventListener("keydown", shut); };
   }, []);
-  const toggleGroup = (g: Group) => setShut((x) => (x.includes(g) ? x.filter((y) => y !== g) : [...x, g]));
   const chosen = useSearchParams().get("project");
   const project = projects.find((p) => p.id === chosen) ?? projects[0];
   const items = (project && itemsByProject[project.id]) || fallbackItems;
   const href = (path: string) => (project ? `${path}?project=${project.id}` : path);
   const current = (path: string) => (path === "/app" ? pathname === path : pathname.startsWith(path));
   const fresh = project ? (streamNew[project.id] ?? 0) : 0;
-  const link = (i: Item) => {
+  const role = project ? roleByProject[project.id] : undefined;
+  const tile = (i: Item) => {
     const badge = i.path === "/app/stream" && fresh > 0;
     return (
-      <a key={i.path} href={href(i.path)} title={i.label} className={`shell-link${badge ? " shell-unread" : ""}`} aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : undefined}>
-        <span aria-hidden={badge || undefined}>{i.label}</span>
-        {badge && <span className="shell-badge" aria-hidden="true">{fresh > 99 ? "99+" : fresh}</span>}
+      <a key={i.path} href={href(i.path)} title={i.label} className="tile" aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : i.label}>
+        <NavIcon name={i.path} />
+        {badge && <span className="dot" aria-hidden="true" />}
       </a>
     );
   };
-  const quick = (q: string) => `/app/items?${project ? `project=${project.id}&` : ""}quick=${q}`;
-  const quickLink = (q: string, label: string) => (
-    <a key={q} href={quick(q)} title={label} className="shell-link" aria-current={pathname === "/app/items" && quickNow === q ? "page" : undefined}><span>{label}</span></a>
-  );
-  const quickNow = useSearchParams().get("quick");
-  const inbox = (
-    <Bell icon href={href("/app/notifications")} initial={unread} label={labels.bell} current={pathname.startsWith("/app/notifications")} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
-  );
+  const rail = items.filter((i) => i.group === "rail");
+  const settings = items.find((i) => i.group === "top");
   return (
-    <div className="shell" data-nav={nav}>
+    <div className="shell">
       <header className="shell-top">
-        <button type="button" className="shell-toggle" aria-label={labels.mobile} aria-controls="shell-side" aria-expanded={nav === undefined ? undefined : nav === "open"} onClick={toggleNav} />
-        <a className="shell-brand" href={href("/app")}><span className="shell-logo" aria-hidden="true">{labels.brand.charAt(0).toUpperCase()}</span>{labels.brand}</a>
-        <a className="shell-crumb shell-crumb-link" href="/app/projects">{labels.projects} /</a>
+        <a className="shell-brand" href={href("/app")}>
+          <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="currentColor" /><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          {labels.brand}
+        </a>
         {projects.length > 1 && (
           <details className="shell-projects">
             <summary>{project?.name}</summary>
@@ -97,45 +73,37 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, unread, 
           </details>
         )}
         {projects.length === 1 && <p className="shell-project">{project?.name}</p>}
+        <CommandMenu project={project?.id} labels={labels.menu} />
         <div className="shell-actions">
-          <CommandMenu project={project?.id} labels={labels.menu} />
-          {inbox}
-          <ThemeToggle label={labels.theme} />
           <details className="shell-account" ref={account}>
-            <summary aria-label={labels.account} title={email}><span className="shell-avatar" aria-hidden="true">{email.charAt(0).toUpperCase()}</span></summary>
-            <form action="/auth/signout" method="post" aria-label={labels.account}>
-              <p className="shell-email">{email}</p>
-              <button type="submit" className="shell-signout">{labels.signOut}</button>
-            </form>
+            <summary title={email}>
+              <span className="av av-lg" aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
+              <span className="shell-who"><span>{email}</span>{role && <span className="muted">{role}</span>}</span>
+            </summary>
+            <div className="shell-menu">
+              <a href="/app/projects">{labels.projects}</a>
+              {items.filter((i) => i.group === "more").map((i) => <a key={i.path} href={href(i.path)} aria-current={current(i.path) ? "page" : undefined}>{i.label}</a>)}
+              <div className="shell-theme"><span>{labels.theme}</span><ThemeToggle label={labels.theme} /></div>
+              <form action="/auth/signout" method="post" aria-label={labels.account}>
+                <button type="submit" className="shell-signout">{labels.signOut}</button>
+              </form>
+            </div>
           </details>
+          <Bell icon href={href("/app/notifications")} initial={unread} label={labels.bell} current={pathname.startsWith("/app/notifications")} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
+          {settings && (
+            <a className="tile" href={href(settings.path)} title={settings.label} aria-label={settings.label} aria-current={current(settings.path) ? "page" : undefined}><NavIcon name={settings.path} size={20} /></a>
+          )}
         </div>
       </header>
-      <aside className="shell-side" id="shell-side">
-        <div className="shell-capsule">
-        <button type="button" className="shell-collapse" aria-label={collapsed ? labels.expand : labels.collapse} title={collapsed ? labels.expand : labels.collapse} aria-controls="shell-side" aria-expanded={!collapsed} onClick={toggleNav} />
-        {quickLink("mine", labels.mywork)}
-        <nav aria-label={labels.main}>
-          {GROUPS.map((g) => {
-            const group = items.filter((i) => i.group === g);
-            return group.length > 0 && (
-              <div key={g} role="group" aria-labelledby={`shell-group-${g}`}>
-                <h2 id={`shell-group-${g}`} className="shell-group">
-                  <button type="button" aria-expanded={!shut.includes(g)} onClick={() => toggleGroup(g)}>{labels.group[g]}</button>
-                </h2>
-                {!shut.includes(g) && group.map(link)}
-              </div>
-            );
-          })}
-        </nav>
-        </div>
-        <section className="shell-privacy" aria-label={labels.privacy.title}>
-          <strong>{labels.privacy.title}</strong>
-          <p>{labels.privacy.body}</p>
-          <a href={href("/app/privacy")}>{labels.privacy.link}</a>
-        </section>
-      </aside>
-      <div className="shell-body">{children}</div>
-      <button type="button" className="shell-scrim" tabIndex={-1} aria-hidden="true" onClick={toggleNav} />
+      <nav className="shell-rail" aria-label={labels.main}>
+        {rail.slice(0, -1).map(tile)}
+        <span className="shell-gap" />
+        {rail.slice(-1).map(tile)}
+      </nav>
+      <div className="shell-body">
+        {children}
+        <footer className="shell-foot">{labels.privacy.body} <a href={href("/app/privacy")}>{labels.privacy.link}</a></footer>
+      </div>
     </div>
   );
 }

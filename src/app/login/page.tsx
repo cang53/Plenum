@@ -12,11 +12,11 @@ export default async function Login({
   const t = await getT();
   return (
     <main id="main" className="center-stage">
-      <div className="surface state-card">
-      <h1>{t(demoRolePickerEnabled() ? "login.pickTitle" : "login.title")}</h1>
+      <div className="panel state-card">
+      <h1 className="h1">{t(demoRolePickerEnabled() ? "login.pickTitle" : "login.title")}</h1>
       {demoRolePickerEnabled() ? (
         <form action={pickRole}>
-          <p className="intro">{t("login.pickIntro")}</p>
+          <p className="subline">{t("login.pickIntro")}</p>
           {error && <p role="alert">{t("login.pickError")}</p>}
           {DEMO_ROLES.map((r) => (
             <button key={r.key} type="submit" name="role" value={r.key} className="btn btn-primary">
@@ -33,10 +33,10 @@ export default async function Login({
           <button type="submit" className="btn btn-primary">{t("login.entra")}</button>
         </form>
       ) : sent ? (
-        <p role="status" className="intro">{t("login.sent")}</p>
+        <p role="status" className="subline">{t("login.sent")}</p>
       ) : (
         <form action={sendLink}>
-          <p className="intro">{t("login.intro")}</p>
+          <p className="subline">{t("login.intro")}</p>
           {error && <p role="alert">{t("login.error")}</p>}
           <input type="hidden" name="next" value={next ?? ""} />
           <label>

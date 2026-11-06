@@ -5,6 +5,7 @@ import { getLocale, getT } from "@/lib/locale";
 import { checkSwitches } from "@/server/switches";
 import { integrationRows } from "@/domain/integrations";
 import { exportTables } from "@/domain/export";
+import { navItems } from "@/lib/nav";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { projectAddress } from "@/domain/onboarding";
 import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject, saveRewardSwitches, saveTeamsChannel } from "./actions";
@@ -41,13 +42,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const error = sp.error && sp.error in messages.en ? t(sp.error as MessageKey) : null;
   return (
     <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("settings.title")}</h1>
-      <p className="intro">{t("settings.intro")}</p>
+      <h1 className="h1">{t("settings.title")}</h1>
+      <p className="subline">{t("settings.intro")}</p>
       {error && <p role="alert" className="badge badge-danger">{error}</p>}
       {sp.removed && <p role="status" className="badge badge-success">{t("settings.removed")}</p>}
       {sp.saved && <p role="status" className="badge badge-success">{t("settings.saved")}</p>}
-      <form action={saveProfile} className="surface form-card">
+      <nav aria-label={t("settings.pages")} className="fpills">
+        {navItems(role ?? undefined, Boolean(isAdmin)).filter((i) => i.group === "settings").map((i) => (
+          <a key={i.path} className="fpill" href={`${i.path}?project=${project.id}`}>{t(i.label)}</a>
+        ))}
+      </nav>
+      <nav aria-label={t("settings.nav")} className="fpills">
+        <a className="fpill" href="#settings-you">{t("settings.you")}</a>
+        <a className="fpill" href="#settings-project">{t("settings.project")}</a>
+        <a className="fpill" href="#settings-teams">{t("settings.teams")}</a>
+      </nav>
+      <form id="settings-you" action={saveProfile} className="panel form-card">
         <h2>{t("settings.you")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
         <p><label><span className="field-label">{t("settings.displayName")}</span><input className="field" name="displayName" defaultValue={me?.display_name ?? ""} required /></label></p>
@@ -62,7 +72,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </p>
         <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
       </form>
-      <form action={saveProject} className="surface form-card">
+      <form id="settings-project" action={saveProject} className="panel form-card">
         <h2>{t("settings.project")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
         {!canManage && <p>{t("settings.managerOnly")}</p>}
@@ -72,11 +82,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <label><span className="field-label">{t("settings.slug")}</span><input className="field" name="slug" defaultValue={project.email_slug} required /></label>
             <small className="meta">{t("settings.slugHelp")}</small>
           </p>
-          <p><span className="field-label">{t("settings.address")}</span> <code>{projectAddress(project.email_slug, process.env.INBOUND_EMAIL_DOMAIN)}</code></p>
+          <p><span className="field-label">{t("settings.address")}</span> <code>{projectAddress(project.email_slug, process.env.INBOUND_EMAIL_DOMAIN)}</code><br /><small className="meta">{t("overview.addressPolicy")}</small></p>
           <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
         </fieldset>
       </form>
-      <form action={saveTeamsChannel} className="surface form-card">
+      <form id="settings-teams" action={saveTeamsChannel} className="panel form-card">
         <h2>{t("settings.teams")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
         <fieldset disabled={!canManage}>
@@ -87,19 +97,19 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </fieldset>
       </form>
       {canManage && (
-        <form action={createFromTemplate} className="surface form-card">
+        <form action={createFromTemplate} className="panel form-card">
           <h2>{t("settings.template")}</h2>
           <input type="hidden" name="projectId" value={project.id} />
           <p><label><span className="field-label">{t("settings.templateName")}</span><input className="field" name="newName" required /></label>
             <small className="meta">{t("settings.templateHelp")}</small></p>
-          <button type="submit" className="btn btn-secondary">{t("settings.templateButton")}</button>
+          <button type="submit" className="btn btn-soft">{t("settings.templateButton")}</button>
         </form>
       )}
       {isAdmin && (
         <section>
           <h2>{t("export.title")}</h2>
           <p>{t("export.intro")}</p>
-          <p><a className="btn btn-secondary" href={`/app/export?workspace=${ws?.workspace_id}`} download>{t("export.json")}</a></p>
+          <p><a className="btn btn-soft" href={`/app/export?workspace=${ws?.workspace_id}`} download>{t("export.json")}</a></p>
           <ul>
             {exportTables.map((k) => (
               <li key={k}><a href={`/app/export?workspace=${ws?.workspace_id}&table=${k}`} download>{k}.csv</a></li>
@@ -107,7 +117,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </ul>
           <h2>{t("integrations.title")}</h2>
           <p>{t("integrations.intro")}</p>
-          <div className="surface data-table">
+          <div className="panel data-table">
             <table>
               <caption className="sr-only">{t("integrations.title")}</caption>
               <thead><tr><th scope="col">{t("integrations.name")}</th><th scope="col">{t("integrations.reads")}</th><th scope="col">{t("integrations.state")}</th><th scope="col">{t("integrations.last")}</th></tr></thead>
@@ -122,7 +132,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </table>
           </div>
           <p><a href={`/app/audit?project=${project.id}`}>{t("audit.title")}</a></p>
-          <form action={saveRewardSwitches} className="surface form-card">
+          <form action={saveRewardSwitches} className="panel form-card">
             <h2>{t("rewards.title")}</h2>
             <input type="hidden" name="projectId" value={project.id} />
             <p>{t("rewards.intro")}</p>
@@ -133,7 +143,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
           </form>
           <h2>{t("settings.danger")}</h2>
-          <div className="surface form-card danger-zone">
+          <div className="panel form-card danger-zone">
             <ConfirmDialog trigger={t("settings.deleteProjectButton")} title={t("settings.deleteProjectButton")} body={t("settings.deleteProjectHelp")} cancel={t("link.cancel")}>
               <form action={deleteProject}>
                 <input type="hidden" name="projectId" value={project.id} />

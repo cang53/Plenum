@@ -314,7 +314,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
           <blockquote>{risk.quote}</blockquote>
           <div className="gantt-risk-foot">
             <a href={risk.sourceHref}>{tr("gantt.risk.source").replace("{source}", risk.source)}</a>
-            <a className="act act-primary" href={risk.reviewHref}>{tr("gantt.risk.review")}</a>
+            <a className="btn btn-primary" href={risk.reviewHref}>{tr("gantt.risk.review")}</a>
           </div>
         </article>
       )}

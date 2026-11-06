@@ -45,7 +45,7 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
               <button type="submit" className="btn btn-primary" data-act="apply">{t("stream.apply")} <kbd className="kbd">A</kbd></button>
             </form>
             <details className="edit-pop">
-              <summary className="btn btn-secondary">{t("stream.edit")}</summary>
+              <summary className="btn btn-soft">{t("stream.edit")}</summary>
               <form action={applySuggestion}>
                 <input type="hidden" name="id" value={i.id} />
                 <input type="hidden" name="kind" value={i.kind} />
@@ -77,17 +77,17 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
       <InboxKeys />
       <div className="inbox-layout">
         <div className="inbox-main">
-          <h1>{t("inbox.title")}</h1>
-          <p className="intro">{t("inbox.lede")}</p>
-          <nav className="tabs" aria-label={t("inbox.title")}>
-            {(["needs", "mentions", "history"] as const).map((tb) => <a key={tb} href={link(tb)} aria-current={tb === tab ? "page" : undefined}>{t(`inbox.tab.${tb}`)}</a>)}
+          <h1 className="h1">{t("inbox.title")}</h1>
+          <p className="subline">{t("inbox.lede")}</p>
+          <nav className="fpills" aria-label={t("inbox.title")}>
+            {(["needs", "mentions", "history"] as const).map((tb) => <a key={tb} className="fpill" href={link(tb)} aria-current={tb === tab ? "page" : undefined}>{t(`inbox.tab.${tb}`)}</a>)}
           </nav>
           {notices ? (
             notices.rows.length === 0 ? <p>{t("notifications.empty")}</p> : (
               <>
                 <form action={markAllRead}>
                   <input type="hidden" name="projectId" value={project.id} />
-                  <button type="submit" className="btn btn-secondary">{t("notifications.markRead")}</button>
+                  <button type="submit" className="btn btn-soft">{t("notifications.markRead")}</button>
                 </form>
                 <ul className="notice-list">
                   {notices.rows.filter((n) => n.kind !== "suggestion_new").map((n) => (
@@ -108,7 +108,7 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
               <h2 className="igroup-head">{t("inbox.from")} <a href={`/app/stream?project=${project.id}#msg-${g.messageId}`}>{g.items[0].subject || t("timeline.noSubject")}</a><span className="igroup-line" />{canManage && g.items.length > 1 && g.items.every((i) => i.status === "pending") && (
                 <form action={applyGroup}>
                   <input type="hidden" name="items" value={JSON.stringify(g.items.map(({ id, kind, title, details }) => ({ id, kind, title, details })))} />
-                  <button type="submit" className="btn btn-secondary">{t("inbox.applyAll").replace("{n}", String(g.items.length))}</button>
+                  <button type="submit" className="btn btn-soft">{t("inbox.applyAll").replace("{n}", String(g.items.length))}</button>
                 </form>
               )}</h2>
               {g.items.map(card)}

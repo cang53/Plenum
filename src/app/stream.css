@@ -92,8 +92,8 @@
 .msgs.chat { max-width: 820px; margin-inline: auto; width: 100%; }
 .chat-head { position: sticky; top: 4.75rem; z-index: 4; padding-block: var(--s2); background: var(--ambient-background); }
 .chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.chip { padding: 4px 12px; border-radius: 100px; background: var(--control); color: var(--text-muted); font-size: var(--text-sm); line-height: 18px; text-decoration: none; }
-.chip[aria-current="page"] { background: var(--primary); color: var(--on-primary); }
+.chips .chip { padding: 4px 12px; border-radius: 100px; background: var(--control); color: var(--text-muted); font-size: var(--text-sm); line-height: 18px; text-decoration: none; }
+.chips .chip[aria-current="page"] { background: var(--primary); color: var(--on-primary); }
 .msgs-search input { padding: 5px 12px; border: 1px solid var(--glass-border); border-radius: 100px; background: var(--surface); color: var(--text); font: inherit; font-size: var(--text-sm); width: 11rem; }
 .feed { gap: 10px; }
 /* A short chat sits at the bottom, next to the composer, not at the top. */
@@ -383,3 +383,15 @@ a.mention:hover { text-decoration: underline; }
 .chat .msg .act::before { width: 14px; height: 14px; }
 .act[data-ico="react"]::before { display: none; }
 .chat .feed, .chat .msgs-main { gap: 12px; }
+
+/* Redesign: header, client-side source filter, Linked work panel. */
+.chat .page-head { display: flex; flex-direction: column; gap: var(--s1); }
+.chat .chat-head { background: var(--c-solid); gap: var(--s3); }
+.chat[data-filter="app"] .mail.msg:not([data-src="app"]),
+.chat[data-filter="email"] .mail.msg:not([data-src="email"]),
+.chat[data-filter="teams"] .mail.msg:not([data-src="teams"]) { display: none; }
+.linkedwork { display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4); }
+.linkedwork h2 { margin: 0; }
+.linkedwork ul { display: flex; flex-direction: column; gap: var(--s2); margin: 0; padding: 0; list-style: none; }
+.linkedwork a { display: flex; align-items: center; gap: var(--s2); color: var(--text); text-decoration: none; font-size: var(--text-sm); }
+.linkedwork a:hover { text-decoration: underline; }

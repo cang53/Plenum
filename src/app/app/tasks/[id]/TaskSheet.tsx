@@ -93,15 +93,15 @@ export async function TaskSheet({ id, closeHref }: { id: string; closeHref: stri
               <p>{ai.details || ai.title}</p>
               <div className="insp-ai-row">
                 <span>{t(ai.status === "pending" ? "taskDetail.aiPending" : ai.status === "accepted" ? "taskDetail.aiAccepted" : "taskDetail.aiDismissed")}</span>
-                {ai.status === "pending" && <a className="act" href={`/app/notifications?project=${task.project_id}`}>{t("taskDetail.aiReview")}</a>}
+                {ai.status === "pending" && <a className="btn btn-soft btn-sm" href={`/app/notifications?project=${task.project_id}`}>{t("taskDetail.aiReview")}</a>}
               </div>
             </section>
           )}
           <a className="insp-full" href={`/app/tasks/${task.id}`}>{t("taskDetail.openFull")}</a>
         </div>
         <footer className="insp-foot">
-          <a className="act" href={closeHref}>{t("board.addCancel")}</a>
-          {mayEdit && <button type="submit" className="act act-primary">{t("items.save")}</button>}
+          <a className="btn btn-soft" href={closeHref}>{t("board.addCancel")}</a>
+          {mayEdit && <button type="submit" className="btn btn-primary">{t("items.save")}</button>}
         </footer>
       </form>
     </aside>

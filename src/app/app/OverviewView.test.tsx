@@ -5,25 +5,36 @@ import { t } from "@/lib/messages";
 import { OverviewView, type OverviewData } from "./OverviewView";
 
 const data: OverviewData = {
-  projectName: "Pump", dateLabel: "Tuesday", timelineHref: "/tl", reviewHref: "/rv",
+  projectName: "Pump", dateLabel: "Tuesday", headline: "Pump is at risk", timelineHref: "/tl", reviewHref: "/rv", newTaskHref: "/new", membersHref: "/m",
   health: { label: "At risk", tone: "warn", note: "Gearbox is late", author: "Marta", dateLabel: "27 Oct" },
   attention: [{ id: "a", title: "Gearbox delivery", href: "/b", chip: "Blocked", tone: "bad", meta: "Marta · 28 Nov" }],
-  suggestion: { title: "Resequence install", details: "d", reason: "The supplier moved delivery", href: "/src" },
+  suggestion: { title: "Resequence install", details: "d", reason: "The supplier moved delivery", href: "/src" }, waiting: 1,
   percent: 40, counts: { done: 2, in_progress: 1, blocked: 1, todo: 1 }, overdue: 1,
-  upcoming: [{ id: "u1", title: "Drawings", href: "/b", day: "7 Nov", soon: true, meta: "In progress" }, { id: "u2", title: "Tests", href: "/b", day: "8 Dec", soon: false, meta: "To do" }],
-  events: [{ text: "Permit approved", dateLabel: "27 Oct" }], address: "pump@in.example",
+  nextMilestone: { title: "Energise", days: 12 }, risks: { open: 3, high: 1 },
+  phases: [{ name: "Civil", label: "In progress", tone: "info", percent: 58, finish: "6 Dec" }],
+  week: [{ key: "todo", label: "To do", count: 1, tasks: [{ id: "w1", title: "Order pump", href: "/b", chip: "High", tone: "bad", date: "9 Nov", initials: "MK" }] }],
+  calendar: { title: "November 2026", prevHref: "/p", nextHref: "/n", days: ["Mon"], cells: [{ n: 1, today: true, milestone: true }] },
+  team: [{ initials: "MK", name: "Marta K", role: "Member" }], teamTotal: 6,
+  events: [{ text: "Permit approved", dateLabel: "27 Oct" }],
 };
 const render = (d: OverviewData) => renderToStaticMarkup(<OverviewView t={t} data={d} />);
 
 describe("OverviewView", () => {
-  it("shows health, attention, the suggestion with its source link, counts and the project address", () => {
+  it("shows the headline, metrics, phases, week, decisions with the source link, and the team", () => {
     const html = render(data);
-    for (const s of ["Project health", "Gearbox is late", "Gearbox delivery", "Blocked", "Resequence install", 'href="/src"', "40%", "1 overdue", "Later", "Permit approved", "pump@in.example"]) expect(html).toContain(s);
+    for (const s of ["Pump is at risk", "40%", "12", "Complete overall", "Open risks, 1 high", "Civil", "58%", "Order pump", "November 2026", "Resequence install", 'href="/src"', "Gearbox delivery", "Marta K", "See everyone", "Permit approved", "1 overdue"]) expect(html).toContain(s);
+    expect(html).not.toContain("pump@in.example");
   });
-  it("leaves out the suggestion card, review button, activity and address when there is nothing to show", () => {
-    const html = render({ ...data, suggestion: null, events: [], address: null, health: null, attention: [], overdue: 0 });
-    for (const s of ["AI suggestion", "Review suggestions", "Recent project activity", "Project email address", "1 overdue"]) expect(html).not.toContain(s);
-    expect(html).toContain("No update yet");
+  it("links the review button, never applies from the Overview", () => {
+    const html = render(data);
+    expect(html).toContain('href="/rv"');
+    expect(html).not.toContain("Apply");
+  });
+  it("leaves out the suggestion, phases, activity when there is nothing to show", () => {
+    const html = render({ ...data, suggestion: null, phases: [], events: [], health: null, attention: [], overdue: 0, nextMilestone: null });
+    for (const s of ["Resequence install", "Progress by group", "Recent project activity", "1 overdue"]) expect(html).not.toContain(s);
+    expect(html).toContain("Nothing is waiting for you.");
+    expect(html).toContain("No upcoming milestone");
   });
 });
 

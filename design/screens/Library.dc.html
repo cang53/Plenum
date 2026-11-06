@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dfdcdb">
+<title>Plenum Library</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="plenum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app">
+
+  <header class="top">
+    <a class="brand" href="Main.dc.html"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="#0a0a0a"></rect><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Plenum</a>
+    <label class="search"><span aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4-4"></path></svg></span><input type="search" placeholder="Search drawings, permits, photos" aria-label="Search files"></label>
+    <div class="user">
+      <span class="avatar" role="img" aria-label="SS">SS</span>
+      <span class="who-block" style="display: flex; flex-direction: column; line-height: 19px; margin-right: 10px"><span style="font-size: 15px; font-weight: 500">SS</span><span class="muted" style="font-size: 13px">Project manager</span></span>
+      <a class="tile" href="Notifications.dc.html" aria-label="Notifications, 4 unread"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"></path></svg><span class="dot" style="top: 14px; right: 15px; background: #b42833"></span></a>
+      <a class="tile" href="Settings.dc.html" aria-label="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"></path></svg></a>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Main">
+    <a class="tile" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
+    <a class="tile" href="Stream.dc.html" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
+    <a class="tile" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
+    <a class="tile" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
+    <a class="tile" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
+    <a class="tile" href="Risks.dc.html" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
+    <a class="tile" href="Library.dc.html" aria-current="page" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
+    <a class="tile" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
+    <span class="gap"></span>
+    <a class="tile end" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
+  </nav>
+
+  <main class="page">
+    <div class="head">
+      <div><h1 class="h1">Library</h1><p class="sub" style="font-size: 14px">Drawings, permits and photos. Email attachments land here on their own.</p></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <button class="btn btn-soft"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path><path d="M12 11v5M9.5 13.5h5"></path></svg>New folder</button>
+        <button class="btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"></path></svg>Upload</button>
+      </div>
+    </div>
+
+    <section aria-labelledby="folders-h" style="display: flex; flex-direction: column; gap: 16px">
+      <h2 id="folders-h" class="h2">Folders</h2>
+      <div class="num" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px">
+        <a class="panel" href="#" style="padding: 18px; display: flex; flex-direction: column; gap: 22px; text-decoration: none"><span class="icon-chip" style="width: 44px; height: 44px; border-radius: 12px; background: #ffffff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2"></rect><path d="M8 8h8M8 12l3 3 5-6"></path></svg></span><span><span style="display: block">Drawings</span><span class="muted" style="font-size: 13px">64 files, 3 new</span></span></a>
+        <a class="panel" href="#" style="padding: 18px; display: flex; flex-direction: column; gap: 22px; text-decoration: none"><span class="icon-chip" style="width: 44px; height: 44px; border-radius: 12px; background: #ffffff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path><path d="M9 13l2 2 4-4"></path></svg></span><span><span style="display: block">Permits</span><span class="muted" style="font-size: 13px">12 files</span></span></a>
+        <a class="panel" href="#" style="padding: 18px; display: flex; flex-direction: column; gap: 22px; text-decoration: none"><span class="icon-chip" style="width: 44px; height: 44px; border-radius: 12px; background: #ffffff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path><path d="M9 11h6M9 15h6"></path></svg></span><span><span style="display: block">Method statements</span><span class="muted" style="font-size: 13px">18 files</span></span></a>
+        <a class="panel" href="#" style="padding: 18px; display: flex; flex-direction: column; gap: 22px; text-decoration: none"><span class="icon-chip" style="width: 44px; height: 44px; border-radius: 12px; background: #ffffff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"></rect><path d="M3.5 16l5-5 4 4 3-3 5 5"></path></svg></span><span><span style="display: block">Site photos</span><span class="muted" style="font-size: 13px">412 photos, 26 today</span></span></a>
+        <a class="panel" href="#" style="padding: 18px; display: flex; flex-direction: column; gap: 22px; text-decoration: none"><span class="icon-chip" style="width: 44px; height: 44px; border-radius: 12px; background: #ffffff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"></path><path d="M4 7l8 6 8-6"></path></svg></span><span><span style="display: block">Email attachments</span><span class="muted" style="font-size: 13px">87 files, sorted by sender</span></span></a>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="recent-h" style="padding: 22px 22px 8px">
+      <div class="sec-head" style="flex-wrap: wrap; margin-bottom: 20px">
+        <div><h2 id="recent-h" class="h2">Recent files</h2><p class="sub">Added in the last 7 days</p></div>
+        <div class="pills" role="group" aria-label="Type"><button class="pill" aria-pressed="true" style="height: 40px">All</button><button class="pill" style="height: 40px">Drawings</button><button class="pill" style="height: 40px">Documents</button><button class="pill" style="height: 40px">Photos</button></div>
+      </div>
+      <div class="tablewrap">
+      <table class="num">
+        <thead><tr><th scope="col">Name</th><th scope="col">From</th><th scope="col">Linked to</th><th scope="col">Size</th><th scope="col">Added</th><th scope="col"><span class="sr">Actions</span></th></tr></thead>
+        <tbody>
+          <tr><td><span style="display: flex; align-items: center; gap: 12px"><span class="icon-chip" style="width: 36px; height: 36px; border-radius: 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg></span><span><span style="display: block">delivery-note-4471.pdf</span><span class="muted" style="font-size: 13px">PDF</span></span></span></td><td class="muted">Mehmet's email</td><td><a href="Task.dc.html">PLN-142</a></td><td class="muted">240 KB</td><td>Today</td><td><a class="view" href="#" download="">Download</a></td></tr>
+          <tr><td><span style="display: flex; align-items: center; gap: 12px"><span class="icon-chip" style="width: 36px; height: 36px; border-radius: 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"></rect><path d="M3.5 16l5-5 4 4 3-3 5 5"></path></svg></span><span><span style="display: block">Rebar bay 3, 4 photos</span><span class="muted" style="font-size: 13px">JPG</span></span></span></td><td class="muted">Site app, Anouk</td><td><a href="Task.dc.html">PLN-142</a></td><td class="muted">11.2 MB</td><td>Today</td><td><a class="view" href="#" download="">Download</a></td></tr>
+          <tr><td><span style="display: flex; align-items: center; gap: 12px"><span class="icon-chip" style="width: 36px; height: 36px; border-radius: 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2"></rect><path d="M8 8h8M8 12l3 3 5-6"></path></svg></span><span><span style="display: block">Cable route section B, rev D</span><span class="muted" style="font-size: 13px">DWG, revision D</span></span></span></td><td class="muted">Anouk Ruiter</td><td><a href="Items.dc.html">PLN-131</a></td><td class="muted">3.4 MB</td><td>Wed</td><td><a class="view" href="#" download="">Download</a></td></tr>
+          <tr><td><span style="display: flex; align-items: center; gap: 12px"><span class="icon-chip" style="width: 36px; height: 36px; border-radius: 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg></span><span><span style="display: block">Transformer delivery confirmation</span><span class="muted" style="font-size: 13px">PDF</span></span></span></td><td class="muted">Supplier email</td><td><a href="Risks.dc.html">R-01</a></td><td class="muted">180 KB</td><td>Tue</td><td><a class="view" href="#" download="">Download</a></td></tr>
+          <tr><td><span style="display: flex; align-items: center; gap: 12px"><span class="icon-chip" style="width: 36px; height: 36px; border-radius: 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path><path d="M9 11h6M9 15h6"></path></svg></span><span><span style="display: block">Method statement, winter concreting</span><span class="muted" style="font-size: 13px">DOCX</span></span></span></td><td class="muted">Mehmet Kaya</td><td><a href="Risks.dc.html">R-04</a></td><td class="muted">96 KB</td><td>Mon</td><td><a class="view" href="#" download="">Download</a></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

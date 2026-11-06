@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dfdcdb">
+<title>Plenum Items</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="plenum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app">
+
+  <header class="top">
+    <a class="brand" href="Main.dc.html"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="#0a0a0a"></rect><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Plenum</a>
+    <label class="search"><span aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4-4"></path></svg></span><input type="search" placeholder="Search tasks, decisions, change requests" aria-label="Search items"></label>
+    <div class="user">
+      <span class="avatar" role="img" aria-label="SS">SS</span>
+      <span class="who-block" style="display: flex; flex-direction: column; line-height: 19px; margin-right: 10px"><span style="font-size: 15px; font-weight: 500">SS</span><span class="muted" style="font-size: 13px">Project manager</span></span>
+      <a class="tile" href="Notifications.dc.html" aria-label="Notifications, 4 unread"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"></path></svg><span class="dot" style="top: 14px; right: 15px; background: #b42833"></span></a>
+      <a class="tile" href="Settings.dc.html" aria-label="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"></path></svg></a>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Main">
+    <a class="tile" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
+    <a class="tile" href="Stream.dc.html" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
+    <a class="tile" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
+    <a class="tile" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
+    <a class="tile" href="Items.dc.html" aria-current="page" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
+    <a class="tile" href="Risks.dc.html" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
+    <a class="tile" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
+    <a class="tile" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
+    <span class="gap"></span>
+    <a class="tile end" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
+  </nav>
+
+  <main class="page">
+    <div class="head">
+      <div><h1 class="h1">Items</h1><p class="sub" style="font-size: 14px">Every task, decision, change request and issue, with the message it came from.</p></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <button class="btn btn-soft"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Export</button>
+        <button class="btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>New item</button>
+      </div>
+    </div>
+
+    <section class="metrics" aria-label="Items summary">
+      <div class="metric"><span style="display: flex; align-items: center; gap: 10px"><span class="icon-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><b>25</b></span><span class="muted" style="font-size: 14px">Open tasks</span></div>
+      <div class="metric"><span style="display: flex; align-items: center; gap: 10px"><span class="icon-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v16l-7-4-7 4z"></path></svg></span><b>19</b></span><span class="muted" style="font-size: 14px">Decisions recorded</span></div>
+      <div class="metric"><span style="display: flex; align-items: center; gap: 10px"><span class="icon-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg></span><b>2</b></span><span class="muted" style="font-size: 14px">Change requests open</span></div>
+      <div class="metric"><span style="display: flex; align-items: center; gap: 10px"><span class="icon-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b42833" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 8v5M12 16v.5"></path></svg></span><b>3</b></span><span class="muted" style="font-size: 14px">Overdue</span></div>
+    </section>
+
+    <section class="panel" aria-labelledby="items-h" style="padding: 22px 22px 8px">
+      <div class="sec-head" style="flex-wrap: wrap; margin-bottom: 20px">
+        <div><h2 id="items-h" class="h2">All items</h2><p class="sub">48 items, newest first</p></div>
+        <div class="pills" role="group" aria-label="Type"><button class="pill" aria-pressed="true" style="height: 40px">All</button><button class="pill" style="height: 40px">Tasks</button><button class="pill" style="height: 40px">Decisions</button><button class="pill" style="height: 40px">Change requests</button><button class="pill" style="height: 40px">Issues</button></div>
+      </div>
+      <div class="tablewrap">
+      <table class="num">
+        <thead><tr><th scope="col">Item</th><th scope="col">Type</th><th scope="col">From</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Due</th><th scope="col"><span class="sr">Actions</span></th></tr></thead>
+        <tbody>
+          <tr><td><span style="display: block">Pour foundation, bay 3</span><span class="muted" style="font-size: 13px">PLN-142</span></td><td>Task</td><td class="muted">Teams, Jana</td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span class="avatar av-sm">MK</span>Mehmet Kaya</span></td><td><span class="chip c-amber">Change proposed</span></td><td>Nov 11</td><td><a class="view" href="Task.dc.html">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+          <tr><td><span style="display: block">Extra cable tray, section B</span><span class="muted" style="font-size: 13px">CR-07, €4,200</span></td><td>Change request</td><td class="muted">Email, Anouk</td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span class="avatar av-sm">SS</span>You</span></td><td><span class="chip c-blue">Needs decision</span></td><td>Nov 9</td><td><a class="view" href="#">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+          <tr><td><span style="display: block">Crane on site from Tue 10 Nov</span><span class="muted" style="font-size: 13px">D-19</span></td><td>Decision</td><td class="muted">Teams, Pieter</td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span class="avatar av-sm">PB</span>Pieter Bakker</span></td><td><span class="chip c-green">Agreed</span></td><td class="muted">—</td><td><a class="view" href="#">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+          <tr><td><span style="display: block">Sign off cable route, section B</span><span class="muted" style="font-size: 13px">PLN-131</span></td><td>Task</td><td class="muted">Site app, Anouk</td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span class="avatar av-sm">SS</span>You</span></td><td><span class="chip c-red">2 days late</span></td><td>Nov 4</td><td><a class="view" href="Task.dc.html">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+          <tr><td><span style="display: block">Duct found 40 cm off drawing</span><span class="muted" style="font-size: 13px">IS-04</span></td><td>Issue</td><td class="muted">Site app, Anouk</td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span class="avatar av-sm">AR</span>Anouk Ruiter</span></td><td><span class="chip c-blue">Investigating</span></td><td>Nov 10</td><td><a class="view" href="#">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+          <tr><td><span style="display: block">Transformer delivery moved to 2 Dec</span><span class="muted" style="font-size: 13px">D-18</span></td><td>Decision</td><td class="muted">Email, supplier</td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span class="avatar av-sm">MK</span>Mehmet Kaya</span></td><td><span class="chip c-green">Applied</span></td><td class="muted">—</td><td><a class="view" href="#">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+          <tr><td><span style="display: block">Confirm concrete pump for Wed</span><span class="muted" style="font-size: 13px">PLN-145</span></td><td>Task</td><td class="muted">Email, Mehmet</td><td><span style="display: inline-flex; align-items: center; gap: 8px"><span class="avatar av-sm">MK</span>Mehmet Kaya</span></td><td><span class="chip c-neutral">To do</span></td><td>Nov 9</td><td><a class="view" href="Task.dc.html">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="muted num" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 10px 12px; font-size: 14px; border-top: 1px solid var(--line)"><span>Showing 7 of 48</span><span style="display: flex; gap: 8px"><button class="btn btn-white btn-sm" aria-label="Previous page" style="width: 40px; padding: 0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button class="btn btn-white btn-sm" aria-label="Next page" style="width: 40px; padding: 0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></span></div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

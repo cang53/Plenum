@@ -10,17 +10,11 @@ describe("shell.css", () => {
   });
   it("only reads tokens that exist", () => {
     // --icon is set per link inside shell.css itself.
-    for (const m of css.matchAll(/var\((--[\w-]+)\)/g)) if (m[1] !== "--icon" && m[1] !== "--nav-pill") expect(tokens, m[1]).toContain(`${m[1]}:`);
+    for (const m of css.matchAll(/var\((--[\w-]+)\)/g)) if (m[1] !== "--icon") expect(tokens, m[1]).toContain(`${m[1]}:`);
   });
-  it("has a 196px sidebar capsule, a phone bar and glass from tokens", () => {
-    expect(css).toContain("grid-template-columns: var(--sidebar-w)");
-    expect(css).toContain("max-width: 48rem");
+  it("has a 52px icon rail, a phone row and glass from tokens", () => {
+    expect(css).toContain("grid-template-columns: 3.25rem");
+    expect(css).toContain("max-width: 47.5rem");
     expect(css).toContain("var(--ambient-background)");
-    // Blur is declared once for all glass surfaces (performance budget), in primitives.css.
-    expect(readFileSync(new URL("./primitives.css", import.meta.url), "utf8")).toMatch(/\.shell-capsule[^{]*\{[^}]*backdrop-filter: var\(--glass-blur\)/);
-  });
-  it("gives every nav page an icon", () => {
-    const pages = ["risks", "library", "charter", "logs", "stream", "board", "gantt", "items", "timesheet", "timesheets", "members", "audit", "reports", "roles", "privacy", "settings", "notifications"];
-    for (const page of pages) expect(css, page).toContain(`[href^="/app/${page}"]`);
   });
 });

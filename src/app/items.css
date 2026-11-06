@@ -117,8 +117,7 @@
 .items-page { gap: 1.25rem; }
 .items-head { display: flex; align-items: flex-start; gap: var(--s3); }
 .items-head > div:first-child { flex: 1; display: grid; gap: 5px; min-width: 0; }
-.items-head h1 { margin: 0; font-size: 1.75rem; line-height: 2.125rem; font-weight: 700; letter-spacing: 0.38px; color: var(--text); }
-.items-head p { margin: 0; font-size: var(--text-sm); line-height: 1.125rem; color: var(--text-secondary); }
+.items-head .subline { margin: 0; }
 .items-create { position: relative; flex: none; }
 .items-create > summary { list-style: none; cursor: pointer; min-height: 2.75rem; padding: 4px 10px; border-radius: var(--radius-full); }
 .items-create > summary::-webkit-details-marker { display: none; }
@@ -382,3 +381,15 @@ dialog.pop:not([open]) { display: none; }
 .item-detail .insp-bar .insp-close { justify-self: start; width: 2.25rem; height: 2.25rem; background: transparent; color: var(--text-secondary); border: 1px solid var(--glass-border); transition: background 0.15s, color 0.15s; }
 .item-detail .insp-bar .insp-close:hover { background: var(--control); color: var(--text); }
 .item-detail .insp-bar > .btn, .item-detail .insp-bar > span { justify-self: end; }
+
+/* Redesign: quick filters are the shared pills; pending notice is a panel. */
+.items-quick { gap: var(--s2); }
+.items-quick .fpill .items-count { background: none; padding: 0; color: var(--muted); }
+.items-pending { background: var(--panel); border: 0; border-radius: var(--r-panel); }
+.items-pending .items-pending-title { color: var(--text); }
+.items-pending a { color: var(--text); }
+
+/* Redesign: properties sit in a panel; the full-page title uses the shared heading. */
+.td-props { border: 0; padding: var(--s4); border-radius: var(--r-panel); background: var(--panel); }
+.td-cols h2 { font-size: var(--text-base); font-weight: var(--weight-normal); color: var(--ink); }
+.td-props dt { color: var(--muted); }

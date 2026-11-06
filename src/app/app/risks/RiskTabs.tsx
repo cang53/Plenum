@@ -4,9 +4,9 @@ import type { MessageKey } from "@/lib/messages";
 export function RiskTabs({ t, id, projectParam, current }: { t: (key: MessageKey) => string; id: string; projectParam: string; current: "details" | "plan" }) {
   const q = projectParam ? `?project=${projectParam}` : "";
   return (
-    <nav className="rk-seg" aria-label={t("risks.tabs")}>
-      <a href={`/app/risks/${id}${q}`} aria-current={current === "details" ? "page" : undefined}>{t("risks.tab.details")}</a>
-      <a href={`/app/risks/${id}/plan${q}`} aria-current={current === "plan" ? "page" : undefined}>{t("risks.tab.plan")}</a>
+    <nav className="fpills rk-seg" aria-label={t("risks.tabs")}>
+      <a className="fpill" href={`/app/risks/${id}${q}`} aria-current={current === "details" ? "page" : undefined}>{t("risks.tab.details")}</a>
+      <a className="fpill" href={`/app/risks/${id}/plan${q}`} aria-current={current === "plan" ? "page" : undefined}>{t("risks.tab.plan")}</a>
     </nav>
   );
 }

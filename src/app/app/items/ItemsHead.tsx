@@ -65,8 +65,8 @@ export function ItemsHead({ t, action, keep, query, owners, phases, pending, rev
     <>
       <div className="items-head">
         <div>
-          <h1>{t("items.heading")}</h1>
-          <p>{t("items.headingHelp")}</p>
+          <h1 className="h1">{t("items.heading")}</h1>
+          <p className="subline">{t("items.headingHelp")}</p>
         </div>
         <div className="head-actions">
           {switcher}
