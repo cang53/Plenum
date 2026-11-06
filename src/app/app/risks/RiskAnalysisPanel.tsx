@@ -41,7 +41,7 @@ export function RiskAnalysisPanel({ projectId, analysis, items, labels: L, canMa
     <section className="surface rk-card ra" aria-labelledby="ra-t">
       <div className="rk-card-top">
         <div><h2 id="ra-t"><span className="rk-aitag">{L.title}</span></h2><p className="meta">{analysis ? L.updated.replace("{date}", when).replace("{source}", analysis.source === "weekly" ? L.weekly : L.manual) : L.none}</p></div>
-        {canManage && <button type="button" className="act" onClick={refresh} disabled={busy}>{busy ? L.working : L.refresh}</button>}
+        {canManage && <button type="button" className="btn btn-soft btn-sm" onClick={refresh} disabled={busy}>{busy ? L.working : L.refresh}</button>}
       </div>
       <div className="ra-log" aria-live="polite">
         {!analysis && <div className="ps-msg ai">{L.hint}</div>}
@@ -65,7 +65,7 @@ export function RiskAnalysisPanel({ projectId, analysis, items, labels: L, canMa
       </div>
       <form className="ps-send" onSubmit={(e) => { e.preventDefault(); send(); }}>
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder={L.ask} aria-label={L.ask} maxLength={800} autoComplete="off" />
-        <button type="submit" className="act act-primary" disabled={busy}>{L.send}</button>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={busy}>{L.send}</button>
       </form>
     </section>
   );
