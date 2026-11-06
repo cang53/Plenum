@@ -68,10 +68,10 @@ describe("light-first look", () => {
     expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
   });
-  it("uses the Plenum design system palette and Inter with the system font as fallback", () => {
-    expect(lightTokens["--primary"]).toBe("#0a66e0");
-    expect(lightTokens["--surface-subtle"]).toBe("#f4f5f1");
+  it("uses the Plenum design system palette and Outfit with the system font as fallback", () => {
+    expect(lightTokens["--primary"]).toBe("#0a0a0a");
+    expect(lightTokens["--surface-subtle"]).toBe("#ebeae9");
     expect(darkTokens["--surface-subtle"]).toBe("#121412");
-    expect(css).toMatch(/--font: var\(--font-inter\), -apple-system/);
+    expect(css).toMatch(/--font: var\(--font-outfit\), -apple-system/);
   });
 });

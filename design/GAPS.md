@@ -25,23 +25,23 @@ DECIDED = a DESIGN rule or another screen answers it. NEEDS ANSWER = changes beh
 - G-21 DECIDED placement: health form -> soft "Update status" button next to "New task"; Needs attention -> merged into "Waiting on you"; work summary/overdue -> metrics row (only when it is the same number); Upcoming removed (calendar covers it); Recent activity -> panel under "This week"; project email -> Settings > Sources; cheer, streak, knowledge, goal, history kept as panels in a second block.
 - REVIEW LATER: cheer, streak, knowledge, goal, history. SS may drop streak and cheer under the no-per-person-stats rule.
 
-## Part 2 (new)
-- G-22 NEEDS ANSWER: Stream source pills with counts do not exist. Proposal: client-side filter over loaded messages by source, counts of loaded messages; no data change.
-- G-23 NEEDS ANSWER: "read by 4" is a read receipt (per-person data) and has no source. Proposal: drop it; header avatars are decoration only, no per-person data.
-- G-24 NEEDS ANSWER: composer note says "posts to Teams". Proposal: use the real behaviour's copy from the existing composer; I will not claim Teams posting unless it does.
-- G-25 NEEDS ANSWER: "Linked work" panel is new. Proposal: build it read-only from existing source-message links (tasks, decisions, risks); omit the Filter button.
-- G-26 NEEDS ANSWER: Risks has no stored trend, score history, mitigation steps, or review date logic for "rising" and "reviews due". Proposal: drop Trend column, "Rising" tile, "Since Monday", and the mitigation bar and list; keep score, band, owner, review date if stored; tiles = open, scored 15 or more, reviews due only if a review date exists.
-- G-27 NEEDS ANSWER: existing Risks tabs, Plan Studio and analysis panel have no place; Export CSV (Risks) and Export (Items) may not exist. Proposal: keep tabs/panels as a second block below; show export buttons only where the feature exists.
-- G-28 NEEDS ANSWER: Plan zoom (Week/Month/Quarter) and Filter. Proposal: keep only controls the Gantt already has.
-- G-29 NEEDS ANSWER: Plan "behind by", float, "+1 d" forecast chips, forecast bars, and Critical path panel need forecast data. Proposal: show only what `Gantt.tsx` already computes (it has critical/float code); drop the rest, and keep the legend entries that have data.
-- G-30 DECIDED: Board Done column "Show more" is presentation only; show the latest 3 and expand.
-- G-31 NEEDS ANSWER: Items type "Issues" has no table. Proposal: pills = All, Tasks, Decisions, Change requests (existing kinds).
-- G-32 NEEDS ANSWER: Task checklist with progress has no data. Proposal: omit the checklist; keep description and activity.
-- G-33 NEEDS ANSWER: Library type pills and "last 7 days" recent list. Proposal: keep folders and the file table; add type filter only if file type is stored.
-- G-34 NEEDS ANSWER: Reports "progress against plan" chart needs planned vs actual history. Proposal: omit chart.
-- G-35 NEEDS ANSWER: "Send to client" and "Sent reports" are outward-facing. Proposal: restyle only; keep whatever send/confirm flow exists; sent list only if stored.
-- G-36 NEEDS ANSWER: Team company column and company pills need an organisation field. Proposal: drop both unless profiles store one.
-- G-37 NEEDS ANSWER: Notifications filter pills (Mentions, Suggestions, Deadlines) and some toggles (risk changes) may not exist. Proposal: show only types and preferences that exist.
-- G-38 NEEDS ANSWER: Settings single Save/Cancel vs per-section forms. Proposal: keep per-section save buttons (behaviour unchanged).
-- G-39 NEEDS ANSWER: CobIA settings toggles (suggest, weekly draft, read attachments) have no stored settings. Proposal: show the "never applies a change on its own" line only; no toggles.
-- G-40 NEEDS ANSWER: SignIn footer "Help" has no target. Proposal: omit Help; keep Privacy.
+## Part 2 (answered by SS)
+- G-22 DECIDED: Stream source pills filter client-side; no counts (loaded counts would look like totals).
+- G-23 DECIDED: no "read by"; header avatars = project members from existing data, decoration only.
+- G-24 DECIDED: existing composer copy; never claim Teams posting unless code does it.
+- G-25 DECIDED: Linked work read-only from source-message links, no Filter. Empty state (via messages): "Messages linked to tasks, decisions or risks appear here".
+- G-26 DECIDED: Register = Risk (+owner), Score chip with band word, Review date (if stored), View. Detail = score tile, likelihood, impact, description, review date, Edit risk. No trend, mitigation, "Since Monday". Metrics: Open, Scored 15+, Reviews due only if review dates exist. 5x5 matrix as designed.
+- G-27 DECIDED: tabs, Plan Studio, analysis in a second block as panels. Export only where it exists.
+- G-28 DECIDED: only existing Gantt controls, as pills.
+- G-29 DECIDED: show only what Gantt.tsx computes. Critical rows get neutral "Critical" chip, Critical path panel with float if computed. Without forecast: done (black) and planned (outline) bars; legend shows only those.
+- G-30 DECIDED. G-31 DECIDED: pills All, Tasks, Decisions, Change requests.
+- G-32 DECIDED: no checklist; main column = suggestion card, Details, Activity.
+- G-33 DECIDED: Folders + "Files" table; type filter only if type stored.
+- G-34 DECIDED: no chart; metrics row (percent complete, tasks done, open risks) instead.
+- G-35 DECIDED: restyle only; never auto-send; keep confirm; sent list only if stored; "Draft" chip only if truly a draft.
+- G-36 DECIDED: drop company column/pills unless stored; Overview Team sub = "N people".
+- G-37 DECIDED: existing types and preferences only.
+- G-38 DECIDED: per-section black "Save" bottom-right; no page-level Save/Cancel.
+- G-39 DECIDED: only the "never applies a change on its own" line plus existing AI settings.
+- G-40 DECIDED: omit Help, keep Privacy.
+- Backlog of unsupported design features: see `BACKLOG.md`.
