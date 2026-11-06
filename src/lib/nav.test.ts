@@ -15,13 +15,13 @@ describe("navItems", () => {
     expect(paths("project_manager", false)).not.toContain("/app/roles");
     expect(paths("member", true)).toEqual(expect.arrayContaining(["/app/logs", "/app/roles"]));
   });
-  it("shows the project pages in order and hides the old ones", () => {
-    expect(paths("member", false).slice(0, 7)).toEqual(["/app", "/app/stream", "/app/gantt", "/app/timelines", "/app/risks", "/app/library", "/app/charter"]);
-    for (const old of ["/app/board", "/app/items", "/app/timesheet", "/app/members", "/app/audit"]) expect(paths("project_manager", true)).not.toContain(old);
+  it("puts the rail pages in the canvas order", () => {
+    const rail = navItems("member", false).filter((i) => i.group === "rail").map((i) => i.path);
+    expect(rail).toEqual(["/app", "/app/stream", "/app/gantt", "/app/board", "/app/items", "/app/risks", "/app/library", "/app/reports", "/app/members"]);
   });
-  it("puts every page in a group and leaves the inbox out of the list", () => {
+  it("keeps settings in the top bar and the inbox out of the list", () => {
     const items = navItems("project_manager", true);
-    expect(items.every((i) => ["project", "site", "admin"].includes(i.group))).toBe(true);
+    expect(items.find((i) => i.path === "/app/settings")?.group).toBe("top");
     expect(items.map((i) => i.path)).not.toContain("/app/notifications");
   });
 });
