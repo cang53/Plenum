@@ -7,7 +7,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { CommandMenu } from "./CommandMenu";
 import { NavIcon } from "./NavIcon";
 
-type Group = "rail" | "top" | "more";
+type Group = "rail" | "top" | "more" | "settings";
 type Item = { path: string; label: string; group: Group };
 type Props = {
   projects: { id: string; name: string }[];
