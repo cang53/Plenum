@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dfdcdb">
+<title>Plenum Reports</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="plenum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app">
+
+  <header class="top">
+    <a class="brand" href="Main.dc.html"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="#0a0a0a"></rect><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Plenum</a>
+    <label class="search"><span aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4-4"></path></svg></span><input type="search" placeholder="Search reports" aria-label="Search reports"></label>
+    <div class="user">
+      <span class="avatar" role="img" aria-label="SS">SS</span>
+      <span class="who-block" style="display: flex; flex-direction: column; line-height: 19px; margin-right: 10px"><span style="font-size: 15px; font-weight: 500">SS</span><span class="muted" style="font-size: 13px">Project manager</span></span>
+      <a class="tile" href="Notifications.dc.html" aria-label="Notifications, 4 unread"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"></path></svg><span class="dot" style="top: 14px; right: 15px; background: #b42833"></span></a>
+      <a class="tile" href="Settings.dc.html" aria-label="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"></path></svg></a>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Main">
+    <a class="tile" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
+    <a class="tile" href="Stream.dc.html" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
+    <a class="tile" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
+    <a class="tile" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
+    <a class="tile" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
+    <a class="tile" href="Risks.dc.html" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
+    <a class="tile" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
+    <a class="tile" href="Reports.dc.html" aria-current="page" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
+    <span class="gap"></span>
+    <a class="tile end" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
+  </nav>
+
+  <main class="page">
+    <div class="head">
+      <div><h1 class="h1">Reports</h1><p class="sub" style="font-size: 14px">Weekly client reports, drafted by CobIA from the plan and the stream. You edit and send.</p></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <div class="pills" role="group" aria-label="Period"><button class="pill" aria-pressed="true">Week 45</button><button class="pill">Month</button></div>
+        <button class="btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>New report</button>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <section class="panel" aria-labelledby="prog-h" style="padding: 22px">
+          <div class="sec-head" style="margin-bottom: 18px">
+            <div><h2 id="prog-h" class="h2">Progress against plan</h2><p class="sub">Cumulative percent complete, weeks 38 to 46</p></div>
+            <div class="muted" style="display: flex; gap: 16px; font-size: 13px"><span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 4px; background: #d6d1cf"></span>Planned</span><span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 4px; background: #2b2d2b"></span>Actual</span></div>
+          </div>
+          <svg viewBox="0 0 640 220" width="100%" height="240" role="img" aria-label="Planned and actual progress by week. Weeks 38 to 43 on plan. Week 44 actual 54 percent against 56 planned. Week 45 actual 58 against 61. Week 46 actual 62 against 65." style="font-family: inherit">
+            <g fill="#5f5b5a" font-size="11"><text x="0" y="14">80%</text><text x="0" y="74">60%</text><text x="0" y="134">40%</text><text x="0" y="194">20%</text></g>
+            <g stroke="rgba(22,22,22,.08)"><line x1="36" y1="10" x2="640" y2="10"></line><line x1="36" y1="70" x2="640" y2="70"></line><line x1="36" y1="130" x2="640" y2="130"></line><line x1="36" y1="190" x2="640" y2="190"></line></g>
+            <g fill="#d6d1cf">
+              <rect x="50" y="160" width="22" height="50" rx="5"></rect><rect x="117" y="145" width="22" height="65" rx="5"></rect><rect x="184" y="130" width="22" height="80" rx="5"></rect><rect x="251" y="115" width="22" height="95" rx="5"></rect><rect x="318" y="100" width="22" height="110" rx="5"></rect><rect x="385" y="88" width="22" height="122" rx="5"></rect><rect x="452" y="82" width="22" height="128" rx="5"></rect><rect x="519" y="67" width="22" height="143" rx="5"></rect><rect x="586" y="55" width="22" height="155" rx="5"></rect>
+            </g>
+            <g fill="#2b2d2b">
+              <rect x="74" y="160" width="22" height="50" rx="5"></rect><rect x="141" y="145" width="22" height="65" rx="5"></rect><rect x="208" y="130" width="22" height="80" rx="5"></rect><rect x="275" y="115" width="22" height="95" rx="5"></rect><rect x="342" y="100" width="22" height="110" rx="5"></rect><rect x="409" y="88" width="22" height="122" rx="5"></rect><rect x="476" y="88" width="22" height="122" rx="5"></rect><rect x="543" y="76" width="22" height="134" rx="5"></rect><rect x="610" y="64" width="22" height="146" rx="5"></rect>
+            </g>
+            <line x1="446" y1="18" x2="446" y2="210" stroke="#0a0a0a" stroke-dasharray="3 4"></line>
+            <text x="452" y="28" font-size="12" fill="#161616">Crane delay</text>
+          </svg>
+          <div class="muted num" style="display: grid; grid-template-columns: 36px repeat(9, minmax(0, 1fr)); font-size: 12px; text-align: center"><span></span><span>38</span><span>39</span><span>40</span><span>41</span><span>42</span><span>43</span><span>44</span><span>45</span><span>46</span></div>
+        </section>
+
+        <section class="solid" aria-labelledby="draft-h" style="padding: 26px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 6px 20px rgba(22,22,22,.05)">
+          <div class="sec-head">
+            <div><h2 id="draft-h" class="h2">Week 45 report, draft</h2><p class="sub">Drafted by CobIA on Friday 6 Nov from 48 messages and the plan. Check before sending.</p></div>
+            <span class="chip c-amber">Draft</span>
+          </div>
+          <div style="max-width: 68ch; display: flex; flex-direction: column; gap: 14px; line-height: 24px">
+            <p style="margin: 0"><b style="font-weight: 500">Summary.</b> Riverside substation is on track overall at 62%. Civil works is 2 days behind after the crane delivery moved; the Energise bay 3 milestone on 18 November still holds with 3 days of float.</p>
+            <p style="margin: 0"><b style="font-weight: 500">This week.</b> Excavation of bays 1 to 4 finished. Rebar in bay 3 was inspected and signed off. The bay 3 pour moves to Wednesday 11 November, 07:00.</p>
+            <p style="margin: 0"><b style="font-weight: 500">Risks.</b> Transformer delivery (score 20) and concrete curing in frost week (16, up from 9) need attention. Frost blankets are on order.</p>
+            <p style="margin: 0"><b style="font-weight: 500">Decisions needed.</b> Change request CR-07, extra cable tray for section B, €4,200.</p>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; padding-top: 6px">
+            <button class="btn">Send to client</button>
+            <button class="btn" style="background: #efedec; color: #161616">Edit</button>
+            <button class="btn btn-white" style="color: #4f4b4a">Download PDF</button>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side">
+        <section aria-labelledby="sent-h" style="display: flex; flex-direction: column; gap: 16px">
+          <div class="sec-head"><div><h2 id="sent-h" class="h2">Sent reports</h2><p class="sub">To Netbeheer West, every Friday</p></div></div>
+          <div class="panel" style="padding: 6px 20px">
+            <ul class="list num">
+              <li><span class="icon-chip" style="width: 38px; height: 38px; border-radius: 11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg></span><span style="flex: 1"><span style="display: block">Week 44</span><span class="muted" style="font-size: 13px">Sent Fri 30 Oct by you</span></span><a class="view" href="#">Open</a></li>
+              <li><span class="icon-chip" style="width: 38px; height: 38px; border-radius: 11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg></span><span style="flex: 1"><span style="display: block">Week 43</span><span class="muted" style="font-size: 13px">Sent Fri 23 Oct by you</span></span><a class="view" href="#">Open</a></li>
+              <li><span class="icon-chip" style="width: 38px; height: 38px; border-radius: 11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg></span><span style="flex: 1"><span style="display: block">Week 42</span><span class="muted" style="font-size: 13px">Sent Fri 16 Oct by Jana de Vries</span></span><a class="view" href="#">Open</a></li>
+              <li><span class="icon-chip" style="width: 38px; height: 38px; border-radius: 11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg></span><span style="flex: 1"><span style="display: block">Week 41</span><span class="muted" style="font-size: 13px">Sent Fri 9 Oct by you</span></span><a class="view" href="#">Open</a></li>
+            </ul>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="hours-h" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="hours-h" class="h3">Hours this week</h2>
+          <div class="num" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+            <div><span style="display: block; font-size: 22px">412</span><span class="muted" style="font-size: 12px">Logged</span></div>
+            <div style="text-align: center"><span style="display: block; font-size: 22px">430</span><span class="muted" style="font-size: 12px">Planned</span></div>
+            <div style="text-align: right"><span style="display: block; font-size: 22px">6</span><span class="muted" style="font-size: 12px">To approve</span></div>
+          </div>
+          <span class="bar"><i style="width: 96%"></i></span>
+          <p class="muted" style="margin: 0; font-size: 13px; line-height: 19px">Totals for the whole team. Plenum shows no hours per person.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

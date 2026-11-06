@@ -1,0 +1,169 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Board.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Board",
+      "w": 1440,
+      "x": 1520,
+      "y": 2100
+    },
+    "Items.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Items",
+      "w": 1440,
+      "x": 3040,
+      "y": 2100
+    },
+    "Library.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Library",
+      "w": 1440,
+      "x": 0,
+      "y": 3860
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1650,
+      "title": "Overview",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Notifications.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Notifications",
+      "w": 1440,
+      "x": 4560,
+      "y": 3860
+    },
+    "Plan.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Plan",
+      "w": 1440,
+      "x": 0,
+      "y": 2100
+    },
+    "Reports.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Reports",
+      "w": 1440,
+      "x": 1520,
+      "y": 3860
+    },
+    "Risks.dc.html": {
+      "expand": "fill",
+      "h": 1350,
+      "title": "Risks",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Settings.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "title": "Settings",
+      "w": 1440,
+      "x": 0,
+      "y": 5620
+    },
+    "SignIn.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "title": "Sign in",
+      "w": 1440,
+      "x": 1520,
+      "y": 5620
+    },
+    "Stream.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Stream",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Task.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Task detail",
+      "w": 1440,
+      "x": 4560,
+      "y": 2100
+    },
+    "Team.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Team",
+      "w": 1440,
+      "x": 3040,
+      "y": 3860
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-06T16:40:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 4480,
+      "text": "Plenum: warm grey glass, black ink",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 6000,
+      "text": "Planning and work",
+      "w": 240,
+      "x": 0,
+      "y": 1800
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 6000,
+      "text": "Files, reports and people",
+      "w": 240,
+      "x": 0,
+      "y": 3560
+    },
+    "t4": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "Settings and sign in",
+      "w": 240,
+      "x": 0,
+      "y": 5320
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Stream.dc.html",
+    "Risks.dc.html",
+    "Plan.dc.html",
+    "Board.dc.html",
+    "Items.dc.html",
+    "Task.dc.html",
+    "Library.dc.html",
+    "Reports.dc.html",
+    "Team.dc.html",
+    "Notifications.dc.html",
+    "Settings.dc.html",
+    "SignIn.dc.html"
+  ],
+  "pages": [],
+  "title": "Plenum app screens"
+}

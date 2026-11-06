@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dfdcdb">
+<title>Plenum Settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="plenum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.subnav a{display:flex;align-items:center;gap:12px;height:46px;padding:0 14px;border-radius:12px;color:#4f4b4a;text-decoration:none}.subnav a:hover{background:rgba(255,255,255,.5)}.subnav a[aria-current="page"]{background:#ffffff;color:#161616}</style>
+</helmet>
+<div class="app">
+
+  <header class="top">
+    <a class="brand" href="Main.dc.html"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="#0a0a0a"></rect><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Plenum</a>
+    <label class="search"><span aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4-4"></path></svg></span><input type="search" placeholder="Search settings" aria-label="Search settings"></label>
+    <div class="user">
+      <span class="avatar" role="img" aria-label="SS">SS</span>
+      <span class="who-block" style="display: flex; flex-direction: column; line-height: 19px; margin-right: 10px"><span style="font-size: 15px; font-weight: 500">SS</span><span class="muted" style="font-size: 13px">Project manager</span></span>
+      <a class="tile" href="Notifications.dc.html" aria-label="Notifications, 4 unread"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"></path></svg><span class="dot" style="top: 14px; right: 15px; background: #b42833"></span></a>
+      <a class="tile" href="Settings.dc.html" aria-current="page" aria-label="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"></path></svg></a>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Main">
+    <a class="tile" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
+    <a class="tile" href="Stream.dc.html" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
+    <a class="tile" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
+    <a class="tile" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
+    <a class="tile" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
+    <a class="tile" href="Risks.dc.html" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
+    <a class="tile" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
+    <a class="tile" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
+    <span class="gap"></span>
+    <a class="tile end" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
+  </nav>
+
+  <main class="page">
+    <div class="head">
+      <div><h1 class="h1">Settings</h1><p class="sub" style="font-size: 14px">Riverside substation. Changes apply to everyone on the project.</p></div>
+      <div style="display: flex; gap: 10px"><button class="btn btn-soft">Cancel</button><button class="btn">Save changes</button></div>
+    </div>
+
+    <div class="cols">
+      <nav class="subnav panel" aria-label="Settings sections" style="flex: 0 1 260px; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+        <a href="#" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect><path d="M3.5 10h17"></path></svg>Project</a>
+        <a href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg>Sources</a>
+        <a href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"></path></svg>CobIA</a>
+        <a href="Notifications.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"></path></svg>Notifications</a>
+        <a href="Team.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path></svg>People and access</a>
+        <a href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Privacy and data</a>
+      </nav>
+
+      <div class="main">
+        <section class="panel" aria-labelledby="proj-h" style="padding: 24px; display: flex; flex-direction: column; gap: 20px">
+          <div><h2 id="proj-h" class="h2">Project</h2><p class="sub">Name, client and dates shown on reports</p></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+            <label class="field"><span>Project name</span><input class="input" value="Riverside substation"></label>
+            <label class="field"><span>Client</span><input class="input" value="Netbeheer West"></label>
+            <label class="field"><span>Start</span><input class="input" value="1 September 2026"></label>
+            <label class="field"><span>Planned finish</span><input class="input" value="12 March 2027"></label>
+            <label class="field"><span>Language</span><select class="input"><option>English</option><option>Nederlands</option></select></label>
+            <label class="field"><span>Time zone</span><select class="input"><option>Europe/Amsterdam</option></select></label>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="src-h" style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+          <div><h2 id="src-h" class="h2">Sources</h2><p class="sub">Where the stream's messages come from</p></div>
+          <ul class="list">
+            <li><span class="icon-chip" style="width: 42px; height: 42px; border-radius: 12px; background: #ffffff; font-weight: 600">T</span><span style="flex: 1"><span style="display: block">Microsoft Teams</span><span class="muted" style="font-size: 13px">Channel “Riverside site”, 27 messages this week</span></span><span class="chip c-green">Connected</span><button class="btn btn-white btn-sm">Manage</button></li>
+            <li><span class="icon-chip" style="width: 42px; height: 42px; border-radius: 12px; background: #ffffff; font-weight: 600">E</span><span style="flex: 1"><span style="display: block">Project inbox</span><span class="muted" style="font-size: 13px">riverside@in.plenum.example, 15 emails this week</span></span><span class="chip c-green">Connected</span><button class="btn btn-white btn-sm">Copy address</button></li>
+            <li><span class="icon-chip" style="width: 42px; height: 42px; border-radius: 12px; background: #ffffff; font-weight: 600">S</span><span style="flex: 1"><span style="display: block">Site app</span><span class="muted" style="font-size: 13px">Photos and notes from phones on site</span></span><span class="chip c-green">Connected</span><button class="btn btn-white btn-sm">Manage</button></li>
+            <li><span class="icon-chip" style="width: 42px; height: 42px; border-radius: 12px; background: #ffffff; font-weight: 600">M</span><span style="flex: 1"><span style="display: block">Messenger</span><span class="muted" style="font-size: 13px">Not connected</span></span><button class="btn btn-sm">Connect</button></li>
+          </ul>
+        </section>
+
+        <section class="panel" aria-labelledby="ai-h" style="padding: 24px; display: flex; flex-direction: column; gap: 6px">
+          <div style="margin-bottom: 8px"><h2 id="ai-h" class="h2">CobIA</h2><p class="sub">The assistant suggests, a person applies</p></div>
+          <ul class="list">
+            <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">Suggest changes from messages</span><span class="muted" style="font-size: 13px">Dates, owners and new tasks, always with the source message</span></span><input class="toggle" type="checkbox" checked=""></label></li>
+            <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">Draft the weekly report</span><span class="muted" style="font-size: 13px">Every Friday at 14:00, as a draft only</span></span><input class="toggle" type="checkbox" checked=""></label></li>
+            <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">Read attachments</span><span class="muted" style="font-size: 13px">PDF and Word files sent to the project inbox</span></span><input class="toggle" type="checkbox"></label></li>
+          </ul>
+          <p class="muted" style="margin: 8px 0 0; font-size: 13px; line-height: 19px">CobIA never applies a change on its own. This cannot be turned off.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

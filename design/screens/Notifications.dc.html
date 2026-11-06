@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dfdcdb">
+<title>Plenum Notifications</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="plenum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.unread{position:relative}.unread::after{content:"";position:absolute;right:0;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:8px;background:#0a0a0a}</style>
+</helmet>
+<div class="app">
+
+  <header class="top">
+    <a class="brand" href="Main.dc.html"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="#0a0a0a"></rect><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Plenum</a>
+    <label class="search"><span aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4-4"></path></svg></span><input type="search" placeholder="Search tasks, messages, risks, people" aria-label="Search the project"></label>
+    <div class="user">
+      <span class="avatar" role="img" aria-label="SS">SS</span>
+      <span class="who-block" style="display: flex; flex-direction: column; line-height: 19px; margin-right: 10px"><span style="font-size: 15px; font-weight: 500">SS</span><span class="muted" style="font-size: 13px">Project manager</span></span>
+      <a class="tile" href="Notifications.dc.html" aria-current="page" aria-label="Notifications, 4 unread"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"></path></svg></a>
+      <a class="tile" href="Settings.dc.html" aria-label="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"></path></svg></a>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Main">
+    <a class="tile" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
+    <a class="tile" href="Stream.dc.html" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
+    <a class="tile" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
+    <a class="tile" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
+    <a class="tile" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
+    <a class="tile" href="Risks.dc.html" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
+    <a class="tile" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
+    <a class="tile" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
+    <span class="gap"></span>
+    <a class="tile end" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
+  </nav>
+
+  <main class="page">
+    <div class="head">
+      <div><h1 class="h1">Notifications</h1><p class="sub" style="font-size: 14px">4 unread. Mentions, suggestions and deadlines from your projects.</p></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <div class="pills" role="group" aria-label="Show"><button class="pill" aria-pressed="true">All</button><button class="pill">Mentions</button><button class="pill">Suggestions</button><button class="pill">Deadlines</button></div>
+        <button class="btn">Mark all read</button>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <section aria-labelledby="today-h" style="display: flex; flex-direction: column; gap: 14px">
+          <h2 id="today-h" class="h2">Today</h2>
+          <div class="panel" style="padding: 6px 22px">
+            <ul class="list num">
+              <li class="unread" style="padding-right: 22px"><span style="width: 40px; height: 40px; border-radius: 12px; background: #0a0a0a; display: grid; place-items: center; flex: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"></path></svg></span><a href="Stream.dc.html" style="flex: 1; text-decoration: none"><span style="display: block">CobIA suggests moving “Pour foundation, bay 3” to Wed 11 Nov</span><span class="muted" style="font-size: 13px">Riverside substation, needs a decision</span></a><span class="muted" style="font-size: 13px">09:21</span></li>
+              <li class="unread" style="padding-right: 22px"><span class="avatar" style="width: 40px; height: 40px">JV</span><a href="Stream.dc.html" style="flex: 1; text-decoration: none"><span style="display: block">Jana de Vries mentioned you in the stream</span><span class="muted" style="font-size: 13px">“Can we do Wednesday morning?”</span></a><span class="muted" style="font-size: 13px">09:12</span></li>
+              <li class="unread" style="padding-right: 22px"><span class="icon-chip" style="width: 40px; height: 40px; border-radius: 12px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b42833" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg></span><a href="Items.dc.html" style="flex: 1; text-decoration: none"><span style="display: block">Sign off cable route, section B is 2 days late</span><span class="muted" style="font-size: 13px">Assigned to you and Mehmet Kaya</span></a><span class="muted" style="font-size: 13px">08:00</span></li>
+              <li class="unread" style="padding-right: 22px"><span class="icon-chip" style="width: 40px; height: 40px; border-radius: 12px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg></span><a href="Items.dc.html" style="flex: 1; text-decoration: none"><span style="display: block">Change request CR-07 is waiting for your decision</span><span class="muted" style="font-size: 13px">Extra cable tray, €4,200, from Anouk Ruiter</span></a><span class="muted" style="font-size: 13px">07:45</span></li>
+            </ul>
+          </div>
+        </section>
+        <section aria-labelledby="earlier-h" style="display: flex; flex-direction: column; gap: 14px">
+          <h2 id="earlier-h" class="h2">Earlier this week</h2>
+          <div class="panel" style="padding: 6px 22px">
+            <ul class="list num">
+              <li><span class="icon-chip" style="width: 40px; height: 40px; border-radius: 12px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4"></path></svg></span><a href="Risks.dc.html" style="flex: 1; text-decoration: none"><span style="display: block">Risk R-04 rose from 9 to 16</span><span class="muted" style="font-size: 13px">Frost forecast for week 48</span></a><span class="muted" style="font-size: 13px">Mon</span></li>
+              <li><span class="avatar" style="width: 40px; height: 40px; background: #d9d4d1">MK</span><a href="Items.dc.html" style="flex: 1; text-decoration: none"><span style="display: block">Mehmet Kaya applied a change: transformer delivery moved to 2 Dec</span><span class="muted" style="font-size: 13px">From a supplier email</span></a><span class="muted" style="font-size: 13px">Wed</span></li>
+              <li><span class="icon-chip" style="width: 40px; height: 40px; border-radius: 12px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg></span><a href="Reports.dc.html" style="flex: 1; text-decoration: none"><span style="display: block">Week 44 report was sent to Netbeheer West</span><span class="muted" style="font-size: 13px">By you</span></a><span class="muted" style="font-size: 13px">Fri</span></li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side">
+        <section aria-labelledby="pref-h" style="display: flex; flex-direction: column; gap: 16px">
+          <div class="sec-head"><div><h2 id="pref-h" class="h2">Notify me about</h2><p class="sub">In Plenum and by email</p></div></div>
+          <div class="panel" style="padding: 6px 20px">
+            <ul class="list">
+              <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">Mentions</span><span class="muted" style="font-size: 13px">When someone writes @you</span></span><input class="toggle" type="checkbox" checked=""></label></li>
+              <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">CobIA suggestions</span><span class="muted" style="font-size: 13px">On tasks you own</span></span><input class="toggle" type="checkbox" checked=""></label></li>
+              <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">Deadlines</span><span class="muted" style="font-size: 13px">A day before, and when late</span></span><input class="toggle" type="checkbox" checked=""></label></li>
+              <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">Risk changes</span><span class="muted" style="font-size: 13px">When a score rises to 15 or more</span></span><input class="toggle" type="checkbox"></label></li>
+              <li><label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; cursor: pointer"><span><span style="display: block">Daily email digest</span><span class="muted" style="font-size: 13px">Weekdays at 07:30</span></span><input class="toggle" type="checkbox" checked=""></label></li>
+            </ul>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
