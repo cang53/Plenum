@@ -66,14 +66,15 @@
 .gantt-arrows { position: absolute; inset: 0; pointer-events: none; fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
 .gantt-arrows path[data-critical="true"] { stroke: var(--text); }
 .gantt-arrows [data-selected="true"] { stroke: var(--primary); }
-.gantt-today { position: absolute; top: 0; bottom: 0; width: 0; border-inline-start: 1.5px solid var(--primary); z-index: 2; pointer-events: none; }
-.gantt-today span { position: absolute; top: 0; left: 0; translate: -50% 0; padding: 3px 6px; border-radius: 5px; background: var(--primary); color: var(--on-primary); font-size: 0.625rem; line-height: 0.75rem; font-weight: var(--weight-semibold); white-space: nowrap; }
-.gantt-bar { position: absolute; z-index: 1; box-sizing: border-box; display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 7px; overflow: hidden; background: var(--surface-muted); color: var(--text); border: 1px solid var(--primary); border-radius: 6px; font: inherit; font-size: var(--text-xs); line-height: 1rem; white-space: nowrap; cursor: grab; touch-action: none; }
-.gantt-bar[data-status="in_progress"] { background: var(--accent-soft); border-width: 2px; }
-.gantt-bar[data-status="done"] { background: var(--success-surface); border-color: var(--success); }
-.gantt-bar[data-status="blocked"], .gantt-bar[data-late="true"] { background: var(--warning-surface); border-color: var(--warning); }
+.gantt-today { position: absolute; top: 0; bottom: 0; width: 0; border-inline-start: 1.5px solid var(--g-today); z-index: 2; pointer-events: none; }
+.gantt-today span { position: absolute; top: 0; left: 0; translate: -50% 0; padding: 3px 6px; border-radius: 5px; background: var(--g-today); color: var(--on-primary); font-size: 0.625rem; line-height: 0.75rem; font-weight: var(--weight-semibold); white-space: nowrap; }
+.gantt-bar { position: absolute; z-index: 1; box-sizing: border-box; display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 7px; overflow: hidden; background: var(--g-todo-bg); color: var(--text); border: 1px solid var(--g-todo-line); border-radius: 6px; font: inherit; font-size: var(--text-xs); line-height: 1rem; white-space: nowrap; cursor: grab; touch-action: none; }
+.gantt-bar[data-status="in_progress"] { background: var(--g-progress-bg); border-color: var(--g-progress-line); border-width: 2px; }
+.gantt-bar[data-status="done"] { background: var(--g-done-bg); border-color: var(--g-done-line); }
+.gantt-bar[data-status="blocked"] { background: var(--g-blocked-bg); border-color: var(--g-blocked-line); }
+.gantt-bar[data-late="true"] { background: var(--g-late-bg); border-color: var(--g-late-line); }
 .gantt-bar[aria-pressed="true"] { outline: 2px solid var(--primary); outline-offset: 1px; }
-.gantt[data-critical-path="true"] .gantt-bar[data-critical="true"] { box-shadow: 0 0 0 1.5px var(--text); }
+.gantt[data-critical-path="true"] .gantt-bar[data-critical="true"] { box-shadow: 0 0 0 1.5px var(--g-critical); }
 .gantt-bar[data-milestone="true"] { width: 14px !important; height: 14px; margin-inline-start: -7px; margin-top: 8px; padding: 0; background: var(--text); border: 0; rotate: 45deg; border-radius: 2px; /* not transform: dragging sets that */ }
 .gantt-summary { position: absolute; height: 6px; background: var(--text-secondary); border-radius: 2px; }
 .gantt-baseline { position: absolute; height: 4px; background: var(--border-strong); opacity: 0.5; }
@@ -86,7 +87,7 @@
 .gantt-legend { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); margin: 0; padding: 12px var(--s4); list-style: none; border-block-start: 1px solid var(--glass-border); font-size: var(--text-xs); line-height: 1rem; color: var(--text-secondary); }
 .gantt-legend [data-forecast="true"] { color: var(--warning); }
 .gantt-legend [data-late="true"]::before { content: ""; display: inline-block; width: 12px; height: 8px; margin-inline-end: var(--s1); background: var(--warning); }
-.gantt-legend [data-critical="true"]::before { content: ""; display: inline-block; width: 12px; height: 8px; margin-inline-end: var(--s1); background: var(--primary); box-shadow: 0 0 0 1.5px var(--text); }
+.gantt-legend [data-critical="true"]::before { content: ""; display: inline-block; width: 12px; height: 8px; margin-inline-end: var(--s1); background: var(--g-todo-bg); box-shadow: 0 0 0 1.5px var(--g-critical); }
 .gantt-legend [data-baseline="true"]::before { content: ""; display: inline-block; width: 12px; height: 4px; margin-inline-end: var(--s1); background: var(--border-strong); opacity: 0.5; }
 .gantt-legend [data-milestone="true"]::before { content: "\25C6 "; color: var(--text); }
 
@@ -115,7 +116,7 @@
 .gantt[data-embedded] .gantt-scroll { max-height: 440px; overflow: auto; scroll-behavior: smooth; }
 .gantt[data-embedded] .gantt-axis { position: sticky; top: 0; z-index: 5; background: var(--surface); }
 .gantt-row, .gantt-proposal { transition: top .6s cubic-bezier(.3,1.2,.4,1); }
-.gantt-proposal { --c: var(--primary); background: color-mix(in srgb, var(--c) 22%, var(--surface)); border: 2px dashed var(--c); transition: top .6s cubic-bezier(.3,1.2,.4,1), inset-inline-start .6s cubic-bezier(.3,1.2,.4,1), width .6s cubic-bezier(.3,1.2,.4,1), opacity .35s, scale .35s; animation: gantt-propose .6s cubic-bezier(.3,1.2,.4,1) backwards; transform-origin: left; }
+.gantt-proposal { --c: var(--agent); background: color-mix(in srgb, var(--c) 22%, var(--surface)); border: 2px dashed var(--c); transition: top .6s cubic-bezier(.3,1.2,.4,1), inset-inline-start .6s cubic-bezier(.3,1.2,.4,1), width .6s cubic-bezier(.3,1.2,.4,1), opacity .35s, scale .35s; animation: gantt-propose .6s cubic-bezier(.3,1.2,.4,1) backwards; transform-origin: left; }
 .gantt-proposal[data-flash] { animation: gantt-propose .6s cubic-bezier(.3,1.2,.4,1) backwards, gantt-pulse 1.1s ease-out; }
 .gantt-proposal[data-leaving] { opacity: 0; scale: .9 1; }
 @keyframes gantt-propose { from { opacity: 0; scale: 0 1; } }
@@ -135,18 +136,19 @@
 .gantt-row[data-summary="true"][data-nested] .gantt-meta { background: var(--surface); }
 .gantt-row[data-nested] .gantt-meta { box-shadow: inset 3px 0 0 var(--primary); }
 .gantt-meta button[data-sub] { font-weight: 500; color: var(--text-secondary); }
-.gantt-summary[data-sub] { height: 4px; background: var(--primary); opacity: .55; }
+.gantt-summary[data-sub] { height: 4px; background: var(--text-secondary); opacity: .55; }
 
 
 /* Redesign: toolbar spacing only; colours stay as they were. */
 .gantt-head .head-actions { align-items: center; gap: var(--s3); }
 
-/* The Gantt keeps its own status colours (blue today marker and critical path, green done, amber blocked) as they were before the
-   canvas tokens made the shared accent near-black. Only the light theme needs this; the dark values already match. */
-:root:not([data-theme="dark"]) :is(.gantt, .gantt-head) {
-  --primary: #0a66e0; --on-primary: #ffffff;
-  --accent-soft: #e9f1e7; --accent-text: #2d5a3a;
-  --success: #1b7340; --success-surface: #e3f2e8;
-  --warning: #935600; --warning-surface: #fcf0da;
-  --danger: #c0261d;
+/* Gantt palette, built from the app's own tokens so it follows light and dark: warm grey for planned, the app's one blue for in
+   progress and for suggestions, green done, amber late, red blocked, ink for today and the critical path. */
+.gantt, .gantt-head {
+  --g-todo-bg: var(--surface-muted); --g-todo-line: var(--border-strong);
+  --g-progress-bg: var(--info-surface); --g-progress-line: var(--info);
+  --g-done-bg: var(--success-surface); --g-done-line: var(--success);
+  --g-late-bg: var(--warning-surface); --g-late-line: var(--warning);
+  --g-blocked-bg: var(--danger-surface); --g-blocked-line: var(--danger);
+  --g-today: var(--primary); --g-critical: var(--text);
 }
