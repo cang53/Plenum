@@ -782,6 +782,7 @@ export const en = {
   "gantt.add.task": "Task",
   "gantt.add.group": "Group",
   "gantt.viewBoard": "Board",
+  "plan.switchLabel": "Plan views",
   "gantt.viewLabel": "Gantt view",
   "gantt.filterAll": "All tasks",
   "gantt.filterLate": "Starts early",

@@ -784,6 +784,7 @@ export const nl: Record<keyof typeof en, string> = {
   "gantt.add.task": "Taak",
   "gantt.add.group": "Groep",
   "gantt.viewBoard": "Bord",
+  "plan.switchLabel": "Planweergaven",
   "gantt.viewLabel": "Ganttweergave",
   "gantt.filterAll": "Alle taken",
   "gantt.filterLate": "Start te vroeg",
