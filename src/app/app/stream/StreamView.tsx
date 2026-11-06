@@ -5,11 +5,11 @@ import { Attach } from "./Attach";
 import { SendButton } from "./SendButton";
 import { AgentWait } from "./AgentWait";
 import { LiveStream } from "./LiveStream";
+import { EarlierLoader } from "./EarlierLoader";
 import { StreamKeys } from "./StreamKeys";
 import { SearchBar } from "./SearchBar";
 import { SuggestionCarousel } from "./SuggestionCarousel";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, toggleReaction, togglePin, undoAgentAction } from "./actions";
-import { MoreLink } from "@/app/app/MoreLink";
 import type { Pin } from "@/data/live";
 import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
@@ -83,6 +83,7 @@ export type StreamViewProps = {
   days: StreamDay[];
   query: StreamQuery;
   next: string | null;
+  pages?: number;
   fresh: { id: string; count: number } | null;
   linked: LinkedItem[];
   proposed: Map<string, StoredSuggestion[]>;
@@ -103,7 +104,7 @@ export type StreamViewProps = {
   me?: string; // the signed-in person's address; their own messages get an accent bar
 };
 
-export function StreamView({ t, base, project, days, query, next, fresh, linked, proposed, actions = [], reactions, fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, days, query, next, pages = 1, fresh, linked, proposed, actions = [], reactions, fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
   const all = days.flatMap((d) => d.groups.flatMap((g) => g.messages));
   const host = proposalHosts(all);
   const waiting = readOnly ? new Set<string>() : waitingForAgent(all, now);
@@ -200,7 +201,8 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
           </ul>
         )}
       </aside>
-      <div className="msgs-main feed">
+      <div className="chat-scroll">
+      <div className="msgs-main feed" role="log" aria-live="off" aria-label={t("stream.conversation")} tabIndex={0}>
         {(decisions || pins.length > 0) && (
           <details className="pins" open={decisions}>
             <summary>{t("stream.pinned")} · {pins.length}</summary>
@@ -223,7 +225,12 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
             ))}
           </details>
         )}
-        {!decisions && <MoreLink path={base} params={{ project: project.id }} next={next} label={t("stream.earlier")} />}
+        {!decisions && next && (
+          <EarlierLoader
+            href={`${base}?${new URLSearchParams({ project: project.id, after: next })}`}
+            loadHref={`${base}?${new URLSearchParams({ project: project.id, pages: String(pages + 1), ...(query.source ? { source: query.source } : {}), ...(query.q ? { q: query.q } : {}) })}`}
+            pages={pages} label={t("stream.earlier")} loading={t("stream.loadingEarlier")} />
+        )}
         {!decisions && days.length === 0 && <p className="sub">{t("timeline.empty")}</p>}
         {!decisions && days.map((d) => (
           <section key={d.day} className="msgs-main" aria-labelledby={`day-${d.day}`}>
@@ -369,6 +376,9 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
             })}
           </section>
         ))}
+      </div>
+        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} count={t("stream.newCount")} countOne={t("stream.newCount.one")} />}
+      </div>
         <LiveStream projectId={project.id} />
         {!decisions && (
           <div className="comp-wrap">
@@ -388,8 +398,6 @@ export function StreamView({ t, base, project, days, query, next, fresh, linked,
           <p className="hint-keys">{t("stream.hint.keys")}</p>
           </div>
         )}
-        {!decisions && <StreamKeys label={t("stream.jump")} hint={t("stream.keys")} fresh={t("stream.newMessages")} />}
-      </div>
     </main>
   );
 }

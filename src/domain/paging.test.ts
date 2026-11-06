@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PAGE_SIZE, afterFilter, decodeCursor, encodeCursor, toPage } from "./paging";
+import { MAX_PAGES, PAGE_SIZE, afterFilter, decodeCursor, encodeCursor, pagesParam, toPage } from "./paging";
 
 const c = { at: "2026-10-22T10:00:00.123456+00:00", id: "7" };
 
@@ -20,5 +20,18 @@ describe("paging", () => {
     expect(full.rows).toHaveLength(PAGE_SIZE);
     expect(decodeCursor(full.next!)?.id).toBe(String(PAGE_SIZE - 1));
     expect(toPage(rows.slice(0, PAGE_SIZE), (r) => r).next).toBeNull();
+  });
+});
+
+describe("paging in place", () => {
+  it("shows several pages at once and says whether there is more", () => {
+    const rows = Array.from({ length: 101 }, (_, i) => ({ at: "2026-01-01T00:00:00Z", id: String(i) }));
+    const page = toPage(rows, (r) => r, PAGE_SIZE * 2);
+    expect(page.rows).toHaveLength(100);
+    expect(page.next).not.toBeNull();
+    expect(toPage(rows.slice(0, 100), (r) => r, PAGE_SIZE * 2).next).toBeNull();
+  });
+  it("reads the pages parameter safely", () => {
+    expect([pagesParam(undefined), pagesParam("3"), pagesParam("0"), pagesParam("x"), pagesParam("999")]).toEqual([1, 3, 1, 1, MAX_PAGES]);
   });
 });

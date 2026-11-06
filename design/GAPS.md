@@ -45,3 +45,14 @@ DECIDED = a DESIGN rule or another screen answers it. NEEDS ANSWER = changes beh
 - G-39 DECIDED: only the "never applies a change on its own" line plus existing AI settings.
 - G-40 DECIDED: omit Help, keep Privacy.
 - Backlog of unsupported design features: see `BACKLOG.md`.
+
+## Stream chat scrolling (S-1): symptoms before the fix
+Measured on /demo/messages with the same markup the Stream page renders (Playwright, 1440x900 and 390x844).
+- What scrolls: the whole page (window), not the message list. Document height 2979px at 1440 and 3517px at 390. The `.feed` list has `overflow: visible`, so there is no scroll container of its own. The header and composer only stay in view through `position: sticky`.
+- Where it lands on load: `StreamKeys` calls `window.scrollTo(bottom)` after hydration and keeps following with a ResizeObserver for 2.5s, so the first paint is at the top and the view then jumps to the bottom. The "New since you left" divider is not used as the landing point.
+- New message: follows only when the window is within 120px of the bottom, otherwise a pill; the pill is a fixed-position button with a text arrow character and says only "New messages" with no count.
+- Loading older: "Show earlier messages" is a link that navigates to a new page of results (no prepend), so there is no scroll position to preserve and no skeleton.
+- Keyboard open (phone): the composer is sticky to the page, so the page itself shifts when the on-screen keyboard resizes the viewport.
+- Layout shift: images in messages have no reserved space, and the CobIA card changes height between its states.
+- Day separators are plain rows and scroll out of view.
+- The list is not a labelled log region and new messages are not announced.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countNew, isNearEnd } from "./follow";
+import { countNew, diffIds, isNearEnd } from "./follow";
 
 describe("follow", () => {
   it("knows when the reader is near the bottom", () => {
@@ -10,5 +10,10 @@ describe("follow", () => {
   it("counts only additions", () => {
     expect(countNew(3, 5)).toBe(2);
     expect(countNew(5, 3)).toBe(0);
+  });
+  it("tells older messages from newer ones", () => {
+    expect(diffIds(["b", "c"], ["a", "b", "c", "d"])).toEqual({ prepended: ["a"], appended: ["d"] });
+    expect(diffIds(["b"], ["b"])).toEqual({ prepended: [], appended: [] });
+    expect(diffIds([], ["a", "b"])).toEqual({ prepended: [], appended: ["a", "b"] });
   });
 });
