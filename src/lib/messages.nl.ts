@@ -339,6 +339,7 @@ export const nl: Record<keyof typeof en, string> = {
   "app.settings": "Instellingen",
   "settings.title": "Instellingen",
   "settings.intro": "Uw naam en taal, en de naam en het e-mailadres van dit project.",
+  "settings.nav": "Onderdelen van instellingen",
   "settings.you": "U",
   "settings.displayName": "Weergavenaam",
   "settings.language": "Taal",

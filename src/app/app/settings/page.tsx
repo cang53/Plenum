@@ -46,7 +46,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       {error && <p role="alert" className="badge badge-danger">{error}</p>}
       {sp.removed && <p role="status" className="badge badge-success">{t("settings.removed")}</p>}
       {sp.saved && <p role="status" className="badge badge-success">{t("settings.saved")}</p>}
-      <form action={saveProfile} className="panel form-card">
+      <nav aria-label={t("settings.nav")} className="fpills">
+        <a className="fpill" href="#settings-you">{t("settings.you")}</a>
+        <a className="fpill" href="#settings-project">{t("settings.project")}</a>
+        <a className="fpill" href="#settings-teams">{t("settings.teams")}</a>
+      </nav>
+      <form id="settings-you" action={saveProfile} className="panel form-card">
         <h2>{t("settings.you")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
         <p><label><span className="field-label">{t("settings.displayName")}</span><input className="field" name="displayName" defaultValue={me?.display_name ?? ""} required /></label></p>
@@ -61,7 +66,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </p>
         <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
       </form>
-      <form action={saveProject} className="panel form-card">
+      <form id="settings-project" action={saveProject} className="panel form-card">
         <h2>{t("settings.project")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
         {!canManage && <p>{t("settings.managerOnly")}</p>}
@@ -75,7 +80,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
         </fieldset>
       </form>
-      <form action={saveTeamsChannel} className="panel form-card">
+      <form id="settings-teams" action={saveTeamsChannel} className="panel form-card">
         <h2>{t("settings.teams")}</h2>
         <input type="hidden" name="projectId" value={project.id} />
         <fieldset disabled={!canManage}>
