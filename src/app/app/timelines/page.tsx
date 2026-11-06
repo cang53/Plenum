@@ -5,6 +5,7 @@ import { layoutTimeline } from "@/domain/tlLayout";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
 import { ConfirmDialog } from "@/app/app/ConfirmDialog";
+import { PlanSwitch } from "@/app/PlanSwitch";
 import { SlideSvg } from "./SlideSvg";
 import { deleteTimelineAction, duplicateTimelineAction, newTimelineAction } from "./actions";
 
@@ -24,7 +25,8 @@ export default async function TimelinesPage({ searchParams }: { searchParams: Pr
   return (
     <main id="main" className="page tl-list-page">
       <div className="board-head">
-        <div><h1>{t("timelines.title")}</h1><p className="sub">{t("timelines.subtitle")}</p></div>
+        <div><h1 className="h1">{t("app.plan")}</h1><p className="subline">{t("timelines.subtitle")}</p></div>
+        <PlanSwitch current="timelines" projectId={project.id} t={t} />
         {canEdit && <form action={newTimelineAction}><input type="hidden" name="projectId" value={project.id} /><button type="submit" className="btn btn-primary">＋ {t("timelines.new")}</button></form>}
       </div>
       {rows.length === 0 ? <p className="empty">{t("timelines.empty")}</p> : (

@@ -324,3 +324,4 @@
   .tablewrap { overflow-x: auto; }
   .tablewrap table { min-width: 42.5rem; }
 }
+a.fpill { display: inline-flex; align-items: center; text-decoration: none; }
