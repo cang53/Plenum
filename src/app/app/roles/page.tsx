@@ -17,12 +17,12 @@ export default async function RolesPage() {
   const members = await Promise.all(projects.map((p) => listMembers(supabase, p.id)));
   return (
     <main id="main" className="page">
-      <h1>{t("roles.title")}</h1>
-      <p className="intro">{t("roles.intro")}</p>
+      <h1 className="h1">{t("roles.title")}</h1>
+      <p className="subline">{t("roles.intro")}</p>
       {projects.map((p, i) => (
         <section key={p.id}>
           <h2>{p.name}</h2>
-          <div className="surface data-table">
+          <div className="panel data-table">
             <table>
               <caption className="sr-only">{p.name}</caption>
               <thead><tr><th scope="col">{t("members.person")}</th><th scope="col">{t("members.role")}</th></tr></thead>
@@ -37,7 +37,7 @@ export default async function RolesPage() {
                         <select name="role" defaultValue={m.role} aria-label={`${t("members.role")}: ${m.name}`} className="field">
                           {ROLES.map((r) => <option key={r} value={r}>{t(`role.${r}`)}</option>)}
                         </select>
-                        <button type="submit" className="btn btn-secondary">{t("members.saveRole")}</button>
+                        <button type="submit" className="btn btn-soft">{t("members.saveRole")}</button>
                       </form>
                     </td>
                   </tr>

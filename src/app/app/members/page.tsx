@@ -16,10 +16,9 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   const roleOptions = ROLES.map((r) => <option key={r} value={r}>{t(`role.${r}`)}</option>);
   return (
     <main id="main" className="page">
-      <p className="eyebrow">{project.name}</p>
-      <h1>{t("members.title")}</h1>
-      <p className="intro">{t("members.intro")}</p>
-      <div className="surface data-table">
+      <h1 className="h1">{t("members.title")}</h1>
+      <p className="subline">{t("members.intro")}</p>
+      <div className="panel data-table">
         <table>
           <caption className="sr-only">{t("members.title")}</caption>
           <thead><tr><th scope="col">{t("members.person")}</th><th scope="col">{t("members.role")}</th><th scope="col"><span className="sr-only">{t("members.actions")}</span></th></tr></thead>
@@ -32,7 +31,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                     <input type="hidden" name="projectId" value={project.id} />
                     <input type="hidden" name="userId" value={m.userId} />
                     <select name="role" defaultValue={m.role} aria-label={`${t("members.role")}: ${m.name}`} className="field">{roleOptions}</select>
-                    <button type="submit" className="btn btn-secondary">{t("members.saveRole")}</button>
+                    <button type="submit" className="btn btn-soft">{t("members.saveRole")}</button>
                   </form>
                 </td>
                 <td>
@@ -51,7 +50,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       </div>
       <h2>{t("members.pending")}</h2>
       {invitations.length === 0 ? <p>{t("members.noPending")}</p> : (
-        <div className="surface data-table">
+        <div className="panel data-table">
           <table>
             <caption className="sr-only">{t("members.pending")}</caption>
             <thead><tr><th scope="col">{t("login.email")}</th><th scope="col">{t("members.role")}</th><th scope="col"><span className="sr-only">{t("members.actions")}</span></th></tr></thead>
@@ -63,7 +62,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                   <td className="row-actions">
                     <form action={resend}>
                       <input type="hidden" name="id" value={i.id} />
-                      <button type="submit" className="btn btn-secondary">{t("members.resend")}</button>
+                      <button type="submit" className="btn btn-soft">{t("members.resend")}</button>
                     </form>
                     <ConfirmDialog trigger={t("members.withdraw")} title={t("members.withdrawTitle")} body={t("members.withdrawBody")} cancel={t("link.cancel")}>
                       <form action={withdraw}>
@@ -79,8 +78,8 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
         </div>
       )}
       <h2>{t("members.matrix")}</h2>
-      <p className="intro">{t("members.matrixIntro")}</p>
-      <div className="surface data-table">
+      <p className="subline">{t("members.matrixIntro")}</p>
+      <div className="panel data-table">
         <table>
           <caption className="sr-only">{t("members.matrix")}</caption>
           <thead><tr><th scope="col">{t("members.actions")}</th>{ROLES.map((r) => <th key={r} scope="col">{t(`role.${r}`)}</th>)}</tr></thead>
@@ -95,7 +94,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
         </table>
       </div>
       <h2>{t("members.invite")}</h2>
-      <form action={invite} className="surface form-card">
+      <form action={invite} className="panel form-card">
         <input type="hidden" name="projectId" value={project.id} />
         <label><span className="field-label">{t("login.email")}</span><input type="email" name="email" required className="field" /></label>
         <label><span className="field-label">{t("members.role")}</span><select name="role" defaultValue="member" className="field">{roleOptions}</select></label>
