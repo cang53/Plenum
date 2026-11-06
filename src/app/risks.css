@@ -115,3 +115,6 @@ textarea.rk-in { resize: vertical; line-height: 1.5; }
 .rk-table td a:not(.btn) { color: var(--text); font-weight: var(--weight-normal); }
 .rk-table th { text-transform: none; letter-spacing: 0; font-size: var(--text-sm); color: var(--muted); }
 .rk-card > .meta { font-size: var(--text-sm); }
+.rk-detail-head .h1, .rk-head h1.h1 input.rk-title { font-size: inherit; }
+.rk-title { font-weight: var(--weight-normal); letter-spacing: inherit; }
+.rk-back { display: inline-flex; margin-block-end: var(--s2); }
