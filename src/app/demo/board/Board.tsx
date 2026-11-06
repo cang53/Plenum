@@ -7,6 +7,8 @@ import { logError } from "@/lib/log";
 import { t as translate, type Locale, type MessageKey } from "@/lib/messages";
 
 type Props = {
+  // The signed-in person's display name; when set a "Mine" pill filters the board to their cards.
+  me?: string;
   initialTasks: BoardTask[];
   // Saves a move; when it fails the card goes back. Without it (the demo) moves stay in the page.
   onMove?: (taskId: string, status: TaskStatus) => Promise<void>;
@@ -32,7 +34,7 @@ type Field = (typeof FIELDS)[number];
 const DUE_FILTERS: readonly DueFilter[] = ["overdue", "week", "none"];
 const GROUPS: readonly GroupBy[] = ["status", "phase", "owner", "week"];
 
-export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, prefix = "T", scope, pending = 0, reviewHref }: Props) {
+export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, prefix = "T", scope, pending = 0, reviewHref, me }: Props) {
   const t = (key: MessageKey) => translate(key, locale);
   const [tasks, setTasks] = useState(initialTasks);
   const [owner, setOwner] = useState("");
@@ -93,6 +95,7 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
       <div className="board-filters toolbar" role="group" aria-label={t("board.filters")}>
         <div className="board-view-filters">
         {scope}
+        {me && <button type="button" className="fpill" aria-pressed={owner === me} onClick={() => setOwner(owner === me ? "" : me)}>{t("board.mine")}</button>}
         <Dropdown label={t("board.groupBy")} value={groupBy} onChange={(v) => { setGroupBy(v as GroupBy); setAdding(null); }} options={GROUPS.map((g) => ({ value: g, label: `${t("board.groupBy")}: ${t(`board.group.${g}` as MessageKey)}` }))} />
         <Dropdown label={t("board.filterOwner")} value={owner} onChange={setOwner} options={[{ value: "", label: t("board.filterOwner") }, ...distinct(tasks.map((task) => task.ownerName)).map((o) => ({ value: o, label: o }))]} />
         <Dropdown label={t("board.filterDue")} value={dueFilter} onChange={(v) => setDueFilter(v as DueFilter | "")} options={[{ value: "", label: t("board.filterDue") }, ...DUE_FILTERS.map((d) => ({ value: d, label: t(`board.due.${d}` as MessageKey) }))]} />
@@ -113,7 +116,7 @@ export function Board({ initialTasks, onMove, onAdd, locale = "en", openBase, pr
       {pending > 0 && reviewHref && (
         <div className="board-notice" role="status">
           <span className="board-notice-text"><span aria-hidden="true">✦</span>{t("board.pending").replace("{n}", String(pending))}</span>
-          <a className="act" href={reviewHref}>{t("overview.review").replace("{n}", String(pending))}</a>
+          <a className="btn btn-primary btn-sm" href={reviewHref}>{t("overview.review").replace("{n}", String(pending))}</a>
         </div>
       )}
       {failed && (
