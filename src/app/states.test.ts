@@ -11,8 +11,9 @@ describe("states.css", () => {
   it("only reads tokens that exist", () => {
     for (const m of css.matchAll(/var\((--[\w-]+)\)/g)) expect(tokens, m[1]).toContain(`${m[1]}:`);
   });
-  it("has no gradient, blur or shadow", () => {
-    expect(css).not.toMatch(/gradient|blur|shadow/);
+  it("has no gradient and uses glass only through tokens", () => {
+    expect(css).not.toMatch(/gradient/);
+    expect(css).not.toMatch(/blur\((?!\s*var)/);
   });
   it("stops the shimmer under reduced motion", () => {
     expect(css).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*\.skeleton-line \{ animation: none/);

@@ -1,27 +1,28 @@
 /* Shared by Plan, List and Board: head actions, the Add button, the toolbar and its dropdowns. */
 .head-actions { display: flex; align-items: center; gap: var(--s3); }
 .head-actions .segmented { width: 12rem; }
-.add-btn, .add-menu .mn-trigger { flex: none; white-space: nowrap; width: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 2rem; padding: 4px 14px 4px 10px; border: 0; border-radius: var(--radius-full); background: var(--primary); color: var(--on-primary); font: inherit; font-size: var(--text-base); font-weight: var(--weight-semibold); text-decoration: none; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
-.add-btn:hover, .add-menu .mn-trigger:hover { filter: brightness(1.08); }
-.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding: 6px var(--s3); border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--surface); }
+.add-btn, .add-menu .mn-trigger { flex: none; white-space: nowrap; width: auto; display: inline-flex; align-items: center; gap: 6px; min-height: var(--control-h); padding: 0 14px 0 10px; border: 0; border-radius: var(--radius-full); background: var(--primary); color: var(--on-primary); font: inherit; font-size: var(--text-base); font-weight: var(--weight-semibold); text-decoration: none; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+.add-btn:hover, .add-menu .mn-trigger:hover { background: var(--primary-hover); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding: 6px var(--s3); border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--glass); box-shadow: var(--elevation-glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
 .toolbar .board-view-filters, .toolbar .gantt-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
 .gantt-nav { margin-inline-start: auto; }
 .gantt-pill.gantt-print { border-color: transparent; background: none; color: var(--text-secondary); }
 .gantt-pill.gantt-print:hover { background: var(--control); color: var(--text); }
 
 .mn { position: relative; display: inline-block; }
-.mn-dd .mn-trigger { display: inline-flex; align-items: center; gap: 6px; min-height: 2rem; padding: 4px 10px 4px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); background: var(--control); color: var(--text); font: inherit; font-size: var(--text-base); letter-spacing: -0.23px; cursor: pointer; }
+.mn-dd .mn-trigger { display: inline-flex; align-items: center; gap: 6px; min-height: var(--control-h); padding: 0 10px 0 12px; border: 1px solid transparent; border-radius: var(--radius-full); background: var(--control); color: var(--text); font: inherit; font-size: var(--text-base); letter-spacing: -0.015em; cursor: pointer; }
 .mn-dd .mn-trigger:hover, .mn-dd .mn-trigger[aria-expanded="true"] { background: var(--control-active); }
-.mn-chevron { color: var(--text-secondary); transition: transform 0.15s; }
+.mn-chevron { color: var(--text-secondary); transition: transform var(--motion-fast) var(--ease); }
 .mn-trigger[aria-expanded="true"] .mn-chevron { transform: rotate(180deg); }
 .mn-trigger:focus-visible, .mn-panel [role]:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
-.mn-panel { position: absolute; inset-inline-start: 0; top: calc(100% + 6px); z-index: 30; display: flex; flex-direction: column; gap: 2px; min-width: 100%; width: max-content; max-width: 20rem; max-height: 18rem; overflow-y: auto; padding: 6px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--surface); box-shadow: 0 12px 32px rgb(0 0 0 / 0.16); }
+.mn-panel { position: absolute; inset-inline-start: 0; top: calc(100% + 6px); z-index: 30; display: flex; flex-direction: column; gap: 2px; min-width: 100%; width: max-content; max-width: 20rem; max-height: 18rem; overflow-y: auto; padding: 6px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--elevation-dialog); }
 .mn-panel[data-align="end"] { inset-inline-start: auto; inset-inline-end: 0; min-width: 11rem; }
 .mn-panel > [role="option"], .mn-panel > [role="menuitem"] { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); padding: 7px 10px; border: 0; border-radius: 8px; background: none; color: var(--text); font: inherit; font-size: var(--text-base); text-align: start; text-decoration: none; cursor: pointer; }
-.mn-panel > [role]:hover, .mn-panel > [role]:focus { background: var(--control); }
+.mn-panel > [role]:hover, .mn-panel > [role]:focus { background: var(--accent-soft); }
 .mn-panel > [aria-selected="true"] { color: var(--accent-text); font-weight: var(--weight-semibold); }
 .mn-panel .gantt-group-form { display: flex; flex-direction: column; gap: var(--s2); min-width: 15rem; padding: 4px; }
 @media (max-width: 720px) { .toolbar { border-radius: var(--radius); } .gantt-nav { margin-inline-start: 0; } .head-actions { flex-wrap: wrap; } }
+@media (prefers-reduced-transparency: reduce) { .toolbar { -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @media print { .toolbar, .head-actions { display: none; } }
 .mn-panel.mn-wide { width: min(22rem, calc(100vw - 2rem)); }
 .mn-panel .create-option { border-radius: 8px; }

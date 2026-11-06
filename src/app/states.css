@@ -1,7 +1,7 @@
-/* Login, welcome, error and loading: flat card with a 1px line, flat skeleton bars. Tokens only. */
+/* Login, welcome, error and loading: a clear glass card, flat skeleton bars. Tokens only. */
 .center-stage { display: grid; place-items: center; padding: var(--s6) var(--s4); }
-.state-card { width: min(28rem, 100%); padding: var(--s6); background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-card); }
-.state-card h1 { margin: 0 0 var(--s2); font-size: var(--text-xl); letter-spacing: var(--tracking-tight); color: var(--text); }
+.state-card { width: min(28rem, 100%); padding: var(--s6); background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-card); box-shadow: var(--elevation-glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.state-card h1 { margin: 0 0 var(--s2); font-size: var(--text-xl); line-height: 1.75rem; font-weight: 700; letter-spacing: -0.012em; color: var(--text); }
 .state-card .intro { margin: 0 0 var(--s5); color: var(--text-secondary); }
 .state-card form { display: grid; gap: var(--s4); }
 .state-card form p { margin: 0; }
@@ -21,6 +21,7 @@
 @media (prefers-reduced-motion: reduce) {
   .skeleton-line { animation: none; }
 }
+@media (prefers-reduced-transparency: reduce) { .state-card { -webkit-backdrop-filter: none; backdrop-filter: none; } }
 .state-card section { margin-block-end: var(--s5); padding: var(--s4); border: 1px solid var(--border); border-radius: var(--radius); }
 .state-card label { display: block; }
 .state-card .check { display: flex; }

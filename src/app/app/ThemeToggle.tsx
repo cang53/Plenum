@@ -9,12 +9,12 @@ const subscribe = (cb: () => void) => {
   return () => o.disconnect();
 };
 
-// Switches between the dark default and the light theme; the choice is kept in this browser only.
+// Switches between the light default and the opt-in dark theme; the choice is kept in this browser only.
 export function ThemeToggle({ label }: { label: string }) {
-  const light = useSyncExternalStore(subscribe, () => root().dataset.theme === "light", () => false);
+  const light = useSyncExternalStore(subscribe, () => root().dataset.theme !== "dark", () => true);
   const toggle = () => {
-    if (light) delete root().dataset.theme;
-    else root().dataset.theme = "light";
+    if (light) root().dataset.theme = "dark";
+    else delete root().dataset.theme;
     try { localStorage.setItem("theme", light ? "dark" : "light"); } catch {}
   };
   return <button type="button" className="theme-toggle" aria-pressed={light} aria-label={label} title={label} onClick={toggle} />;

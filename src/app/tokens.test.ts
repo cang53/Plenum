@@ -6,11 +6,19 @@ const css = readFileSync(new URL("./tokens.css", import.meta.url), "utf8");
 function block(selector: string): Record<string, string> {
   const start = css.indexOf(`${selector} {`);
   const body = css.slice(start, css.indexOf("\n}", start));
-  return Object.fromEntries([...body.matchAll(/^\s*(--[\w-]+):\s*(#[0-9a-f]{6})\s*;/gim)].map((m) => [m[1], m[2]]));
+  const out: Record<string, string> = {};
+  for (const m of body.matchAll(/^\s*(--[\w-]+):\s*(#[0-9a-f]{6}|var\(--[\w-]+\))\s*;/gim)) out[m[1]] = m[2];
+  return out;
 }
 
-const tokens = block(":root");
-const lightTokens = block(':root[data-theme="light"]');
+// Light is the default; dark overrides it. A var() alias resolves in the same theme.
+const lightTokens = block(":root");
+const darkTokens = { ...lightTokens, ...block(':root[data-theme="dark"]') };
+const resolve = (set: Record<string, string>, k: string): string => {
+  const v = set[k];
+  const m = v?.match(/^var\((--[\w-]+)\)$/);
+  return m ? resolve(set, m[1]) : v;
+};
 
 const lum = (hex: string) => {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -46,23 +54,24 @@ const pairs: [string, string, number][] = [
   ["--status-done", "--surface", 3],
 ];
 
-describe.each([["dark", tokens], ["light", lightTokens]] as const)("%s token contrast", (_name, set) => {
+describe.each([["light", lightTokens], ["dark", darkTokens]] as const)("%s token contrast", (_name, set) => {
   it.each(pairs)("%s on %s is at least %s:1", (fg, bg, min) => {
-    expect(set[fg], fg).toBeDefined();
-    expect(set[bg], bg).toBeDefined();
-    expect(ratio(set[fg], set[bg])).toBeGreaterThanOrEqual(min);
+    expect(resolve(set, fg), fg).toBeDefined();
+    expect(resolve(set, bg), bg).toBeDefined();
+    expect(ratio(resolve(set, fg), resolve(set, bg))).toBeGreaterThanOrEqual(min);
   });
 });
 
-describe("slate and cobalt look", () => {
+describe("light-first look", () => {
   it("keeps high-contrast, reduced-transparency and reduced-motion fallbacks", () => {
     expect(css).toContain("prefers-contrast: more");
     expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
   });
-  it("uses the design artifact palette and Inter with the system font as fallback", () => {
-    expect(tokens["--primary"]).toBe("#8fa8ff");
-    expect(tokens["--surface-subtle"]).toBe("#0e1116");
+  it("uses the Plenum design system palette and Inter with the system font as fallback", () => {
+    expect(lightTokens["--primary"]).toBe("#0a66e0");
+    expect(lightTokens["--surface-subtle"]).toBe("#f4f5f1");
+    expect(darkTokens["--surface-subtle"]).toBe("#121412");
     expect(css).toMatch(/--font: var\(--font-inter\), -apple-system/);
   });
 });

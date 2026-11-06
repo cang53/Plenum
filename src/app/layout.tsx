@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 // Matches the --surface-subtle token.
-export const viewport: Viewport = { themeColor: "#1a342b", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: "#f4f5f1", colorScheme: "light" };
 
-// Applies the saved theme before first paint so there is no dark flash.
-const THEME_BOOT = `try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
+// Applies the saved dark choice before first paint so there is no light flash.
+const THEME_BOOT = `try{if(localStorage.getItem("theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`;
 
 export default async function RootLayout({
   children,

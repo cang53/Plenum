@@ -13,7 +13,7 @@ describe("shell.css", () => {
     for (const m of css.matchAll(/var\((--[\w-]+)\)/g)) if (m[1] !== "--icon" && m[1] !== "--nav-pill") expect(tokens, m[1]).toContain(`${m[1]}:`);
   });
   it("has a 196px sidebar capsule, a phone bar and glass from tokens", () => {
-    expect(css).toContain("grid-template-columns: 13rem");
+    expect(css).toContain("grid-template-columns: var(--sidebar-w)");
     expect(css).toContain("max-width: 48rem");
     expect(css).toContain("var(--ambient-background)");
     expect(css).toContain("backdrop-filter: var(--glass-blur)");
