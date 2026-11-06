@@ -6,7 +6,7 @@ const tokens = readFileSync(new URL("./tokens.css", import.meta.url), "utf8");
 
 describe("primitives.css", () => {
   it("defines every primitive", () => {
-    for (const name of [".surface", ".btn-primary", ".btn-secondary", ".btn-plain", ".field", ".badge", ".segmented", ".dialog", ".chip", ".st", ".av", ".kbd", ".tabs", ".filt", ".menu"]) {
+    for (const name of [".surface", ".btn-primary", ".btn-secondary", ".btn-plain", ".field", ".badge", ".segmented", ".dialog", ".chip", ".st", ".av", ".kbd", ".tabs", ".filt", ".menu", ".fpill", ".panel", ".bar", ".tile", ".metric"]) {
       expect(css).toContain(`${name} {`);
     }
   });
