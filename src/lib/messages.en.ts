@@ -337,6 +337,7 @@ export const en = {
   "app.settings": "Settings",
   "settings.title": "Settings",
   "settings.intro": "Your name and language, and this project's name and email address.",
+  "settings.nav": "Settings sections",
   "settings.you": "You",
   "settings.displayName": "Display name",
   "settings.language": "Language",
