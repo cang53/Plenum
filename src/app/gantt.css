@@ -152,3 +152,18 @@
   --g-blocked-bg: var(--danger-surface); --g-blocked-line: var(--danger);
   --g-today: var(--primary); --g-critical: var(--text);
 }
+
+/* Lighter, so the chart is not a wall of dark grey: soft blue-tinted phase bars and group rows, white planned bars, red today marker. */
+.gantt, .gantt-head {
+  --g-todo-bg: var(--surface); --g-todo-line: color-mix(in srgb, var(--info) 35%, var(--border));
+  --g-today: var(--danger);
+  --g-phase: color-mix(in srgb, var(--info) 45%, var(--surface));
+  --g-phase-row: color-mix(in srgb, var(--info) 9%, var(--surface));
+}
+.gantt-summary { background: var(--g-phase); }
+.gantt-summary[data-sub] { background: var(--g-phase); opacity: .7; }
+.gantt-row[data-summary="true"] .gantt-meta { background: var(--g-phase-row); }
+.gantt-row[data-summary="true"] { background: var(--g-phase-row); }
+.gantt-row[data-summary="true"][data-nested] .gantt-meta { background: var(--surface); }
+.gantt-task-name a { text-decoration: none; }
+.gantt-task-name a:hover { text-decoration: underline; }
