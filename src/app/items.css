@@ -230,7 +230,7 @@
 .pop-actions .btn-primary { flex: 1; }
 button.insp-kind { display: flex; align-items: center; justify-content: space-between; width: 100%; font: inherit; font-size: var(--text-base); cursor: pointer; }
 dialog.pop { margin: auto; }
-dialog.pop::backdrop { background: #00000099; }
+dialog.pop::backdrop { background: var(--scrim); }
 dialog.pop label { display: grid; gap: 6px; font-size: var(--text-sm); color: var(--text-secondary); }
 dialog.pop select { min-height: 2.75rem; padding: 0 var(--s4); border: 1px solid var(--border-strong); border-radius: 0.75rem; background: var(--accent-soft); color: var(--text); font: inherit; font-size: var(--text-base); }
 .item-inspector input:focus-visible, .item-inspector select:focus-visible, .item-inspector textarea:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: 1px; border-color: var(--focus-ring); }

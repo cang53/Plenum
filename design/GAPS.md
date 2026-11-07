@@ -20,7 +20,7 @@ DECIDED = a DESIGN rule or another screen answers it. NEEDS ANSWER = changes beh
 - G-16 DECIDED: Waiting = blocked, existing status label kept, mockup styling.
 - G-17 DECIDED as before.
 - G-18 DECIDED: read-only month grid, milestones and task due dates, month arrows, no "Add event".
-- G-19 DECIDED: one full-width black "Review" button; Apply stays on the review page with the source link.
+- G-19 DECIDED: one full-width primary blue (#0071e3) "Review" button; Apply stays on the review page with the source link.
 - G-20 DECIDED: members with role only in a neutral chip; sub line = member count.
 - G-21 DECIDED placement: health form -> soft "Update status" button next to "New task"; Needs attention -> merged into "Waiting on you"; work summary/overdue -> metrics row (only when it is the same number); Upcoming removed (calendar covers it); Recent activity -> panel under "This week"; project email -> Settings > Sources; cheer, streak, knowledge, goal, history kept as panels in a second block.
 - REVIEW LATER: cheer, streak, knowledge, goal, history. SS may drop streak and cheer under the no-per-person-stats rule.
@@ -33,7 +33,7 @@ DECIDED = a DESIGN rule or another screen answers it. NEEDS ANSWER = changes beh
 - G-26 DECIDED: Register = Risk (+owner), Score chip with band word, Review date (if stored), View. Detail = score tile, likelihood, impact, description, review date, Edit risk. No trend, mitigation, "Since Monday". Metrics: Open, Scored 15+, Reviews due only if review dates exist. 5x5 matrix as designed.
 - G-27 DECIDED: tabs, Plan Studio, analysis in a second block as panels. Export only where it exists.
 - G-28 DECIDED: only existing Gantt controls, as pills.
-- G-29 DECIDED: show only what Gantt.tsx computes. Critical rows get neutral "Critical" chip, Critical path panel with float if computed. Without forecast: done (black) and planned (outline) bars; legend shows only those.
+- G-29 DECIDED: show only what Gantt.tsx computes. Critical rows get neutral "Critical" chip, Critical path panel with float if computed. Without forecast: done (primary blue, #0071e3) and planned (outline) bars; legend shows only those.
 - G-30 DECIDED. G-31 DECIDED: pills All, Tasks, Decisions, Change requests.
 - G-32 DECIDED: no checklist; main column = suggestion card, Details, Activity.
 - G-33 DECIDED: Folders + "Files" table; type filter only if type stored.
@@ -41,7 +41,7 @@ DECIDED = a DESIGN rule or another screen answers it. NEEDS ANSWER = changes beh
 - G-35 DECIDED: restyle only; never auto-send; keep confirm; sent list only if stored; "Draft" chip only if truly a draft.
 - G-36 DECIDED: drop company column/pills unless stored; Overview Team sub = "N people".
 - G-37 DECIDED: existing types and preferences only.
-- G-38 DECIDED: per-section black "Save" bottom-right; no page-level Save/Cancel.
+- G-38 DECIDED: per-section primary blue (#0071e3) "Save" bottom-right; no page-level Save/Cancel.
 - G-39 DECIDED: only the "never applies a change on its own" line plus existing AI settings.
 - G-40 DECIDED: omit Help, keep Privacy.
 - Backlog of unsupported design features: see `BACKLOG.md`.
@@ -60,3 +60,4 @@ Measured on /demo/messages with the same markup the Stream page renders (Playwri
 ## Crew band (Overview)
 - G-41 NEEDS ANSWER: the Crew band wants phases with a phase lead, phase members and an organisation per person. The schema has none of them (phases have only name and position; profiles have no organisation). Meanwhile the band shows one card per project role, people as initials tiles with their name in text, pending invites as dashed tiles; tints follow card order, not organisation. No progress spine, no "Now/Done" chips, no "phase lead" wording until the data exists.
 - G-42 DECIDED: Overview Team list removed from the side column (people appear once, in the Crew band). "See everyone" goes to Team; "Invite" shows only to people who can manage the project.
+- G-43 DECIDED: palette is white + Apple colours; the grey/black palette is retired. (The follow-up prompt called this G-41, which is already the Crew data gap above.) Gantt "done" bars stay green, as asked earlier for the Gantt palette.

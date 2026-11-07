@@ -115,8 +115,8 @@
   width: 1.75rem;
   height: 1.75rem;
   border-radius: var(--radius-sm);
-  background: var(--mine);
-  color: var(--text);
+  background: var(--accent-soft);
+  color: var(--accent-text);
   font-size: 0.6875rem;
   font-weight: var(--weight-medium);
   flex: none;
@@ -299,13 +299,13 @@
 .solid { border-radius: var(--r-panel); background: var(--white); padding: var(--s5); }
 
 .bar { display: block; flex: 1; height: 7px; border-radius: 7px; background: var(--track); overflow: hidden; }
-.bar > i { display: block; height: 100%; border-radius: 7px; background: var(--fill); }
+.bar > i { display: block; height: 100%; border-radius: 7px; background: var(--primary); }
 .icon-chip { display: grid; place-items: center; flex: none; width: 1.625rem; height: 1.625rem; border-radius: var(--radius-sm); background: var(--cell); }
 
 .tile { position: relative; display: grid; place-items: center; flex: none; width: 3.25rem; height: 3.25rem; border: 0; border-radius: var(--radius-md); background: var(--tile); color: var(--ink2); }
 .tile:hover { background: var(--surface-hover); text-decoration: none; }
 .tile[aria-current="page"] { background: var(--white); color: var(--ink); box-shadow: var(--elevation-lift); }
-.tile > .dot { position: absolute; top: 0.75rem; right: 0.75rem; width: 7px; height: 7px; border-radius: 7px; background: var(--black); }
+.tile > .dot { position: absolute; top: 0.75rem; right: 0.75rem; width: 7px; height: 7px; border-radius: 7px; background: var(--primary); }
 
 .h1, .h2, .h3 { margin: 0; font-weight: var(--weight-normal); }
 .h1 { font-size: var(--text-2xl); line-height: 2.5rem; letter-spacing: -0.025em; }

@@ -68,10 +68,19 @@ describe("light-first look", () => {
     expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
   });
-  it("uses the Plenum design system palette and Outfit with the system font as fallback", () => {
-    expect(lightTokens["--primary"]).toBe("#0a0a0a");
-    expect(lightTokens["--surface-subtle"]).toBe("#ebeae9");
+  it("uses the white and Apple colours palette with the system font stack", () => {
+    expect(lightTokens["--primary"]).toBe("#0071e3");
+    expect(lightTokens["--ground"]).toBe("#fbfbfd");
+    expect(lightTokens["--surface-subtle"]).toBe("#eef4fd");
     expect(darkTokens["--surface-subtle"]).toBe("#121412");
-    expect(css).toMatch(/--font: var\(--font-outfit\), -apple-system/);
+    expect(css).toMatch(/--font: -apple-system, BlinkMacSystemFont, "SF Pro Text"/);
+    expect(css).not.toMatch(/outfit/i);
+  });
+  it("gives each rail section its own colour", () => {
+    const names = ["overview", "stream", "plan", "board", "items", "risks", "library", "reports", "team"];
+    const light = css.slice(0, css.indexOf(":root[data-theme"));
+    const colours = names.map((n) => light.match(new RegExp(`--section-${n}:\\s*(#[0-9a-f]{6})`, "i"))?.[1]);
+    colours.forEach((c, i) => expect(c, names[i]).toBeDefined());
+    expect(new Set(colours).size).toBe(names.length);
   });
 });

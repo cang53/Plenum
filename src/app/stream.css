@@ -330,6 +330,7 @@ a.mention:hover { text-decoration: underline; }
 .chat .mail.msg[data-mine] .who time { margin-inline-start: 0; margin-inline-end: 4px; }
 .chat .bubble { gap: 6px; padding: 7px 11px; border-radius: 6px 18px 18px 18px; font-size: 13.5px; line-height: 1.45; }
 .chat .mail.msg[data-mine] .bubble { border-radius: 18px 6px 18px 18px; background: var(--mine); box-shadow: none; }
+.chat .mail.msg[data-mine] .bubble, .chat .mail.msg[data-mine] .bubble :is(h1, h2, h3, p, strong, a, span, li, time, button) { color: var(--on-primary); }
 .chat .bubble .body, .chat .bubble details, .chat .bubble .agent-title, .chat .bubble .agent-details { font-size: 13.5px; line-height: 1.45; }
 .chat .bubble .quote { padding: 1px 8px; font-size: 12px; }
 .chat .dayrule { font-size: 10px; margin-block: 2px; }

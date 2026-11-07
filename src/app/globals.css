@@ -67,8 +67,8 @@ body {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 8px;
-  background: #fdebdd;
-  color: #8a3a0d;
+  background: var(--warning-surface);
+  color: var(--warning);
   font-size: 14px;
 }
 
@@ -81,9 +81,9 @@ select {
 
 select {
   min-height: 36px;
-  border: 1px solid #c9d1da;
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   font: inherit;
 }
 
@@ -109,7 +109,7 @@ select {
 input[type="search"],
 input[type="date"] {
   min-height: 36px;
-  border: 1px solid #c9d1da;
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
   padding: 0 10px;
   font: inherit;
@@ -122,9 +122,9 @@ input[type="search"] {
 .button {
   min-height: 36px;
   padding: 0 14px;
-  border: 1px solid #c9d1da;
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   font: inherit;
   cursor: pointer;
 }
@@ -160,7 +160,7 @@ input[type="search"] {
 
 .attachments li {
   padding: 6px 10px;
-  border: 1px solid #dce2e8;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
 }
@@ -181,7 +181,7 @@ input[type="search"] {
 .link-form input,
 .link-form select,
 .link-form textarea {
-  border: 1px solid #c9d1da;
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
   padding: 8px 10px;
   font: inherit;
@@ -194,7 +194,7 @@ input[type="search"] {
   left: 8px;
   top: -48px;
   padding: 8px 12px;
-  background: #fff;
+  background: var(--surface);
   border-radius: 8px;
   z-index: 10;
 }
@@ -262,3 +262,7 @@ td {
 /* One slim scrollbar everywhere (Chrome, Edge, Safari, Firefox): the thumb shows while hovering a scroll area. */
 * { scrollbar-width: thin; scrollbar-color: transparent transparent; }
 *:hover { scrollbar-color: var(--border-strong) transparent; }
+
+/* Headings and metric numbers are semibold; figures line up. */
+h1, h2, h3, h4 { font-weight: var(--weight-semibold); }
+time, .count, .num, .metric, td, .ov-num { font-variant-numeric: tabular-nums; }
