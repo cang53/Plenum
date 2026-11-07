@@ -14,7 +14,7 @@ const data: OverviewData = {
   phases: [{ name: "Civil", label: "In progress", tone: "info", percent: 58, finish: "6 Dec" }],
   week: [{ key: "todo", label: "To do", count: 1, tasks: [{ id: "w1", title: "Order pump", href: "/b", chip: "High", tone: "bad", date: "9 Nov", initials: "MK" }] }],
   calendar: { title: "November 2026", prevHref: "/p", nextHref: "/n", days: ["Mon"], cells: [{ n: 1, today: true, milestone: true }] },
-  team: [{ initials: "MK", name: "Marta K", role: "Member" }], teamTotal: 6,
+  crew: [{ role: "Member", people: [{ initials: "MK", name: "Marta K" }], pending: [{ initials: "RS", email: "r.smit@x.example" }] }], crewTotal: 6, canInvite: true,
   events: [{ text: "Permit approved", dateLabel: "27 Oct" }],
 };
 const render = (d: OverviewData) => renderToStaticMarkup(<OverviewView t={t} data={d} />);
@@ -24,6 +24,15 @@ describe("OverviewView", () => {
     const html = render(data);
     for (const s of ["Pump is at risk", "40%", "12", "Complete overall", "Open risks, 1 high", "Civil", "58%", "Order pump", "November 2026", "Resequence install", 'href="/src"', "Gearbox delivery", "Marta K", "See everyone", "Permit approved", "1 overdue"]) expect(html).toContain(s);
     expect(html).not.toContain("pump@in.example");
+  });
+  it("shows the crew grouped by role with accessible tiles, pending invites and no per-person numbers", () => {
+    const html = render(data);
+    for (const s of ["Crew", "6 people, grouped by role", 'aria-label="Marta K, Member"', "r.smit@x.example", "Invite pending", "Invite"]) expect(html).toContain(s);
+    expect(html).not.toContain("ov-team");
+  });
+  it("hides the invite button for people who cannot invite and the band when nobody is on the project", () => {
+    expect(render({ ...data, canInvite: false })).not.toContain(">Invite<");
+    expect(render({ ...data, crew: [], crewTotal: 0 })).not.toContain("ov-crew");
   });
   it("links the review button, never applies from the Overview", () => {
     const html = render(data);

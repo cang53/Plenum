@@ -5,6 +5,9 @@
   color-scheme: light;
 
   /* Color */
+  /* Crew tints, assigned by group order (blue, orange, green, purple) */
+  --org-1-tint: #dbeafe; --org-1-dot: #0071e3; --org-2-tint: #ffe3cc; --org-2-dot: #c93400;
+  --org-3-tint: #d6f2df; --org-3-dot: #248a3d; --org-4-tint: #ebe1fb; --org-4-dot: #8944ab;
   --surface: #ffffff;
   --surface-subtle: #ebeae9;
   --surface-muted: #e6e3e2;
@@ -144,6 +147,7 @@
 /* Dark theme: the opt-in. Set by the toggle on <html data-theme="dark">. */
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --org-1-tint: #1e3a66; --org-2-tint: #5a3318; --org-3-tint: #1d4a2c; --org-4-tint: #3f2a5c;
   --surface: #1c1e1b;
   --surface-subtle: #121412;
   --surface-muted: #262925;

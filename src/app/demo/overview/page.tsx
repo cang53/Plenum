@@ -47,8 +47,9 @@ export default async function DemoOverviewPage() {
     phases: byPhase(tasks).filter((x) => x.phase).map((x) => ({ name: x.phase!, label: t(`status.${x.done === x.total ? "done" : "in_progress"}`), tone: x.done === x.total ? "ok" as const : "info" as const, percent: Math.round((x.done / x.total) * 100), finish: null })),
     week: [stage("todo"), stage("in_progress"), stage("blocked")],
     calendar: { title: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(now), prevHref: "#", nextHref: "#", days: ["M", "T", "W", "T", "F", "S", "S"], cells: calendarCells(today.slice(0, 7), today, [], open.map((x) => x.dueDate!)) },
-    team: [],
-    teamTotal: 0,
+    crew: [{ role: t("role.member"), people: [{ initials: "JD", name: "Jo de Vries" }, { initials: "MK", name: "Mehmet Kaya" }], pending: [{ initials: "RS", email: "r.smit@example.com" }] }, { role: t("role.contributor"), people: [{ initials: "EM", name: "Eva Mulder" }], pending: [] }],
+    crewTotal: 3,
+    canInvite: true,
     events: [{ text: "Lifting permit approved", dateLabel: fmt(today) }, { text: "Cabinet drawings revision A sent for comments", dateLabel: fmt(iso(Date.parse(today) - 3 * 864e5)) }],
   };
   return (

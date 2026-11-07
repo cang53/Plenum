@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/auth/supabase";
 import { latestHealthUpdate, listBoardTasks, listMilestones, listPendingSuggestions, listStreakTasks } from "@/data/live";
-import { currentProject, listMembers, listProjects } from "@/data/projects";
+import { currentProject, listInvitations, listMembers, listProjects } from "@/data/projects";
 import { needsInviteStep, ONBOARDED_COOKIE } from "@/domain/onboarding";
 import { summarize } from "@/domain/overview";
 import { celebratedMilestones, challengeMet, goalPercent, knowledgeCount, projectRewardsOn, streakWeeks } from "@/domain/rewards";
@@ -12,6 +12,7 @@ import { postHealthUpdate, setTeamGoal } from "./actions";
 import { OverviewView, type OverviewData } from "./OverviewView";
 import { byPhase } from "@/domain/overview";
 import { initials } from "@/domain/board";
+import { crewByRole } from "@/domain/crew";
 import { calendarCells, monthOf, shiftMonth } from "@/domain/calendar";
 import type { MessageKey } from "@/lib/messages";
 
@@ -75,9 +76,10 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
   const href = (path: string) => `${path}?project=${current.id}`;
   const open = tasks.filter((x) => x.status !== "done");
   const nextMs = milestones.find((m) => m.status !== "done" && m.dueDate && m.dueDate >= today);
-  const [{ data: riskRows }, members] = await Promise.all([
+  const [{ data: riskRows }, members, invites] = await Promise.all([
     supabase.from("risks").select("likelihood, severity").eq("project_id", current.id).eq("status", "open").neq("kind", "issue"),
     listMembers(supabase, current.id),
+    role ? listInvitations(supabase, current.id) : Promise.resolve([]),
   ]);
   const scores = (riskRows ?? []).map((r) => r.likelihood * r.severity);
   const phases = byPhase(tasks).filter((x) => x.phase).map((x) => {
@@ -129,8 +131,9 @@ export default async function AppHome({ searchParams }: { searchParams: Promise<
     phases,
     week: [stage("todo"), stage("in_progress"), stage("blocked")],
     calendar,
-    team: members.slice(0, 5).map((m) => ({ initials: initials(m.name || m.email), name: m.name || m.email, role: t(`role.${m.role}` as MessageKey) })),
-    teamTotal: members.length,
+    crew: crewByRole((r) => t(`role.${r}` as MessageKey), members, invites),
+    crewTotal: members.length,
+    canInvite: !!role,
     events: milestones.filter((m) => m.status === "done").sort((x, y) => y.updatedAt.localeCompare(x.updatedAt)).slice(0, 3).map((m) => ({ text: m.title, dateLabel: fmt(m.updatedAt) })),
   };
   return (

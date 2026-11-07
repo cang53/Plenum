@@ -23,8 +23,9 @@ export type OverviewData = {
   phases: { name: string; label: string; tone: Tone; percent: number; finish: string | null }[];
   week: { key: string; label: string; count: number; tasks: { id: string; title: string; href: string; chip: string; tone: Tone; date: string; initials: string }[] }[];
   calendar: { title: string; prevHref: string; nextHref: string; days: string[]; cells: { n: number | null; today?: boolean; milestone?: boolean; task?: boolean }[] };
-  team: { initials: string; name: string; role: string }[];
-  teamTotal: number;
+  crew: { role: string; people: { initials: string; name: string }[]; pending: { initials: string; email: string }[] }[];
+  crewTotal: number;
+  canInvite: boolean;
   events: { text: string; dateLabel: string }[];
 };
 
@@ -65,6 +66,28 @@ export function OverviewView({ t, data, write }: { t: (key: MessageKey) => strin
           {chip(data.health.tone, data.health.label)}
           <p>{data.health.note}</p>
           <span className="muted">{data.health.author} · {data.health.dateLabel}</span>
+        </section>
+      )}
+      {data.crew.length > 0 && (
+        <section className="panel ov-crew" aria-labelledby="ov-crew">
+          <Head id="ov-crew" title={t("overview.crew.title")} sub={fill("overview.crew.sub", { n: data.crewTotal })} action={<span className="ov-crew-actions"><a className="btn btn-soft btn-sm" href={data.membersHref}>{t("overview.team.all")}</a>{data.canInvite && <a className="btn btn-sm btn-primary" href={data.membersHref}>{t("overview.team.invite")}</a>}</span>} />
+          <div className="ov-crew-scroll">
+            <div className="ov-crew-grid">
+              {data.crew.map((c, i) => (
+                <article key={c.role} className={`ov-crew-card org-${i % 4}`} aria-label={c.role}>
+                  <h3 className="ov-crew-role">{c.role}</h3>
+                  <ul className="ov-crew-people">
+                    {c.people.map((m) => (
+                      <li key={m.name}><span className="ov-tile" role="img" aria-label={`${m.name}, ${c.role}`}>{m.initials}<i /></span><span className="ov-who">{m.name}</span></li>
+                    ))}
+                    {c.pending.map((m) => (
+                      <li key={m.email}><span className="ov-tile pending" role="img" aria-label={fill("overview.crew.pending", { name: m.email })}>{m.initials}</span><span className="ov-who">{m.email}<span className="subline">{t("overview.crew.pendingLabel")}</span></span></li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
       )}
       <section aria-label={t("overview.healthTitle")}>
@@ -165,17 +188,6 @@ export function OverviewView({ t, data, write }: { t: (key: MessageKey) => strin
               </ul>
             )}
             {!data.suggestion && data.attention.length === 0 && <p className="panel muted">{t("overview.wait.none")}</p>}
-          </section>
-          <section aria-labelledby="ov-team">
-            <Head id="ov-team" title={t("app.team")} sub={fill("overview.team.sub", { n: data.teamTotal })} action={<a className="btn btn-soft" href={data.membersHref}>{t("overview.team.invite")}</a>} />
-            <div className="panel">
-              <ul className="ov-list">
-                {data.team.map((m) => (
-                  <li key={m.name}><span className="av av-md" aria-hidden="true">{m.initials}</span><span className="ov-who">{m.name}</span><span className="chip c-neutral">{m.role}</span></li>
-                ))}
-              </ul>
-              <a className="ov-more" href={data.membersHref}>{data.teamTotal > data.team.length ? `${fill("overview.team.more", { n: data.teamTotal - data.team.length })} · ` : ""}{t("overview.team.all")}</a>
-            </div>
           </section>
         </aside>
       </div>
