@@ -13,3 +13,4 @@ No work on these in the redesign PRs.
 - Stream source totals on filter pills (Stream)
 - Team presence On site / Office / Away (Team, Overview): per-person status, needs a product decision against the no-per-person rule first
 - Dark mode design (all screens)
+- Phase lead and phase members, and an organisation per person (Overview Crew band by phase with progress spine; Team company column)

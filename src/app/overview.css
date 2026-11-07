@@ -68,3 +68,21 @@
 .ov-extra { display: flex; flex-direction: column; gap: 1.25rem; }
 .ov a { text-decoration: none; }
 .ov a:not(.btn):hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Crew band: who is on the project, one card per role. No counts per person, no presence. */
+.ov-crew { padding: var(--s5); }
+.ov-crew-scroll { overflow-x: auto; margin-inline: calc(var(--s2) * -1); padding: var(--s2); }
+.ov-crew-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(15rem, 1fr); gap: var(--s3); }
+.ov-crew-card { border-radius: 18px; padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); background: var(--accent-soft); }
+.ov-crew-role { margin: 0; font-size: var(--text-base, 1rem); font-weight: 600; }
+.ov-crew-people { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--s2); }
+.ov-crew-people > li { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
+.ov-crew-people .ov-who { display: flex; flex-direction: column; }
+.ov-tile { position: relative; flex: none; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; font-size: 0.8125rem; font-weight: 600; color: var(--text); background: var(--org-tint, var(--accent-soft)); }
+.ov-tile i { position: absolute; right: -2px; bottom: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--org-dot, var(--primary)); box-shadow: 0 0 0 2px var(--surface); }
+.ov-tile.pending { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--border-strong); color: var(--text-muted); }
+.org-0 { --org-tint: var(--org-1-tint); --org-dot: var(--org-1-dot); }
+.org-1 { --org-tint: var(--org-2-tint); --org-dot: var(--org-2-dot); }
+.org-2 { --org-tint: var(--org-3-tint); --org-dot: var(--org-3-dot); }
+.org-3 { --org-tint: var(--org-4-tint); --org-dot: var(--org-4-dot); }
+.ov-crew-actions { display: flex; flex-wrap: wrap; gap: var(--s2); }

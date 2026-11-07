@@ -56,3 +56,7 @@ Measured on /demo/messages with the same markup the Stream page renders (Playwri
 - Layout shift: images in messages have no reserved space, and the CobIA card changes height between its states.
 - Day separators are plain rows and scroll out of view.
 - The list is not a labelled log region and new messages are not announced.
+
+## Crew band (Overview)
+- G-41 NEEDS ANSWER: the Crew band wants phases with a phase lead, phase members and an organisation per person. The schema has none of them (phases have only name and position; profiles have no organisation). Meanwhile the band shows one card per project role, people as initials tiles with their name in text, pending invites as dashed tiles; tints follow card order, not organisation. No progress spine, no "Now/Done" chips, no "phase lead" wording until the data exists.
+- G-42 DECIDED: Overview Team list removed from the side column (people appear once, in the Crew band). "See everyone" goes to Team; "Invite" shows only to people who can manage the project.
