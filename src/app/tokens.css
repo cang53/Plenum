@@ -9,53 +9,53 @@
   --org-1-tint: #dbeafe; --org-1-dot: #0071e3; --org-2-tint: #ffe3cc; --org-2-dot: #c93400;
   --org-3-tint: #d6f2df; --org-3-dot: #248a3d; --org-4-tint: #ebe1fb; --org-4-dot: #8944ab;
   --surface: #ffffff;
-  --surface-subtle: #ebeae9;
-  --surface-muted: #e6e3e2;
-  --surface-hover: #f4f3f2;
-  --text: #161616;
-  --text-secondary: #4f4b4a;
-  --text-muted: #5f5b5a;
-  --border: #ddd9d8;
-  --border-strong: #7d7774;
-  --primary: #0a0a0a;
-  --primary-hover: #2a2a2a;
+  --surface-subtle: #eef4fd;
+  --surface-muted: #eef4fd;
+  --surface-hover: #f5f8fd;
+  --text: #1d1d1f;
+  --text-secondary: #3a3a3c;
+  --text-muted: #5e5e63;
+  --border: #3c3c431f;
+  --border-strong: #8e8e93;
+  --primary: #0071e3;
+  --primary-hover: #0062c4;
   --on-primary: #ffffff;
-  --focus-ring: #0a0a0a;
-  --accent-soft: #ebeae9;
-  --accent-text: #161616;
-  --mine: #cfc9c6;
-  --agent: #3155c4;
-  --agent-surface: #dfe6fb;
-  --danger: #b42833;
-  --danger-surface: #f7d9da;
-  --success: #1f6e49;
-  --success-surface: #d6ede2;
-  --warning: #83600f;
-  --warning-surface: #f5e7c8;
-  --info: #3155c4;
-  --info-surface: #dfe6fb;
+  --focus-ring: #0071e3;
+  --accent-soft: #e5f1ff;
+  --accent-text: #004f9e;
+  --mine: #0071e3;
+  --agent: #004f9e;
+  --agent-surface: #e5f1ff;
+  --danger: #a3001a;
+  --danger-surface: #ffe8e9;
+  --success: #0f5c27;
+  --success-surface: #e3f5e7;
+  --warning: #8a3000;
+  --warning-surface: #fff0e1;
+  --info: #004f9e;
+  --info-surface: #e5f1ff;
   --status-todo: var(--text-muted);
-  --status-progress: #3155c4;
+  --status-progress: var(--info);
   --status-blocked: var(--warning);
   --status-done: var(--success);
 
   /* Glass: clear white over the ambient ground, with a specular top edge */
-  --glass: #ffffff6b;
-  --glass-strong: #ffffff9e;
-  --glass-border: #16161614;
+  --glass: #ffffffb8;
+  --glass-strong: #ffffffe0;
+  --glass-border: #3c3c431f;
   --glass-highlight: #ffffffcc;
   --glass-blur: blur(18px) saturate(140%);
   --glass-blur-light: blur(18px) saturate(140%);
-  --control: #1616160f;
-  --control-active: #1616161f;
-  --scrim: #1616164d;
-  --ambient-top: #ebe8e7;
-  --ambient-bottom: #dfdcdb;
-  --ambient-background: radial-gradient(1100px 520px at 58% -8%, var(--ambient-top) 0%, transparent 70%), radial-gradient(900px 420px at 45% 108%, var(--ambient-top) 0%, transparent 70%), var(--ground);
+  --control: #3c3c430f;
+  --control-active: #3c3c431f;
+  --scrim: #1d1d1f4d;
+  --ambient-top: #e6f0ff;
+  --ambient-bottom: #fdeee6;
+  --ambient-background: radial-gradient(900px 600px at 0% 0%, var(--ambient-top) 0%, transparent 70%), radial-gradient(900px 600px at 100% 100%, var(--ambient-bottom) 0%, transparent 70%), var(--ground);
   --frame: var(--ambient-background);
 
   /* Shadow: one lift for content, one for glass chrome, one for overlays */
-  --elevation-1: 0 1px 2px #1c1d1a0f, 0 6px 18px #1c1d1a0d;
+  --elevation-1: 0 1px 2px #0000000a, 0 8px 24px #0000000d;
   --elevation-glass: inset 0 1px 0 var(--glass-highlight), 0 1px 1px #1c1d1a0a, 0 12px 32px #1c1d1a14;
   --elevation-dialog: 0 24px 60px #1c1d1a2e, 0 2px 6px #1c1d1a14;
   --elevation: var(--elevation-1);
@@ -63,8 +63,13 @@
   --elevation-btn: 0 1px 2px #00000014;
   --elevation-lift: 0 1px 2px #1c1d1a1f, 0 2px 8px #1c1d1a0f;
   --elevation-nav: 0 1px 2px #1c1d1a14, 0 4px 14px #1c1d1a0f;
-  --brand-mark: #0a0a0a;
+  --brand-mark: #0071e3;
   --brand-on-mark: #ffffff;
+
+  /* Rail: one colour per section; --c is set per tile */
+  --c: var(--text);
+  --section-overview: #0066cc; --section-stream: #248a3d; --section-plan: #c93400; --section-board: #5856d6;
+  --section-items: #0071a4; --section-risks: #d70015; --section-library: #8a6200; --section-reports: #8944ab; --section-team: #d30f45;
 
   /* Radius */
   --radius-sm: 0.5rem;
@@ -75,8 +80,8 @@
   --radius-xl: 1.75rem;
   --radius-full: 999rem;
 
-  /* Type: Outfit, loaded by next/font, with the system UI font as fallback */
-  --font: var(--font-outfit), -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  /* Type: the system UI font, SF on Apple devices */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Inter, system-ui, sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -118,18 +123,18 @@
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Names from the canvas stylesheet (plenum.css) and the pre-glass stylesheet */
-  --ground: #dfdcdb;
-  --tile: #ebeae9;
+  --ground: #fbfbfd;
+  --tile: #ffffff;
   --white: #ffffff;
-  --panel: var(--glass);
-  --cell: var(--glass-strong);
+  --panel: #ffffff;
+  --cell: #eef4fd;
   --ink: var(--text);
   --ink2: var(--text-secondary);
   --muted: var(--text-muted);
-  --line: #16161614;
-  --black: #0a0a0a;
-  --track: #d6d1cf;
-  --fill: #2b2d2b;
+  --line: #3c3c431f;
+  --black: #0071e3;
+  --track: #c9d1dc;
+  --fill: #0071e3;
   --blue: var(--info);
   --blue-bg: var(--info-surface);
   --green: var(--success);
@@ -138,7 +143,7 @@
   --red-bg: var(--danger-surface);
   --amber: var(--warning);
   --amber-bg: var(--warning-surface);
-  --neutral-bg: var(--surface-muted);
+  --neutral-bg: #eef4fd;
   --r-panel: var(--radius-card);
   --r-cell: var(--radius);
   --accent: var(--primary);
@@ -147,6 +152,8 @@
 /* Dark theme: the opt-in. Set by the toggle on <html data-theme="dark">. */
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --section-overview: #5ea8ff; --section-stream: #5fd07f; --section-plan: #ff9a5c; --section-board: #9d9bff;
+  --section-items: #5ac8fa; --section-risks: #ff6b78; --section-library: #e0b44a; --section-reports: #c79bea; --section-team: #ff6b93;
   --org-1-tint: #1e3a66; --org-2-tint: #5a3318; --org-3-tint: #1d4a2c; --org-4-tint: #3f2a5c;
   --surface: #1c1e1b;
   --surface-subtle: #121412;

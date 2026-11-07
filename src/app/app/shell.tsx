@@ -9,6 +9,13 @@ import { NavIcon } from "./NavIcon";
 
 type Group = "rail" | "top" | "more" | "settings";
 type Item = { path: string; label: string; group: Group };
+
+// One colour per section, from tokens.css, so the rail reads at a glance.
+const SECTION: Record<string, string> = {
+  "/app": "overview", "/app/stream": "stream", "/app/gantt": "plan", "/app/board": "board", "/app/items": "items",
+  "/app/risks": "risks", "/app/library": "library", "/app/reports": "reports", "/app/members": "team",
+};
+const sectionStyle = (path: string) => (SECTION[path] ? ({ "--c": `var(--section-${SECTION[path]})` } as React.CSSProperties) : undefined);
 type Props = {
   projects: { id: string; name: string }[];
   itemsByProject: Record<string, Item[]>;
@@ -61,7 +68,7 @@ export function Shell({ projects, itemsByProject, fallbackItems, email, roleByPr
   const tile = (i: Item) => {
     const badge = i.path === "/app/stream" && fresh > 0;
     return (
-      <a key={i.path} href={href(i.path)} title={i.label} className="tile" aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : i.label}>
+      <a key={i.path} href={href(i.path)} title={i.label} className="tile" style={sectionStyle(i.path)} aria-current={current(i.path) ? "page" : undefined} aria-label={badge ? `${i.label}: ${labels.streamNew.replace("{n}", String(fresh))}` : i.label}>
         <NavIcon name={i.path} />
         {rail.includes(i) && <span className="tile-label" aria-hidden="true">{i.label}</span>}
         {badge && <span className="dot" aria-hidden="true" />}

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#dfdcdb">
+<meta name="theme-color" content="#fbfbfd">
 <title>Plenum Stream</title>
-<script src="./support.js"></script>
+
 <link rel="stylesheet" href="plenum.css">
 </head>
 <body>
@@ -14,16 +14,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
 <style>
-:root{--ground:#dfdcdb;--panel:rgba(255,255,255,.42);--cell:rgba(255,255,255,.62);--tile:#ebeae9;--white:#ffffff;--ink:#161616;--ink2:#4f4b4a;--muted:#5f5b5a;--line:rgba(22,22,22,.08);--black:#0a0a0a;--track:#d6d1cf;--fill:#2b2d2b;--blue:#3155c4;--blue-bg:#dfe6fb;--green:#1f6e49;--green-bg:#d6ede2;--red:#b42833;--red-bg:#f7d9da;--amber:#83600f;--amber-bg:#f5e7c8;--neutral-bg:#e6e3e2;--r-panel:20px;--r-cell:12px;--font:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
+:root{--ground:#fbfbfd;--panel:#ffffff;--cell:#eef4fd;--tile:#ffffff;--white:#ffffff;--ink:#1d1d1f;--ink2:#3a3a3c;--muted:#6e6e73;--line:rgba(60,60,67,.12);--black:#0071e3;--track:#e3e8ef;--fill:#0071e3;--blue:#0066cc;--blue-bg:#e5f1ff;--green:#1b7a36;--green-bg:#e3f5e7;--red:#c8001f;--red-bg:#ffe8e9;--amber:#a63a00;--amber-bg:#fff0e1;--neutral-bg:#eef4fd;--r-panel:20px;--r-cell:12px;--font:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
 html{color-scheme:light;-webkit-tap-highlight-color:rgba(10,10,10,.08)}
 body{margin:0;background:var(--ground)}
 a{color:var(--ink);text-decoration:none}a:hover{text-decoration:underline;text-underline-offset:3px}
-::selection{background:#161616;color:#fff}
+::selection{background:#0071e3;color:#fff}
 :focus-visible{outline:2px solid var(--black);outline-offset:2px}
 button,a,input,select,textarea{touch-action:manipulation}
 button{font:inherit;cursor:pointer;transition:background-color .15s ease-out,transform .15s ease-out}
 button:active{transform:scale(.98)}
-.app{min-height:1000px;box-sizing:border-box;padding:22px 28px 32px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:26px 28px;font-family:var(--font);color:var(--ink);font-size:15px;line-height:22px;font-weight:400;letter-spacing:-.005em;background:radial-gradient(1100px 520px at 58% -8%,#ebe8e7 0%,rgba(235,232,231,0) 70%),radial-gradient(900px 420px at 45% 108%,#ebe4e3 0%,rgba(235,228,227,0) 70%),var(--ground)}
+.app{min-height:1000px;box-sizing:border-box;padding:22px 28px 32px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:26px 28px;font-family:var(--font);color:var(--ink);font-size:15px;line-height:22px;font-weight:400;letter-spacing:-.005em;background:radial-gradient(1000px 560px at 12% -12%,#e6f0ff 0%,rgba(230,240,255,0) 70%),radial-gradient(900px 520px at 100% 110%,#fdeee6 0%,rgba(253,238,230,0) 70%),var(--ground)}
 .top{grid-column:1/-1;display:flex;align-items:center;gap:28px}
 .brand{display:flex;align-items:center;gap:12px;width:200px;font-size:23px;font-weight:500;letter-spacing:-.02em}
 .search{flex:0 1 560px;display:flex;align-items:center;gap:12px;height:56px;padding:0 8px;box-sizing:border-box;border-radius:16px;background:var(--panel);backdrop-filter:blur(18px)}
@@ -31,20 +31,20 @@ button:active{transform:scale(.98)}
 .search input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:14px;color:var(--ink);outline:none}
 .search:focus-within{box-shadow:0 0 0 2px var(--black)}
 .user{margin-left:auto;display:flex;align-items:center;gap:12px}
-.avatar{width:44px;height:44px;border-radius:12px;background:#cfc9c6;color:var(--ink);display:grid;place-items:center;font-size:15px;font-weight:500;flex:none}
+.avatar{width:44px;height:44px;border-radius:12px;background:#e5eefc;color:var(--ink);display:grid;place-items:center;font-size:15px;font-weight:500;flex:none}
 .tile{width:52px;height:52px;border:0;border-radius:14px;background:var(--tile);display:grid;place-items:center;color:var(--ink2)}
-.tile:hover{background:#f4f3f2}
-.tile[aria-current="page"]{background:var(--white);color:var(--ink);box-shadow:0 2px 10px rgba(22,22,22,.06)}
+.tile:hover{background:#f5f8fe}
+.tile[aria-current="page"]{background:var(--white);color:var(--ink);box-shadow:0 2px 10px rgba(16,24,40,.06)}
 .rail{display:flex;flex-direction:column;gap:12px;align-self:start;position:sticky;top:22px;padding-top:4px}
 .rail .gap{height:120px}
-.panel{background:var(--panel);border-radius:var(--r-panel);backdrop-filter:blur(18px) saturate(140%)}
+.panel{background:var(--panel);border-radius:var(--r-panel);backdrop-filter:blur(18px) saturate(140%);box-shadow:0 1px 2px rgba(16,24,40,.04),0 6px 18px rgba(16,24,40,.04)}
 .cell{background:var(--cell);border-radius:var(--r-cell)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:44px;padding:0 20px;box-sizing:border-box;border:0;border-radius:12px;background:var(--black);color:#fff;font-size:15px;white-space:nowrap;text-decoration:none}
-.btn:hover{background:#2a2a2a;text-decoration:none}
+.btn:hover{background:#0062c4;text-decoration:none}
 .btn-soft{background:var(--panel);color:var(--ink);backdrop-filter:blur(18px)}
 .btn-soft:hover{background:var(--cell)}
 .btn-white{background:var(--white);color:var(--ink)}
-.btn-white:hover{background:#f6f5f4}
+.btn-white:hover{background:#f5f8fe}
 .pill{height:44px;padding:0 18px;border:0;border-radius:12px;background:var(--panel);color:var(--muted);font-size:14px}
 .pill[aria-pressed="true"]{background:var(--white);color:var(--ink)}
 .chip{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:7px;font-size:12px;font-weight:500;white-space:nowrap}
@@ -76,6 +76,22 @@ button:active{transform:scale(.98)}
 .msg{max-width:100%}
 .convo{padding:16px!important}
 }
+
+/* Apple-style colour layer */
+:root{--font:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Inter,system-ui,sans-serif}
+.app{font-family:var(--font)}
+.h1{font-weight:600;letter-spacing:-.022em}.h2{font-weight:600;letter-spacing:-.012em}.h3{font-weight:600}.metric b{font-weight:600}
+.panel{background:#ffffff;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)}
+.search{background:#ffffff;box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.04)}
+.tile{background:#ffffff;color:var(--c,#3a3a3c);box-shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04)}
+.tile:hover{background:#f5f8fe}
+.tile[aria-current="page"]{background:var(--c,#0071e3);color:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.tile[aria-current="page"] .dot{background:#ffffff}
+.pill{background:var(--cell);color:var(--muted)}
+.pill[aria-pressed="true"],.pill[aria-current="page"]{background:#ffffff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.btn-soft{background:#ffffff;box-shadow:inset 0 0 0 1px rgba(60,60,67,.14)}
+.btn-white{box-shadow:inset 0 0 0 1px rgba(60,60,67,.14)}
+.avatar{background:#e5eefc}
 </style>
 </helmet>
 <div class="app">
@@ -98,16 +114,16 @@ button:active{transform:scale(.98)}
   </header>
 
   <nav class="rail" aria-label="Main">
-    <a class="tile" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
-    <a class="tile" href="Stream.dc.html" aria-current="page" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
-    <a class="tile" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
-    <a class="tile" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
-    <a class="tile" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
-    <a class="tile" href="Risks.dc.html" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
-    <a class="tile" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
-    <a class="tile" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
+    <a class="tile" style="--c: #0066cc" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
+    <a class="tile" style="--c: #248a3d" href="Stream.dc.html" aria-current="page" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
+    <a class="tile" style="--c: #c93400" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
+    <a class="tile" style="--c: #5856d6" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
+    <a class="tile" style="--c: #0071a4" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
+    <a class="tile" style="--c: #d70015" href="Risks.dc.html" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
+    <a class="tile" style="--c: #8a6200" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
+    <a class="tile" style="--c: #8944ab" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
     <span class="gap"></span>
-    <a class="tile end" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
+    <a class="tile end" style="--c: #d30f45" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
   </nav>
 
   <main style="min-width: 0; display: flex; flex-direction: column; gap: 26px">
@@ -129,7 +145,7 @@ button:active{transform:scale(.98)}
         <section class="panel convo" aria-labelledby="conv-h" style="padding: 22px 24px; display: flex; flex-direction: column; gap: 20px">
           <div class="sec-head">
             <div><h2 id="conv-h" class="h2">Project conversation</h2><p class="sub">9 people, Teams channel and project inbox</p></div>
-            <span style="display: flex; align-items: center"><span class="avatar" style="width: 32px; height: 32px; border-radius: 10px; font-size: 12px; box-shadow: 0 0 0 2px #ecebea">JV</span><span class="avatar" style="width: 32px; height: 32px; border-radius: 10px; font-size: 12px; margin-left: -8px; background: #d9d4d1; box-shadow: 0 0 0 2px #ecebea">MK</span><span class="avatar" style="width: 32px; height: 32px; border-radius: 10px; font-size: 12px; margin-left: -8px; box-shadow: 0 0 0 2px #ecebea">AR</span></span>
+            <span style="display: flex; align-items: center"><span class="avatar" style="width: 32px; height: 32px; border-radius: 10px; font-size: 12px; box-shadow: 0 0 0 2px #ffffff">JV</span><span class="avatar" style="width: 32px; height: 32px; border-radius: 10px; font-size: 12px; margin-left: -8px; background: #ece6fb; box-shadow: 0 0 0 2px #ffffff">MK</span><span class="avatar" style="width: 32px; height: 32px; border-radius: 10px; font-size: 12px; margin-left: -8px; box-shadow: 0 0 0 2px #ffffff">AR</span></span>
           </div>
 
           <div class="day">Today</div>
@@ -143,7 +159,7 @@ button:active{transform:scale(.98)}
           </div>
 
           <div class="msg" style="max-width: 86%">
-            <span class="avatar" style="width: 36px; height: 36px; border-radius: 11px; font-size: 13px; background: #d9d4d1">MK</span>
+            <span class="avatar" style="width: 36px; height: 36px; border-radius: 11px; font-size: 13px; background: #ece6fb">MK</span>
             <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1">
               <span class="who"><b>Mehmet Kaya</b><span class="chip c-neutral" style="height: 20px; padding: 0 7px; font-size: 11px">Email</span><span class="num">09:20</span></span>
               <article class="cell" style="padding: 14px 16px; border-radius: 6px 16px 16px 16px; display: flex; flex-direction: column; gap: 8px">
@@ -151,7 +167,7 @@ button:active{transform:scale(.98)}
                 <span class="muted" style="line-height: 23px">Wednesday 07:00 works. I've asked the plant to shift the 32&nbsp;m³ order and will confirm the pump by noon.</span>
                 <span style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px">
                   <a href="#" download="" class="btn-white" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 9px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path></svg>delivery-note-4471.pdf</a>
-                  <a href="#" style="display: inline-flex; align-items: center; gap: 4px; color: #4f4b4a">Open full email<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
+                  <a href="#" style="display: inline-flex; align-items: center; gap: 4px; color: #3a3a3c">Open full email<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
                 </span>
               </article>
             </div>
@@ -165,15 +181,15 @@ button:active{transform:scale(.98)}
               <article style="padding: 18px; border-radius: 6px 16px 16px 16px; background: #ffffff; display: flex; flex-direction: column; gap: 16px">
                 <div><span style="display: block; font-size: 17px">Reschedule “Pour foundation, bay 3”</span><span class="sub" style="display: block">Nothing changes until someone applies it</span></div>
                 <div class="diff num">
-                  <div class="cell" style="padding: 12px 14px; background: #f4f2f1"><span class="muted" style="display: block; font-size: 12px">Start</span><span style="display: block"><s class="muted">Tue 10 Nov</s></span><span style="display: block">Wed 11 Nov, 07:00</span></div>
-                  <div class="cell" style="padding: 12px 14px; background: #f4f2f1"><span class="muted" style="display: block; font-size: 12px">Formwork strip</span><span style="display: block"><s class="muted">Fri 13 Nov</s></span><span style="display: block">Mon 16 Nov</span></div>
-                  <div class="cell" style="padding: 12px 14px; background: #f4f2f1"><span class="muted" style="display: block; font-size: 12px">Milestone</span><span style="display: block">Wed 18 Nov</span><span style="display: block; color: #1f6e49">Unchanged</span></div>
+                  <div class="cell" style="padding: 12px 14px; background: #f5f8fe"><span class="muted" style="display: block; font-size: 12px">Start</span><span style="display: block"><s class="muted">Tue 10 Nov</s></span><span style="display: block">Wed 11 Nov, 07:00</span></div>
+                  <div class="cell" style="padding: 12px 14px; background: #f5f8fe"><span class="muted" style="display: block; font-size: 12px">Formwork strip</span><span style="display: block"><s class="muted">Fri 13 Nov</s></span><span style="display: block">Mon 16 Nov</span></div>
+                  <div class="cell" style="padding: 12px 14px; background: #f5f8fe"><span class="muted" style="display: block; font-size: 12px">Milestone</span><span style="display: block">Wed 18 Nov</span><span style="display: block; color: #1f6e49">Unchanged</span></div>
                 </div>
                 <span class="muted" style="font-size: 13px">Based on <a href="#" style="text-decoration: underline; text-underline-offset: 3px">Jana, 09:12</a> and <a href="#" style="text-decoration: underline; text-underline-offset: 3px">Mehmet's email, 09:20</a></span>
                 <span style="display: flex; flex-wrap: wrap; gap: 10px">
                   <button class="btn" style="flex: 1 1 140px">Apply change</button>
-                  <button class="btn btn-soft" style="flex: 1 1 120px; background: #efedec">Edit first</button>
-                  <button class="btn btn-white" style="flex: 0 1 auto; color: #4f4b4a">Dismiss</button>
+                  <button class="btn btn-soft" style="flex: 1 1 120px; background: #eef4fd">Edit first</button>
+                  <button class="btn btn-white" style="flex: 0 1 auto; color: #3a3a3c">Dismiss</button>
                 </span>
               </article>
             </div>
@@ -195,10 +211,10 @@ button:active{transform:scale(.98)}
           </div>
 
           <form class="composer" style="margin: 4px 0 0; padding: 12px; border-radius: 16px; background: #ffffff; display: flex; flex-direction: column; gap: 10px">
-            <label for="msg" style="font-size: 13px; color: #5f5b5a">Message the project</label>
+            <label for="msg" style="font-size: 13px; color: #6e6e73">Message the project</label>
             <textarea id="msg" rows="2" placeholder="Write an update. Mention @CobIA to ask for a suggestion." style="border: 0; background: none; resize: none; font: inherit; font-size: 15px; line-height: 23px; color: #161616; padding: 0; outline: none"></textarea>
             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
-              <button type="button" aria-label="Attach a file" style="width: 40px; height: 40px; border: 0; border-radius: 11px; background: #efedec; display: grid; place-items: center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.7 17.2a1.6 1.6 0 0 1-2.3-2.3L15 7.4"></path></svg></button>
+              <button type="button" aria-label="Attach a file" style="width: 40px; height: 40px; border: 0; border-radius: 11px; background: #eef4fd; display: grid; place-items: center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.7 17.2a1.6 1.6 0 0 1-2.3-2.3L15 7.4"></path></svg></button>
               <span class="muted" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Project members only, posts to Teams</span>
               <button type="submit" class="btn" style="margin-left: auto">Send</button>
             </div>
@@ -215,7 +231,7 @@ button:active{transform:scale(.98)}
           <article class="panel" style="padding: 18px; display: flex; flex-direction: column; gap: 12px">
             <div class="sec-head"><div><span style="display: block; font-size: 16px">Pour foundation, bay 3</span><span class="sub" style="display: block">Task PLN-142, Mehmet Kaya</span></div><span class="chip c-amber">Change proposed</span></div>
             <div style="display: flex; justify-content: space-between; font-size: 13px" class="muted num"><span>Progress</span><span>40%</span></div>
-            <span style="display: block; height: 7px; border-radius: 7px; background: #d6d1cf; overflow: hidden"><i style="display: block; width: 40%; height: 100%; border-radius: 7px; background: #2b2d2b"></i></span>
+            <span style="display: block; height: 7px; border-radius: 7px; background: #e3e8ef; overflow: hidden"><i style="display: block; width: 40%; height: 100%; border-radius: 7px; background: #0071e3"></i></span>
             <div class="num" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 4px">
               <div><span style="display: block; font-size: 18px">5</span><span class="muted" style="font-size: 12px">Messages</span></div>
               <div style="text-align: center"><span style="display: block; font-size: 18px">1</span><span class="muted" style="font-size: 12px">Suggestion</span></div>

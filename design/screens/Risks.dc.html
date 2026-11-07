@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#dfdcdb">
+<meta name="theme-color" content="#fbfbfd">
 <title>Plenum Risks</title>
-<script src="./support.js"></script>
+
 <link rel="stylesheet" href="plenum.css">
 </head>
 <body>
@@ -14,16 +14,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
 <style>
-:root{--ground:#dfdcdb;--panel:rgba(255,255,255,.42);--cell:rgba(255,255,255,.62);--tile:#ebeae9;--white:#ffffff;--ink:#161616;--ink2:#4f4b4a;--muted:#5f5b5a;--line:rgba(22,22,22,.08);--black:#0a0a0a;--track:#d6d1cf;--fill:#2b2d2b;--blue:#3155c4;--blue-bg:#dfe6fb;--green:#1f6e49;--green-bg:#d6ede2;--red:#b42833;--red-bg:#f7d9da;--amber:#83600f;--amber-bg:#f5e7c8;--neutral-bg:#e6e3e2;--band-1:rgba(255,255,255,.62);--band-2:#f5e7c8;--band-3:#f2d3b6;--band-4:#f2c4c5;--band-5:#e0a2a5;--r-panel:20px;--r-cell:12px;--font:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
+:root{--ground:#fbfbfd;--panel:#ffffff;--cell:#eef4fd;--tile:#ffffff;--white:#ffffff;--ink:#1d1d1f;--ink2:#3a3a3c;--muted:#6e6e73;--line:rgba(60,60,67,.12);--black:#0071e3;--track:#e3e8ef;--fill:#0071e3;--blue:#0066cc;--blue-bg:#e5f1ff;--green:#1b7a36;--green-bg:#e3f5e7;--red:#c8001f;--red-bg:#ffe8e9;--amber:#a63a00;--amber-bg:#fff0e1;--neutral-bg:#eef4fd;--band-1:rgba(255,255,255,.62);--band-2:#f5e7c8;--band-3:#f2d3b6;--band-4:#f2c4c5;--band-5:#e0a2a5;--r-panel:20px;--r-cell:12px;--font:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
 html{color-scheme:light;-webkit-tap-highlight-color:rgba(10,10,10,.08)}
 body{margin:0;background:var(--ground)}
 a{color:var(--ink);text-decoration:none}a:hover{text-decoration:underline;text-underline-offset:3px}
-::selection{background:#161616;color:#fff}
+::selection{background:#0071e3;color:#fff}
 :focus-visible{outline:2px solid var(--black);outline-offset:2px}
 button,a,input,select{touch-action:manipulation}
 button{font:inherit;cursor:pointer;transition:background-color .15s ease-out,transform .15s ease-out}
 button:active{transform:scale(.98)}
-.app{min-height:1000px;box-sizing:border-box;padding:22px 28px 32px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:26px 28px;font-family:var(--font);color:var(--ink);font-size:15px;line-height:22px;font-weight:400;letter-spacing:-.005em;background:radial-gradient(1100px 520px at 58% -8%,#ebe8e7 0%,rgba(235,232,231,0) 70%),radial-gradient(900px 420px at 45% 108%,#ebe4e3 0%,rgba(235,228,227,0) 70%),var(--ground)}
+.app{min-height:1000px;box-sizing:border-box;padding:22px 28px 32px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:26px 28px;font-family:var(--font);color:var(--ink);font-size:15px;line-height:22px;font-weight:400;letter-spacing:-.005em;background:radial-gradient(1000px 560px at 12% -12%,#e6f0ff 0%,rgba(230,240,255,0) 70%),radial-gradient(900px 520px at 100% 110%,#fdeee6 0%,rgba(253,238,230,0) 70%),var(--ground)}
 .top{grid-column:1/-1;display:flex;align-items:center;gap:28px}
 .brand{display:flex;align-items:center;gap:12px;width:200px;font-size:23px;font-weight:500;letter-spacing:-.02em}
 .search{flex:0 1 560px;display:flex;align-items:center;gap:12px;height:56px;padding:0 8px;box-sizing:border-box;border-radius:16px;background:var(--panel);backdrop-filter:blur(18px)}
@@ -31,20 +31,20 @@ button:active{transform:scale(.98)}
 .search input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:14px;color:var(--ink);outline:none}
 .search:focus-within{box-shadow:0 0 0 2px var(--black)}
 .user{margin-left:auto;display:flex;align-items:center;gap:12px}
-.avatar{width:44px;height:44px;border-radius:12px;background:#cfc9c6;color:var(--ink);display:grid;place-items:center;font-size:15px;font-weight:500;flex:none}
+.avatar{width:44px;height:44px;border-radius:12px;background:#e5eefc;color:var(--ink);display:grid;place-items:center;font-size:15px;font-weight:500;flex:none}
 .tile{width:52px;height:52px;border:0;border-radius:14px;background:var(--tile);display:grid;place-items:center;color:var(--ink2)}
-.tile:hover{background:#f4f3f2}
-.tile[aria-current="page"]{background:var(--white);color:var(--ink);box-shadow:0 2px 10px rgba(22,22,22,.06)}
+.tile:hover{background:#f5f8fe}
+.tile[aria-current="page"]{background:var(--white);color:var(--ink);box-shadow:0 2px 10px rgba(16,24,40,.06)}
 .rail{display:flex;flex-direction:column;gap:12px;align-self:start;position:sticky;top:22px;padding-top:4px}
 .rail .gap{height:120px}
-.panel{background:var(--panel);border-radius:var(--r-panel);backdrop-filter:blur(18px) saturate(140%)}
+.panel{background:var(--panel);border-radius:var(--r-panel);backdrop-filter:blur(18px) saturate(140%);box-shadow:0 1px 2px rgba(16,24,40,.04),0 6px 18px rgba(16,24,40,.04)}
 .cell{background:var(--cell);border-radius:var(--r-cell)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:44px;padding:0 20px;box-sizing:border-box;border:0;border-radius:12px;background:var(--black);color:#fff;font-size:15px;white-space:nowrap;text-decoration:none}
-.btn:hover{background:#2a2a2a;text-decoration:none}
+.btn:hover{background:#0062c4;text-decoration:none}
 .btn-soft{background:var(--panel);color:var(--ink);backdrop-filter:blur(18px)}
 .btn-soft:hover{background:var(--cell)}
 .btn-white{background:var(--white);color:var(--ink)}
-.btn-white:hover{background:#f6f5f4}
+.btn-white:hover{background:#f5f8fe}
 .pill{height:44px;padding:0 18px;border:0;border-radius:12px;background:var(--panel);color:var(--muted);font-size:14px}
 .pill[aria-pressed="true"]{background:var(--white);color:var(--ink)}
 .chip{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:7px;font-size:12px;font-weight:500;white-space:nowrap}
@@ -69,7 +69,7 @@ tr[aria-selected="true"] td{background:rgba(255,255,255,.7)}
 .mx button.c{display:flex;align-items:flex-start;justify-content:flex-start;cursor:pointer}
 .mx .c b{position:absolute;left:0;right:0;bottom:7px;text-align:center;font-size:12px;font-weight:500;color:var(--ink)}
 .mx .b1{background:var(--band-1)}.mx .b2{background:var(--band-2)}.mx .b3{background:var(--band-3)}.mx .b4{background:var(--band-4)}.mx .b5{background:var(--band-5)}
-.mx .sel{background:var(--white);box-shadow:0 4px 14px rgba(22,22,22,.12),inset 0 0 0 2px var(--black)}
+.mx .sel{background:var(--white);box-shadow:0 4px 14px rgba(16,24,40,.12),inset 0 0 0 2px var(--black)}
 .mx .ax{font-size:12px;color:var(--muted);display:grid;place-items:center}
 @media (max-width:760px){
 .app{grid-template-columns:minmax(0,1fr);padding:16px;gap:18px}
@@ -77,8 +77,24 @@ tr[aria-selected="true"] td{background:rgba(255,255,255,.7)}
 .rail{flex-direction:row;position:static;overflow-x:auto;padding:0;min-width:0}.rail .gap,.rail .end{display:none}
 .h1{font-size:26px;line-height:32px}
 .tablewrap{overflow-x:auto}.tablewrap table{min-width:680px}
-.tablewrap td:first-child,.tablewrap th:first-child{position:sticky;left:0;background:#ecebea;z-index:1}
+.tablewrap td:first-child,.tablewrap th:first-child{position:sticky;left:0;background:#ffffff;z-index:1}
 }
+
+/* Apple-style colour layer */
+:root{--font:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Inter,system-ui,sans-serif}
+.app{font-family:var(--font)}
+.h1{font-weight:600;letter-spacing:-.022em}.h2{font-weight:600;letter-spacing:-.012em}.h3{font-weight:600}.metric b{font-weight:600}
+.panel{background:#ffffff;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)}
+.search{background:#ffffff;box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.04)}
+.tile{background:#ffffff;color:var(--c,#3a3a3c);box-shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04)}
+.tile:hover{background:#f5f8fe}
+.tile[aria-current="page"]{background:var(--c,#0071e3);color:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.tile[aria-current="page"] .dot{background:#ffffff}
+.pill{background:var(--cell);color:var(--muted)}
+.pill[aria-pressed="true"],.pill[aria-current="page"]{background:#ffffff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.btn-soft{background:#ffffff;box-shadow:inset 0 0 0 1px rgba(60,60,67,.14)}
+.btn-white{box-shadow:inset 0 0 0 1px rgba(60,60,67,.14)}
+.avatar{background:#e5eefc}
 </style>
 </helmet>
 <div class="app">
@@ -101,16 +117,16 @@ tr[aria-selected="true"] td{background:rgba(255,255,255,.7)}
   </header>
 
   <nav class="rail" aria-label="Main">
-    <a class="tile" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
-    <a class="tile" href="Stream.dc.html" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
-    <a class="tile" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
-    <a class="tile" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
-    <a class="tile" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
-    <a class="tile" href="Risks.dc.html" aria-current="page" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
-    <a class="tile" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
-    <a class="tile" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
+    <a class="tile" style="--c: #0066cc" href="Main.dc.html" aria-label="Overview"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="3.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg></a>
+    <a class="tile" style="--c: #248a3d" href="Stream.dc.html" aria-label="Stream, 6 new"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8 0 0 1-12.3 7.2L3.5 20.5l1.4-4.1A8.5 8 0 1 1 20.5 12z"></path></svg><span class="dot"></span></a>
+    <a class="tile" style="--c: #c93400" href="Plan.dc.html" aria-label="Plan"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M8 12h12M6 18h8"></path></svg></a>
+    <a class="tile" style="--c: #5856d6" href="Board.dc.html" aria-label="Board"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"></rect><path d="M9.5 4v16M15 4v16"></path></svg></a>
+    <a class="tile" style="--c: #0071a4" href="Items.dc.html" aria-label="Items"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"></rect><path d="M8.5 9h7M8.5 13h7M8.5 17h4"></path></svg></a>
+    <a class="tile" style="--c: #d70015" href="Risks.dc.html" aria-current="page" aria-label="Risks, 2 high"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.5"></path></svg></a>
+    <a class="tile" style="--c: #8a6200" href="Library.dc.html" aria-label="Library"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"></path></svg></a>
+    <a class="tile" style="--c: #8944ab" href="Reports.dc.html" aria-label="Reports"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 16v-4M12 16V8M16 16v-6"></path></svg></a>
     <span class="gap"></span>
-    <a class="tile end" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
+    <a class="tile end" style="--c: #d30f45" href="Team.dc.html" aria-label="Team"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"></path></svg></a>
   </nav>
 
   <main style="min-width: 0; display: flex; flex-direction: column; gap: 26px">
@@ -128,10 +144,10 @@ tr[aria-selected="true"] td{background:rgba(255,255,255,.7)}
     </div>
 
     <section aria-label="Risk summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; max-width: 900px">
-      <div style="display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 10px"><span class="cell" style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path></svg></span><span class="num" style="font-size: 34px; line-height: 40px; letter-spacing: -.02em">7</span></span><span class="muted" style="font-size: 14px">Open risks</span></div>
+      <div style="display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 10px"><span class="cell" style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3a3a3c" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path></svg></span><span class="num" style="font-size: 34px; line-height: 40px; letter-spacing: -.02em">7</span></span><span class="muted" style="font-size: 14px">Open risks</span></div>
       <div style="display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 10px"><span class="cell" style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b42833" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 6v7M12 17v.5"></path><circle cx="12" cy="12" r="9"></circle></svg></span><span class="num" style="font-size: 34px; line-height: 40px; letter-spacing: -.02em">2</span></span><span class="muted" style="font-size: 14px">Scored 15 or more</span></div>
-      <div style="display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 10px"><span class="cell" style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 17l6-6 4 4 6-7M15 8h5v5"></path></svg></span><span class="num" style="font-size: 34px; line-height: 40px; letter-spacing: -.02em">1</span></span><span class="muted" style="font-size: 14px">Rising this week</span></div>
-      <div style="display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 10px"><span class="cell" style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f4b4a" stroke-width="2" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16"></path></svg></span><span class="num" style="font-size: 34px; line-height: 40px; letter-spacing: -.02em">3</span></span><span class="muted" style="font-size: 14px">Reviews due this week</span></div>
+      <div style="display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 10px"><span class="cell" style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3a3a3c" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 17l6-6 4 4 6-7M15 8h5v5"></path></svg></span><span class="num" style="font-size: 34px; line-height: 40px; letter-spacing: -.02em">1</span></span><span class="muted" style="font-size: 14px">Rising this week</span></div>
+      <div style="display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 10px"><span class="cell" style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3a3a3c" stroke-width="2" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16"></path></svg></span><span class="num" style="font-size: 34px; line-height: 40px; letter-spacing: -.02em">3</span></span><span class="muted" style="font-size: 14px">Reviews due this week</span></div>
     </section>
 
     <div class="cols">
@@ -145,13 +161,13 @@ tr[aria-selected="true"] td{background:rgba(255,255,255,.7)}
           <table class="num">
             <thead><tr><th scope="col">Risk</th><th scope="col" aria-sort="descending">Score</th><th scope="col">Trend</th><th scope="col" style="width: 22%">Mitigation</th><th scope="col">Review</th><th scope="col"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%)">Actions</span></th></tr></thead>
             <tbody>
-              <tr><td><span style="display: block">Transformer delivery slips past 2 Dec</span><span class="muted" style="font-size: 13px">R-01, Mehmet Kaya</span></td><td><span class="chip c-red">20 Very high</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 50%"></i></span><span class="muted" style="width: 30px">1/2</span></span></td><td>Nov 9</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #4f4b4a">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
-              <tr aria-selected="true"><td><span style="display: block">Concrete curing in frost week</span><span class="muted" style="font-size: 13px">R-04, Mehmet Kaya</span></td><td><span class="chip c-red">16 High</span></td><td style="color: #b42833">Up from 9</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 33%"></i></span><span class="muted" style="width: 30px">1/3</span></span></td><td>Nov 13</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #4f4b4a">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
-              <tr><td><span style="display: block">Cable route clashes with existing duct</span><span class="muted" style="font-size: 13px">R-06, Anouk Ruiter</span></td><td><span class="chip c-amber">12 Elevated</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 0%"></i></span><span class="muted" style="width: 30px">0/1</span></span></td><td>Nov 10</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #4f4b4a">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
-              <tr><td><span style="display: block">Crane not available for bay 4</span><span class="muted" style="font-size: 13px">R-07, Pieter Bakker</span></td><td><span class="chip c-amber">9 Medium</span></td><td style="color: #1f6e49">Down from 12</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 100%"></i></span><span class="muted" style="width: 30px">2/2</span></span></td><td>Nov 19</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #4f4b4a">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
-              <tr><td><span style="display: block">Noisy work limited to 07:00–19:00</span><span class="muted" style="font-size: 13px">R-02, Jana de Vries</span></td><td><span class="chip c-amber">6 Medium</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 100%"></i></span><span class="muted" style="width: 30px">1/1</span></span></td><td>Nov 30</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #4f4b4a">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
-              <tr><td><span style="display: block">Groundwater in trench B</span><span class="muted" style="font-size: 13px">R-03, Anouk Ruiter</span></td><td><span class="chip c-neutral">2 Low</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 100%"></i></span><span class="muted" style="width: 30px">1/1</span></span></td><td>Dec 7</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #4f4b4a">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
-              <tr><td><span style="display: block">Protection engineer on leave in January</span><span class="muted" style="font-size: 13px">R-05, you</span></td><td><span class="chip c-neutral">2 Low</span></td><td class="muted">New</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 0%"></i></span><span class="muted" style="width: 30px">0/1</span></span></td><td>Dec 14</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #4f4b4a">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+              <tr><td><span style="display: block">Transformer delivery slips past 2 Dec</span><span class="muted" style="font-size: 13px">R-01, Mehmet Kaya</span></td><td><span class="chip c-red">20 Very high</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 50%"></i></span><span class="muted" style="width: 30px">1/2</span></span></td><td>Nov 9</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #3a3a3c">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+              <tr aria-selected="true"><td><span style="display: block">Concrete curing in frost week</span><span class="muted" style="font-size: 13px">R-04, Mehmet Kaya</span></td><td><span class="chip c-red">16 High</span></td><td style="color: #b42833">Up from 9</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 33%"></i></span><span class="muted" style="width: 30px">1/3</span></span></td><td>Nov 13</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #3a3a3c">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+              <tr><td><span style="display: block">Cable route clashes with existing duct</span><span class="muted" style="font-size: 13px">R-06, Anouk Ruiter</span></td><td><span class="chip c-amber">12 Elevated</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 0%"></i></span><span class="muted" style="width: 30px">0/1</span></span></td><td>Nov 10</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #3a3a3c">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+              <tr><td><span style="display: block">Crane not available for bay 4</span><span class="muted" style="font-size: 13px">R-07, Pieter Bakker</span></td><td><span class="chip c-amber">9 Medium</span></td><td style="color: #1f6e49">Down from 12</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 100%"></i></span><span class="muted" style="width: 30px">2/2</span></span></td><td>Nov 19</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #3a3a3c">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+              <tr><td><span style="display: block">Noisy work limited to 07:00–19:00</span><span class="muted" style="font-size: 13px">R-02, Jana de Vries</span></td><td><span class="chip c-amber">6 Medium</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 100%"></i></span><span class="muted" style="width: 30px">1/1</span></span></td><td>Nov 30</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #3a3a3c">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+              <tr><td><span style="display: block">Groundwater in trench B</span><span class="muted" style="font-size: 13px">R-03, Anouk Ruiter</span></td><td><span class="chip c-neutral">2 Low</span></td><td class="muted">Steady</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 100%"></i></span><span class="muted" style="width: 30px">1/1</span></span></td><td>Dec 7</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #3a3a3c">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
+              <tr><td><span style="display: block">Protection engineer on leave in January</span><span class="muted" style="font-size: 13px">R-05, you</span></td><td><span class="chip c-neutral">2 Low</span></td><td class="muted">New</td><td><span style="display: flex; align-items: center; gap: 10px"><span class="bar"><i style="width: 0%"></i></span><span class="muted" style="width: 30px">0/1</span></span></td><td>Dec 14</td><td><a href="#" style="display: inline-flex; align-items: center; gap: 6px; color: #3a3a3c">View<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></td></tr>
             </tbody>
           </table>
           </div>
@@ -201,11 +217,11 @@ tr[aria-selected="true"] td{background:rgba(255,255,255,.7)}
           </div>
           <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px">
             <li class="cell" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px"><span style="width: 18px; height: 18px; border-radius: 6px; background: #0a0a0a; display: grid; place-items: center; flex: none"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><s class="muted">Frost blankets for bays 3 and 4</s></li>
-            <li class="cell" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px"><span style="width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px #8a8584; flex: none"></span>Accelerator in the week 48 mix</li>
-            <li class="cell" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px"><span style="width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px #8a8584; flex: none"></span><span>Keep bay 3 pour on Wed 11 Nov <a href="Stream.dc.html" class="muted" style="text-decoration: underline; text-underline-offset: 3px">in stream</a></span></li>
+            <li class="cell" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px"><span style="width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px #8e8e93; flex: none"></span>Accelerator in the week 48 mix</li>
+            <li class="cell" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px"><span style="width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px #8e8e93; flex: none"></span><span>Keep bay 3 pour on Wed 11 Nov <a href="Stream.dc.html" class="muted" style="text-decoration: underline; text-underline-offset: 3px">in stream</a></span></li>
           </ul>
           <div style="display: flex; align-items: center; gap: 10px">
-            <span class="muted num" style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5f5b5a" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>Review Nov 13</span>
+            <span class="muted num" style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6e6e73" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>Review Nov 13</span>
             <button class="btn btn-white" style="margin-left: auto; height: 40px; padding: 0 16px; font-size: 14px">Rescore</button>
             <button class="btn" style="height: 40px; padding: 0 16px; font-size: 14px">Edit risk</button>
           </div>

@@ -51,7 +51,7 @@
 .ov-cal > span { position: relative; display: grid; place-items: center; height: 2.25rem; border-radius: var(--radius-sm); background: var(--cell); }
 .ov-cal > .empty { background: none; }
 .ov-cal .dow { height: 1.75rem; background: none; color: var(--muted); }
-.ov-cal .today { background: var(--black); color: var(--surface); }
+.ov-cal .today { background: var(--primary); color: var(--on-primary); }
 .ov-cal i, .ov-legend i { position: absolute; bottom: 4px; width: 5px; height: 5px; border-radius: 5px; background: var(--ink); }
 .ov-cal i.tk, .ov-legend i.tk { background: var(--muted); }
 .ov-cal .today i { background: var(--surface); }
