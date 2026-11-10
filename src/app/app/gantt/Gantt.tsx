@@ -110,7 +110,14 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
   const rows = layoutRows(shown, groupList, folded, { first: proposals ? (b) => !!proposals[b.id] : undefined, hideEmpty: filtered });
   const tops: number[] = [];
   let height = 0;
-  for (const r of rows) { tops.push(height); height += r.group ? PHASE_PX : TASK_PX; }
+  // Each top-level group gets one of six colours; everything inside it (sub-groups, tasks) shares it.
+  const tone: (number | undefined)[] = [];
+  let phaseNo = -1;
+  for (const r of rows) {
+    tops.push(height); height += r.group ? PHASE_PX : TASK_PX;
+    if (r.group && r.depth === 0) phaseNo++;
+    tone.push(r.depth === 0 && !r.group ? undefined : phaseNo < 0 ? undefined : phaseNo % 6);
+  }
   const row = new Map(rows.flatMap((r, i) => (r.bar ? [[r.bar.id, i] as const] : [])));
   const today = todayOffset;
   const width = totalDays * dayPx;
@@ -178,7 +185,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                 {rows.map((r, i) => {
                   const b = r.bar;
                   return (
-                    <div key={r.key} role="listitem" className="gantt-row" data-summary={!!r.group} data-nested={r.depth > (r.group ? 0 : 1) || undefined} data-selected={!!b && selected === b.id} style={{ top: tops[i], height: r.group ? PHASE_PX : TASK_PX }}>
+                    <div key={r.key} role="listitem" className="gantt-row" data-ph={tone[i]} data-summary={!!r.group} data-nested={r.depth > (r.group ? 0 : 1) || undefined} data-selected={!!b && selected === b.id} style={{ top: tops[i], height: r.group ? PHASE_PX : TASK_PX }}>
                       <div className="gantt-meta" data-attention={!!b && attention(b)}>
                         {r.group ? (
                           <>
@@ -202,6 +209,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
               </div>
               <div className="gantt-plot" style={{ width, height }}>
                 {days.filter(weekend).map((i) => <div key={i} className="gantt-weekend" aria-hidden="true" style={{ insetInlineStart: i * dayPx, width: dayPx }} />)}
+                {rows.map((r, i) => r.group && <div key={`band-${r.key}`} className="gantt-band" data-ph={tone[i]} aria-hidden="true" style={{ top: tops[i], height: PHASE_PX }} />)}
                 {today >= 0 && today < totalDays && (
                   <div className="gantt-today" style={{ insetInlineStart: today * dayPx + dayPx / 2 }}><span>{show(isoOf(firstDay + today))}</span></div>
                 )}
@@ -219,7 +227,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                     return <path key={`${d.predecessorId}-${d.successorId}`} d={`M${x1} ${y1} H${x1 + 6} V${y2} H${x2}`} data-critical={onPath} data-selected={touches} />;
                   })}
                 </svg>
-                {rows.map((r, i) => r.group && r.count > 0 && <div key={r.key} className="gantt-summary" data-sub={r.depth > 0 || undefined} aria-hidden="true" style={{ insetInlineStart: r.startDay * dayPx, width: (r.endDay - r.startDay + 1) * dayPx, top: tops[i]! + 11 }} />)}
+                {rows.map((r, i) => r.group && r.count > 0 && <div key={r.key} className="gantt-summary" data-ph={tone[i]} data-sub={r.depth > 0 || undefined} aria-hidden="true" style={{ insetInlineStart: r.startDay * dayPx, width: (r.endDay - r.startDay + 1) * dayPx, top: tops[i]! + 9 }} />)}
                 {rows.map((r, i) => r.bar && baseline?.[r.bar.id] && (
                   // shortcut: a baseline that starts before the first current task is clipped at the left edge, redraw the grid if that matters
                   <div key={`base-${r.key}`} className="gantt-baseline" aria-hidden="true" style={{ insetInlineStart: Math.max(0, dayOf(baseline[r.bar.id].startDate) - firstDay) * dayPx, width: (dayOf(baseline[r.bar.id].dueDate) - dayOf(baseline[r.bar.id].startDate) + 1) * dayPx, top: tops[i]! + TASK_PX - 14 }} />
@@ -254,6 +262,7 @@ export function Gantt({ embedded = false, focusId, reveal, proposals, tasks: ini
                       type="button"
                       className={`gantt-bar${proposals?.[b.id] ? ` gantt-proposal ${proposals[b.id].cls}` : ""}`}
                       data-bar-id={b.id}
+                      data-ph={tone[i]}
                       data-muted={(!!proposals && Object.keys(proposals).length > 0 && !proposals[b.id] && b.id !== "p-risk") || undefined}
                       data-flash={proposals?.[b.id]?.flash || undefined}
                       data-leaving={proposals?.[b.id]?.leaving || undefined}

@@ -167,3 +167,31 @@
 .gantt-row[data-summary="true"][data-nested] .gantt-meta { background: var(--surface); }
 .gantt-task-name a { text-decoration: none; }
 .gantt-task-name a:hover { text-decoration: underline; }
+
+/* Colour per phase: each top-level group, its sub-groups and its tasks share one hue. A full-width band over the weekend
+   shading keeps phase rows unbroken; the phase bar is a solid bracket with end caps. Status colours still win on bars. */
+.gantt { --ph-0: #3b7ddd; --ph-1: #17998a; --ph-2: #7c5cd6; --ph-3: #e07b2e; --ph-4: #d14d8b; --ph-5: #5b9a3a; --ph: var(--g-todo-line); }
+:root[data-theme="dark"] .gantt { --ph-0: #6aa5ff; --ph-1: #45c7b6; --ph-2: #a78bfa; --ph-3: #ffa45c; --ph-4: #f27ab3; --ph-5: #8cc96a; }
+.gantt [data-ph="0"] { --ph: var(--ph-0); } .gantt [data-ph="1"] { --ph: var(--ph-1); } .gantt [data-ph="2"] { --ph: var(--ph-2); }
+.gantt [data-ph="3"] { --ph: var(--ph-3); } .gantt [data-ph="4"] { --ph: var(--ph-4); } .gantt [data-ph="5"] { --ph: var(--ph-5); }
+.gantt-band { position: absolute; inset-inline: 0; background: color-mix(in srgb, var(--ph) 10%, var(--surface)); border-block-end: 1px solid color-mix(in srgb, var(--ph) 18%, var(--surface)); }
+.gantt-row[data-summary="true"], .gantt-row[data-summary="true"] .gantt-meta, .gantt-row[data-summary="true"][data-nested] .gantt-meta { background: color-mix(in srgb, var(--ph) 10%, var(--surface)); }
+.gantt-row[data-ph] .gantt-meta, .gantt-row[data-ph][data-nested] .gantt-meta { box-shadow: inset 4px 0 0 var(--ph); }
+.gantt-row[data-summary="true"] .gantt-meta button { color: color-mix(in srgb, var(--ph) 70%, var(--text)); font-weight: var(--weight-semibold); }
+.gantt-row[data-summary="true"] .gantt-meta button[data-sub] { font-weight: var(--weight-medium); }
+.gantt-summary, .gantt-summary[data-sub] { height: 10px; border-radius: 3px; background: var(--ph); opacity: 1; }
+.gantt-summary::before, .gantt-summary::after { content: ""; position: absolute; top: 0; width: 4px; height: 14px; background: inherit; border-radius: 0 0 2px 2px; }
+.gantt-summary::before { inset-inline-start: 0; } .gantt-summary::after { inset-inline-end: 0; }
+.gantt-summary[data-sub] { height: 6px; top: auto; margin-top: 2px; opacity: .65; }
+.gantt-summary[data-sub]::before, .gantt-summary[data-sub]::after { height: 10px; }
+.gantt-bar[data-ph] { background: color-mix(in srgb, var(--ph) 12%, var(--surface)); border-color: color-mix(in srgb, var(--ph) 55%, var(--surface)); box-shadow: inset 4px 0 0 var(--ph); padding-inline-start: 10px; }
+.gantt-bar[data-ph][data-status="in_progress"] { background: color-mix(in srgb, var(--ph) 26%, var(--surface)); border-color: var(--ph); }
+.gantt-bar[data-ph][data-status="done"] { background: var(--g-done-bg); border-color: var(--g-done-line); box-shadow: inset 4px 0 0 var(--g-done-line); }
+.gantt-bar[data-ph][data-status="blocked"] { background: var(--g-blocked-bg); border-color: var(--g-blocked-line); box-shadow: inset 4px 0 0 var(--g-blocked-line); }
+.gantt-bar[data-ph][data-late="true"] { background: var(--g-late-bg); border-color: var(--g-late-line); box-shadow: inset 4px 0 0 var(--g-late-line); }
+.gantt[data-critical-path="true"] .gantt-bar[data-ph][data-critical="true"] { box-shadow: inset 4px 0 0 var(--ph), 0 0 0 1.5px var(--g-critical); }
+.gantt-bar[data-ph][data-milestone="true"] { background: var(--ph); box-shadow: none; padding: 0; }
+.gantt .gantt-bar[data-ph][data-muted] { background: var(--surface-muted); border-color: var(--border); box-shadow: none; }
+.gantt-bar.gantt-proposal[data-ph] { background: color-mix(in srgb, var(--c) 22%, var(--surface)); border-color: var(--c); box-shadow: none; }
+.gantt-bar.gantt-proposal.ps-ok[data-ph] { background: var(--success-surface); }
+.gantt-weekend { background: color-mix(in srgb, var(--text) 4%, transparent); }
