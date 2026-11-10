@@ -1,4 +1,3 @@
-import { SourceFilter } from "./SourceFilter";
 import type { ReactNode } from "react";
 import { MarkRead } from "./MarkRead";
 import { Attach } from "./Attach";
@@ -185,21 +184,30 @@ export function StreamView({ t, base, project, days, query, next, pages = 1, fre
   return (
     <main id="main" className="page msgs chat">
       {!readOnly && <MarkRead projectId={project.id} />}
-      <header className="chat-head">
-        <div className="page-head"><h1 className="h1">{t("stream.title")}</h1><p className="subline">{t("stream.sub")}</p></div>
-        <h2 className="sr-only">{t("stream.conversation")}</h2>
-        <SourceFilter label={t("stream.filter")} allLabel={t("stream.filter.all")} options={(["app", "email", "teams"] as const).map((v) => ({ value: v, label: t(`stream.source.${v}`) }))} />
-        <SearchBar action={base} projectId={project.id} source={query.source} q={query.q} label={t("stream.c.search")} />
-      </header>
-      <aside className="panel linkedwork" aria-labelledby="linkedwork-h">
-        <h2 id="linkedwork-h" className="h3">{t("stream.linkedWork")}</h2>
-        {linked.length === 0 ? <p className="sub">{t("stream.linkedWork.empty")}</p> : (
-          <ul>
-            {linked.map((l) => (
-              <li key={l.id}><a href={`#msg-${l.messageId}`}><span className="chip c-neutral">{t(l.riskKind ? (`risks.kind.${l.riskKind}` as "risks.kind.risk") : `stream.linked.${l.kind}`)}</span> {l.title}</a></li>
-            ))}
-          </ul>
+      <h1 className="sr-only">{t("stream.title")}</h1>
+      <h2 className="sr-only">{t("stream.conversation")}</h2>
+      <SearchBar action={base} projectId={project.id} source={query.source} q={query.q} label={t("stream.c.search")} />
+      <aside className="linkedwork" aria-labelledby="linkedwork-h">
+        {linked.some((l) => l.kind === "risk") && (
+          <section>
+            <h2 className="lw-cap">{t("overview.attention")}</h2>
+            <ul>
+              {linked.filter((l) => l.kind === "risk").map((l) => (
+                <li key={l.id}><a className="lw-flag" data-kind={l.riskKind ?? "risk"} href={`#msg-${l.messageId}`}><b>{t(l.riskKind ? (`risks.kind.${l.riskKind}` as "risks.kind.risk") : "stream.linked.risk")}</b> {l.title}</a></li>
+              ))}
+            </ul>
+          </section>
         )}
+        <section>
+          <h2 id="linkedwork-h" className="lw-cap">{t("stream.linkedWork")}</h2>
+          {linked.length === 0 ? <p className="sub">{t("stream.linkedWork.empty")}</p> : (
+            <ul className="lw-rows">
+              {linked.filter((l) => l.kind !== "risk").map((l) => (
+                <li key={l.id}><a href={`#msg-${l.messageId}`}><span className="lw-kind">{t(`stream.linked.${l.kind}`)}</span> {l.title}</a></li>
+              ))}
+            </ul>
+          )}
+        </section>
       </aside>
       <div className="chat-scroll">
       <div className="msgs-main feed" role="log" aria-live="off" aria-label={t("stream.conversation")} tabIndex={0}>
