@@ -16,7 +16,7 @@ export type AgentIo = {
 
 const DAY = 86_400_000;
 const AGENT_TOKENS = 2000;
-const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/g, " ").trim();
+const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const CLAIM = /\b(I'll|I will|I have|I've|I made|I updated|I added|I linked|done|updated|linked|added)\b/i;
 
 export async function agentRespond(input: { message: string; documents: string; today: string }, io: AgentIo, ask: Ask): Promise<AgentAnswer> {
