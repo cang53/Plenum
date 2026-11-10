@@ -328,3 +328,14 @@ a.fpill { display: inline-flex; align-items: center; text-decoration: none; }
 pre.panel { margin-block: var(--s4); padding: var(--s4); white-space: pre-wrap; font: inherit; font-size: var(--text-sm); }
 /* Each settings section saves on its own; the Save button sits bottom-right. */
 .form-card > button[type="submit"].btn-primary:last-child { justify-self: end; }
+
+/* Command menu: drops in from just above the search bar, over a light, barely blurred page. Closes on a click outside. */
+.dialog.cmd { margin-block-start: 12vh; transition: opacity .18s ease, translate .22s cubic-bezier(.2,.9,.3,1.15), scale .22s cubic-bezier(.2,.9,.3,1.15), overlay .22s allow-discrete, display .22s allow-discrete; }
+.dialog.cmd[open] { opacity: 1; translate: 0 0; scale: 1; }
+.dialog.cmd:not([open]) { opacity: 0; translate: 0 -10px; scale: .97; }
+@starting-style { .dialog.cmd[open] { opacity: 0; translate: 0 -10px; scale: .97; } }
+.dialog.cmd::backdrop { background: color-mix(in srgb, var(--text) 12%, transparent); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); transition: opacity .2s ease, overlay .22s allow-discrete, display .22s allow-discrete; opacity: 1; }
+.dialog.cmd:not([open])::backdrop { opacity: 0; }
+@starting-style { .dialog.cmd[open]::backdrop { opacity: 0; } }
+.cmd-list > li { transition: background .12s; }
+@media (prefers-reduced-motion: reduce) { .dialog.cmd, .dialog.cmd::backdrop { transition: none; } }
