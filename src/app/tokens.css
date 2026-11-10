@@ -190,6 +190,9 @@
   --fill: #d9dbd4;
   --line: #ffffff1a;
   --black: #f2f3ef;
+  --panel: var(--surface);
+  --cell: var(--surface-muted);
+  --neutral-bg: var(--surface-muted);
   --glass: #ffffff0d;
   --glass-strong: #ffffff17;
   --glass-border: #ffffff1a;
