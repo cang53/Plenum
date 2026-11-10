@@ -78,3 +78,16 @@
 .board-column[data-status="in_progress"] h2 .column-name { color: inherit; }
 .board-notice { background: var(--panel); }
 .board-view-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+
+/* Status colours: each column carries its status colour on a dot, a soft tint and the cards' left edge. */
+.board-column { --st: var(--status-todo); background: color-mix(in srgb, var(--st) 7%, var(--surface-subtle)); border-block-start: 3px solid var(--st); }
+.board-column[data-status="in_progress"] { --st: var(--status-progress); }
+.board-column[data-status="blocked"] { --st: var(--status-blocked); }
+.board-column[data-status="done"] { --st: var(--status-done); }
+.board-column h2 .column-name::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-inline-end: 8px; border-radius: 50%; background: var(--st); vertical-align: middle; }
+.board-column h2 .count { background: color-mix(in srgb, var(--st) 22%, var(--surface)); color: var(--text); }
+.card { box-shadow: inset 3px 0 0 var(--st), 0 1px 2px #0000000f; }
+.card.overdue { box-shadow: inset 3px 0 0 var(--danger), 0 1px 2px #0000000f; background: color-mix(in srgb, var(--danger) 6%, var(--surface)); }
+.card, .card:hover { background: var(--surface); }
+.card.overdue:hover { background: color-mix(in srgb, var(--danger) 6%, var(--surface)); }
+.board-column[data-status="done"] .card h3 { color: var(--text-secondary); }
