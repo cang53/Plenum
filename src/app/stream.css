@@ -440,3 +440,10 @@ a.mention:hover { text-decoration: underline; }
   .chat .msg .mail-acts { inset-block-start: 19px; inset-inline: 100% auto; }
   .chat .mail.msg[data-mine] .mail-acts { inset-block-start: 0; inset-inline: auto 100%; }
 }
+
+/* My own bubble: every piece of text uses the bubble ink; quote and attachment are tints of it, not light boxes. */
+.chat .mail.msg[data-mine] .bubble { color: var(--on-mine); }
+.chat .mail.msg[data-mine] .bubble * { color: inherit; }
+.chat .mail.msg[data-mine] .bubble :is(.quote, .attach) { background: color-mix(in srgb, var(--on-mine) 16%, transparent); border-color: var(--on-mine); }
+.chat .mail.msg[data-mine] .bubble .attach .info small { opacity: .85; }
+.chat .mail.msg[data-mine] .bubble .attach a { text-decoration: underline; }
