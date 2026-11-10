@@ -330,7 +330,7 @@ a.mention:hover { text-decoration: underline; }
 .chat .mail.msg[data-mine] .who time { margin-inline-start: 0; margin-inline-end: 4px; }
 .chat .bubble { gap: 6px; padding: 7px 11px; border-radius: 6px 18px 18px 18px; font-size: 13.5px; line-height: 1.45; }
 .chat .mail.msg[data-mine] .bubble { border-radius: 18px 6px 18px 18px; background: var(--mine); box-shadow: none; }
-.chat .mail.msg[data-mine] .bubble, .chat .mail.msg[data-mine] .bubble :is(h1, h2, h3, p, strong, a, span, li, time, button) { color: var(--on-primary); }
+.chat .mail.msg[data-mine] .bubble, .chat .mail.msg[data-mine] .bubble :is(h1, h2, h3, p, strong, a, span, li, time, button) { color: var(--on-mine); }
 .chat .bubble .body, .chat .bubble details, .chat .bubble .agent-title, .chat .bubble .agent-details { font-size: 13.5px; line-height: 1.45; }
 .chat .bubble .quote { padding: 1px 8px; font-size: 12px; }
 .chat .dayrule { font-size: 10px; margin-block: 2px; }
@@ -425,3 +425,18 @@ a.mention:hover { text-decoration: underline; }
 .chat .earlier-skel span[aria-hidden] { display: block; height: 2.25rem; width: 60%; border-radius: var(--radius-lg); background: var(--control); animation: earlier-pulse 1.2s ease-in-out infinite; }
 @keyframes earlier-pulse { 50% { opacity: .5; } }
 @media (prefers-reduced-motion: reduce) { .chat .earlier-skel span[aria-hidden] { animation: none; } }
+
+/* Readability: no tinted band behind the header; the day label is a pill, so messages scroll under it cleanly. */
+.chat .chat-head { background: none; }
+.chat .dayrule { justify-content: center; background: none; font-size: 11px; color: var(--text-secondary); pointer-events: none; }
+.chat .dayrule::before, .chat .dayrule::after { content: none; }
+.chat .dayrule span { padding: 3px 10px; border: 1px solid var(--c-line); border-radius: 100px; background: var(--surface); }
+.chat .bubble, .chat .bubble .body, .chat .bubble details, .chat .bubble .agent-title, .chat .bubble .agent-details { font-size: 14px; line-height: 1.5; }
+.chat .msg .who time { font-size: 11px; }
+/* A mention inside my own message: same ink as the bubble text, on a soft tint of it. */
+.chat .mail.msg[data-mine] .bubble .mention { background: color-mix(in srgb, var(--on-mine) 22%, transparent); font-weight: 600; }
+/* On wide screens the hover bar sits beside the bubble, so it never covers the text. */
+@media (hover: hover) and (min-width: 64rem) {
+  .chat .msg .mail-acts { inset-block-start: 19px; inset-inline: 100% auto; }
+  .chat .mail.msg[data-mine] .mail-acts { inset-block-start: 0; inset-inline: auto 100%; }
+}

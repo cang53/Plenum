@@ -40,6 +40,7 @@ const pairs: [string, string, number][] = [
   ["--text-muted", "--surface", 4.5],
   ["--text-muted", "--surface-subtle", 4.5],
   ["--on-primary", "--primary", 4.5],
+  ["--on-mine", "--mine", 4.5],
   ["--primary", "--surface", 4.5],
   ["--accent-text", "--accent-soft", 4.5],
   ["--danger", "--danger-surface", 4.5],

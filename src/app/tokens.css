@@ -24,6 +24,7 @@
   --accent-soft: #e5f1ff;
   --accent-text: #004f9e;
   --mine: #0071e3;
+  --on-mine: #ffffff;
   --agent: #004f9e;
   --agent-surface: #e5f1ff;
   --danger: #a3001a;
@@ -171,6 +172,7 @@
   --accent-soft: #253226;
   --accent-text: #cfe3cf;
   --mine: #2a3a2c;
+  --on-mine: #f2f3ef;
   --agent: #d9b55a;
   --agent-surface: #2f2a1b;
   --danger: #ff8a80;
