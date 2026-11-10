@@ -16,6 +16,7 @@ export type AgentIo = {
 
 const DAY = 86_400_000;
 const AGENT_TOKENS = 2000;
+const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const CLAIM = /\b(I'll|I will|I have|I've|I made|I updated|I added|I linked|done|updated|linked|added)\b/i;
 
 export async function agentRespond(input: { message: string; documents: string; today: string }, io: AgentIo, ask: Ask): Promise<AgentAnswer> {
@@ -31,6 +32,9 @@ export async function agentRespond(input: { message: string; documents: string; 
     }
   }
   const out = answer ?? (await offline());
+  // A create_task for work an open task already covers (same title, ignoring case and punctuation) would make a duplicate, so it is dropped.
+  const seen = new Set(tasks.map((t) => norm(t.title)));
+  out.actions = out.actions.filter((a) => a.kind !== "create_task" || (!seen.has(norm(a.title)) && !!seen.add(norm(a.title))));
   // Dependencies are also read by code, so a model that missed one or made a new task for it is corrected.
   const deps = findDependencies(`${input.message}\n${input.documents}`, tasks);
   if (deps.found.length) {
