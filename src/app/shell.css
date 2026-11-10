@@ -90,3 +90,13 @@ body:has(.shell) { background: var(--frame); }
   .shell[data-rail="open"] .tile-label { animation: none; }
 }
 .shell-rail .tile, .shell-rail .tile:hover { text-decoration: none; }
+
+/* Top bar blended into the ground: the project picker reads as a title with a chevron, search is a soft translucent pill. */
+.shell-projects summary { height: 2.75rem; padding: 0 0.875rem; border: 1px solid transparent; border-radius: var(--radius-full); background: transparent; font-size: var(--text-base); font-weight: var(--weight-semibold); color: var(--text); transition: background .15s, border-color .15s; }
+.shell-projects summary:hover, .shell-projects[open] summary { background: color-mix(in srgb, var(--surface) 55%, transparent); border-color: var(--glass-border); }
+.shell-projects summary::after { width: 0.4rem; height: 0.4rem; border-color: var(--text-muted); }
+.shell-find { height: 2.75rem; padding: 0 0.875rem 0 0.375rem; border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: color-mix(in srgb, var(--surface) 45%, transparent); color: var(--text-muted); transition: background .15s, border-color .15s, box-shadow .15s; }
+.shell-find:hover { background: color-mix(in srgb, var(--surface) 80%, transparent); border-color: var(--border); box-shadow: var(--elevation-1); }
+.shell-find-icon { width: 2rem; height: 2rem; border-radius: var(--radius-full); background: none; color: var(--text-muted); }
+.shell-find .kbd { display: inline-flex; padding: 1px 7px; border: 1px solid var(--glass-border); border-radius: 6px; background: none; color: var(--text-muted); font-size: var(--text-xs); }
+@media (max-width: 48rem) { .shell-find .kbd { display: none; } }
