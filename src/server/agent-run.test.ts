@@ -36,6 +36,15 @@ describe("agent rules", () => {
   });
 });
 
+describe("duplicate tasks", () => {
+  it("does not propose a task that an open task already covers, nor the same new task twice", async () => {
+    const fake = io();
+    const docs = "Action: Pour  slab! by 12 Nov\nAction: Order rebar by 12 Nov\nAction: order rebar by 13 Nov";
+    const out = await agentRespond({ ...input, documents: docs }, fake, agentRuleAsk);
+    expect(out.actions.map((a) => a.title)).toEqual(["Order rebar"]);
+  });
+});
+
 describe("agentRespond with a model", () => {
   it("keeps only well-formed proposals about real tasks", async () => {
     const model = JSON.stringify({ reply: "Done reading.", actions: [
