@@ -76,7 +76,7 @@
   /* Sidebar, from the design file */
   --side-bg: #f7f7f8; --side-line: #dadadd; --side-ink: #10111d; --side-icon: #555760; --side-muted: #77777e; --side-chev: #99999e;
   --side-badge-bg: #eeeef0; --side-badge-border: #d9d9dc; --side-selected: #ededf0; --side-selected-ink: #087ef5; --side-thread-line: #d3d3d5;
-  --side-plus-bg: #a7a9ad; --side-cta: #1786fb; --side-cta-border: #0074ed; --side-emblem: #101021; --side-on-dark: #ffffff;
+  --side-plus-bg: #a7a9ad; --side-cta: #1786fb; --side-cta-border: #0074ed; --side-emblem: #101021; --side-on-dark: #ffffff; --side-detail: #ffffff;
 
   /* Radius */
   --radius-sm: 0.375rem;
@@ -164,7 +164,7 @@
   --org-1-tint: #1e3a66; --org-2-tint: #5a3318; --org-3-tint: #1d4a2c; --org-4-tint: #3f2a5c;
   --side-bg: #121412; --side-line: #30342e; --side-ink: #f2f3ef; --side-icon: #c3c7bd; --side-muted: #9ea397; --side-chev: #9ea397;
   --side-badge-bg: #262925; --side-badge-border: #30342e; --side-selected: #2a2d29; --side-selected-ink: #75b1ff; --side-thread-line: #3a3e38;
-  --side-plus-bg: #5b6058; --side-cta: #1786fb; --side-cta-border: #0074ed; --side-emblem: #f2f3ef;
+  --side-plus-bg: #5b6058; --side-cta: #1786fb; --side-cta-border: #0074ed; --side-emblem: #f2f3ef; --side-detail: #121412;
   --surface: #1c1e1b;
   --surface-subtle: #121412;
   --surface-muted: #262925;

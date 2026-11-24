@@ -72,7 +72,7 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
   const threadId = params.get("thread");
   const toggle = (cls: string) => (
     <button type="button" className={cls} aria-expanded={open} aria-controls="shell-side" aria-label={open ? labels.railCollapse : labels.railExpand} title={open ? labels.railCollapse : labels.railExpand} onClick={toggleSide}>
-      {cls.includes("side-open") ? <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M9.5 4.5v15" stroke="currentColor" strokeWidth="1.7" /></svg> : <SideIcon name="collapse" size={20} />}
+      {cls.includes("side-open") ? <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M9.5 4.5v15" stroke="currentColor" strokeWidth="1.7" /></svg> : <SideIcon name="collapse" size={22} />}
     </button>
   );
   return (
@@ -83,18 +83,18 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
             <span className="side-emblem" aria-hidden="true" />
             <span className="side-name">{workspace ?? labels.brand}</span>
           </a>
-          <span className="side-chevs" aria-hidden="true"><SideIcon name="chevrons" size={16} /></span>
+          <span className="side-chevs" aria-hidden="true"><SideIcon name="chevrons" size={20} /></span>
           {toggle("side-toggle")}
         </div>
         <nav className="side-nav">
           <a className="side-row" href={href("/app")} aria-current={pathname === "/app" ? "page" : undefined}><SideIcon name="home" />{labels.home ?? "Home"}</a>
-          <CommandMenu project={project?.id} labels={{ ...labels.menu, open: labels.search ?? labels.menu.open }} />
+          <CommandMenu project={project?.id} labels={{ ...labels.menu, open: labels.search ?? labels.menu.open }} icon={<SideIcon name="search" />} />
           <a className="side-row side-gap" href="/app/projects" aria-current={pathname.startsWith("/app/projects") ? "page" : undefined}><SideIcon name="bag" />{labels.projects}</a>
           <a className="side-row" href={href("/app/library")} aria-current={current("/app/library") ? "page" : undefined}><SideIcon name="play" />{items.find((i) => i.path === "/app/library")?.label ?? "Library"}</a>
         </nav>
         <div className="side-mine">
           <span>{labels.myChatroom ?? "My Chatroom"}</span>
-          {project && <button type="button" className="side-plus" aria-label={labels.addChatroom} aria-expanded={adding} onClick={() => setAdding(!adding)}><SideIcon name="add" size={10} /></button>}
+          {project && <button type="button" className="side-plus" aria-label={labels.addChatroom} aria-expanded={adding} onClick={() => setAdding(!adding)}><SideIcon name="plusdot" size={16} /></button>}
         </div>
         <nav className="shell-tree" aria-label={labels.chatrooms ?? "Chatrooms"}>
           {projects.map((p) => (

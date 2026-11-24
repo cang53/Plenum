@@ -1,17 +1,23 @@
-// Sidebar icons from the design file: 22px, filled with white details, search and hash as outlines. Decorative.
-const f = { fill: "currentColor", "aria-hidden": true } as const;
-const o = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
+// Sidebar icons, the paths exported from the design file. Each viewBox is the icon's own 22px (or 20px) box, so 1.7 strokes stay 1.7px.
+const st = { strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+const ink = { ...st, stroke: "currentColor" } as const;
+const detail = { ...st, stroke: "var(--side-detail)", fill: "none" } as const;
+const svg = (box: string, size: number, kids: React.ReactNode) => <svg width={size} height={size} viewBox={box} fill="none" aria-hidden="true">{kids}</svg>;
 
-export function SideIcon({ name, size = 22 }: { name: "home" | "bag" | "play" | "gear" | "plus" | "hash" | "chevrons" | "collapse" | "add"; size?: number }) {
+type Name = "home" | "search" | "bag" | "play" | "gear" | "plus" | "hash" | "chevrons" | "collapse" | "add" | "plusdot";
+// Decorative: the link or button next to it carries the name.
+export function SideIcon({ name, size = 22 }: { name: Name; size?: number }) {
   switch (name) {
-    case "home": return <svg width={size} height={size} viewBox="0 0 24 24" {...f}><path d="M12 2.8 2.8 10.4V20a1.2 1.2 0 0 0 1.2 1.2h5.4v-6.4h5.2v6.4H20a1.2 1.2 0 0 0 1.2-1.2v-9.6z" /></svg>;
-    case "bag": return <svg width={size} height={size} viewBox="0 0 24 24" {...f}><rect x="4.5" y="3.5" width="15" height="18" rx="3" /><rect x="9" y="1.8" width="6" height="3.4" rx="1.2" /></svg>;
-    case "play": return <svg width={size} height={size} viewBox="0 0 24 24" {...f}><rect x="2.5" y="4" width="19" height="16" rx="3.5" /><path d="M10 9v6l5-3z" fill="var(--side-bg)" /></svg>;
-    case "gear": return <svg width={size} height={size} viewBox="0 0 24 24" {...f}><path d="M12 2l1.8 2.4 3-.5.9 2.9 2.8 1.2-.8 3 1.6 2.6-2.2 2.1-.1 3.1-3 .6-1.9 2.4-2.7-1.4-2.7 1.4-1.9-2.4-3-.6-.1-3.1L2.5 13.6l1.6-2.6-.8-3 2.8-1.2.9-2.9 3 .5z" /><circle cx="12" cy="12" r="3" fill="var(--side-bg)" /></svg>;
-    case "plus": return <svg width={size} height={size} viewBox="0 0 24 24" {...o}><path d="M12 4.5v15M4.5 12h15" /></svg>;
-    case "hash": return <svg width={size} height={size} viewBox="0 0 24 24" {...o}><path d="M9.5 3.5 7.5 20.5M16.5 3.5l-2 17M4 8.5h16.5M3.5 15.5H20" /></svg>;
-    case "chevrons": return <svg width={size} height={size} viewBox="0 0 16 16" {...o} strokeWidth={1.6}><path d="m4.5 6.5 3.5-3.5 3.5 3.5M4.5 9.5 8 13l3.5-3.5" /></svg>;
-    case "collapse": return <svg width={size} height={size} viewBox="0 0 16 16" {...o} strokeWidth={1.6}><path d="M8.5 4 4.5 8l4 4M12.5 4l-4 4 4 4" /></svg>;
-    case "add": return <svg width={size} height={size} viewBox="0 0 24 24" {...o} strokeWidth={2.2}><path d="M12 4.5v15M4.5 12h15" /></svg>;
+    case "home": return svg("38 151 22 22", size, <><path d="M40.75 160.167L49 153.75L57.25 160.167V170.25H40.75V160.167Z" fill="currentColor" {...ink} /><path d="M45.3333 163.833C47.7777 166.889 50.2221 166.889 52.6666 163.833" {...detail} /></>);
+    case "search": return svg("38 197 22 22", size, <><path d="M54.5 206.625C54.5 210.422 51.422 213.5 47.625 213.5C43.828 213.5 40.75 210.422 40.75 206.625C40.75 202.828 43.828 199.75 47.625 199.75C51.422 199.75 54.5 202.828 54.5 206.625Z" {...ink} /><path d="M52.6667 211.667L57.2501 216.25" {...ink} /></>);
+    case "bag": return svg("38 254 22 22", size, <><path d="M53.5834 258.583H44.4167C42.898 258.583 41.6667 259.815 41.6667 261.333V272.333C41.6667 273.852 42.898 275.083 44.4167 275.083H53.5834C55.1022 275.083 56.3334 273.852 56.3334 272.333V261.333C56.3334 259.815 55.1022 258.583 53.5834 258.583Z" fill="currentColor" {...ink} /><path d="M45.3333 258.583V255.833H52.6666V258.583" {...ink} /></>);
+    case "play": return svg("38 301 22 22", size, <><path d="M55.4167 302.833H42.5833C41.5708 302.833 40.75 303.654 40.75 304.667V320.25C40.75 321.263 41.5708 322.083 42.5833 322.083H55.4167C56.4292 322.083 57.25 321.263 57.25 320.25V304.667C57.25 303.654 56.4292 302.833 55.4167 302.833Z" fill="currentColor" {...ink} /><path d="M47.1667 308.333L52.6667 312L47.1667 315.667V308.333Z" fill="var(--side-detail)" /></>);
+    case "gear": return svg("38 1020 22 22", size, <><path d="M46.2501 1021.83H51.7501L52.6667 1025.5L56.3334 1026.42L58.1667 1031L55.4167 1033.75V1037.42L50.8334 1040.17L48.0834 1037.42H44.4167L41.6667 1032.83L44.4167 1030.08V1026.42L46.2501 1021.83Z" fill="currentColor" {...ink} /><path d="M51.75 1031C51.75 1032.52 50.5188 1033.75 49 1033.75C47.4812 1033.75 46.25 1032.52 46.25 1031C46.25 1029.48 47.4812 1028.25 49 1028.25C50.5188 1028.25 51.75 1029.48 51.75 1031Z" {...detail} /></>);
+    case "plus": return svg("38 699 22 22", size, <path d="M49.0001 702.667V717.333M41.6667 710H56.3334" {...st} stroke="currentColor" />);
+    case "add": return svg("38 699 22 22", size, <path d="M49.0001 702.667V717.333M41.6667 710H56.3334" {...st} stroke="currentColor" />);
+    case "hash": return svg("73 514 20 20", size, <path d="M80.5001 516.5L78.0001 531.5M87.1667 516.5L84.6667 531.5M75.5001 521.5H90.5001M74.6667 527.333H89.6667" {...ink} />);
+    case "chevrons": return svg("216 94 20 24", size, <><path d="M222.568 101.773L221.705 100.909L226.364 96.25L231.023 100.909L230.159 101.773L226.364 97.9886L222.568 101.773Z" fill="currentColor" /><path d="M223.936 116.504L220.816 110.488H222.112L224.096 114.424L226.08 110.488H227.376L224.256 116.504H223.936Z" fill="currentColor" /></>);
+    case "collapse": return svg("308 97 18 21", size, <><path d="M315.625 101.833L309.958 107.5L315.625 113.167" {...ink} /><path d="M323.625 101.833L317.958 107.5L323.625 113.167" {...ink} /></>);
+    case "plusdot": return svg("305 366 16 16", size, <path d="M311.992 377.354V370.632H313.33V377.354H311.992ZM309.303 374.659V373.322H316.024V374.659H309.303Z" fill="currentColor" />);
   }
 }
