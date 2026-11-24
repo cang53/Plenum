@@ -13,7 +13,6 @@ export function checkSwitches(env: Env = process.env): Switch[] {
   const auth = env.AUTH_PROVIDER ?? "supabase";
   const email = env.EMAIL_PROVIDER ?? "fake";
   const ai = env.AI_PROVIDER ?? "rules";
-  const teams = env.TEAMS_PROVIDER ?? "fake";
   const aws = env.BEDROCK_REGION ?? env.AWS_REGION ?? "eu-west-1";
   const euProblem = EU_REGION.test(aws) ? [] : [`region ${aws} is outside the EU`];
   const unknown = (flag: string, value: string, ok: string[]) => (ok.includes(value) ? [] : [`${flag}=${value} is not one of ${ok.join(", ")}`]);
@@ -32,11 +31,6 @@ export function checkSwitches(env: Env = process.env): Switch[] {
       name: "Bedrock triage", flag: "AI_PROVIDER", value: ai, live: ai === "bedrock",
       problems: [...unknown("AI_PROVIDER", ai, ["rules", "bedrock"]),
         ...(ai === "bedrock" ? [...need(env, ["BEDROCK_MODEL_ID"]), ...euProblem] : [])],
-    },
-    {
-      name: "Live Teams posts", flag: "TEAMS_PROVIDER", value: teams, live: teams === "live",
-      problems: [...unknown("TEAMS_PROVIDER", teams, ["fake", "live"]),
-        ...(teams === "live" ? need(env, ["AUTH_MICROSOFT_ENTRA_ID_ID", "AUTH_MICROSOFT_ENTRA_ID_SECRET", "AUTH_MICROSOFT_ENTRA_ID_TENANT_ID"]) : [])],
     },
   ];
 }

@@ -10,8 +10,6 @@ export type JobStore = {
   purge: () => Promise<number>;
   draftReports: () => Promise<number>;
   digestRows: Parameters<typeof sendDigests>[0];
-  // Present only while TEAMS_PROVIDER=live.
-  readTeams?: () => Promise<number>;
   // Weekly AI analysis of open risks and issues, per project.
   analyzeRisks?: () => Promise<number>;
 };
@@ -29,8 +27,6 @@ export async function runJobs(store: JobStore, sender: EmailSender, onError: (e:
       return `${sent} resent`;
     }],
   };
-  const readTeams = store.readTeams;
-  if (readTeams) jobs["teams-read"] = [0, async () => `${await readTeams()} read`];
   const analyzeRisks = store.analyzeRisks;
   if (analyzeRisks) jobs["risk-analysis"] = [160, async () => `${await analyzeRisks()} analysed`];
   const out: Record<string, JobResult> = {};

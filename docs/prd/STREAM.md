@@ -47,6 +47,8 @@ Two screens: the conversation list, then the conversation with a back link. The 
 ### Keyboard
 J/K move between messages, T creates a task, D pins as decision, C writes, End jumps to latest.
 
+> Teams was removed on 24 Nov 2026: messages come in by the CC'd project email or are written in Plenum. Mentions of Teams below are history.
+
 ## Built now
 Conversations (grouped by subject across sources), list with search and filters, unread and needs-reply states, catch-up line, pinned composer with a real send, channel picker, task/decision actions, mobile drill-in, `/demo/messages` with sample data.
 

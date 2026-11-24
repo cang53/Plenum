@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { supabaseServer } from "@/auth/supabase";
 import { acceptSuggestion, dismissSuggestion } from "@/data/live";
-import { teamsPoster } from "@/server/teams";
 import { logError } from "@/lib/log";
 import { checkFiles, safeName } from "@/domain/attachments";
 import type { ItemKind } from "@/domain/linking";
@@ -85,11 +84,6 @@ export async function postMessage(form: FormData): Promise<void> {
   }));
   // The message is saved and the reply goes out now; the AI works after it, and must never lose the message.
   after(async () => {
-    // Best effort: a Teams outage must not lose a message that is already saved.
-    if (process.env.TEAMS_PROVIDER === "live") {
-      const { data: p } = await supabase.from("projects").select("email_slug").eq("id", projectId).single();
-      if (p && body) await teamsPoster().post({ projectSlug: p.email_slug, kind: "message", text: body }).catch((e) => logError("teams post failed", e));
-    }
     try {
       const documents = files.length ? await attachmentText(await Promise.all(files.map(async (f) => ({ filename: f.name, contentType: f.type, content: Buffer.from(await f.arrayBuffer()) }))), { limit: 20000, keepLines: true }) : "";
       // Replying to one of CobIA's messages counts as tagging it.
