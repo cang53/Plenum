@@ -7,6 +7,8 @@ cd "$(dirname "$0")/.."
 run_tests() {
   local url="$1"
   psql "$url" -q -v ON_ERROR_STOP=1 -f supabase/tests/auth_stub.sql
+  # Supabase has this publication; plain Postgres does not, and the realtime migration needs it.
+  psql "$url" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin if not exists (select 1 from pg_publication where pubname = 'supabase_realtime') then create publication supabase_realtime; end if; end \$\$"
   for f in supabase/migrations/*.sql; do
     psql "$url" -q -v ON_ERROR_STOP=1 -f "$f"
   done
