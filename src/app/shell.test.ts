@@ -12,9 +12,9 @@ describe("shell.css", () => {
     // --icon is set per link inside shell.css itself.
     for (const m of css.matchAll(/var\((--[\w-]+)\)/g)) if (m[1] !== "--icon") expect(tokens, m[1]).toContain(`${m[1]}:`);
   });
-  it("has a 52px icon rail, a phone row and glass from tokens", () => {
-    expect(css).toContain("grid-template-columns: 3.25rem");
+  it("has a sidebar column that can close, and a phone layout", () => {
+    expect(css).toContain("grid-template-columns: var(--sidebar-w)");
+    expect(css).toContain('data-side="closed"');
     expect(css).toContain("max-width: 47.5rem");
-    expect(css).toContain("var(--ambient-background)");
   });
 });

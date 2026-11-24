@@ -171,7 +171,7 @@
 .msg .mail-acts:has(details[open]) { opacity: 1; pointer-events: auto; transform: none; }
 .mail-create > div { inset-inline-end: 0; margin-block-start: 6px; }
 .mail-acts .link-pop form { inset-inline-start: auto; inset-inline-end: 0; margin-block-start: 6px; }
-.shell .chat-head { top: 4.75rem; }
+.shell .chat-head { top: 0; }
 .msg-pending .body { color: var(--text-muted); animation: agent-pulse 1.4s ease-in-out infinite; }
 @keyframes agent-pulse { 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { .msg-pending .body { animation: none; } }

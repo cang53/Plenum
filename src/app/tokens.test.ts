@@ -69,12 +69,14 @@ describe("light-first look", () => {
     expect(css).toContain("prefers-reduced-transparency: reduce");
     expect(css).toContain("prefers-reduced-motion: reduce");
   });
-  it("uses the white and Apple colours palette with the system font stack", () => {
-    expect(lightTokens["--primary"]).toBe("#0071e3");
-    expect(lightTokens["--ground"]).toBe("#fbfbfd");
-    expect(lightTokens["--surface-subtle"]).toBe("#eef4fd");
+  it("uses the chatroom palette: flat white, cool greys, blue accent, Inter first", () => {
+    expect(lightTokens["--primary"]).toBe("#0a6fd6");
+    expect(lightTokens["--accent-bright"]).toBe("#1285f5");
+    expect(lightTokens["--ground"]).toBe("#ffffff");
+    expect(lightTokens["--text"]).toBe("#10111d");
+    expect(lightTokens["--surface-subtle"]).toBe("#fafafc");
     expect(darkTokens["--surface-subtle"]).toBe("#121412");
-    expect(css).toMatch(/--font: -apple-system, BlinkMacSystemFont, "SF Pro Text"/);
+    expect(css).toMatch(/--font: Inter, -apple-system/);
     expect(css).not.toMatch(/outfit/i);
   });
   it("gives each rail section its own colour", () => {

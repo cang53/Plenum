@@ -9,49 +9,50 @@
   --org-1-tint: #dbeafe; --org-1-dot: #0071e3; --org-2-tint: #ffe3cc; --org-2-dot: #c93400;
   --org-3-tint: #d6f2df; --org-3-dot: #248a3d; --org-4-tint: #ebe1fb; --org-4-dot: #8944ab;
   --surface: #ffffff;
-  --surface-subtle: #eef4fd;
-  --surface-muted: #eef4fd;
-  --surface-hover: #f5f8fd;
-  --text: #1d1d1f;
-  --text-secondary: #3a3a3c;
-  --text-muted: #5e5e63;
-  --border: #3c3c431f;
-  --border-strong: #8e8e93;
-  --primary: #0071e3;
-  --primary-hover: #0062c4;
+  --accent-bright: #1285f5; /* icons, fills and marks only; text uses --primary */
+  --surface-subtle: #fafafc;
+  --surface-muted: #f1f1f2;
+  --surface-hover: #f6f6f8;
+  --text: #10111d;
+  --text-secondary: #43434b;
+  --text-muted: #6b6b71;
+  --border: #dadadd;
+  --border-strong: #8c8c92;
+  --primary: #0a6fd6;
+  --primary-hover: #085cb4;
   --on-primary: #ffffff;
-  --focus-ring: #0071e3;
-  --accent-soft: #e5f1ff;
-  --accent-text: #004f9e;
-  --mine: #0071e3;
+  --focus-ring: #1285f5;
+  --accent-soft: #e8f2fe;
+  --accent-text: #075fb8;
+  --mine: #0a6fd6;
   --on-mine: #ffffff;
-  --agent: #004f9e;
-  --agent-surface: #e5f1ff;
+  --agent: #075fb8;
+  --agent-surface: #e8f2fe;
   --danger: #a3001a;
   --danger-surface: #ffe8e9;
   --success: #0f5c27;
   --success-surface: #e3f5e7;
   --warning: #8a3000;
   --warning-surface: #fff0e1;
-  --info: #004f9e;
-  --info-surface: #e5f1ff;
+  --info: #075fb8;
+  --info-surface: #e8f2fe;
   --status-todo: var(--text-muted);
   --status-progress: var(--info);
   --status-blocked: var(--warning);
   --status-done: var(--success);
 
   /* Glass: clear white over the ambient ground, with a specular top edge */
-  --glass: #ffffffb8;
-  --glass-strong: #ffffffe0;
-  --glass-border: #3c3c431f;
+  --glass: #ffffff;
+  --glass-strong: #ffffff;
+  --glass-border: #dadadd;
   --glass-highlight: #ffffffcc;
   --glass-blur: blur(18px) saturate(140%);
   --glass-blur-light: blur(18px) saturate(140%);
-  --control: #3c3c430f;
-  --control-active: #3c3c431f;
+  --control: #f1f1f2;
+  --control-active: #e4e4e7;
   --scrim: #1d1d1f4d;
-  --ambient-top: #e6f0ff;
-  --ambient-bottom: #fdeee6;
+  --ambient-top: #ffffff;
+  --ambient-bottom: #ffffff;
   --ambient-background: radial-gradient(900px 600px at 0% 0%, var(--ambient-top) 0%, transparent 70%), radial-gradient(900px 600px at 100% 100%, var(--ambient-bottom) 0%, transparent 70%), var(--ground);
   --frame: var(--ambient-background);
 
@@ -64,7 +65,7 @@
   --elevation-btn: 0 1px 2px #00000014;
   --elevation-lift: 0 1px 2px #1c1d1a1f, 0 2px 8px #1c1d1a0f;
   --elevation-nav: 0 1px 2px #1c1d1a14, 0 4px 14px #1c1d1a0f;
-  --brand-mark: #0071e3;
+  --brand-mark: #10111d;
   --brand-on-mark: #ffffff;
 
   /* Rail: one colour per section; --c is set per tile */
@@ -73,16 +74,16 @@
   --section-items: #0071a4; --section-risks: #d70015; --section-library: #8a6200; --section-reports: #8944ab; --section-team: #d30f45;
 
   /* Radius */
-  --radius-sm: 0.5rem;
-  --radius: 0.75rem;
-  --radius-md: 0.75rem;
-  --radius-card: 1.25rem;
-  --radius-lg: 1.375rem;
-  --radius-xl: 1.75rem;
+  --radius-sm: 0.375rem;
+  --radius: 0.5rem;
+  --radius-md: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1rem;
   --radius-full: 999rem;
 
   /* Type: the system UI font, SF on Apple devices */
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Inter, system-ui, sans-serif;
+  --font: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -112,7 +113,7 @@
   --target: 2.75rem;
   --control-h: 2rem;
   --top: 3.5rem;
-  --sidebar-w: 13rem;
+  --sidebar-w: 17rem;
   --focus-width: 2px;
   --focus-offset: 3px;
   --disabled: 0.45;
@@ -124,18 +125,18 @@
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Names from the canvas stylesheet (plenum.css) and the pre-glass stylesheet */
-  --ground: #fbfbfd;
+  --ground: #ffffff;
   --tile: #ffffff;
   --white: #ffffff;
   --panel: #ffffff;
-  --cell: #eef4fd;
+  --cell: #f1f1f2;
   --ink: var(--text);
   --ink2: var(--text-secondary);
   --muted: var(--text-muted);
-  --line: #3c3c431f;
-  --black: #0071e3;
-  --track: #c9d1dc;
-  --fill: #0071e3;
+  --line: #dadadd;
+  --black: #0a6fd6;
+  --track: #d3d3d7;
+  --fill: #0a6fd6;
   --blue: var(--info);
   --blue-bg: var(--info-surface);
   --green: var(--success);
@@ -144,7 +145,7 @@
   --red-bg: var(--danger-surface);
   --amber: var(--warning);
   --amber-bg: var(--warning-surface);
-  --neutral-bg: #eef4fd;
+  --neutral-bg: #f1f1f2;
   --r-panel: var(--radius-card);
   --r-cell: var(--radius);
   --accent: var(--primary);
