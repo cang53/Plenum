@@ -94,7 +94,7 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
         </nav>
         <div className="side-mine">
           <span>{labels.myChatroom ?? "My Chatroom"}</span>
-          {project && <button type="button" className="side-plus" aria-label={labels.addChatroom} aria-expanded={adding} onClick={() => setAdding(!adding)}>+</button>}
+          {project && <button type="button" className="side-plus" aria-label={labels.addChatroom} aria-expanded={adding} onClick={() => setAdding(!adding)}><SideIcon name="add" size={10} /></button>}
         </div>
         <nav className="shell-tree" aria-label={labels.chatrooms ?? "Chatrooms"}>
           {projects.map((p) => (

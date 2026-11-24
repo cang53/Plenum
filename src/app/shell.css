@@ -30,9 +30,10 @@ body:has(.shell) { background: var(--ground); }
 .side-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .shell-side a[aria-current] { background: var(--side-selected); color: var(--side-selected-ink); font-weight: var(--weight-semibold); }
 .shell-side a[aria-current] svg { color: var(--side-selected-ink); }
-.side-mine { display: flex; align-items: center; gap: 12px; margin-top: 29px; padding-inline: 25px 0; height: 23px; color: var(--side-muted); }
+.side-mine { display: flex; align-items: center; gap: 12px; margin-top: 29px; padding-inline: 25px 27px; height: 23px; color: var(--side-muted); }
 .side-mine span:first-child { flex: none; }
-.side-plus { display: grid; place-items: center; width: 16px; height: 16px; margin-inline-start: 82px; padding: 0; border: 0; border-radius: var(--radius-full); background: var(--side-plus-bg); color: var(--side-on-dark); font: inherit; font-size: 14px; font-weight: var(--weight-medium); line-height: 1; cursor: pointer; }
+.side-plus { display: grid; place-items: center; width: 16px; height: 16px; margin-inline-start: auto; padding: 0; border: 0; border-radius: var(--radius-full); background: var(--side-plus-bg); color: var(--side-on-dark); cursor: pointer; }
+.side-plus svg { width: 10px; height: 10px; stroke-width: 3; color: var(--side-on-dark); }
 .shell-side-foot .shell-link { padding-inline-start: 59px; }
 .shell-side-foot .shell-badge { margin-inline-start: auto; min-width: 20px; padding: 0 6px; border-radius: var(--radius-full); background: var(--danger); color: var(--on-primary); font-size: var(--text-xs); line-height: 20px; text-align: center; }
 .shell-side-foot .shell-badge[hidden] { display: none; }
