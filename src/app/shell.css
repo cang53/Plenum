@@ -5,52 +5,76 @@ body:has(.shell) { background: var(--ground); }
 .shell[data-side="closed"] { grid-template-columns: minmax(0, 1fr); }
 .shell[data-side="closed"] .shell-side { display: none; }
 
-/* Sidebar */
-.shell-side { position: sticky; top: 0; display: flex; flex-direction: column; gap: var(--s3); box-sizing: border-box; height: 100vh; padding: var(--s4) var(--s3); overflow-y: auto; border-inline-end: 1px solid var(--border); background: var(--surface-subtle); }
-.shell-side-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); padding-inline: var(--s2); }
-.shell-brand { display: flex; align-items: center; gap: var(--s3); font-size: var(--text-lg); font-weight: var(--weight-semibold); letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
-.shell-brand:hover { text-decoration: none; }
-.shell-brand svg { color: var(--brand-mark); }
-.shell-brand path { stroke: var(--surface); }
-.side-toggle { display: grid; place-items: center; width: 2rem; height: 2rem; border: 0; border-radius: var(--radius-sm); background: none; color: var(--text-secondary); cursor: pointer; }
-.side-toggle:hover { background: var(--control); color: var(--text); }
-.side-open { display: none; }
+/* Sidebar: sizes, colours and spacing from the design file, in its own pixels */
+.shell-side { position: sticky; top: 0; display: flex; flex-direction: column; box-sizing: border-box; height: 100vh; padding: 20px 0 15px; overflow-y: auto; border-inline-end: 1px solid var(--side-line); background: var(--side-bg); color: var(--side-ink); font-size: 19px; line-height: 23px; font-weight: var(--weight-normal); letter-spacing: 0; }
+.side-head { display: flex; align-items: center; height: 30px; padding-inline: 21px 27px; margin-bottom: 19px; }
+.side-brand { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--side-ink); text-decoration: none; }
+.side-brand:hover { text-decoration: none; }
+.side-emblem { flex: none; width: 30px; height: 30px; box-sizing: border-box; border: 1px solid var(--side-emblem); border-radius: var(--radius-full); background: var(--side-emblem); }
+.side-emblem-sm { width: 23px; height: 23px; }
+.side-name { overflow: hidden; font-size: 20px; line-height: 24px; font-weight: var(--weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
+.side-chevs { display: grid; flex: none; margin-inline-start: 8px; color: var(--side-chev); }
+.side-toggle { display: grid; place-items: center; flex: none; margin-inline-start: auto; width: 24px; height: 24px; padding: 0; border: 0; border-radius: var(--radius-sm); background: none; color: var(--side-chev); cursor: pointer; }
+.side-toggle:hover { color: var(--side-ink); }
+.side-open { display: none; width: 2rem; height: 2rem; color: var(--text-secondary); }
+.side-open:hover { background: var(--control); }
 .shell[data-side="closed"] .side-open { display: grid; }
-.shell-find { display: flex; align-items: center; gap: var(--s2); height: 2.25rem; padding: 0 var(--s2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text-muted); font: inherit; font-size: var(--text-sm); cursor: pointer; }
-.shell-find:hover { background: var(--surface-hover); }
-.shell-find-icon { display: grid; place-items: center; flex: none; color: var(--text-muted); }
-.shell-find-text { flex: 1; text-align: left; }
-.shell-find .kbd { display: inline-flex; padding: 1px 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-size: var(--text-xs); }
-.shell-side-nav, .shell-side-foot { display: flex; flex-direction: column; gap: 2px; }
-.shell-side-foot { margin-top: auto; padding-top: var(--s3); border-top: 1px solid var(--border); }
-.shell-side-nav a, .shell-side-foot > a, .shell-side-foot .shell-link { display: flex; align-items: center; gap: var(--s3); position: relative; padding: var(--s2) var(--s3); border-radius: var(--radius); color: var(--text-secondary); font-size: var(--text-base); text-decoration: none; }
-.shell-side-nav a:hover, .shell-side-foot > a:hover, .shell-side-foot .shell-link:hover, .shell-tree a:hover { background: var(--control); color: var(--text); }
-.shell-side a[aria-current], .shell-tree a[aria-current] { background: var(--accent-soft); color: var(--accent-text); }
-.shell-side-foot .shell-badge { margin-inline-start: auto; min-width: 1.25rem; padding: 0 6px; border-radius: var(--radius-full); background: var(--danger); color: var(--on-primary); font-size: var(--text-xs); line-height: 1.25rem; text-align: center; }
+.side-nav, .shell-tree ul, .shell-side-foot { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.side-row, .shell-find, .shell-side-foot .shell-link { display: flex; align-items: center; gap: 12px; box-sizing: border-box; width: 100%; height: 41px; padding: 0 25px; border: 0; border-radius: 0; background: none; color: var(--side-ink); font: inherit; text-align: start; text-decoration: none; cursor: pointer; }
+.side-row svg, .shell-find-icon svg, .shell-side-foot .shell-link svg { flex: none; width: 22px; height: 22px; color: var(--side-icon); }
+.shell-find-icon { display: grid; place-items: center; flex: none; color: var(--side-icon); }
+.shell-find-text { flex: 1; text-align: start; }
+.shell-find .kbd { display: none; }
+.side-gap { margin-top: 10px; }
+.side-row:hover, .shell-find:hover, .shell-side-foot .shell-link:hover { background: var(--side-selected); color: var(--side-ink); text-decoration: none; }
+.side-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shell-side a[aria-current] { background: var(--side-selected); color: var(--side-selected-ink); font-weight: var(--weight-semibold); }
+.shell-side a[aria-current] svg { color: var(--side-selected-ink); }
+.side-mine { display: flex; align-items: center; gap: 12px; margin-top: 29px; padding-inline: 25px 0; height: 23px; color: var(--side-muted); }
+.side-mine span:first-child { flex: none; }
+.side-plus { display: grid; place-items: center; width: 16px; height: 16px; margin-inline-start: 82px; padding: 0; border: 0; border-radius: var(--radius-full); background: var(--side-plus-bg); color: var(--side-on-dark); font: inherit; font-size: 14px; font-weight: var(--weight-medium); line-height: 1; cursor: pointer; }
+.shell-side-foot .shell-link { padding-inline-start: 59px; }
+.shell-side-foot .shell-badge { margin-inline-start: auto; min-width: 20px; padding: 0 6px; border-radius: var(--radius-full); background: var(--danger); color: var(--on-primary); font-size: var(--text-xs); line-height: 20px; text-align: center; }
 .shell-side-foot .shell-badge[hidden] { display: none; }
 
-/* Project tree: project, chatrooms, threads under each chatroom */
-.shell-tree { display: flex; flex-direction: column; gap: var(--s2); }
+/* Project groups: a divider through the project badge, then its chatrooms and their threads */
+.shell-tree { display: flex; flex-direction: column; gap: 6px; margin-top: 21px; }
 .shell-tree details { margin: 0; }
-.shell-tree summary { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s3); border-radius: var(--radius); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); cursor: pointer; list-style: none; }
+.shell-tree summary { position: relative; display: flex; align-items: center; height: 36px; padding: 0 15px; list-style: none; cursor: pointer; }
 .shell-tree summary::-webkit-details-marker { display: none; }
-.shell-tree summary::after { content: ""; width: 0.4rem; height: 0.4rem; margin-inline-start: auto; border: solid var(--text-muted); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform var(--motion-fast) var(--ease); }
-.shell-tree details[open] > summary::after { transform: rotate(45deg); }
-.shell-tree ul { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
-.shell-tree a { display: flex; align-items: center; gap: var(--s2); position: relative; padding: var(--s2) var(--s3); border-radius: var(--radius); color: var(--text-secondary); font-size: var(--text-base); text-decoration: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.room-mark { flex: none; width: 1.25rem; text-align: center; color: var(--text-muted); }
-.room-threads { margin-inline-start: var(--s5); padding-inline-start: var(--s2); border-inline-start: 1px solid var(--border); }
-.room-threads a { font-size: var(--text-sm); }
+.shell-tree summary::before { content: ""; position: absolute; inset-inline: 0; top: 50%; border-top: 1px solid var(--side-line); }
+.side-badge { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 12px; box-sizing: border-box; max-width: 100%; height: 36px; padding: 0 17px 0 9px; border: 1px solid var(--side-badge-border); border-radius: 8px; background: var(--side-badge-bg); font-weight: var(--weight-semibold); }
+.side-badge > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shell-tree .side-rooms { margin-top: 13px; }
+.room-mark { flex: none; width: 22px; text-align: center; color: var(--side-icon); font-size: 19px; }
 .shell-tree .dot { margin-inline-start: auto; width: 7px; height: 7px; border-radius: 7px; background: var(--accent-bright); }
+.shell-tree .room-threads { gap: 6px; margin-top: 6px; }
+.room-threads li { position: relative; }
+.room-threads li::before { content: ""; position: absolute; inset-inline-start: 35px; top: -6px; height: calc(50% + 6px); border-inline-start: 1px solid var(--side-thread-line); }
+.room-threads li:not(:last-child)::before { height: calc(100% + 6px); }
+.room-threads li::after { content: ""; position: absolute; inset-inline-start: 36px; top: 50%; width: 14px; border-top: 1px solid var(--side-thread-line); }
+.room-threads .side-row { padding-inline-start: 60px; gap: 13px; }
+.room-threads .side-row svg { width: 20px; height: 20px; }
+.side-addrow { font-weight: var(--weight-medium); }
+.side-addrow svg { color: var(--side-ink); }
+.side-add { margin: 0; padding: 0 15px 0 25px; }
+.side-input { box-sizing: border-box; width: 100%; height: 41px; padding: 0 12px; border: 1px solid var(--side-badge-border); border-radius: 8px; background: var(--surface); color: var(--side-ink); font: inherit; }
+
+/* Footer: divider, inbox, settings, the signed-in person, one call to action */
+.shell-side-foot { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--side-line); }
+.side-av { width: 25px; height: 25px; font-size: 13px; }
+.side-cta { display: flex; align-items: center; justify-content: center; gap: 12px; box-sizing: border-box; height: 41px; margin: 8px 15px 0; border: 1px solid var(--side-cta-border); border-radius: 8px; background: var(--side-cta); color: var(--side-on-dark); font-size: 18px; line-height: 22px; font-weight: var(--weight-semibold); text-decoration: none; }
+.side-cta:hover { text-decoration: none; filter: brightness(0.95); }
+.shell-side a.side-cta[aria-current] { background: var(--side-cta); color: var(--side-on-dark); }
 
 /* Account */
 .shell-account { position: relative; margin: 0; }
-.shell-account summary { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s3); list-style: none; cursor: pointer; border-radius: var(--radius); }
-.shell-account summary:hover { background: var(--control); }
+.shell-account summary { display: flex; align-items: center; gap: 11px; height: 41px; padding: 0 23px; list-style: none; cursor: pointer; }
+.shell-account summary:hover { background: var(--side-selected); }
 .shell-account summary::-webkit-details-marker { display: none; }
 .shell-who { display: flex; flex-direction: column; min-width: 0; line-height: 1.1875rem; font-weight: var(--weight-medium); }
 .shell-who > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.shell-who .muted { font-size: var(--text-sm); font-weight: var(--weight-normal); }
+.shell-who .muted { display: none; }
 .shell-menu { position: absolute; inset-block-end: calc(100% + var(--s2)); inset-inline-start: 0; z-index: 10; display: flex; flex-direction: column; gap: 2px; min-width: 14rem; margin: 0; padding: var(--s2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--elevation-dialog); }
 .shell-menu a { display: block; padding: var(--s2) var(--s3); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: var(--text-sm); text-decoration: none; }
 .shell-menu a:hover { background: var(--surface-hover); }
@@ -84,6 +108,4 @@ body:has(.shell) { background: var(--ground); }
   .shell { grid-template-columns: minmax(0, 1fr); }
   .shell-side { position: static; height: auto; max-height: none; border-inline-end: 0; border-bottom: 1px solid var(--border); }
   .shell-main { padding: var(--s4); }
-  .shell-find .kbd { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .shell-tree summary::after { transition: none; } }

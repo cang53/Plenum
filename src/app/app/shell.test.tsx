@@ -59,3 +59,13 @@ describe("Shell", () => {
     expect(html).toMatch(/<details class="shell-account".*Charter.*Sign out/);
   });
 });
+
+describe("Shell sidebar from the design", () => {
+  it("shows the workspace name, Search, Home, Library, My Chatroom and a blue New task button", () => {
+    const html = renderToStaticMarkup(<Shell projects={[{ id: "p1", name: "Pump" }]} rooms={rooms} workspace="Acme" itemsByProject={{}} fallbackItems={items} email="a@b.c" roleByProject={{}} unread={0} unreadLabel="{n}" streamNew={{}} labels={{ ...labels, search: "Search", myChatroom: "My Chatroom", addChatroom: "Add chatrooms", chatroomName: "Name" }}>x</Shell>);
+    expect(html).toContain('<span class="side-name">Acme</span>');
+    expect(html).toContain("My Chatroom");
+    expect(html).toContain("Add chatrooms");
+    expect(html).toMatch(/class="side-cta"[^>]*>New task/);
+  });
+});

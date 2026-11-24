@@ -1,11 +1,12 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Bell } from "./Bell";
 import { ThemeToggle } from "./ThemeToggle";
 import { CommandMenu } from "./CommandMenu";
-import { NavIcon } from "./NavIcon";
+import { SideIcon } from "./SideIcons";
+import { createChatroom } from "./actions";
 
 type Group = "rail" | "top" | "more" | "settings";
 type Item = { path: string; label: string; group: Group };
@@ -23,7 +24,7 @@ type Props = {
   roleByProject: Record<string, string>;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew" | "railExpand" | "railCollapse", string> & Partial<Record<"home" | "chatrooms" | "crumbs" | "sections", string>> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew" | "railExpand" | "railCollapse", string> & Partial<Record<"home" | "chatrooms" | "crumbs" | "sections" | "search" | "myChatroom" | "addChatroom" | "chatroomName", string>> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -44,6 +45,7 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
   const account = useRef<HTMLDetailsElement>(null);
   const open = useSyncExternalStore(subscribeSide, readSide, () => true);
   const toggleSide = () => writeSide(!open);
+  const [adding, setAdding] = useState(false);
   // The account menu closes on a click elsewhere or Escape.
   useEffect(() => {
     const shut = (e: Event) => {
@@ -70,53 +72,71 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
   const threadId = params.get("thread");
   const toggle = (cls: string) => (
     <button type="button" className={cls} aria-expanded={open} aria-controls="shell-side" aria-label={open ? labels.railCollapse : labels.railExpand} title={open ? labels.railCollapse : labels.railExpand} onClick={toggleSide}>
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M9.5 4.5v15" stroke="currentColor" strokeWidth="1.7" /></svg>
+      {cls.includes("side-open") ? <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M9.5 4.5v15" stroke="currentColor" strokeWidth="1.7" /></svg> : <SideIcon name="collapse" size={20} />}
     </button>
   );
   return (
     <div className="shell" data-side={open ? "open" : "closed"}>
       <aside className="shell-side" id="shell-side" aria-label={labels.main}>
-        <div className="shell-side-head">
-          <a className="shell-brand" href={href("/app")}>
-            <svg width="28" height="28" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="17" fill="currentColor" /><path d="M12 25V9h6.5a5 5 0 0 1 0 10H15" fill="none" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            {labels.brand}
+        <div className="side-head">
+          <a className="side-brand" href={href("/app")}>
+            <span className="side-emblem" aria-hidden="true" />
+            <span className="side-name">{workspace ?? labels.brand}</span>
           </a>
+          <span className="side-chevs" aria-hidden="true"><SideIcon name="chevrons" size={16} /></span>
           {toggle("side-toggle")}
         </div>
-        <CommandMenu project={project?.id} labels={labels.menu} />
-        <nav className="shell-side-nav">
-          <a href={href("/app")} aria-current={pathname === "/app" ? "page" : undefined}><NavIcon name="/app" size={18} />{labels.home ?? "Home"}</a>
-          <a href="/app/projects" aria-current={pathname.startsWith("/app/projects") ? "page" : undefined}><NavIcon name="/app/library" size={18} />{labels.projects}</a>
+        <nav className="side-nav">
+          <a className="side-row" href={href("/app")} aria-current={pathname === "/app" ? "page" : undefined}><SideIcon name="home" />{labels.home ?? "Home"}</a>
+          <CommandMenu project={project?.id} labels={{ ...labels.menu, open: labels.search ?? labels.menu.open }} />
+          <a className="side-row side-gap" href="/app/projects" aria-current={pathname.startsWith("/app/projects") ? "page" : undefined}><SideIcon name="bag" />{labels.projects}</a>
+          <a className="side-row" href={href("/app/library")} aria-current={current("/app/library") ? "page" : undefined}><SideIcon name="play" />{items.find((i) => i.path === "/app/library")?.label ?? "Library"}</a>
         </nav>
+        <div className="side-mine">
+          <span>{labels.myChatroom ?? "My Chatroom"}</span>
+          {project && <button type="button" className="side-plus" aria-label={labels.addChatroom} aria-expanded={adding} onClick={() => setAdding(!adding)}>+</button>}
+        </div>
         <nav className="shell-tree" aria-label={labels.chatrooms ?? "Chatrooms"}>
           {projects.map((p) => (
             <details key={p.id} open={p.id === project?.id}>
-              <summary>{p.name}</summary>
-              <ul>
+              <summary><span className="side-badge"><span className="side-emblem side-emblem-sm" aria-hidden="true" /><span>{p.name}</span></span></summary>
+              <ul className="side-rooms">
                 {(rooms[p.id] ?? []).map((r) => (
                   <li key={r.id}>
-                    <a href={`/app/stream?project=${p.id}&room=${r.id}`} aria-current={p.id === project?.id && pathname.startsWith("/app/stream") && (roomId === r.id || (!roomId && r.general)) && !threadId ? "page" : undefined}>
-                      <span className="room-mark" aria-hidden="true">{r.emoji || "#"}</span>{r.name}
+                    <a className="side-row" href={`/app/stream?project=${p.id}&room=${r.id}`} aria-current={p.id === project?.id && pathname.startsWith("/app/stream") && (roomId === r.id || (!roomId && r.general)) && !threadId ? "page" : undefined}>
+                      <span className="room-mark" aria-hidden="true">{r.emoji || "#"}</span><span className="side-text">{r.name}</span>
                       {r.general && p.id === project?.id && fresh > 0 && <span className="dot" role="status" aria-label={labels.streamNew.replace("{n}", String(fresh))} />}
                     </a>
                     {r.threads.length > 0 && (
                       <ul className="room-threads">
-                        {r.threads.map((t) => <li key={t.id}><a href={`/app/stream?project=${p.id}&room=${r.id}&thread=${t.id}`} aria-current={threadId === t.id ? "page" : undefined}><span className="room-mark" aria-hidden="true">#</span>{t.title}</a></li>)}
+                        {r.threads.map((t) => <li key={t.id}><a className="side-row" href={`/app/stream?project=${p.id}&room=${r.id}&thread=${t.id}`} aria-current={threadId === t.id ? "page" : undefined}><SideIcon name="hash" size={20} /><span className="side-text">{t.title}</span></a></li>)}
                       </ul>
                     )}
                   </li>
                 ))}
-                {!rooms[p.id] && <li><a href={`/app/stream?project=${p.id}`}><span className="room-mark" aria-hidden="true">#</span>{items.find((i) => i.path === "/app/stream")?.label}</a></li>}
+                {!rooms[p.id] && <li><a className="side-row" href={`/app/stream?project=${p.id}`}><span className="room-mark" aria-hidden="true">#</span><span className="side-text">{items.find((i) => i.path === "/app/stream")?.label}</span></a></li>}
+                {p.id === project?.id && rooms[p.id] && (
+                  <li>
+                    {adding ? (
+                      <form className="side-add" action={createChatroom}>
+                        <input type="hidden" name="projectId" value={p.id} />
+                        <input name="name" className="side-input" required maxLength={80} autoFocus autoComplete="off" aria-label={labels.chatroomName} placeholder={labels.chatroomName} />
+                      </form>
+                    ) : (
+                      <button type="button" className="side-row side-addrow" onClick={() => setAdding(true)}><SideIcon name="plus" />{labels.addChatroom}</button>
+                    )}
+                  </li>
+                )}
               </ul>
             </details>
           ))}
         </nav>
         <div className="shell-side-foot">
           <Bell href={href("/app/notifications")} initial={unread} label={labels.bell} current={pathname.startsWith("/app/notifications")} countLabel={(n) => unreadLabel.replace("{n}", String(n))} />
-          {settings && <a href={href(settings.path)} aria-current={current(settings.path) ? "page" : undefined}><NavIcon name={settings.path} size={18} />{settings.label}</a>}
+          {settings && <a className="side-row" href={href(settings.path)} aria-current={current(settings.path) ? "page" : undefined}><SideIcon name="gear" />{settings.label}</a>}
           <details className="shell-account" ref={account}>
             <summary title={email}>
-              <span className="av av-lg" aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
+              <span className="av side-av" aria-hidden="true">{email.charAt(0).toUpperCase()}</span>
               <span className="shell-who"><span>{email}</span>{role && <span className="muted">{role}</span>}</span>
             </summary>
             <div className="shell-menu">
@@ -127,6 +147,7 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
               </form>
             </div>
           </details>
+          <a className="side-cta" href={href("/app/items")}>{labels.newTask}<SideIcon name="add" size={22} /></a>
         </div>
       </aside>
       <div className="shell-main">

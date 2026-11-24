@@ -76,7 +76,7 @@ describe("light-first look", () => {
     expect(lightTokens["--text"]).toBe("#10111d");
     expect(lightTokens["--surface-subtle"]).toBe("#fafafc");
     expect(darkTokens["--surface-subtle"]).toBe("#121412");
-    expect(css).toMatch(/--font: Inter, -apple-system/);
+    expect(css).toMatch(/--font: "Inter Variable", Inter, -apple-system/);
     expect(css).not.toMatch(/outfit/i);
   });
   it("gives each rail section its own colour", () => {

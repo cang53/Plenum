@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/messages";
 import { OfflineBoot } from "./OfflineBoot";
+import "@fontsource-variable/inter";
 import "./globals.css";
 
 export const metadata: Metadata = {
