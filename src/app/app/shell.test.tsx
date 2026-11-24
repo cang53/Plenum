@@ -69,3 +69,14 @@ describe("Shell sidebar from the design", () => {
     expect(html).toMatch(/class="side-cta"[^>]*>New task/);
   });
 });
+
+describe("Shell header from the design", () => {
+  it("shows the chatroom title and a search box on the stream page, with the room in the breadcrumb", () => {
+    const html = renderToStaticMarkup(<Shell projects={[{ id: "p1", name: "Pump" }]} rooms={rooms} workspace="Acme" itemsByProject={{}} fallbackItems={items} email="a@b.c" roleByProject={{}} unread={0} unreadLabel="{n}" streamNew={{}} labels={{ ...labels, back: "Back", forward: "Forward", searchIn: "Search in {n}" }}>x</Shell>);
+    expect(html).toContain("<h1>General</h1>");
+    expect(html).toContain('placeholder="Search in General"');
+    expect(html).toContain('action="/app/search"');
+    expect(html).toContain('aria-label="Back"');
+    expect(html).toMatch(/<li aria-current="page">General<\/li>/);
+  });
+});

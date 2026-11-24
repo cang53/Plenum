@@ -73,6 +73,8 @@
   --section-overview: #0066cc; --section-stream: #248a3d; --section-plan: #c93400; --section-board: #5856d6;
   --section-items: #0071a4; --section-risks: #d70015; --section-library: #8a6200; --section-reports: #8944ab; --section-team: #d30f45;
 
+  /* Header, from the design file */
+  --side-ink-2: #43434b; --head-slash: #8c8c92; --head-arrow: #c2c2c5; --head-arrow-on: #41434a; --head-field-border: #ceced1; --head-search-ink: #353641; --head-placeholder: #919197;
   /* Sidebar, from the design file */
   --side-bg: #f7f7f8; --side-line: #dadadd; --side-ink: #10111d; --side-icon: #555760; --side-muted: #77777e; --side-chev: #99999e;
   --side-badge-bg: #eeeef0; --side-badge-border: #d9d9dc; --side-selected: #ededf0; --side-selected-ink: #087ef5; --side-thread-line: #d3d3d5;
@@ -100,6 +102,7 @@
   --weight-normal: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
+  --weight-bold: 700;
   --line-tight: 1.25;
   --line-normal: 1.35;
   --tracking-tight: -0.02em;
@@ -162,6 +165,7 @@
   --section-overview: #5ea8ff; --section-stream: #5fd07f; --section-plan: #ff9a5c; --section-board: #9d9bff;
   --section-items: #5ac8fa; --section-risks: #ff6b78; --section-library: #e0b44a; --section-reports: #c79bea; --section-team: #ff6b93;
   --org-1-tint: #1e3a66; --org-2-tint: #5a3318; --org-3-tint: #1d4a2c; --org-4-tint: #3f2a5c;
+  --side-ink-2: #c3c7bd; --head-slash: #7d8377; --head-arrow: #5b6058; --head-arrow-on: #c3c7bd; --head-field-border: #30342e; --head-search-ink: #c3c7bd; --head-placeholder: #9ea397;
   --side-bg: #121412; --side-line: #30342e; --side-ink: #f2f3ef; --side-icon: #c3c7bd; --side-muted: #9ea397; --side-chev: #9ea397;
   --side-badge-bg: #262925; --side-badge-border: #30342e; --side-selected: #2a2d29; --side-selected-ink: #75b1ff; --side-thread-line: #3a3e38;
   --side-plus-bg: #5b6058; --side-cta: #1786fb; --side-cta-border: #0074ed; --side-emblem: #f2f3ef; --side-detail: #121412;

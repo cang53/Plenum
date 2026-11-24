@@ -4,10 +4,13 @@ const ink = { ...st, stroke: "currentColor" } as const;
 const detail = { ...st, stroke: "var(--side-detail)", fill: "none" } as const;
 const svg = (box: string, size: number, kids: React.ReactNode) => <svg width={size} height={size} viewBox={box} fill="none" aria-hidden="true">{kids}</svg>;
 
-type Name = "home" | "search" | "bag" | "play" | "gear" | "plus" | "hash" | "chevrons" | "collapse" | "add" | "plusdot";
+type Name = "back" | "forward" | "find" | "home" | "search" | "bag" | "play" | "gear" | "plus" | "hash" | "chevrons" | "collapse" | "add" | "plusdot";
 // Decorative: the link or button next to it carries the name.
 export function SideIcon({ name, size = 22 }: { name: Name; size?: number }) {
   switch (name) {
+    case "back": return svg("375 98 19 19", size, <path d="M386.875 100.167L380.542 106.5L386.875 112.833" {...st} stroke="currentColor" />);
+    case "forward": return svg("414 98 21 21", size, <path d="M417.5 107.5H431.5M425.375 113.625L431.5 107.5L425.375 101.375" {...st} stroke="currentColor" />);
+    case "find": return svg("1551 154 19 19", size, <><path d="M1565.25 161.313C1565.25 164.592 1562.59 167.25 1559.31 167.25C1556.03 167.25 1553.38 164.592 1553.38 161.313C1553.38 158.033 1556.03 155.375 1559.31 155.375C1562.59 155.375 1565.25 158.033 1565.25 161.313Z" {...st} stroke="currentColor" /><path d="M1563.67 165.667L1567.63 169.625" {...st} stroke="currentColor" /></>);
     case "home": return svg("38 151 22 22", size, <><path d="M40.75 160.167L49 153.75L57.25 160.167V170.25H40.75V160.167Z" fill="currentColor" {...ink} /><path d="M45.3333 163.833C47.7777 166.889 50.2221 166.889 52.6666 163.833" {...detail} /></>);
     case "search": return svg("38 197 22 22", size, <><path d="M54.5 206.625C54.5 210.422 51.422 213.5 47.625 213.5C43.828 213.5 40.75 210.422 40.75 206.625C40.75 202.828 43.828 199.75 47.625 199.75C51.422 199.75 54.5 202.828 54.5 206.625Z" {...ink} /><path d="M52.6667 211.667L57.2501 216.25" {...ink} /></>);
     case "bag": return svg("38 254 22 22", size, <><path d="M53.5834 258.583H44.4167C42.898 258.583 41.6667 259.815 41.6667 261.333V272.333C41.6667 273.852 42.898 275.083 44.4167 275.083H53.5834C55.1022 275.083 56.3334 273.852 56.3334 272.333V261.333C56.3334 259.815 55.1022 258.583 53.5834 258.583Z" fill="currentColor" {...ink} /><path d="M45.3333 258.583V255.833H52.6666V258.583" {...ink} /></>);

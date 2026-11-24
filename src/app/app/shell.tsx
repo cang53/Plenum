@@ -24,7 +24,7 @@ type Props = {
   roleByProject: Record<string, string>;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew" | "railExpand" | "railCollapse", string> & Partial<Record<"home" | "chatrooms" | "crumbs" | "sections" | "search" | "myChatroom" | "addChatroom" | "chatroomName", string>> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew" | "railExpand" | "railCollapse", string> & Partial<Record<"home" | "chatrooms" | "crumbs" | "sections" | "search" | "myChatroom" | "addChatroom" | "chatroomName" | "back" | "forward" | "searchIn", string>> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -67,9 +67,13 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
   const tabs = items.filter((i) => i.group === "rail" && i.path !== "/app");
   const here = [...items].filter((i) => current(i.path)).sort((a, b) => b.path.length - a.path.length)[0];
   const settings = items.find((i) => i.group === "top");
-  const crumbs = [workspace, project?.name, here && here.path !== "/app" ? here.label : undefined].filter(Boolean) as string[];
   const roomId = params.get("room");
   const threadId = params.get("thread");
+  const onStream = pathname.startsWith("/app/stream");
+  const projectRooms = (project && rooms[project.id]) || [];
+  const room = onStream ? projectRooms.find((r) => r.id === roomId) ?? projectRooms.find((r) => r.general) : undefined;
+  const roomTitle = room ? `${room.emoji ? room.emoji + " " : ""}${room.name}` : undefined;
+  const crumbs = [workspace, project?.name, roomTitle ?? (here && here.path !== "/app" ? here.label : undefined)].filter(Boolean) as string[];
   const toggle = (cls: string) => (
     <button type="button" className={cls} aria-expanded={open} aria-controls="shell-side" aria-label={open ? labels.railCollapse : labels.railExpand} title={open ? labels.railCollapse : labels.railExpand} onClick={toggleSide}>
       {cls.includes("side-open") ? <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M9.5 4.5v15" stroke="currentColor" strokeWidth="1.7" /></svg> : <SideIcon name="collapse" size={22} />}
@@ -151,15 +155,32 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
         </div>
       </aside>
       <div className="shell-main">
-        <div className="shell-crumbs">
-          {toggle("side-toggle side-open")}
-          <nav aria-label={labels.crumbs ?? "Breadcrumb"}><ol>{crumbs.map((c, i) => <li key={i} aria-current={i === crumbs.length - 1 ? "page" : undefined}>{c}</li>)}</ol></nav>
-        </div>
-        {project && tabs.length > 0 && (
-          <nav className="shell-tabs" aria-label={labels.sections ?? project.name}>
-            {tabs.map((i) => <a key={i.path} href={href(i.path)} aria-current={current(i.path) ? "page" : undefined}>{i.label}</a>)}
-          </nav>
-        )}
+        <header className="shell-head">
+          <div className="head-row">
+            {toggle("side-toggle side-open")}
+            <button type="button" className="head-nav" aria-label={labels.back} title={labels.back} onClick={() => history.back()}><SideIcon name="back" size={19} /></button>
+            <button type="button" className="head-nav head-fwd" aria-label={labels.forward} title={labels.forward} onClick={() => history.forward()}><SideIcon name="forward" size={21} /></button>
+            {workspace && <span className="head-avatar" aria-hidden="true">{workspace.charAt(0).toUpperCase()}</span>}
+            <nav className="head-crumbs" aria-label={labels.crumbs ?? "Breadcrumb"}><ol>{crumbs.map((c, i) => <li key={i} aria-current={i === crumbs.length - 1 ? "page" : undefined}>{c}</li>)}</ol></nav>
+            {project && tabs.length > 0 && (
+              <nav className="shell-tabs" aria-label={labels.sections ?? project.name}>
+                {tabs.map((i) => <a key={i.path} href={href(i.path)} aria-current={current(i.path) ? "page" : undefined}>{i.label}</a>)}
+              </nav>
+            )}
+          </div>
+          {onStream && room && (
+            <div className="head-title">
+              <h1>{roomTitle}</h1>
+              {project && (
+                <form className="head-search" action="/app/search" method="get" role="search">
+                  <input type="hidden" name="project" value={project.id} />
+                  <SideIcon name="find" size={19} />
+                  <input type="search" name="q" maxLength={200} autoComplete="off" aria-label={(labels.searchIn ?? "{n}").replace("{n}", room.name)} placeholder={(labels.searchIn ?? "{n}").replace("{n}", room.name)} />
+                </form>
+              )}
+            </div>
+          )}
+        </header>
         <div className="shell-body">
           {children}
           <footer className="shell-foot">{labels.privacy.body} <a href={href("/app/privacy")}>{labels.privacy.link}</a></footer>
