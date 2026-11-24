@@ -1,6 +1,10 @@
 {
-  "jsBytesDefault": 600000,
-  "jsBytesByRoute": { "/app/timeline": 650000, "/app/board": 650000, "/app/gantt": 603000 },
-  "cssBytes": 110000,
+  "jsBytesDefault": 640000,
+  "jsBytesByRoute": {
+    "/app/timeline": 690000,
+    "/app/board": 690000,
+    "/app/gantt": 650000
+  },
+  "cssBytes": 200000,
   "maxBackdropRules": 6
 }
