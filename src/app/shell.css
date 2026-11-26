@@ -34,7 +34,7 @@ body:has(.shell) { background: var(--ground); }
 .side-mine .side-mine-link { flex: none; color: inherit; text-decoration: none; }
 .side-mine .side-mine-link:hover, .side-mine .side-mine-link[aria-current="page"] { color: var(--side-ink); }
 .side-mine .side-mine-link:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: 2px; }
-.side-plus { display: grid; place-items: center; width: 16px; height: 16px; margin-inline-start: auto; padding: 0; border: 0; border-radius: var(--radius-full); background: var(--side-plus-bg); overflow: hidden; color: var(--side-on-dark); cursor: pointer; }
+.side-plus { display: grid; flex: none; min-width: 0; min-height: 0; aspect-ratio: 1; place-items: center; width: 16px; height: 16px; margin-inline-start: auto; padding: 0; border: 0; border-radius: var(--radius-full); background: var(--side-plus-bg); overflow: hidden; color: var(--side-on-dark); cursor: pointer; }
 .side-plus svg { width: 16px; height: 16px; color: var(--side-on-dark); }
 .shell-side-foot .shell-link { padding-inline-start: 59px; }
 .shell-side-foot .shell-badge { margin-inline-start: auto; min-width: 20px; padding: 0 6px; border-radius: var(--radius-full); background: var(--danger); color: var(--on-primary); font-size: var(--text-xs); line-height: 20px; text-align: center; }
@@ -122,8 +122,22 @@ body:has(.shell) { background: var(--ground); }
 .shell .page, .shell .home { max-width: none; margin: 0; padding: 0; }
 .shell a:focus-visible, .shell button:focus-visible, .shell summary:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 
+/* Phones: the sidebar is a drawer over the page, the header wraps, text and padding shrink. */
+.side-scrim { display: none; }
 @media (max-width: 47.5rem) {
-  .shell { grid-template-columns: minmax(0, 1fr); }
-  .shell-side { position: static; height: auto; max-height: none; border-inline-end: 0; border-bottom: 1px solid var(--border); }
-  .shell-main { padding: var(--s4); }
+  .shell, .shell[data-side="closed"] { grid-template-columns: minmax(0, 1fr); }
+  .shell .shell-side, .shell[data-side="closed"] .shell-side { position: fixed; inset-block: 0; inset-inline-start: 0; z-index: 30; display: none; width: min(var(--sidebar-w), 86vw); height: 100dvh; box-shadow: var(--elevation-dialog); }
+  .shell[data-drawer="open"] .shell-side { display: flex; }
+  .shell[data-drawer="open"] .side-scrim { position: fixed; inset: 0; z-index: 29; display: block; padding: 0; border: 0; background: var(--scrim); cursor: default; }
+  .shell .side-open, .shell[data-side="closed"] .side-open { display: grid; }
+  .head-row { flex-wrap: wrap; gap: 8px; padding: 10px 16px; min-height: 0; }
+  .head-avatar { display: none; }
+  .head-crumbs { flex: 1; min-width: 0; }
+  .head-crumbs li:not(:last-child), .head-crumbs li + li::before { display: none; }
+  .head-crumbs li { overflow: hidden; text-overflow: ellipsis; }
+  .shell-tabs { order: 5; flex: 1 1 100%; justify-content: flex-start; }
+  .head-title { flex-wrap: wrap; gap: 10px; padding: 0 16px 14px; }
+  .head-title h1 { font-size: 28px; line-height: 34px; }
+  .head-search { flex: 1 1 100%; width: auto; }
+  .shell-body { padding-inline: 0; }
 }

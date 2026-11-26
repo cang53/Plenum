@@ -34,6 +34,10 @@ type Props = {
 let sideMemory = true;
 const subscribeSide = (cb: () => void) => { window.addEventListener("plenum-side", cb); return () => window.removeEventListener("plenum-side", cb); };
 const readSide = () => { try { return localStorage.getItem("plenum-side") !== "closed"; } catch { return sideMemory; } };
+// Phone width: the sidebar is a drawer over the page, opened per visit, not remembered.
+const PHONE = "(max-width: 47.5rem)";
+const subscribePhone = (cb: () => void) => { const m = window.matchMedia(PHONE); m.addEventListener("change", cb); return () => m.removeEventListener("change", cb); };
+const readPhone = () => window.matchMedia(PHONE).matches;
 const writeSide = (open: boolean) => {
   sideMemory = open;
   try { localStorage.setItem("plenum-side", open ? "open" : "closed"); } catch { /* not saved */ }
@@ -44,19 +48,26 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
   const pathname = usePathname();
   const account = useRef<HTMLDetailsElement>(null);
   const open = useSyncExternalStore(subscribeSide, readSide, () => true);
-  const toggleSide = () => writeSide(!open);
+  const phone = useSyncExternalStore(subscribePhone, readPhone, () => false);
+  // The drawer belongs to the page it was opened on: going anywhere closes it.
+  const [drawerFor, setDrawerFor] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   // The account menu closes on a click elsewhere or Escape.
   useEffect(() => {
     const shut = (e: Event) => {
       const d = account.current;
       if (d?.open && (e.type === "keydown" ? (e as KeyboardEvent).key === "Escape" : !d.contains(e.target as Node))) d.open = false;
+      if (e.type === "keydown" && (e as KeyboardEvent).key === "Escape") setDrawerFor(null);
     };
     document.addEventListener("click", shut);
     document.addEventListener("keydown", shut);
     return () => { document.removeEventListener("click", shut); document.removeEventListener("keydown", shut); };
   }, []);
   const params = useSearchParams();
+  const place = `${pathname}?${params.toString()}`;
+  const drawer = phone && drawerFor === place;
+  const expanded = phone ? drawer : open;
+  const toggleSide = () => (phone ? setDrawerFor(drawer ? null : place) : writeSide(!open));
   const project = projects.find((p) => p.id === params.get("project")) ?? projects[0];
   const items = (project && itemsByProject[project.id]) || fallbackItems;
   const href = (path: string) => (project ? `${path}?project=${project.id}` : path);
@@ -75,12 +86,13 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
   const roomTitle = room ? `${room.emoji ? room.emoji + " " : ""}${room.name}` : undefined;
   const crumbs = [workspace, project?.name, roomTitle ?? (here && here.path !== "/app" ? here.label : undefined)].filter(Boolean) as string[];
   const toggle = (cls: string) => (
-    <button type="button" className={cls} aria-expanded={open} aria-controls="shell-side" aria-label={open ? labels.railCollapse : labels.railExpand} title={open ? labels.railCollapse : labels.railExpand} onClick={toggleSide}>
+    <button type="button" className={cls} aria-expanded={expanded} aria-controls="shell-side" aria-label={expanded ? labels.railCollapse : labels.railExpand} title={expanded ? labels.railCollapse : labels.railExpand} onClick={toggleSide}>
       {cls.includes("side-open") ? <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M9.5 4.5v15" stroke="currentColor" strokeWidth="1.7" /></svg> : <SideIcon name="collapse" size={22} />}
     </button>
   );
   return (
-    <div className="shell" data-side={open ? "open" : "closed"}>
+    <div className="shell" data-side={open ? "open" : "closed"} data-drawer={drawer ? "open" : "closed"}>
+      {drawer && <button type="button" className="side-scrim" aria-label={labels.railCollapse} onClick={() => setDrawerFor(null)} />}
       <aside className="shell-side" id="shell-side" aria-label={labels.main}>
         <div className="side-head">
           <a className="side-brand" href={href("/app")}>

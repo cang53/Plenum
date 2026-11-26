@@ -525,3 +525,10 @@ a.mention:hover { text-decoration: underline; }
 .shell .chat .agent-card .agent-acts .btn { min-height: 36px; padding: 0 16px; border-radius: 8px; font-size: 16px; line-height: 20px; font-weight: var(--weight-semibold); }
 .shell .chat .agent-card .agent-acts .btn-primary { border: 1px solid var(--side-cta-border); background: var(--side-cta); color: var(--side-on-dark); }
 .shell .chat .agent-card .agent-acts .btn-secondary { border: 1px solid var(--comp-border); background: var(--surface); color: var(--msg-ink); }
+
+@media (max-width: 47.5rem) {
+  .shell .chat .mail.msg, .shell .chat .mail.msg[data-mine] { gap: 12px; padding: 0 16px; }
+  .shell .chat .mail.msg .bubble .body, .shell .chat .mail.msg .bubble details, .shell .chat .msg .who b { font-size: 17px; line-height: 26px; }
+  .shell .chat .comp-wrap { padding-inline: 16px; padding-block-end: 16px; }
+  .shell .chat .attach { width: 100%; }
+}
