@@ -485,3 +485,23 @@ a.mention:hover { text-decoration: underline; }
 .shell .chat .mail.msg .bubble .body, .shell .chat .mail.msg .bubble details { font-size: 19px; line-height: 29px; letter-spacing: 0; color: var(--msg-ink); }
 .shell .chat .bubble .mention, .shell .chat .mail.msg[data-mine] .bubble .mention { background: none; color: var(--msg-link); font-weight: var(--weight-normal); }
 .shell .chat .bubble .subject { color: var(--msg-name); font-size: 19px; line-height: 29px; }
+
+/* Composer from the design file: one white box, the words on top, attach, @ and send along the bottom edge. */
+.shell .chat .comp-wrap { padding-inline: 26px; padding-block-end: 24px; margin-block-end: 0; background: none; }
+.shell .chat .comp, .shell .comp { gap: 0; padding: 9px 15px 12px; border: 1px solid var(--comp-border); border-radius: 13px; background: var(--surface); box-shadow: 0 2px 2px var(--comp-shadow); }
+.shell .chat .comp:focus-within, .shell .comp:focus-within { border-color: var(--comp-border-focus); }
+.shell .chat .comp-row { display: grid; grid-template-columns: 1fr auto auto auto; grid-template-rows: auto auto auto; align-items: center; gap: 0; }
+.shell .chat .comp-edit { display: contents; }
+.shell .chat .comp-tools { grid-column: 1 / -1; grid-row: 1; display: none; gap: 14px; padding-block-end: 6px; }
+.shell .chat .comp:focus-within .comp-tools { display: flex; }
+.shell .chat .comp-box { grid-column: 1 / -1; grid-row: 2; min-height: 29px; max-height: 12rem; padding: 0; font-size: 19px; line-height: 29px; color: var(--msg-ink); }
+.shell .chat .comp-box:empty::before { color: var(--comp-placeholder); }
+.shell .chat .comp .clip-btn { grid-column: 2; grid-row: 3; width: 21px; height: 21px; margin: 12px 17px 0 0; color: var(--comp-icon); }
+.shell .chat .comp .clip-btn svg { width: 21px; height: 21px; }
+.shell .chat .comp .at-btn { grid-column: 3; grid-row: 3; position: relative; width: 24px; height: 29px; margin: 8px 15px 0 17px; padding: 0; border: 0; background: none; color: var(--comp-at); font: inherit; font-size: 25px; line-height: 29px; cursor: pointer; }
+.shell .chat .comp .at-btn::before { content: ""; position: absolute; inset-inline-start: -17px; top: 4px; height: 21px; border-inline-start: 1px solid var(--tp-conn); }
+.shell .chat .comp .send { grid-column: 4; grid-row: 3; width: 22px; height: 22px; margin-block-start: 12px; background: var(--comp-send); color: var(--side-on-dark); box-shadow: none; }
+.shell .chat .comp:has(.comp-box:not(:empty)) .send { background: var(--side-cta); }
+.shell .chat .comp .picked { grid-column: 1 / -1; grid-row: 4; margin-block-start: 8px; }
+.shell .chat .comp .replying { grid-column: 1 / -1; }
+.shell .chat .hint-agent, .shell .chat .hint-keys { margin: 6px 2px 0; color: var(--msg-time); font-size: 13px; line-height: 18px; }

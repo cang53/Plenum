@@ -152,6 +152,7 @@ export const nl: Record<keyof typeof en, string> = {
   "stream.fmt.blue": "Blauw",
   "stream.fmt.purple": "Paars",
   "stream.fmt.plain": "Standaard",
+  "stream.mention.insert": "Iemand vermelden",
   "stream.mention.empty": "Niets gevonden",
   "stream.mention.person": "Persoon",
   "stream.mention.agent": "Assistent",

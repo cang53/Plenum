@@ -150,6 +150,7 @@ export const en = {
   "stream.fmt.blue": "Blue",
   "stream.fmt.purple": "Purple",
   "stream.fmt.plain": "Default",
+  "stream.mention.insert": "Mention someone",
   "stream.mention.empty": "Nothing found",
   "stream.mention.person": "Person",
   "stream.mention.agent": "Assistant",
