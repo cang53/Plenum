@@ -10,6 +10,7 @@ import type { Activity } from "@/domain/timesheetDraft";
 import type { SiteLogInput } from "@/domain/siteLog";
 import type { StoredSuggestion } from "@/domain/triage";
 import { fromRow, type MessageRow, type TimelineMessage } from "@/domain/timeline";
+import type { ThreadRow } from "@/domain/threadPanel";
 
 type TaskRow = {
   id: string;
@@ -121,6 +122,17 @@ export async function listThreadChips(client: SupabaseClient, projectId: string,
     out.set(t.root_message_id as string, { id: t.id as string, count: mine.length, initials });
   }
   return out;
+}
+
+export type ThreadDetail = { id: string; title: string; rootId: string | null; rows: ThreadRow[] };
+
+// One thread of a project with its first message and replies, oldest first. Null when it does not exist or cannot be read.
+export async function getThread(client: SupabaseClient, projectId: string, threadId: string): Promise<ThreadDetail | null> {
+  const { data: t } = await client.from("threads").select("id, title, root_message_id").eq("project_id", projectId).eq("id", threadId).maybeSingle();
+  if (!t) return null;
+  const { data } = await client.from("messages").select("id, from_name, from_address, body_text, reply_to, received_at").eq("project_id", projectId).eq("thread_id", threadId).order("received_at").order("id");
+  const rows = (data ?? []).map((m) => ({ id: m.id as string, fromName: m.from_name as string | null, fromAddress: m.from_address as string, bodyText: m.body_text as string, replyTo: (m.reply_to as string | null) ?? null, receivedAt: m.received_at as string }));
+  return { id: t.id as string, title: t.title as string, rootId: t.root_message_id as string | null, rows };
 }
 
 export type Pin = { messageId: string; pinnedAt: string; pinnedBy: string; message: TimelineMessage };

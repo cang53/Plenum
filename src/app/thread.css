@@ -38,3 +38,15 @@
 .tp-line { margin: 0; overflow-wrap: anywhere; }
 .thread-panel a:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 @media (max-width: 47.5rem) { .thread-panel { width: 100%; border-inline-start: 0; } }
+
+/* Chat and thread side by side; the reply box under the thread. */
+.chat-split { display: grid; grid-template-columns: minmax(0, 1fr) 464px; align-items: stretch; }
+.chat-split > .thread-panel { position: sticky; inset-block-start: 0; max-height: 100dvh; overflow-y: auto; }
+.tp-reply { display: flex; align-items: flex-end; gap: 10px; margin-block-start: auto; padding: 10px 10px 10px 16px; border: 1px solid var(--comp-border); border-radius: 13px; background: var(--surface); }
+.tp-reply:focus-within { border-color: var(--comp-border-focus); }
+.tp-reply textarea { flex: 1; min-width: 0; min-height: 29px; max-height: 160px; padding: 0; border: 0; outline: 0; background: none; color: var(--msg-ink); font: inherit; font-size: 18px; line-height: 29px; resize: none; field-sizing: content; }
+.tp-reply textarea::placeholder { color: var(--comp-placeholder); }
+.tp-reply .send { display: grid; place-items: center; flex: none; width: 29px; height: 29px; padding: 0; border: 0; border-radius: var(--radius-full); background: var(--side-cta); color: var(--surface); cursor: pointer; }
+.tp-reply .send:disabled { opacity: .4; cursor: default; }
+.tp-reply .send svg { width: 22px; height: 22px; }
+@media (max-width: 47.5rem) { .chat-split { grid-template-columns: minmax(0, 1fr); } }
