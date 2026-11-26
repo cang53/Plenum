@@ -4,7 +4,7 @@ const ink = { ...st, stroke: "currentColor" } as const;
 const detail = { ...st, stroke: "var(--side-detail)", fill: "none" } as const;
 const svg = (box: string, size: number, kids: React.ReactNode) => <svg width={size} height={size} viewBox={box} fill="none" aria-hidden="true">{kids}</svg>;
 
-type Name = "back" | "forward" | "find" | "home" | "search" | "bag" | "play" | "gear" | "plus" | "hash" | "chevrons" | "collapse" | "add" | "plusdot";
+type Name = "back" | "forward" | "find" | "home" | "search" | "bag" | "play" | "gear" | "plus" | "hash" | "chevrons" | "collapse" | "add" | "plusdot" | "pin";
 // Decorative: the link or button next to it carries the name.
 export function SideIcon({ name, size = 22 }: { name: Name; size?: number }) {
   switch (name) {
@@ -21,6 +21,7 @@ export function SideIcon({ name, size = 22 }: { name: Name; size?: number }) {
     case "hash": return svg("73 514 20 20", size, <path d="M80.5001 516.5L78.0001 531.5M87.1667 516.5L84.6667 531.5M75.5001 521.5H90.5001M74.6667 527.333H89.6667" {...ink} />);
     case "chevrons": return svg("216 94 20 24", size, <><path d="M222.568 101.773L221.705 100.909L226.364 96.25L231.023 100.909L230.159 101.773L226.364 97.9886L222.568 101.773Z" fill="currentColor" /><path d="M223.936 116.504L220.816 110.488H222.112L224.096 114.424L226.08 110.488H227.376L224.256 116.504H223.936Z" fill="currentColor" /></>);
     case "collapse": return svg("308 97 18 21", size, <><path d="M315.625 101.833L309.958 107.5L315.625 113.167" {...ink} /><path d="M323.625 101.833L317.958 107.5L323.625 113.167" {...ink} /></>);
+    case "pin": return svg("1353 151 22 22", size, <path d="M1365.42 152.917L1373.08 160.583L1368.29 161.542L1363.5 168.25L1360.62 165.375L1354.88 172.083L1359.67 164.417L1356.79 161.542L1363.5 156.75L1365.42 152.917Z" fill="currentColor" {...ink} />);
     case "plusdot": return svg("305 366 16 16", size, <path d="M311.992 377.354V370.632H313.33V377.354H311.992ZM309.303 374.659V373.322H316.024V374.659H309.303Z" fill="currentColor" />);
   }
 }
