@@ -31,3 +31,13 @@ describe("ThreadPanel", () => {
     expect(html).toContain('<b>B</b> <span class="tp-excerpt">Hi</span>');
   });
 });
+
+describe("ThreadPanel cards", () => {
+  it("shows a card under the message it is about", () => {
+    const labels = { panel: "Thread", close: "Close", createdBy: "By {who}" };
+    const root = { id: "a", who: "Ann", initial: "A", time: "1m", lines: ["Print it"], cards: <div className="tp-cards">Suggestion card</div> };
+    const html = renderToStaticMarkup(<ThreadPanel title="T" participants="Ann" createdBy="Ann" day="Today" root={root} replies={[{ id: "b", who: "Ben", initial: "B", time: "2m", lines: ["ok"] }]} closeHref="#" labels={labels} />);
+    expect(html.indexOf("Print it")).toBeLessThan(html.indexOf("Suggestion card"));
+    expect(html.indexOf("Suggestion card")).toBeLessThan(html.indexOf("ok</p>"));
+  });
+});

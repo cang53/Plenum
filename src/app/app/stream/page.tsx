@@ -10,6 +10,8 @@ import type { MentionItem } from "@/domain/mentions";
 import { pagesParam } from "@/domain/paging";
 import { StreamView } from "./StreamView";
 import { ThreadPanel } from "./ThreadPanel";
+import { ActionBubble, SuggestionBubble } from "./AgentCards";
+import { AGENT_ADDRESS, proposalHosts } from "@/domain/agent";
 import { ThreadReply } from "./ThreadReply";
 import { panelMessages, participantsLine } from "@/domain/threadPanel";
 import { getLocale, getT } from "@/lib/locale";
@@ -81,12 +83,27 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const fmt = (iso: string) => time.format(new Date(iso));
   const detail = threadParam ? await getThread(supabase, project.id, threadParam) : null;
   const shown = detail && detail.rootId ? panelMessages(detail.rows, detail.rootId, fmt) : null;
+  // CobIA's suggestions and proposals about a message of the thread show under it in the panel, with the same buttons and source link as in the chat.
+  const ctx = { t, time, date, canPin: !!canPin, projectId: project.id };
+  if (detail && shown) {
+    const hosts = proposalHosts(detail.rows);
+    const row = (id: string) => detail.rows.find((r) => r.id === id);
+    const from = (id: string) => { const r = row(id); return { id, who: r ? (r.fromAddress === AGENT_ADDRESS ? t("stream.agent.name") : r.fromName || r.fromAddress) : "", at: r?.receivedAt ?? "" }; };
+    for (const m of [shown.root, ...shown.replies]) {
+      if (!m) continue;
+      const cards = [
+        ...(proposed.get(m.id) ?? []).map((sg) => <SuggestionBubble key={sg.id} ctx={ctx} sg={sg} source={from(m.id)} />),
+        ...actions.filter((a) => hosts.get(a.messageId) === m.id).map((a) => <ActionBubble key={a.id} ctx={ctx} a={a} source={from(a.messageId)} />),
+      ];
+      if (cards.length) m.cards = <div className="tp-cards agent-card">{cards}</div>;
+    }
+  }
   const closeHref = `/app/stream?project=${project.id}${room ? `&room=${room.id}` : ""}`;
   const view_ = <StreamView {...{ t, pages, room: room?.id, chips, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, reactions, fileUrls, open, pins, pinned, canPin: !!canPin, mentionItems: mentions, decisions, time, date, now: new Date(), me }} />;
   if (!detail || !shown?.root) return view_;
   const rootRow = detail.rows.find((r) => r.id === detail.rootId);
   return (
-    <div className="chat-split">
+    <div className="chat-split chat">
       {view_}
       <ThreadPanel title={detail.title} participants={participantsLine(detail.rows.map((r) => r.fromName || r.fromAddress), t("thread.others"))} createdBy={rootRow?.fromName || rootRow?.fromAddress || ""} day={rootRow ? date.format(new Date(rootRow.receivedAt)) : ""} root={shown.root} replies={shown.replies} closeHref={closeHref} labels={{ panel: t("thread.panel"), close: t("thread.close"), createdBy: t("thread.createdBy") }}>
         <ThreadReply projectId={project.id} threadId={detail.id} labels={{ placeholder: t("thread.reply"), send: t("stream.send") }} />

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 // quote: the earlier message this one answers, shown on its own line above the reply with a curved line down to the replier.
-export type PanelMessage = { id: string; who: string; initial: string; time: string; lines: string[]; quote?: { who: string; initial: string; text: string } };
+export type PanelMessage = { id: string; who: string; initial: string; time: string; lines: string[]; quote?: { who: string; initial: string; text: string }; cards?: ReactNode };
 type Props = {
   title: string;
   participants: string;
@@ -27,6 +27,7 @@ const Message = ({ m }: { m: PanelMessage }) => (
     <div>
       <p className="tp-who"><b>{m.who}</b><time>{m.time}</time></p>
       {m.lines.map((l, i) => <p key={i} className="tp-line">{l}</p>)}
+      {m.cards}
     </div>
   </li>
 );

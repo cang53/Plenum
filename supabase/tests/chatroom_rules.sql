@@ -65,3 +65,16 @@ begin
   if (select thread_reply from public.messages where id = '5c000000-0000-0000-0000-0000000000a1') then raise exception 'thread root flagged as reply'; end if;
   if (select count(*) from public.messages where thread_reply and thread_id = (select thread_id from public.messages where id = '5c000000-0000-0000-0000-0000000000a1')) < 1 then raise exception 'reply not flagged'; end if;
 end $$;
+-- CobIA's answer to a message in a thread goes into that thread, as a reply.
+set role authenticated;
+do $$
+declare r uuid; th uuid;
+begin
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+  th := (select thread_id from public.messages where id = '5c000000-0000-0000-0000-0000000000a1');
+  r := public.post_agent_reply('5c000000-0000-0000-0000-0000000000a1', 'Here is what I found');
+  if (select thread_id from public.messages where id = r) is distinct from th then raise exception 'agent answer left the thread'; end if;
+  if not (select thread_reply from public.messages where id = r) then raise exception 'agent answer not a thread reply'; end if;
+  if (select chatroom_id from public.messages where id = r) is distinct from (select chatroom_id from public.messages where id = '5c000000-0000-0000-0000-0000000000a1') then raise exception 'agent answer in another chatroom'; end if;
+end $$;
+reset role;
