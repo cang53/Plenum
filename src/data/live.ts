@@ -11,6 +11,7 @@ import type { SiteLogInput } from "@/domain/siteLog";
 import type { StoredSuggestion } from "@/domain/triage";
 import { fromRow, type MessageRow, type TimelineMessage } from "@/domain/timeline";
 import type { ThreadRow } from "@/domain/threadPanel";
+import { summarizeThreads, type MyThread } from "@/domain/myThreads";
 
 type TaskRow = {
   id: string;
@@ -133,6 +134,23 @@ export async function getThread(client: SupabaseClient, projectId: string, threa
   const { data } = await client.from("messages").select("id, from_name, from_address, body_text, reply_to, received_at").eq("project_id", projectId).eq("thread_id", threadId).order("received_at").order("id");
   const rows = (data ?? []).map((m) => ({ id: m.id as string, fromName: m.from_name as string | null, fromAddress: m.from_address as string, bodyText: m.body_text as string, replyTo: (m.reply_to as string | null) ?? null, receivedAt: m.received_at as string }));
   return { id: t.id as string, title: t.title as string, rootId: t.root_message_id as string | null, rows };
+}
+
+// The threads of a project that this person has written in, with the chatroom of each and how active it is. Quietly none until the thread migrations are applied.
+export async function listMyThreads(client: SupabaseClient, projectId: string, email: string): Promise<MyThread[]> {
+  const { data: mine } = await client.from("messages").select("thread_id").eq("project_id", projectId).eq("from_address", email).not("thread_id", "is", null).order("received_at", { ascending: false }).limit(500);
+  const ids = [...new Set((mine ?? []).map((m) => m.thread_id as string))];
+  if (!ids.length) return [];
+  const [threads, rooms, replies] = await Promise.all([
+    client.from("threads").select("id, title, chatroom_id, created_at").eq("project_id", projectId).in("id", ids),
+    client.from("chatrooms").select("id, name, emoji").eq("project_id", projectId),
+    client.from("messages").select("thread_id, received_at").eq("project_id", projectId).eq("thread_reply", true).in("thread_id", ids),
+  ]);
+  return summarizeThreads(
+    (threads.data ?? []).map((t) => ({ id: t.id as string, title: t.title as string, chatroomId: t.chatroom_id as string, createdAt: t.created_at as string })),
+    (rooms.data ?? []).map((r) => ({ id: r.id as string, name: r.name as string, emoji: (r.emoji as string) ?? "" })),
+    (replies.data ?? []).map((r) => ({ threadId: r.thread_id as string, receivedAt: r.received_at as string })),
+  );
 }
 
 export type Pin = { messageId: string; pinnedAt: string; pinnedBy: string; message: TimelineMessage };
