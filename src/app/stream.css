@@ -507,7 +507,7 @@ a.mention:hover { text-decoration: underline; }
 .shell .chat .hint-agent, .shell .chat .hint-keys { margin: 6px 2px 0; color: var(--msg-time); font-size: 13px; line-height: 18px; }
 
 /* File card and CobIA's suggestion card from the design file: white cards with a thin border and 11px corners. */
-.shell .chat .attach { display: flex; align-items: center; gap: 11px; box-sizing: border-box; width: min(100%, 359px); min-height: 76px; margin-block-start: 10px; padding: 12px 15px; border: 1px solid var(--comp-border); border-radius: 11px; background: var(--surface); }
+.shell .chat .attach { display: flex; align-items: center; gap: 11px; box-sizing: border-box; width: min(100%, 359px); min-height: 76px; margin-block-start: 8px; padding: 8px 15px; border: 1px solid var(--comp-border); border-radius: 11px; background: var(--surface); }
 .file-tile { display: grid; place-items: center; flex: none; width: 51px; height: 52px; border-radius: 12px; background: var(--file-tile); color: var(--msg-link); }
 .shell .chat .attach .info { gap: 0; min-width: 0; font-size: 15px; line-height: 29px; }
 .shell .chat .attach .info a, .shell .chat .attach .info .fname { overflow: hidden; color: var(--msg-link); font-size: 17px; font-weight: var(--weight-medium); line-height: 29px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }

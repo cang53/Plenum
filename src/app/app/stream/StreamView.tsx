@@ -283,7 +283,7 @@ export function StreamView({ t, base, project, days, query, next, pages = 1, fre
                         }
                         return (
                           <div key={a.id} className="attach">
-                            <span className="file-tile" aria-hidden="true"><svg viewBox="459 795 26 26" width="26" height="26"><path d="M464.417 800.167H474.167L480.667 806.667V821.833H464.417V800.167Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /><path d="M474.167 800.167V807.75H480.667" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+                            <span className="file-tile" aria-hidden="true"><svg viewBox="459.5 797.5 26 27" width="26" height="27"><path d="M464.417 800.167H474.167L480.667 806.667V821.833H464.417V800.167Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /><path d="M474.167 800.167V807.75H480.667" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
                             <span className="info">{url ? <a href={url} download={a.filename}>{a.filename}</a> : <span className="fname">{a.filename}</span>}<small>{sizeLabel(a.sizeBytes)}</small></span>
                           </div>
                         );
