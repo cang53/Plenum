@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-// quote: the earlier message this one answers, shown above its text like replies in the main chat.
-export type PanelMessage = { id: string; who: string; initial: string; time: string; lines: string[]; quote?: { who: string; text: string } };
+// quote: the earlier message this one answers, shown on its own line above the reply with a curved line down to the replier.
+export type PanelMessage = { id: string; who: string; initial: string; time: string; lines: string[]; quote?: { who: string; initial: string; text: string } };
 type Props = {
   title: string;
   participants: string;
@@ -16,11 +16,16 @@ type Props = {
 };
 
 const Message = ({ m }: { m: PanelMessage }) => (
-  <li className="tp-msg">
+  <li className={m.quote ? "tp-msg tp-answer" : "tp-msg"}>
+    {m.quote && (
+      <p className="tp-replyto">
+        <span className="tp-mini" aria-hidden="true">{m.quote.initial}</span>
+        <b>{m.quote.who}</b> <span className="tp-excerpt">{m.quote.text}</span>
+      </p>
+    )}
     <span className="tp-av" aria-hidden="true">{m.initial}</span>
     <div>
       <p className="tp-who"><b>{m.who}</b><time>{m.time}</time></p>
-      {m.quote && <p className="tp-quote"><b>{m.quote.who}</b> {m.quote.text}</p>}
       {m.lines.map((l, i) => <p key={i} className="tp-line">{l}</p>)}
     </div>
   </li>

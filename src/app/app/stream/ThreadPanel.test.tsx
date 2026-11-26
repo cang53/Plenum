@@ -25,8 +25,9 @@ describe("ThreadPanel", () => {
     expect(html).toContain('href="/back"');
     expect(html).toContain("reply box");
   });
-  it("quotes the message a reply answers, like replies in the main chat", () => {
-    const html = renderToStaticMarkup(<ThreadPanel title="T" participants="" createdBy="B" day="d" root={m("1", "B")} replies={[{ ...m("2", "A"), quote: { who: "B", text: "Hi" } }]} closeHref="/" labels={labels} />);
-    expect(html).toContain('<p class="tp-quote"><b>B</b> Hi</p>');
+  it("shows the message a reply answers on its own line above the reply", () => {
+    const html = renderToStaticMarkup(<ThreadPanel title="T" participants="" createdBy="B" day="d" root={m("1", "B")} replies={[{ ...m("2", "A"), quote: { who: "B", initial: "B", text: "Hi" } }]} closeHref="/" labels={labels} />);
+    expect(html).toContain("tp-replyto");
+    expect(html).toContain('<b>B</b> <span class="tp-excerpt">Hi</span>');
   });
 });

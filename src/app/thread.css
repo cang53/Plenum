@@ -24,14 +24,17 @@
 .tp-day::before, .tp-day::after { content: ""; flex: 1; border-top: 1px solid var(--side-line); }
 .tp-day span { padding: 0 10px; border-radius: 8px; background: var(--tp-date-bg); color: var(--tp-date-ink); font-size: 18px; line-height: 31px; font-weight: var(--weight-semibold); }
 .tp-list { display: flex; flex-direction: column; gap: 22px; margin: 0; padding: 0; list-style: none; }
-.tp-msg { display: flex; align-items: flex-start; gap: 15px; }
+.tp-msg { display: grid; grid-template-columns: 42px minmax(0, 1fr); column-gap: 15px; align-items: start; }
 .tp-msg > div { min-width: 0; }
+.tp-replyto { position: relative; grid-column: 2; display: flex; align-items: center; gap: 6px; min-width: 0; margin: 0 0 2px; color: var(--msg-time); font-size: 15px; line-height: 24px; white-space: nowrap; }
+.tp-replyto::before { content: ""; position: absolute; inset-inline-start: -36px; top: 12px; width: 30px; height: 17px; border-inline-start: 2px solid var(--tp-conn); border-block-start: 2px solid var(--tp-conn); border-start-start-radius: 10px; }
+.tp-replyto b { flex: none; color: var(--msg-name); font-weight: var(--weight-semibold); }
+.tp-excerpt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.tp-mini { display: grid; place-items: center; flex: none; width: 18px; height: 18px; border-radius: var(--radius-full); background: var(--msg-avatar-bg); color: var(--msg-avatar-ink); font-size: 10px; font-weight: var(--weight-semibold); line-height: 1; }
 .tp-av { display: grid; place-items: center; flex: none; box-sizing: border-box; width: 42px; height: 42px; margin-block-start: 3px; border: 1px solid var(--surface); border-radius: var(--radius-full); background: var(--msg-avatar-bg); color: var(--msg-avatar-ink); filter: var(--avatar-filter); font-size: 16px; font-weight: var(--weight-semibold); line-height: 1; }
 .tp-who { display: flex; align-items: baseline; gap: 12px; margin: 0; }
 .tp-who b { color: var(--msg-name); font-weight: var(--weight-semibold); }
 .tp-who time { color: var(--msg-time); font-size: 15px; }
 .tp-line { margin: 0; overflow-wrap: anywhere; }
-.tp-quote { display: block; margin: 2px 0; padding: 1px 10px; border-inline-start: 2px solid var(--primary); border-radius: 4px; background: var(--accent-soft); color: var(--text-secondary); font-size: 15px; line-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tp-quote b { color: var(--text); font-weight: var(--weight-semibold); }
 .thread-panel a:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 @media (max-width: 47.5rem) { .thread-panel { width: 100%; border-inline-start: 0; } }
