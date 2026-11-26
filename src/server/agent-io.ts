@@ -13,7 +13,12 @@ export function supabaseAgentIo(supabase: SupabaseClient, projectId: string, mes
       return (rows ?? []).map((t) => ({ id: t.id, title: t.title, startDate: t.start_date, dueDate: t.due_date, status: t.status }));
     },
     async history() {
-      const rows = check(await supabase.from("messages").select("from_name, from_address, body_text").eq("project_id", projectId).order("received_at", { ascending: false }).limit(8));
+      // What CobIA reads is the thread the message is in, else the chatroom, never the whole project. Before the chatroom migration the columns are missing and it reads the project.
+      const where = await supabase.from("messages").select("thread_id, chatroom_id").eq("id", messageId).maybeSingle();
+      let q = supabase.from("messages").select("from_name, from_address, body_text").eq("project_id", projectId);
+      if (where.data?.thread_id) q = q.eq("thread_id", where.data.thread_id);
+      else if (where.data?.chatroom_id) q = q.eq("chatroom_id", where.data.chatroom_id).eq("thread_reply", false);
+      const rows = check(await q.order("received_at", { ascending: false }).limit(8));
       return (rows ?? []).reverse().map((m) => `${m.from_name || m.from_address}: ${String(m.body_text).slice(0, 300)}`);
     },
     async takeCall() {
