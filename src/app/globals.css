@@ -6,6 +6,7 @@
 @import "./inspector.css";
 @import "./timeline.css";
 @import "./stream.css";
+@import "./thread.css";
 @import "./gantt.css";
 @import "./pop.css";
 @import "./timelines.css";
