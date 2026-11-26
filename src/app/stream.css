@@ -466,8 +466,8 @@ a.mention:hover { text-decoration: underline; }
 
 /* Messages from the design file: flat rows with a 42px avatar, name, time and 19px text; no bubbles, no sides. */
 .shell-body:has(.msgs.chat) { padding-inline: 0; }
-.shell .msgs.chat { max-width: none; padding: 24px 0; gap: 24px; border: 0; border-radius: 0; background: none; box-shadow: none; }
-.shell .chat .feed, .shell .chat .msgs-main { gap: 24px; padding-inline-end: 0; }
+.shell .msgs.chat { max-width: none; padding: 24px 0; gap: 28px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.shell .chat .feed, .shell .chat .msgs-main { gap: 28px; padding-inline-end: 0; }
 .shell .chat .mail.msg, .shell .chat .mail.msg[data-mine] { flex-direction: row; align-self: stretch; align-items: flex-start; gap: 15px; max-width: none; padding: 0 26px; border: 0; border-radius: 0; background: none; box-shadow: none; }
 .shell .chat .mail.msg:hover, .shell .chat .mail.msg:focus-within { background: var(--surface-hover); }
 .shell .chat .avatar, .shell .chat .mail.msg[data-src] .avatar { box-sizing: border-box; flex: none; width: 42px; height: 42px; margin-block-start: 2px; border: 1px solid var(--surface); border-radius: var(--radius-full); background: var(--msg-avatar-bg); color: var(--msg-avatar-ink); filter: drop-shadow(0 1px 3px #00000029); font-size: 16px; font-weight: var(--weight-semibold); line-height: 20px; }
