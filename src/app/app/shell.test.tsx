@@ -70,6 +70,15 @@ describe("Shell sidebar from the design", () => {
   });
 });
 
+describe("Shell on phones", () => {
+  it("starts with the sidebar drawer closed, no scrim, and a menu button that says it is collapsed", () => {
+    const html = render([{ id: "p1", name: "Pump" }], {}, { rooms });
+    expect(html).toContain('data-drawer="closed"');
+    expect(html).not.toContain("side-scrim");
+    expect(html).toContain('aria-controls="shell-side"');
+  });
+});
+
 describe("Shell header from the design", () => {
   it("shows the chatroom title and a search box on the stream page, with the room in the breadcrumb", () => {
     const html = renderToStaticMarkup(<Shell projects={[{ id: "p1", name: "Pump" }]} rooms={rooms} workspace="Acme" itemsByProject={{}} fallbackItems={items} email="a@b.c" roleByProject={{}} unread={0} unreadLabel="{n}" streamNew={{}} labels={{ ...labels, back: "Back", forward: "Forward", searchIn: "Search in {n}" }}>x</Shell>);

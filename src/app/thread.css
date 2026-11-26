@@ -49,7 +49,7 @@
 .tp-reply .send { display: grid; place-items: center; flex: none; width: 29px; height: 29px; padding: 0; border: 0; border-radius: var(--radius-full); background: var(--side-cta); color: var(--surface); cursor: pointer; }
 .tp-reply .send:disabled { opacity: .4; cursor: default; }
 .tp-reply .send svg { width: 22px; height: 22px; }
-@media (max-width: 47.5rem) { .chat-split { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 47.5rem) { .chat-split { grid-template-columns: minmax(0, 1fr); } .chat-split > :not(.thread-panel) { display: none; } .chat-split > .thread-panel { max-height: none; position: static; } }
 .thread-panel .tp-cards { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 0; padding: 0; border: 0; background: none; box-shadow: none; }
 
 /* My Chatroom: the threads I am in. */
