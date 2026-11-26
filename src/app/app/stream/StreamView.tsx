@@ -9,7 +9,8 @@ import { StreamKeys } from "./StreamKeys";
 import { SearchBar } from "./SearchBar";
 import { SuggestionCarousel } from "./SuggestionCarousel";
 import { applySuggestion, dismissSuggestionForm, linkMessageToTask, postMessage, resolveAgentAction, toggleReaction, togglePin, undoAgentAction } from "./actions";
-import type { Pin } from "@/data/live";
+import type { Pin, ThreadChipData } from "@/data/live";
+import { ThreadChip } from "./ThreadChip";
 import type { LinkedItem } from "@/domain/linking";
 import type { MessageKey } from "@/lib/messages";
 import { isImage, sizeLabel } from "@/domain/attachments";
@@ -83,6 +84,8 @@ export type StreamViewProps = {
   query: StreamQuery;
   next: string | null;
   pages?: number;
+  room?: string; // the chatroom being read; thread links keep it
+  chips?: Map<string, ThreadChipData>; // the thread that starts at a message
   fresh: { id: string; count: number } | null;
   linked: LinkedItem[];
   proposed: Map<string, StoredSuggestion[]>;
@@ -103,7 +106,7 @@ export type StreamViewProps = {
   me?: string; // the signed-in person's address; their own messages get an accent bar
 };
 
-export function StreamView({ t, base, project, days, query, next, pages = 1, fresh, linked, proposed, actions = [], reactions, fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
+export function StreamView({ t, base, project, room, chips, days, query, next, pages = 1, fresh, linked, proposed, actions = [], reactions, fileUrls, open, mentionItems, pins, pinned, canPin, decisions, time, date, now, readOnly, me }: StreamViewProps): ReactNode {
   const all = days.flatMap((d) => d.groups.flatMap((g) => g.messages));
   const host = proposalHosts(all);
   const waiting = readOnly ? new Set<string>() : waitingForAgent(all, now);
@@ -335,6 +338,10 @@ export function StreamView({ t, base, project, days, query, next, pages = 1, fre
                           </details>
                         )}
                       </div>
+                      {chips?.get(m.id) && (() => {
+                        const c = chips.get(m.id) as ThreadChipData;
+                        return <ThreadChip href={`${base}?project=${project.id}${room ? `&room=${room}` : ""}&thread=${c.id}`} count={c.count} countLabel={t(c.count === 1 ? "thread.count.one" : "thread.count.other")} viewLabel={t("thread.view")} initials={c.initials} />;
+                      })()}
                       {linked.filter((l) => l.messageId === m.id).map((l) => (
                         <a key={l.id} className="linked" href={l.kind === "risk" ? `/app/risks/${l.id}?project=${project.id}` : `/app/items?project=${project.id}`}>{t(l.riskKind ? (`risks.kind.${l.riskKind}` as "risks.kind.risk") : `stream.linked.${l.kind}`)}: {l.title}</a>
                       ))}
@@ -392,6 +399,7 @@ export function StreamView({ t, base, project, days, query, next, pages = 1, fre
           <div className="comp-wrap">
           <form className="comp" id="composer" action={postMessage}>
             <input type="hidden" name="projectId" value={project.id} />
+            {room && <input type="hidden" name="room" value={room} />}
             <ReplyBar replyingTo={t("stream.c.replyingTo")} cancel={t("stream.c.cancel")} />
             <div className="comp-row">
               <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />

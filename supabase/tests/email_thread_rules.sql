@@ -27,3 +27,10 @@ begin
   insert into public.messages (id, project_id, external_id, from_address, subject, source) values ('5d000000-0000-0000-0000-0000000000a7', '20000000-0000-0000-0000-000000000001', '<t7@x>', 'a@x', 'crane booking', 'email');
   if (select chatroom_id from public.messages where id = '5d000000-0000-0000-0000-0000000000a7') <> room then raise exception 'late mail did not follow the moved thread'; end if;
 end $$;
+-- Replies are flagged so the chatroom feed can fold them behind the thread's first message.
+do $$
+begin
+  if (select thread_reply from public.messages where id = '5d000000-0000-0000-0000-0000000000a1') then raise exception 'the first mail is not a reply'; end if;
+  if not (select thread_reply from public.messages where id = '5d000000-0000-0000-0000-0000000000a2') then raise exception 'a later mail is a reply'; end if;
+  if (select thread_reply from public.messages where id = '5d000000-0000-0000-0000-0000000000a6') then raise exception 'an app message outside a thread is not a reply'; end if;
+end $$;

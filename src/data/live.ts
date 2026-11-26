@@ -73,7 +73,7 @@ export async function setTaskStatus(client: SupabaseClient, taskId: string, stat
   if (!data?.length) throw new Error("task not found or not allowed");
 }
 
-export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string, f: Filters = {}, pages = 1): Promise<Page<TimelineMessage>> {
+export async function listTimelineMessages(client: SupabaseClient, projectId: string, after?: string, f: Filters = {}, pages = 1, room?: string): Promise<Page<TimelineMessage>> {
   const size = PAGE_SIZE * pages;
   const cursor = decodeCursor(after);
   const cols = (html: boolean) => `id, source, from_name, from_address, subject, body_text, ${html ? "body_html, reply_to, " : ""}received_at, message_attachments(id, part_index, filename, content_type, size_bytes, doc_type, doc_ref, revision, superseded)`;
@@ -85,8 +85,10 @@ export async function listTimelineMessages(client: SupabaseClient, projectId: st
     if (e) throw e;
     linked = (links ?? []).map((r) => r.source_message_id);
   }
-  const build = (html: boolean) => {
+  const build = (html: boolean, inRoom = !!room) => {
     let q = client.from("messages").select(cols(html)).eq("project_id", projectId);
+    // A chatroom shows its messages; the replies of a thread are read in the thread.
+    if (inRoom) q = q.eq("chatroom_id", room as string).eq("thread_reply", false);
     if (sender) q = q.or(`from_address.ilike.%${sender}%,from_name.ilike.%${sender}%`);
     if (f.from) q = q.gte("received_at", dayStart(f.from));
     if (f.to) q = q.lt("received_at", dayEnd(f.to));
@@ -97,9 +99,28 @@ export async function listTimelineMessages(client: SupabaseClient, projectId: st
   let res = await build(true);
   // Before migration 157 is applied the column does not exist; plain messages still show.
   if (res.error?.code === "42703") res = await build(false);
+  // Before the chatroom migrations are applied the columns do not exist; every message shows.
+  if (res.error?.code === "42703" && room) res = await build(false, false);
   const { data, error } = res;
   if (error) throw error;
   return toPage(((data ?? []) as unknown as MessageRow[]).map(fromRow), (m) => ({ at: m.receivedAt, id: m.id }), size);
+}
+
+export type ThreadChipData = { id: string; count: number; initials: string[] };
+
+// The threads that start at these messages: how many replies each has and who wrote them. Quietly none until the thread migrations are applied.
+export async function listThreadChips(client: SupabaseClient, projectId: string, messageIds: string[]): Promise<Map<string, ThreadChipData>> {
+  const out = new Map<string, ThreadChipData>();
+  if (!messageIds.length) return out;
+  const { data: threads } = await client.from("threads").select("id, root_message_id").eq("project_id", projectId).in("root_message_id", messageIds);
+  if (!threads?.length) return out;
+  const { data: replies } = await client.from("messages").select("thread_id, from_name, from_address, received_at").eq("project_id", projectId).eq("thread_reply", true).in("thread_id", threads.map((t) => t.id)).order("received_at");
+  for (const t of threads) {
+    const mine = (replies ?? []).filter((r) => r.thread_id === t.id);
+    const initials = [...new Set(mine.map((r) => (r.from_name || r.from_address || "?").charAt(0).toUpperCase()))];
+    out.set(t.root_message_id as string, { id: t.id as string, count: mine.length, initials });
+  }
+  return out;
 }
 
 export type Pin = { messageId: string; pinnedAt: string; pinnedBy: string; message: TimelineMessage };

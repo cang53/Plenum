@@ -59,3 +59,9 @@ begin
   exception when invalid_parameter_value then null; end;
 end $$;
 reset role;
+-- A message posted into a thread is a reply; the message that started it is not.
+do $$
+begin
+  if (select thread_reply from public.messages where id = '5c000000-0000-0000-0000-0000000000a1') then raise exception 'thread root flagged as reply'; end if;
+  if (select count(*) from public.messages where thread_reply and thread_id = (select thread_id from public.messages where id = '5c000000-0000-0000-0000-0000000000a1')) < 1 then raise exception 'reply not flagged'; end if;
+end $$;
