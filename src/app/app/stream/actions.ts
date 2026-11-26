@@ -72,10 +72,12 @@ export async function postMessage(form: FormData): Promise<void> {
   const replyTo = String(form.get("replyTo") ?? "");
   // The message goes into the chatroom being read; with none named it goes to General.
   const room = String(form.get("room") ?? "");
-  const withRoom = room ? { ...args, p_chatroom: room } : args;
+  // A reply written in a thread panel names its thread, and the message takes that thread's chatroom.
+  const thread = String(form.get("thread") ?? "");
+  const withRoom = thread ? { ...args, p_thread: thread } : room ? { ...args, p_chatroom: room } : args;
   let { data: id, error } = await supabase.rpc("post_message", replyTo ? { ...withRoom, p_reply_to: replyTo } : withRoom);
   // Before the chatroom migration is applied the database does not know p_chatroom; the message still goes out.
-  if (error && room && (error.code === "PGRST202" || error.code === "42883")) ({ data: id, error } = await supabase.rpc("post_message", replyTo ? { ...args, p_reply_to: replyTo } : args));
+  if (error && (room || thread) && (error.code === "PGRST202" || error.code === "42883")) ({ data: id, error } = await supabase.rpc("post_message", replyTo ? { ...args, p_reply_to: replyTo } : args));
   // Before migration 161 is applied the database does not know p_reply_to; the reply still goes out, without its quote link.
   if (error && replyTo && (error.code === "PGRST202" || error.code === "42883")) ({ data: id, error } = await supabase.rpc("post_message", args));
   if (error) throw error;

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { supabaseServer } from "@/auth/supabase";
-import { listLinkedItems, listPendingSuggestions, listPins, listThreadChips, listTimelineMessages } from "@/data/live";
+import { listLinkedItems, listPendingSuggestions, getThread, listPins, listThreadChips, listTimelineMessages } from "@/data/live";
 import { currentProject, listMembers, listProjects } from "@/data/projects";
 import { demoProject } from "@/data/demo";
 import { buildStream, filterFeed, newSince, suggestionsByMessage, type StreamQuery } from "@/domain/stream";
@@ -9,6 +9,9 @@ import { groupReactions } from "@/domain/reactions";
 import type { MentionItem } from "@/domain/mentions";
 import { pagesParam } from "@/domain/paging";
 import { StreamView } from "./StreamView";
+import { ThreadPanel } from "./ThreadPanel";
+import { ThreadReply } from "./ThreadReply";
+import { panelMessages, participantsLine } from "@/domain/threadPanel";
 import { getLocale, getT } from "@/lib/locale";
 import { intlLocale } from "@/lib/messages";
 
@@ -16,11 +19,11 @@ export const dynamic = "force-dynamic";
 // The agent runs after the send has answered, so it still needs time.
 export const maxDuration = 60;
 
-export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; room?: string; after?: string; view?: string; source?: string; q?: string; pages?: string }> }) {
+export default async function StreamPage({ searchParams }: { searchParams: Promise<{ project?: string; room?: string; thread?: string; after?: string; view?: string; source?: string; q?: string; pages?: string }> }) {
   const t = await getT();
   const locale = intlLocale[await getLocale()];
   const supabase = await supabaseServer();
-  const { project: chosen, room: roomParam, after, view, source, q, pages: pagesRaw } = await searchParams;
+  const { project: chosen, room: roomParam, thread: threadParam, after, view, source, q, pages: pagesRaw } = await searchParams;
   const pages = pagesParam(pagesRaw);
   const project = currentProject(await listProjects(supabase), chosen);
   if (!project) return <main id="main" className="page"><p>{t("projects.empty")}</p></main>;
@@ -75,5 +78,19 @@ export default async function StreamPage({ searchParams }: { searchParams: Promi
   const decisions = view === "decisions";
   const time = new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
   const date = new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "long", day: "numeric", month: "long" });
-  return <StreamView {...{ t, pages, room: room?.id, chips, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, reactions, fileUrls, open, pins, pinned, canPin: !!canPin, mentionItems: mentions, decisions, time, date, now: new Date(), me }} />;
+  const fmt = (iso: string) => time.format(new Date(iso));
+  const detail = threadParam ? await getThread(supabase, project.id, threadParam) : null;
+  const shown = detail && detail.rootId ? panelMessages(detail.rows, detail.rootId, fmt) : null;
+  const closeHref = `/app/stream?project=${project.id}${room ? `&room=${room.id}` : ""}`;
+  const view_ = <StreamView {...{ t, pages, room: room?.id, chips, base: "/app/stream", query, days, project, rows, next, fresh, linked, proposed, actions, reactions, fileUrls, open, pins, pinned, canPin: !!canPin, mentionItems: mentions, decisions, time, date, now: new Date(), me }} />;
+  if (!detail || !shown?.root) return view_;
+  const rootRow = detail.rows.find((r) => r.id === detail.rootId);
+  return (
+    <div className="chat-split">
+      {view_}
+      <ThreadPanel title={detail.title} participants={participantsLine(detail.rows.map((r) => r.fromName || r.fromAddress), t("thread.others"))} createdBy={rootRow?.fromName || rootRow?.fromAddress || ""} day={rootRow ? date.format(new Date(rootRow.receivedAt)) : ""} root={shown.root} replies={shown.replies} closeHref={closeHref} labels={{ panel: t("thread.panel"), close: t("thread.close"), createdBy: t("thread.createdBy") }}>
+        <ThreadReply projectId={project.id} threadId={detail.id} labels={{ placeholder: t("thread.reply"), send: t("stream.send") }} />
+      </ThreadPanel>
+    </div>
+  );
 }
