@@ -25,3 +25,13 @@ export async function postHealthUpdate(form: FormData): Promise<void> {
   if (error) throw error;
   revalidatePath("/app");
 }
+
+// A new chatroom in a project; row-level rules let members and managers through.
+export async function createChatroom(form: FormData): Promise<void> {
+  const name = String(form.get("name") ?? "").trim().slice(0, 80);
+  if (!name) return;
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("create_chatroom", { p_project: String(form.get("projectId")), p_name: name, p_emoji: "" });
+  if (error) throw error;
+  revalidatePath("/app", "layout");
+}

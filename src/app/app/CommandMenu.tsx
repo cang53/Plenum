@@ -10,7 +10,7 @@ type Hit = { kind: "task" | "message" | "decision"; id: string; title: string };
 type Row = { key: string; label: string; tag?: string; href: string };
 
 // Cmd or Ctrl plus K: run an action or jump to a task or project message, using the existing project search.
-export function CommandMenu({ project, labels }: { project?: string; labels: Labels }) {
+export function CommandMenu({ project, labels, icon }: { project?: string; labels: Labels; icon?: React.ReactNode }) {
   const router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -61,7 +61,7 @@ export function CommandMenu({ project, labels }: { project?: string; labels: Lab
   return (
     <>
       <button type="button" className="shell-find" data-command-open onClick={() => dialog.current?.showModal()} aria-keyshortcuts="Control+K Meta+K">
-        <span className="shell-find-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4-4" /></svg></span>
+        <span className="shell-find-icon" aria-hidden="true">{icon ?? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4-4" /></svg>}</span>
         <span className="shell-find-text">{labels.open}</span> <kbd className="kbd" aria-hidden="true">⌘K</kbd>
       </button>
       <dialog ref={dialog} className="dialog cmd" aria-label={labels.title} onClose={reset} onToggle={(e) => (e.target as HTMLDialogElement).open && input.current?.focus()}

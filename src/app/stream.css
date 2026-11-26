@@ -171,7 +171,7 @@
 .msg .mail-acts:has(details[open]) { opacity: 1; pointer-events: auto; transform: none; }
 .mail-create > div { inset-inline-end: 0; margin-block-start: 6px; }
 .mail-acts .link-pop form { inset-inline-start: auto; inset-inline-end: 0; margin-block-start: 6px; }
-.shell .chat-head { top: 4.75rem; }
+.shell .chat-head { top: 0; }
 .msg-pending .body { color: var(--text-muted); animation: agent-pulse 1.4s ease-in-out infinite; }
 @keyframes agent-pulse { 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { .msg-pending .body { animation: none; } }
@@ -463,3 +463,64 @@ a.mention:hover { text-decoration: underline; }
 .linkedwork .lw-rows { gap: 0; }
 .linkedwork .lw-rows a { align-items: baseline; padding-block: 8px; border-block-end: 1px solid var(--c-line); }
 .linkedwork .lw-kind { flex: none; font-size: var(--text-xs); color: var(--c-sub); }
+
+/* Messages from the design file: flat rows with a 42px avatar, name, time and 19px text; no bubbles, no sides. */
+.shell-body:has(.msgs.chat) { padding-inline: 0; }
+.shell .msgs.chat { max-width: none; padding: 24px 0; gap: 28px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.shell .chat .feed, .shell .chat .msgs-main { gap: 28px; padding-inline-end: 0; }
+.shell .chat .mail.msg, .shell .chat .mail.msg[data-mine] { flex-direction: row; align-self: stretch; align-items: flex-start; gap: 15px; max-width: none; padding: 0 26px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.shell .chat .mail.msg:hover, .shell .chat .mail.msg:focus-within { background: var(--surface-hover); }
+.shell .chat .avatar, .shell .chat .mail.msg[data-src] .avatar { box-sizing: border-box; flex: none; width: 42px; height: 42px; margin-block-start: 2px; border: 1px solid var(--surface); border-radius: var(--radius-full); background: var(--msg-avatar-bg); color: var(--msg-avatar-ink); filter: drop-shadow(0 1px 3px #00000029); font-size: 16px; font-weight: var(--weight-semibold); line-height: 20px; }
+.shell .chat .mail.msg.msg-agent[data-src] .avatar { background: var(--agent); color: var(--agent-surface); border-radius: var(--radius-full); }
+.shell .chat .avatar svg { width: 22px; height: 22px; }
+.shell .chat .msg-body { flex: 1; gap: 0; }
+.shell .chat .mail.msg[data-mine] .who { display: flex; flex-direction: row; }
+.shell .chat .msg .who { align-items: baseline; gap: 12px; min-height: 29px; font-size: 15px; line-height: 29px; }
+.shell .chat .msg .who b { color: var(--msg-name); font-size: 19px; font-weight: var(--weight-semibold); }
+.shell .chat .msg .who time, .shell .chat .mail.msg[data-mine] .who time { margin: 0; color: var(--msg-time); font-size: 15px; line-height: 29px; }
+.shell .chat .msg .pill[data-src="app"] { display: none; }
+.shell .chat .msg .pill, .shell .chat .msg .pill[data-src] { padding: 0 8px; font-size: 12px; line-height: 20px; }
+.shell .chat .mail.msg .bubble, .shell .chat .mail.msg[data-mine] .bubble, .shell .chat .mail.msg:not([data-mine], .msg-agent) .bubble, .shell .chat .mail.msg.msg-agent .bubble { gap: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--msg-ink); }
+.shell .chat .mail.msg[data-mine] .bubble, .shell .chat .mail.msg[data-mine] .bubble * { color: var(--msg-ink); }
+.shell .chat .mail.msg .bubble .body, .shell .chat .mail.msg .bubble details { font-size: 19px; line-height: 29px; letter-spacing: 0; color: var(--msg-ink); }
+.shell .chat .bubble .mention, .shell .chat .mail.msg[data-mine] .bubble .mention { background: none; color: var(--msg-link); font-weight: var(--weight-normal); }
+.shell .chat .bubble .subject { color: var(--msg-name); font-size: 19px; line-height: 29px; }
+
+/* Composer from the design file: one white box, the words on top, attach, @ and send along the bottom edge. */
+.shell .chat .comp-wrap { padding-inline: 26px; padding-block-end: 24px; margin-block-end: 0; background: none; }
+.shell .chat .comp, .shell .comp { gap: 0; padding: 9px 15px 12px; border: 1px solid var(--comp-border); border-radius: 13px; background: var(--surface); box-shadow: 0 2px 2px var(--comp-shadow); }
+.shell .chat .comp:focus-within, .shell .comp:focus-within { border-color: var(--comp-border-focus); }
+.shell .chat .comp-row { display: grid; grid-template-columns: 1fr auto auto auto; grid-template-rows: auto auto auto; align-items: center; gap: 0; }
+.shell .chat .comp-edit { display: contents; }
+.shell .chat .comp-tools { grid-column: 1 / -1; grid-row: 1; display: none; gap: 14px; padding-block-end: 6px; }
+.shell .chat .comp:focus-within .comp-tools { display: flex; }
+.shell .chat .comp-box { grid-column: 1 / -1; grid-row: 2; min-height: 29px; max-height: 12rem; padding: 0; font-size: 19px; line-height: 29px; color: var(--msg-ink); }
+.shell .chat .comp-box:empty::before { color: var(--comp-placeholder); }
+.shell .chat .comp .clip-btn { grid-column: 2; grid-row: 3; width: 21px; height: 21px; margin: 12px 17px 0 0; color: var(--comp-icon); }
+.shell .chat .comp .clip-btn svg { width: 21px; height: 21px; }
+.shell .chat .comp .at-btn { grid-column: 3; grid-row: 3; position: relative; width: 24px; height: 29px; margin: 8px 15px 0 17px; padding: 0; border: 0; background: none; color: var(--comp-at); font: inherit; font-size: 25px; line-height: 29px; cursor: pointer; }
+.shell .chat .comp .at-btn::before { content: ""; position: absolute; inset-inline-start: -17px; top: 4px; height: 21px; border-inline-start: 1px solid var(--tp-conn); }
+.shell .chat .comp .send { grid-column: 4; grid-row: 3; width: 22px; height: 22px; margin-block-start: 12px; background: var(--comp-send); color: var(--side-on-dark); box-shadow: none; }
+.shell .chat .comp:has(.comp-box:not(:empty)) .send { background: var(--side-cta); }
+.shell .chat .comp .picked { grid-column: 1 / -1; grid-row: 4; margin-block-start: 8px; }
+.shell .chat .comp .replying { grid-column: 1 / -1; }
+.shell .chat .hint-agent, .shell .chat .hint-keys { margin: 6px 2px 0; color: var(--msg-time); font-size: 13px; line-height: 18px; }
+
+/* File card and CobIA's suggestion card from the design file: white cards with a thin border and 11px corners. */
+.shell .chat .attach { display: flex; align-items: center; gap: 11px; box-sizing: border-box; width: min(100%, 359px); min-height: 76px; margin-block-start: 8px; padding: 8px 15px; border: 1px solid var(--comp-border); border-radius: 11px; background: var(--surface); }
+.file-tile { display: grid; place-items: center; flex: none; width: 51px; height: 52px; border-radius: 12px; background: var(--file-tile); color: var(--msg-link); }
+.shell .chat .attach .info { gap: 0; min-width: 0; font-size: 15px; line-height: 29px; }
+.shell .chat .attach .info a, .shell .chat .attach .info .fname { overflow: hidden; color: var(--msg-link); font-size: 17px; font-weight: var(--weight-medium); line-height: 29px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.shell .chat .attach .info small { color: var(--text-muted); font-size: 15px; line-height: 29px; }
+.shell .chat .msg .pic { border: 1px solid var(--comp-border); border-radius: 11px; }
+.shell .chat .agent-card { margin-inline-start: 0; }
+.shell .chat .mail.msg.agent-card .bubble, .shell .chat .mail.msg.msg-agent.agent-card .bubble { box-sizing: border-box; gap: 6px; width: min(100%, 520px); padding: 14px 18px 16px; border: 1px solid var(--comp-border); border-radius: 11px; background: var(--surface); }
+.shell .chat .agent-card .bubble .agent-tag { color: var(--agent); font-size: 15px; line-height: 24px; font-weight: var(--weight-semibold); }
+.shell .chat .agent-card .bubble .agent-title { color: var(--msg-name); font-size: 17px; line-height: 27px; font-weight: var(--weight-medium); }
+.shell .chat .agent-card .bubble .agent-details { color: var(--text-muted); font-size: 15px; line-height: 24px; }
+.shell .chat .agent-card .from { padding: 0 0 0 12px; border-inline-start: 2px solid var(--tp-conn); color: var(--text-muted); font-size: 15px; line-height: 24px; }
+.shell .chat .agent-card .from a { color: var(--msg-link); font-weight: var(--weight-semibold); }
+.shell .chat .agent-card .agent-foot { gap: 10px; margin-block-start: 6px; padding-block-start: 14px; border-block-start: 1px solid var(--side-line); }
+.shell .chat .agent-card .agent-acts .btn { min-height: 36px; padding: 0 16px; border-radius: 8px; font-size: 16px; line-height: 20px; font-weight: var(--weight-semibold); }
+.shell .chat .agent-card .agent-acts .btn-primary { border: 1px solid var(--side-cta-border); background: var(--side-cta); color: var(--side-on-dark); }
+.shell .chat .agent-card .agent-acts .btn-secondary { border: 1px solid var(--comp-border); background: var(--surface); color: var(--msg-ink); }

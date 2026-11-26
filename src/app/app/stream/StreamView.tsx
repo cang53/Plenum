@@ -283,8 +283,8 @@ export function StreamView({ t, base, project, days, query, next, pages = 1, fre
                         }
                         return (
                           <div key={a.id} className="attach">
-                            <span className="clip" aria-hidden="true">📎</span>
-                            <span className="info">{url ? <a href={url} download={a.filename}>{a.filename}</a> : a.filename}<small>{a.contentType} · {sizeLabel(a.sizeBytes)}</small></span>
+                            <span className="file-tile" aria-hidden="true"><svg viewBox="459.5 797.5 26 27" width="26" height="27"><path d="M464.417 800.167H474.167L480.667 806.667V821.833H464.417V800.167Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /><path d="M474.167 800.167V807.75H480.667" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+                            <span className="info">{url ? <a href={url} download={a.filename}>{a.filename}</a> : <span className="fname">{a.filename}</span>}<small>{sizeLabel(a.sizeBytes)}</small></span>
                           </div>
                         );
                       })}
@@ -395,9 +395,9 @@ export function StreamView({ t, base, project, days, query, next, pages = 1, fre
             <ReplyBar replyingTo={t("stream.c.replyingTo")} cancel={t("stream.c.cancel")} />
             <div className="comp-row">
               <Attach label={t("stream.file.add")} remove={t("stream.file.remove")} errors={{ "stream.file.tooMany": t("stream.file.tooMany"), "stream.file.tooBig": t("stream.file.tooBig"), "stream.file.type": t("stream.file.type") }} disabled={readOnly} />
-              <Composer disabled={!!readOnly} mentions={mentionItems} labels={{ mention: { empty: t("stream.mention.empty"), types: { person: t("stream.mention.person"), agent: t("stream.mention.agent"), task: t("stream.mention.task"), risk: t("stream.mention.risk"), issue: t("stream.mention.issue"), decision: t("stream.mention.decision"), file: t("stream.mention.file") } }, placeholder: t("stream.composer"), bold: t("stream.fmt.bold"), italic: t("stream.fmt.italic"), underline: t("stream.fmt.underline"), list: t("stream.fmt.list"), color: t("stream.fmt.color"), colors: [t("stream.fmt.red"), t("stream.fmt.orange"), t("stream.fmt.green"), t("stream.fmt.blue"), t("stream.fmt.purple")], plain: t("stream.fmt.plain") }} />
+              <Composer disabled={!!readOnly} mentions={mentionItems} labels={{ mention: { empty: t("stream.mention.empty"), insert: t("stream.mention.insert"), types: { person: t("stream.mention.person"), agent: t("stream.mention.agent"), task: t("stream.mention.task"), risk: t("stream.mention.risk"), issue: t("stream.mention.issue"), decision: t("stream.mention.decision"), file: t("stream.mention.file") } }, placeholder: t("stream.composer"), bold: t("stream.fmt.bold"), italic: t("stream.fmt.italic"), underline: t("stream.fmt.underline"), list: t("stream.fmt.list"), color: t("stream.fmt.color"), colors: [t("stream.fmt.red"), t("stream.fmt.orange"), t("stream.fmt.green"), t("stream.fmt.blue"), t("stream.fmt.purple")], plain: t("stream.fmt.plain") }} />
               <SendButton label={t("stream.send")} disabled={readOnly}>
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <svg viewBox="1343 1109 22 22" width="22" height="22" aria-hidden="true"><path d="M1354 1125.5V1114.5M1358.58 1119.08L1354 1114.5L1349.42 1119.08" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </SendButton>
             </div>
             {!readOnly && <AgentWait />}

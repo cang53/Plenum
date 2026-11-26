@@ -9,49 +9,50 @@
   --org-1-tint: #dbeafe; --org-1-dot: #0071e3; --org-2-tint: #ffe3cc; --org-2-dot: #c93400;
   --org-3-tint: #d6f2df; --org-3-dot: #248a3d; --org-4-tint: #ebe1fb; --org-4-dot: #8944ab;
   --surface: #ffffff;
-  --surface-subtle: #eef4fd;
-  --surface-muted: #eef4fd;
-  --surface-hover: #f5f8fd;
-  --text: #1d1d1f;
-  --text-secondary: #3a3a3c;
-  --text-muted: #5e5e63;
-  --border: #3c3c431f;
-  --border-strong: #8e8e93;
-  --primary: #0071e3;
-  --primary-hover: #0062c4;
+  --accent-bright: #1285f5; /* icons, fills and marks only; text uses --primary */
+  --surface-subtle: #fafafc;
+  --surface-muted: #f1f1f2;
+  --surface-hover: #f6f6f8;
+  --text: #10111d;
+  --text-secondary: #43434b;
+  --text-muted: #6b6b71;
+  --border: #dadadd;
+  --border-strong: #8c8c92;
+  --primary: #0a6fd6;
+  --primary-hover: #085cb4;
   --on-primary: #ffffff;
-  --focus-ring: #0071e3;
-  --accent-soft: #e5f1ff;
-  --accent-text: #004f9e;
-  --mine: #0071e3;
+  --focus-ring: #1285f5;
+  --accent-soft: #e8f2fe;
+  --accent-text: #075fb8;
+  --mine: #0a6fd6;
   --on-mine: #ffffff;
-  --agent: #004f9e;
-  --agent-surface: #e5f1ff;
+  --agent: #075fb8;
+  --agent-surface: #e8f2fe;
   --danger: #a3001a;
   --danger-surface: #ffe8e9;
   --success: #0f5c27;
   --success-surface: #e3f5e7;
   --warning: #8a3000;
   --warning-surface: #fff0e1;
-  --info: #004f9e;
-  --info-surface: #e5f1ff;
+  --info: #075fb8;
+  --info-surface: #e8f2fe;
   --status-todo: var(--text-muted);
   --status-progress: var(--info);
   --status-blocked: var(--warning);
   --status-done: var(--success);
 
   /* Glass: clear white over the ambient ground, with a specular top edge */
-  --glass: #ffffffb8;
-  --glass-strong: #ffffffe0;
-  --glass-border: #3c3c431f;
+  --glass: #ffffff;
+  --glass-strong: #ffffff;
+  --glass-border: #dadadd;
   --glass-highlight: #ffffffcc;
   --glass-blur: blur(18px) saturate(140%);
   --glass-blur-light: blur(18px) saturate(140%);
-  --control: #3c3c430f;
-  --control-active: #3c3c431f;
+  --control: #f1f1f2;
+  --control-active: #e4e4e7;
   --scrim: #1d1d1f4d;
-  --ambient-top: #e6f0ff;
-  --ambient-bottom: #fdeee6;
+  --ambient-top: #ffffff;
+  --ambient-bottom: #ffffff;
   --ambient-background: radial-gradient(900px 600px at 0% 0%, var(--ambient-top) 0%, transparent 70%), radial-gradient(900px 600px at 100% 100%, var(--ambient-bottom) 0%, transparent 70%), var(--ground);
   --frame: var(--ambient-background);
 
@@ -64,7 +65,7 @@
   --elevation-btn: 0 1px 2px #00000014;
   --elevation-lift: 0 1px 2px #1c1d1a1f, 0 2px 8px #1c1d1a0f;
   --elevation-nav: 0 1px 2px #1c1d1a14, 0 4px 14px #1c1d1a0f;
-  --brand-mark: #0071e3;
+  --brand-mark: #10111d;
   --brand-on-mark: #ffffff;
 
   /* Rail: one colour per section; --c is set per tile */
@@ -72,17 +73,33 @@
   --section-overview: #0066cc; --section-stream: #248a3d; --section-plan: #c93400; --section-board: #5856d6;
   --section-items: #0071a4; --section-risks: #d70015; --section-library: #8a6200; --section-reports: #8944ab; --section-team: #d30f45;
 
+  /* File card, from the design file */
+  --file-tile: #deefff;
+  /* Composer, from the design file */
+  --comp-border: #dedee1; --comp-border-focus: #1285f5; --comp-shadow: #00000012; --comp-placeholder: #94949a; --comp-icon: #50515c; --comp-at: #454550; --comp-send: #c9c9cd;
+  /* Thread chip and panel, from the design file */
+  --avatar-filter: drop-shadow(0 1px 3px #0000001f);
+  --tp-line: #d7d7da; --tp-label: #62626c; --tp-title: #10111b; --tp-by: #606069; --tp-date-bg: #eeeeef; --tp-date-ink: #11121a; --tp-conn: #d3d3d7; --tp-chip-border: #d9d9dd;
+  /* Message, from the design file */
+  --msg-ink: #151521; --msg-name: #101117; --msg-time: #77777e; --msg-link: #007cf4; --msg-avatar-bg: #e4e4e8; --msg-avatar-ink: #43434b;
+  /* Header, from the design file */
+  --side-ink-2: #43434b; --head-slash: #8c8c92; --head-arrow: #c2c2c5; --head-arrow-on: #41434a; --head-field-border: #ceced1; --head-search-ink: #353641; --head-placeholder: #919197;
+  /* Sidebar, from the design file */
+  --side-bg: #f7f7f8; --side-line: #dadadd; --side-ink: #10111d; --side-icon: #555760; --side-muted: #77777e; --side-chev: #99999e;
+  --side-badge-bg: #eeeef0; --side-badge-border: #d9d9dc; --side-selected: #ededf0; --side-selected-ink: #087ef5; --side-thread-line: #d3d3d5;
+  --side-plus-bg: #a7a9ad; --side-cta: #1786fb; --side-cta-border: #0074ed; --side-emblem: #101021; --side-on-dark: #ffffff; --side-detail: #ffffff;
+
   /* Radius */
-  --radius-sm: 0.5rem;
-  --radius: 0.75rem;
-  --radius-md: 0.75rem;
-  --radius-card: 1.25rem;
-  --radius-lg: 1.375rem;
-  --radius-xl: 1.75rem;
+  --radius-sm: 0.375rem;
+  --radius: 0.5rem;
+  --radius-md: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1rem;
   --radius-full: 999rem;
 
   /* Type: the system UI font, SF on Apple devices */
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Inter, system-ui, sans-serif;
+  --font: "Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -94,6 +111,7 @@
   --weight-normal: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
+  --weight-bold: 700;
   --line-tight: 1.25;
   --line-normal: 1.35;
   --tracking-tight: -0.02em;
@@ -112,7 +130,7 @@
   --target: 2.75rem;
   --control-h: 2rem;
   --top: 3.5rem;
-  --sidebar-w: 13rem;
+  --sidebar-w: 335px;
   --focus-width: 2px;
   --focus-offset: 3px;
   --disabled: 0.45;
@@ -124,18 +142,18 @@
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Names from the canvas stylesheet (plenum.css) and the pre-glass stylesheet */
-  --ground: #fbfbfd;
+  --ground: #ffffff;
   --tile: #ffffff;
   --white: #ffffff;
   --panel: #ffffff;
-  --cell: #eef4fd;
+  --cell: #f1f1f2;
   --ink: var(--text);
   --ink2: var(--text-secondary);
   --muted: var(--text-muted);
-  --line: #3c3c431f;
-  --black: #0071e3;
-  --track: #c9d1dc;
-  --fill: #0071e3;
+  --line: #dadadd;
+  --black: #0a6fd6;
+  --track: #d3d3d7;
+  --fill: #0a6fd6;
   --blue: var(--info);
   --blue-bg: var(--info-surface);
   --green: var(--success);
@@ -144,7 +162,7 @@
   --red-bg: var(--danger-surface);
   --amber: var(--warning);
   --amber-bg: var(--warning-surface);
-  --neutral-bg: #eef4fd;
+  --neutral-bg: #f1f1f2;
   --r-panel: var(--radius-card);
   --r-cell: var(--radius);
   --accent: var(--primary);
@@ -156,6 +174,14 @@
   --section-overview: #5ea8ff; --section-stream: #5fd07f; --section-plan: #ff9a5c; --section-board: #9d9bff;
   --section-items: #5ac8fa; --section-risks: #ff6b78; --section-library: #e0b44a; --section-reports: #c79bea; --section-team: #ff6b93;
   --org-1-tint: #1e3a66; --org-2-tint: #5a3318; --org-3-tint: #1d4a2c; --org-4-tint: #3f2a5c;
+  --file-tile: #1e3a66;
+  --comp-border: #30342e; --comp-border-focus: #75b1ff; --comp-shadow: #00000040; --comp-placeholder: #9ea397; --comp-icon: #c3c7bd; --comp-at: #c3c7bd; --comp-send: #5b6058;
+  --tp-line: #30342e; --tp-label: #9ea397; --tp-title: #f2f3ef; --tp-by: #9ea397; --tp-date-bg: #262925; --tp-date-ink: #f2f3ef; --tp-conn: #3a3e38; --tp-chip-border: #30342e;
+  --msg-ink: #e6e8e1; --msg-name: #f2f3ef; --msg-time: #9ea397; --msg-link: #75b1ff; --msg-avatar-bg: #30342e; --msg-avatar-ink: #c3c7bd;
+  --side-ink-2: #c3c7bd; --head-slash: #7d8377; --head-arrow: #5b6058; --head-arrow-on: #c3c7bd; --head-field-border: #30342e; --head-search-ink: #c3c7bd; --head-placeholder: #9ea397;
+  --side-bg: #121412; --side-line: #30342e; --side-ink: #f2f3ef; --side-icon: #c3c7bd; --side-muted: #9ea397; --side-chev: #9ea397;
+  --side-badge-bg: #262925; --side-badge-border: #30342e; --side-selected: #2a2d29; --side-selected-ink: #75b1ff; --side-thread-line: #3a3e38;
+  --side-plus-bg: #5b6058; --side-cta: #1786fb; --side-cta-border: #0074ed; --side-emblem: #f2f3ef; --side-detail: #121412;
   --surface: #1c1e1b;
   --surface-subtle: #121412;
   --surface-muted: #262925;

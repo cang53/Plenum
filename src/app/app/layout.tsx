@@ -4,10 +4,10 @@ import { listProjects, unreadCount } from "@/data/projects";
 import { getT } from "@/lib/locale";
 import { navItems } from "@/lib/nav";
 import type { MessageKey } from "@/lib/messages";
-import { Shell } from "./shell";
+import { Shell, type Room } from "./shell";
 import { Shortcuts } from "./Shortcuts";
 
-// Every signed-in page sits in the same shell: top bar and icon rail (a scrolling row on phones).
+// Every signed-in page sits in the same shell: sidebar with the project's chatrooms, breadcrumb and page tabs.
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const t = await getT();
   const supabase = await supabaseServer();
@@ -31,8 +31,24 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     const { count } = await supabase.from("messages").select("id", { count: "exact", head: true }).eq("project_id", p.id).gt("received_at", since);
     return [p.id, count ?? 0];
   })));
+  // Chatrooms with their latest threads, per project. Quietly none until the chatroom migration is applied.
+  const ids = projects.map((p) => p.id);
+  const { data: roomRows, error: roomError } = ids.length
+    ? await supabase.from("chatrooms").select("id, project_id, name, emoji, is_general").in("project_id", ids).order("is_general", { ascending: false }).order("created_at")
+    : { data: [], error: null };
+  const { data: threadRows } = !roomError && ids.length
+    ? await supabase.from("threads").select("id, chatroom_id, title").in("project_id", ids).order("created_at", { ascending: false }).limit(200)
+    : { data: [] };
+  const rooms: Record<string, Room[]> = {};
+  if (!roomError) {
+    for (const id of ids) rooms[id] = [];
+    for (const r of roomRows ?? []) rooms[r.project_id]?.push({ id: r.id, name: r.name, emoji: r.emoji, general: r.is_general, threads: (threadRows ?? []).filter((x) => x.chatroom_id === r.id).slice(0, 5).map((x) => ({ id: x.id, title: x.title })) });
+  }
+  const { data: wsRow } = ws ? await supabase.from("workspaces").select("name").eq("id", ws.workspace_id).single() : { data: null };
   return (
     <Shell
+      rooms={roomError ? undefined : rooms}
+      workspace={wsRow?.name}
       streamNew={streamNew}
       projects={projects.map((p) => ({ id: p.id, name: p.name }))}
       itemsByProject={itemsByProject}
@@ -48,6 +64,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         streamNew: t("shell.streamNew"),
         railExpand: t("shell.railExpand"),
         railCollapse: t("shell.railCollapse"),
+        home: t("shell.home"),
+        chatrooms: t("shell.chatrooms"),
+        search: t("shell.search"),
+        myChatroom: t("shell.myChatroom"),
+        addChatroom: t("shell.addChatroom"),
+        chatroomName: t("shell.chatroomName"),
+        back: t("shell.back"),
+        forward: t("shell.forward"),
+        searchIn: t("shell.searchIn"),
+        crumbs: t("shell.crumbs"),
+        sections: t("shell.sections"),
         account: t("shell.account"),
         signOut: t("app.signOut"),
         bell: t("shell.inbox"),

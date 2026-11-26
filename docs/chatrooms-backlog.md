@@ -7,7 +7,7 @@ Direction approved by Celal on 24 Nov 2026 (analysis: `chatroom-rework/analysis.
 | CR-1 | Database | `chatrooms`, `threads`, `messages.chatroom_id` and `thread_id`, General for every project, backfill (email grouped by subject into threads), `create_chatroom`, `start_thread`, `move_thread`, `post_message` with thread and chatroom, RLS tests. No UI. **Done in this PR** |
 | CR-2 | Remove Teams. **Done in this PR** | Teams code, settings field, job, badge and docs removed; inbound email joins a thread by subject / In-Reply-To in General |
 | CR-2b | Email into threads | Inbound email joins a thread by subject in General (re:/fwd: ignored); a new subject starts a thread. In-Reply-To is not stored, so subject is the key. **Done in this PR** |
-| CR-3 | Shell | Tree sidebar (project, chatrooms, threads), breadcrumb, project header tabs, new colour tokens |
+| CR-3 | Shell | Tree sidebar (project, chatrooms, threads), breadcrumb, project header tabs, new colour tokens. **Done in this PR** |
 | CR-4 | Chatroom feed | Header with pin and search, messages, thread chip, system lines, composer |
 | CR-5 | Thread panel | Side panel with its own composer, deep links, thread entries in the sidebar |
 | CR-6 | AI in threads | @cobia and triage scoped to the thread; suggestion and proposal cards in the panel; "Based on" deep links |

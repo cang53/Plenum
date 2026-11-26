@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { filterMentions, type MentionItem, type MentionType } from "@/domain/mentions";
 
 const COLORS = ["#df343b", "#ec7022", "#23a56b", "#3454db", "#9541e8"];
-export type ComposerLabels = { placeholder: string; bold: string; italic: string; underline: string; list: string; color: string; colors: string[]; plain: string; mention?: { empty: string; types: Record<MentionType, string> } };
+export type ComposerLabels = { placeholder: string; bold: string; italic: string; underline: string; list: string; color: string; colors: string[]; plain: string; mention?: { empty: string; insert: string; types: Record<MentionType, string> } };
 
 // The message box: typing with a small toolbar for bold, italic, underline, a list and a font colour.
 // The form gets two hidden fields: body (the plain words) and html (the markup, cleaned again on the server).
@@ -96,6 +96,8 @@ export function Composer({ labels, disabled, mentions = [] }: { labels: Composer
       run(e.shiftKey ? "outdent" : "indent");
     }
   };
+  // The "@" button types an @ at the caret, which opens the same list as typing it.
+  const insertAt = () => { box.current?.focus(); document.execCommand("insertText", false, "@"); sync(); look(); };
   const tools: [string, React.ReactNode, string][] = [["bold", "B", labels.bold], ["italic", "I", labels.italic], ["underline", "U", labels.underline], ["insertUnorderedList", <svg key="l" viewBox="0 0 24 24" width="18" height="15" aria-hidden="true"><path d="M3 6h.01M3 12h.01M3 18h.01M9 6h12M9 12h12M9 18h12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>, labels.list]];
 
   return (
@@ -140,6 +142,7 @@ export function Composer({ labels, disabled, mentions = [] }: { labels: Composer
           ))}
         </ul>
       )}
+      {mentions.length > 0 && <button type="button" className="at-btn" disabled={disabled} title={labels.mention?.insert} aria-label={labels.mention?.insert} onMouseDown={(e) => e.preventDefault()} onClick={insertAt}>@</button>}
       <ResetOnSend box={box} sync={sync} />
     </div>
   );
