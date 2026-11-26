@@ -97,7 +97,7 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
           <a className="side-row" href={href("/app/library")} aria-current={current("/app/library") ? "page" : undefined}><SideIcon name="play" />{items.find((i) => i.path === "/app/library")?.label ?? "Library"}</a>
         </nav>
         <div className="side-mine">
-          <span>{labels.myChatroom ?? "My Chatroom"}</span>
+          <a className="side-mine-link" href={href("/app/mine")} aria-current={pathname.startsWith("/app/mine") ? "page" : undefined}>{labels.myChatroom ?? "My Chatroom"}</a>
           {project && <button type="button" className="side-plus" aria-label={labels.addChatroom} aria-expanded={adding} onClick={() => setAdding(!adding)}><SideIcon name="plusdot" size={16} /></button>}
         </div>
         <nav className="shell-tree" aria-label={labels.chatrooms ?? "Chatrooms"}>

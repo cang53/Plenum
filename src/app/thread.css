@@ -51,3 +51,13 @@
 .tp-reply .send svg { width: 22px; height: 22px; }
 @media (max-width: 47.5rem) { .chat-split { grid-template-columns: minmax(0, 1fr); } }
 .thread-panel .tp-cards { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 0; padding: 0; border: 0; background: none; box-shadow: none; }
+
+/* My Chatroom: the threads I am in. */
+.mine { max-width: 760px; }
+.mine h1 { margin: 0 0 4px; color: var(--side-ink); font-size: 37px; line-height: 45px; font-weight: var(--weight-bold); }
+.mine-list { display: flex; flex-direction: column; margin: 24px 0; padding: 0; list-style: none; border: 1px solid var(--tp-chip-border); border-radius: 11px; background: var(--surface); }
+.mine-list li + li { border-block-start: 1px solid var(--tp-chip-border); }
+.mine-list a { display: flex; flex-direction: column; gap: 2px; padding: 14px 18px; color: var(--msg-ink); text-decoration: none; }
+.mine-list a:hover { background: var(--surface-hover); }
+.mine-title { color: var(--msg-name); font-size: 18px; line-height: 27px; font-weight: var(--weight-semibold); }
+.mine-meta { color: var(--msg-time); font-size: 15px; line-height: 24px; }
