@@ -24,7 +24,7 @@ type Props = {
   roleByProject: Record<string, string>;
   unread: number;
   streamNew: Record<string, number>;
-  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew" | "railExpand" | "railCollapse", string> & Partial<Record<"home" | "chatrooms" | "crumbs" | "sections" | "search" | "myChatroom" | "addChatroom" | "chatroomName" | "back" | "forward" | "searchIn", string>> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
+  labels: Record<"brand" | "main" | "projects" | "account" | "signOut" | "bell" | "theme" | "newTask" | "streamNew" | "railExpand" | "railCollapse", string> & Partial<Record<"home" | "chatrooms" | "crumbs" | "sections" | "search" | "myChatroom" | "addChatroom" | "chatroomName" | "back" | "forward" | "searchIn" | "pinned", string>> & { privacy: Record<"body" | "link", string>; menu: React.ComponentProps<typeof CommandMenu>["labels"] };
   // A template with {n}: functions cannot be passed from the server layout to this client component.
   unreadLabel: string;
   children: ReactNode;
@@ -171,6 +171,7 @@ export function Shell({ projects, rooms = {}, workspace, itemsByProject, fallbac
           {onStream && room && (
             <div className="head-title">
               <h1>{roomTitle}</h1>
+              {project && <a className="head-pin" href={`/app/stream?project=${project.id}&room=${room.id}&view=decisions`} aria-label={labels.pinned ?? "Pinned"} title={labels.pinned ?? "Pinned"}><SideIcon name="pin" size={22} /></a>}
               {project && (
                 <form className="head-search" action="/app/search" method="get" role="search">
                   <input type="hidden" name="project" value={project.id} />

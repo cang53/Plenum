@@ -8,7 +8,7 @@ import { EarlierLoader } from "./EarlierLoader";
 import { StreamKeys } from "./StreamKeys";
 import { SearchBar } from "./SearchBar";
 import { SuggestionCarousel } from "./SuggestionCarousel";
-import { linkMessageToTask, postMessage, toggleReaction, togglePin } from "./actions";
+import { linkMessageToTask, postMessage, startThread, toggleReaction, togglePin } from "./actions";
 import type { Pin, ThreadChipData } from "@/data/live";
 import { ThreadChip } from "./ThreadChip";
 import type { LinkedItem } from "@/domain/linking";
@@ -219,7 +219,19 @@ export function StreamView({ t, base, project, room, chips, days, query, next, p
                             </form>
                           ))}</div>
                         </details>
-<details className="mail-create">
+{!readOnly && !chips?.get(m.id) && (
+                          <details className="link-pop">
+                            <summary className="act" data-ico="thread" data-tip={t("stream.thread.start")} aria-label={t("stream.thread.start")} />
+                            <form action={startThread}>
+                              <input type="hidden" name="projectId" value={project.id} />
+                              <input type="hidden" name="messageId" value={m.id} />
+                              {room && <input type="hidden" name="room" value={room} />}
+                              <input name="title" defaultValue={(m.subject || m.bodyText).replace(/\s+/g, " ").trim().slice(0, 80)} maxLength={120} aria-label={t("stream.thread.title")} required />
+                              <button type="submit" className="btn btn-secondary">{t("stream.thread.create")}</button>
+                            </form>
+                          </details>
+                        )}
+                        <details className="mail-create">
                           <summary className="act" data-ico="create" data-tip={t("stream.createItem")} aria-label={t("stream.createItem")} />
                           <div>{(["task", "decision", "risk"] as const).map((k) => <a key={k} href={`/app/items?project=${project.id}&create=${k}&from=${m.id}`}>{t(`kind.${k}`)}</a>)}</div>
                         </details>

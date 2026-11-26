@@ -106,6 +106,10 @@ body:has(.shell) { background: var(--ground); }
 .shell-tabs a[aria-current] { color: var(--side-selected-ink); font-weight: var(--weight-semibold); }
 .head-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 27px 20px 26px; }
 .head-title h1 { margin: 0; color: var(--side-ink); font-size: 37px; line-height: 45px; font-weight: var(--weight-bold); letter-spacing: 0; }
+.head-title h1 { margin-inline-end: auto; }
+.head-pin { display: grid; place-items: center; width: 41px; height: 41px; border-radius: var(--radius-full); color: var(--head-search-ink); }
+.head-pin:hover { background: var(--surface-hover); }
+.head-pin:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: 1px; }
 .head-search { display: flex; align-items: center; gap: 10px; box-sizing: border-box; width: 309px; max-width: 100%; height: 41px; margin: 0; padding: 0 14px; border: 1px solid var(--head-field-border); border-radius: 8px; background: var(--surface); color: var(--head-search-ink); }
 .head-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: var(--side-ink); font: inherit; font-size: 18px; line-height: 22px; }
 .head-search input::placeholder { color: var(--head-placeholder); opacity: 1; }

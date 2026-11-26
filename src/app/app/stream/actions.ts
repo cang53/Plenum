@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { supabaseServer } from "@/auth/supabase";
@@ -29,6 +30,18 @@ export async function linkMessageToTask(form: FormData): Promise<void> {
 }
 
 // Row-level rules let only a project manager pin; the database records who and when.
+// A person's click on "Start a thread" under a message: the database makes the thread, and the panel opens on it.
+export async function startThread(form: FormData): Promise<void> {
+  const supabase = await supabaseServer();
+  const title = String(form.get("title") ?? "").trim();
+  if (!title) return;
+  const { data: id, error } = await supabase.rpc("start_thread", { p_message: String(form.get("messageId")), p_title: title });
+  if (error) throw error;
+  const room = String(form.get("room") ?? "");
+  revalidatePath("/app/stream");
+  redirect(`/app/stream?project=${encodeURIComponent(String(form.get("projectId")))}${room ? `&room=${encodeURIComponent(room)}` : ""}&thread=${encodeURIComponent(String(id))}`);
+}
+
 export async function togglePin(form: FormData): Promise<void> {
   const supabase = await supabaseServer();
   const messageId = String(form.get("messageId"));

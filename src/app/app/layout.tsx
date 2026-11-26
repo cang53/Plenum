@@ -73,6 +73,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         back: t("shell.back"),
         forward: t("shell.forward"),
         searchIn: t("shell.searchIn"),
+        pinned: t("stream.pinned"),
         crumbs: t("shell.crumbs"),
         sections: t("shell.sections"),
         account: t("shell.account"),

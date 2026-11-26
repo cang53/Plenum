@@ -168,6 +168,7 @@
 .act[data-ico="create"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><path d='M12 5v14M5 12h14'/></svg>"); }
 .act[data-ico="link"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/><path d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/></svg>"); }
 .act[data-ico="pin"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 17v5M9 3h6l-1 7 3 3v2H7v-2l3-3z'/></svg>"); }
+.act[data-ico="thread"] { --ico: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4 7 20M17 4l-2 16M4 9h16M3 15h16'/></svg>"); }
 .msg .mail-acts:has(details[open]) { opacity: 1; pointer-events: auto; transform: none; }
 .mail-create > div { inset-inline-end: 0; margin-block-start: 6px; }
 .mail-acts .link-pop form { inset-inline-start: auto; inset-inline-end: 0; margin-block-start: 6px; }

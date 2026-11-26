@@ -79,4 +79,8 @@ describe("Shell header from the design", () => {
     expect(html).toContain('aria-label="Back"');
     expect(html).toMatch(/<li aria-current="page">General<\/li>/);
   });
+  it("links the pin icon to the room's pinned decisions", () => {
+    const html = renderToStaticMarkup(<Shell projects={[{ id: "p1", name: "Pump" }]} rooms={rooms} workspace="Acme" itemsByProject={{}} fallbackItems={items} email="a@b.c" roleByProject={{}} unread={0} unreadLabel="{n}" streamNew={{}} labels={{ ...labels, pinned: "Pinned decisions" }}>x</Shell>);
+    expect(html).toMatch(/class="head-pin" href="\/app\/stream\?project=p1&amp;room=[^&]+&amp;view=decisions" aria-label="Pinned decisions"/);
+  });
 });
