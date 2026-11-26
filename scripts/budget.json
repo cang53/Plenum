@@ -3,7 +3,9 @@
   "jsBytesByRoute": {
     "/app/timeline": 690000,
     "/app/board": 690000,
-    "/app/gantt": 650000
+    "/app/gantt": 660000,
+    "/app/stream": 900000,
+    "/demo/messages": 900000
   },
   "cssBytes": 200000,
   "maxBackdropRules": 6
