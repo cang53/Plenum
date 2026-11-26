@@ -1,6 +1,6 @@
 # Plenum
 
-One project timeline for industrial teams: Teams messages and emails turn into tasks, decisions and reports, with people approving every AI suggestion.
+One project timeline for industrial teams: Project emails and messages turn into tasks, decisions and reports, with people approving every AI suggestion.
 
 ## Run locally
 See [docs/local-run.md](docs/local-run.md) for the full local setup (Supabase CLI, seed, demo script).

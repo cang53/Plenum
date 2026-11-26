@@ -1,11 +1,11 @@
-// One message shape for every channel, so the unified stream can show email and Teams alike.
+// One message shape for every channel, so the unified stream can show email and, later, other sources alike.
 // Adapters only ever return messages addressed to a project; everything else is dropped.
 import { projectSlugsFor } from "./inbound";
 
-export type Source = "email" | "teams";
+export type Source = "email";
 
 // Reserved for later sources: messenger, site. The badge letter is what the stream shows next to a message.
-export const SOURCE_BADGE: Record<Source, string> = { email: "E", teams: "T" };
+export const SOURCE_BADGE: Record<Source, string> = { email: "E" };
 
 export type StreamMessage = {
   source: Source;
@@ -55,40 +55,4 @@ export function emailAdapter(
         sentAt: raw.sentAt,
       })),
   };
-}
-
-export type RawTeamsMessage = {
-  channelId: string;
-  id: string;
-  from: { displayName: string | null };
-  text: string;
-  createdDateTime: string;
-};
-
-// Mock only: a Teams channel counts as a project when it is listed in channelToSlug.
-export function mockTeamsAdapter(channelToSlug: Record<string, string>) {
-  const sent: { projectSlug: string; text: string; inReplyTo?: string }[] = [];
-  const adapter: ChannelAdapter<RawTeamsMessage> = {
-    source: "teams",
-    canReply: true,
-    reply: async (projectSlug, text, inReplyTo) => {
-      sent.push({ projectSlug, text, inReplyTo });
-    },
-    receive: (raw) => {
-      const projectSlug = channelToSlug[raw.channelId];
-      if (!projectSlug) return [];
-      return [
-        {
-          source: "teams",
-          projectSlug,
-          externalId: raw.id,
-          author: { name: raw.from.displayName, address: null },
-          subject: null,
-          text: raw.text,
-          sentAt: raw.createdDateTime,
-        },
-      ];
-    },
-  };
-  return { adapter, sent };
 }

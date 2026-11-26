@@ -8,7 +8,7 @@ import { exportTables } from "@/domain/export";
 import { navItems } from "@/lib/nav";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { projectAddress } from "@/domain/onboarding";
-import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject, saveRewardSwitches, saveTeamsChannel } from "./actions";
+import { createFromTemplate, deleteProject, removePerson, saveProfile, saveProject, saveRewardSwitches } from "./actions";
 
 type Search = { project?: string; saved?: string; removed?: string; error?: string };
 
@@ -25,7 +25,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const { data: role } = await supabase.rpc("project_role_of", { p: project.id });
   const { data: ws } = await supabase.from("projects").select("workspace_id").eq("id", project.id).single();
   const { data: isAdmin } = await supabase.rpc("is_workspace_admin", { ws: ws?.workspace_id });
-  const { data: teams } = await supabase.from("projects").select("teams_channel_id").eq("id", project.id).single();
   const canManage = role === "project_manager";
   const { data: people } = isAdmin
     ? await supabase.from("workspace_members").select("user_id, profiles(display_name, email)")
@@ -55,7 +54,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <nav aria-label={t("settings.nav")} className="fpills">
         <a className="fpill" href="#settings-you">{t("settings.you")}</a>
         <a className="fpill" href="#settings-project">{t("settings.project")}</a>
-        <a className="fpill" href="#settings-teams">{t("settings.teams")}</a>
       </nav>
       <form id="settings-you" action={saveProfile} className="panel form-card">
         <h2>{t("settings.you")}</h2>
@@ -83,16 +81,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <small className="meta">{t("settings.slugHelp")}</small>
           </p>
           <p><span className="field-label">{t("settings.address")}</span> <code>{projectAddress(project.email_slug, process.env.INBOUND_EMAIL_DOMAIN)}</code><br /><small className="meta">{t("overview.addressPolicy")}</small></p>
-          <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
-        </fieldset>
-      </form>
-      <form id="settings-teams" action={saveTeamsChannel} className="panel form-card">
-        <h2>{t("settings.teams")}</h2>
-        <input type="hidden" name="projectId" value={project.id} />
-        <fieldset disabled={!canManage}>
-          <p><label><span className="field-label">{t("settings.teams")}</span><input className="field" name="link" type="url" /></label>
-            <small className="meta">{t("settings.teamsHelp")}</small></p>
-          <p role="status">{t(teams?.teams_channel_id ? "settings.teamsLinked" : "settings.teamsNone")}</p>
           <button type="submit" className="btn btn-primary">{t("settings.save")}</button>
         </fieldset>
       </form>

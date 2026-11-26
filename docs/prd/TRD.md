@@ -120,7 +120,6 @@ Only 10 runtime dependencies; no UI framework, state library or ORM.
 | Outbound email | `EmailSender` (`fake` writes `outbox`; `ses`) | `SES_FROM_ADDRESS`, EU region, SES out of sandbox; failed sends retried by `retry-send` job | Built; needs AWS |
 | Bedrock | `triage.ts` and friends | EU region check | Built; needs AWS |
 | Entra ID | Auth.js provider | Secrets in host settings only | Built; needs tenant |
-| Teams posts | `teamsPoster()`; `TEAMS_PROVIDER=fake` | `live` throws until built; needs admin consent and Graph | Fake only |
 | Teams channel reading | Microsoft Graph | Only channels the app is added to | **Not built** |
 | P6 XER/XML, MS Project XML | `planImport.ts`, `resourceImport.ts` | Parsed server-side, size-limited | Built |
 | CSV export | Timesheets, audit, project export (`/app/export`, `/app/audit/csv`) | Role-checked, RLS-backed | Built |

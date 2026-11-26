@@ -52,15 +52,6 @@ describe("runJobs", () => {
   });
 });
 
-describe("teams-read job", () => {
-  it("runs only when the store has a Teams reader", async () => {
-    const send = vi.fn();
-    expect(Object.keys(await runJobs(store(["teams-read"]), { send }))).not.toContain("teams-read");
-    const out = await runJobs(store(["teams-read"], { readTeams: async () => 4 }), { send });
-    expect(out["teams-read"]).toEqual({ ran: true, detail: "4 read" });
-  });
-});
-
 describe("runJobs risk analysis", () => {
   it("runs the weekly risk analysis when the store has one, and not otherwise", async () => {
     const analyzeRisks = vi.fn(async () => 4);
