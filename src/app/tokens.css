@@ -73,6 +73,8 @@
   --section-overview: #0066cc; --section-stream: #248a3d; --section-plan: #c93400; --section-board: #5856d6;
   --section-items: #0071a4; --section-risks: #d70015; --section-library: #8a6200; --section-reports: #8944ab; --section-team: #d30f45;
 
+  /* Message, from the design file */
+  --msg-ink: #151521; --msg-name: #101117; --msg-time: #77777e; --msg-link: #007cf4; --msg-avatar-bg: #e4e4e8; --msg-avatar-ink: #43434b;
   /* Header, from the design file */
   --side-ink-2: #43434b; --head-slash: #8c8c92; --head-arrow: #c2c2c5; --head-arrow-on: #41434a; --head-field-border: #ceced1; --head-search-ink: #353641; --head-placeholder: #919197;
   /* Sidebar, from the design file */
@@ -165,6 +167,7 @@
   --section-overview: #5ea8ff; --section-stream: #5fd07f; --section-plan: #ff9a5c; --section-board: #9d9bff;
   --section-items: #5ac8fa; --section-risks: #ff6b78; --section-library: #e0b44a; --section-reports: #c79bea; --section-team: #ff6b93;
   --org-1-tint: #1e3a66; --org-2-tint: #5a3318; --org-3-tint: #1d4a2c; --org-4-tint: #3f2a5c;
+  --msg-ink: #e6e8e1; --msg-name: #f2f3ef; --msg-time: #9ea397; --msg-link: #75b1ff; --msg-avatar-bg: #30342e; --msg-avatar-ink: #c3c7bd;
   --side-ink-2: #c3c7bd; --head-slash: #7d8377; --head-arrow: #5b6058; --head-arrow-on: #c3c7bd; --head-field-border: #30342e; --head-search-ink: #c3c7bd; --head-placeholder: #9ea397;
   --side-bg: #121412; --side-line: #30342e; --side-ink: #f2f3ef; --side-icon: #c3c7bd; --side-muted: #9ea397; --side-chev: #9ea397;
   --side-badge-bg: #262925; --side-badge-border: #30342e; --side-selected: #2a2d29; --side-selected-ink: #75b1ff; --side-thread-line: #3a3e38;
